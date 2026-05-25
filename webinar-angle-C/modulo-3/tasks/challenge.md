@@ -1,4 +1,4 @@
-# Your task (módulo 2 — + memory/state)
+# Your task (módulo 3 — + planning + verification)
 
 > El reto canónico está en [`../_shared/CHALLENGE.md`](../_shared/CHALLENGE.md) en angle-C, pero como tu aislamiento te prohíbe leer fuera de tu módulo, lo tienes copiado abajo. Esta es la única fuente del reto que debes usar.
 
@@ -6,14 +6,14 @@
 
 ## Wrapper — componentes del harness disponibles en este módulo
 
-- **Tools (1):** sí, en `tools/`.
+- **Tools (1):** sí.
 - **Context-seed (3):** sí, en `CLAUDE.md`.
-- **Memory/State (2):** **sí** — `AGENTS.md` contiene convenciones, sign rules, units, operating contract y "known traps" (cada línea = un fallo pasado del módulo 1 engineered-out). **Leélo antes de hacer nada.**
-- **Planning (4):** **no** — sin templates RPI.
-- **Verification (5):** **no** — sin `evals/`.
+- **Memory/State (2):** sí, en `AGENTS.md`.
+- **Planning (4):** **sí** — `rpi/RPI_INSTRUCTIONS.md` + `rpi/templates/{research,plan}.md`. **Sigue la disciplina:** escribe `research.md` end-to-end *antes* de mirar código, después `plan.md` end-to-end *antes* de escribir python. Guarda artefactos en `rpi/runs/<timestamp>/`.
+- **Verification (5):** **sí** — `evals/schema_check.py` (sensor computacional sobre tus CSVs), `evals/baseline_rmse.py` (números baseline reproducibles que tu REPORT.md debe respetar), `evals/consistency_judge.md` (spec del juez inferencial). Regla: computational sensors antes; inferencial solo si lo gana.
 - **Modularity (6):** **no** — sin `skills/`.
 
-Esto es deliberado. Cuando termines, anota qué componentes te hicieron falta — eso es load-bearing para el workshop.
+Si tu CSV no pasa `evals/schema_check.py`, esa variante NO puede entrar en la tabla de ablation.
 
 ---
 

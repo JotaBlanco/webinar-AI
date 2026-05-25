@@ -1,15 +1,13 @@
-# Módulo 1 — Bare harness
+# Módulo 2 — Bare harness + Memory/State
 
 Components present:
-- **Tools (1)** — `tools/` (3 wrappers).
+- **Tools (1)** — `tools/`.
 - **Context-seed (3)** — `CLAUDE.md` (raw braindump).
+- **Memory/State (2)** — `AGENTS.md` (the ratchet: every line traceable to a past failure of module 1).
 
 Components absent:
-- Memory/State (2) — no `AGENTS.md`.
-- Planning (4) — no RPI templates.
-- Verification (5) — no `evals/`.
-- Modularity (6) — no `skills/`.
+- Planning (4), Verification (5), Modularity (6).
 
-The agent is expected to limp. That is the lesson — every later module adds one component and the audience sees a specific kind of failure stop recurring.
+The point of module 2: the same agent that limped in module 1 should now *not* re-hit the same failures, because they are engineered out in `AGENTS.md`.
 
-Run: `python tools/list_segments.py`, etc. Outputs land in `out/`. Do not write to `data/` or modify `code/` in place.
+Read AGENTS.md before doing anything else. Outputs in `out/`.
