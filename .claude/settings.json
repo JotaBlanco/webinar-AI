@@ -1,0 +1,42 @@
+{
+  "_comment": "Repo-root settings for webinar-AI. Wires the launch-isolated-module-agents skill's hook and deny rules. Active for the parent session AND every subagent it spawns, regardless of which angle is being run. The hook auto-enforces a static policy (cross-angle metadata + design KBs blocked; intra-angle stays soft + post-verified).",
+
+  "permissions": {
+    "deny": [
+      "Read(/Users/javiquix/Desktop/quixdev/F1/KB001/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/F1/KB002/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/F1/KB003/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-00/webinar-00-template/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-00/domain-knowledge-challenges/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/_shared/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/_observations/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/RUN-LOG.md)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/_shared/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/_observations/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/_shared/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/_launch/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/process-log.md)",
+
+      "Bash(cat:/Users/javiquix/Desktop/quixdev/F1/**)",
+      "Bash(head:/Users/javiquix/Desktop/quixdev/F1/**)",
+      "Bash(tail:/Users/javiquix/Desktop/quixdev/F1/**)",
+      "Bash(less:/Users/javiquix/Desktop/quixdev/F1/**)",
+      "Bash(grep:/Users/javiquix/Desktop/quixdev/F1/**)",
+      "Bash(find:/Users/javiquix/Desktop/quixdev/F1/**)"
+    ]
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/javiquix/Desktop/quixdev/webinar-AI/webinar-00/skills/launch-isolated-module-agents/hook-blocker.py --repo-root /Users/javiquix/Desktop/quixdev/webinar-AI --extra-deny /Users/javiquix/Desktop/quixdev/F1"
+          }
+        ]
+      }
+    ]
+  }
+}

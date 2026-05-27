@@ -1,0 +1,45 @@
+Loading segments...
+Loaded 545 Ford segments.
+
+[v0] Unfiltered baseline (existing prediction column):
+     RMSE_yaw = 0.01804 rad/s  (n=1580767)
+
+[v1] + sensor-sanity outlier mask (|a_lat|<15 m/s²):
+     RMSE_yaw = 0.01804 rad/s  (n=1580658, dropped 109)
+
+Fitted steering offsets (road wheel, rad):
+  FORD_MUSTANG_MACH_E_MK1: -0.000121 rad = -0.118 deg at the wheel (×i_s~17)
+  FORD_F_150_LIGHTNING_MK1: -0.000605 rad = -0.589 deg at the wheel (×i_s~17)
+
+[v2] + per-platform fitted static steering-offset:
+     RMSE_yaw = 0.01792 rad/s  (n=1580658)
+
+[v3] + steady-state understeer (canonical Caf/Car):
+     K_us(FORD_MUSTANG_MACH_E_MK1) = +0.00168  (neg = oversteer; pos = understeer)
+     K_us(FORD_F_150_LIGHTNING_MK1) = +0.00168  (neg = oversteer; pos = understeer)
+     RMSE_yaw = 0.01628 rad/s  (n=1580658)
+
+Fitted understeer gradients (refit K):
+  FORD_MUSTANG_MACH_E_MK1: K_us = +0.00072  (canonical was +0.00168)
+  FORD_F_150_LIGHTNING_MK1: K_us = +0.00305  (canonical was +0.00168)
+
+[v4] + understeer K refit from data:
+     RMSE_yaw = 0.01577 rad/s  (n=1580658)
+
+================================================================
+ATTRIBUTION (sequential, each step adds to previous)
+================================================================
+  v0  baseline (unfiltered)                 RMSE=0.01804  Δ=+0.00000  (+0.00%)
+  v1  + outlier mask (|a_lat|<15)           RMSE=0.01804  Δ=-0.00000  (-0.00%)
+  v2  + per-platform steering offset        RMSE=0.01792  Δ=+0.00012  (+0.68%)
+  v3  + canonical understeer (Caf/Car)      RMSE=0.01628  Δ=+0.00164  (+9.09%)
+  v4  + understeer K refit from data        RMSE=0.01577  Δ=+0.00051  (+2.81%)
+
+  Total improvement: +0.00227 rad/s (+12.58% of baseline)
+
+================================================================
+MARGINAL (single change applied to v1 = mask-only baseline)
+================================================================
+  offset only (no understeer)               RMSE=0.01792  vs v1 Δ=+0.00012  (+0.68%)
+  understeer only (canonical, no offset)    RMSE=0.01641  vs v1 Δ=+0.00163  (+9.03%)
+  understeer-K refit only (no offset)       RMSE=0.01591  vs v1 Δ=+0.00213  (+11.80%)

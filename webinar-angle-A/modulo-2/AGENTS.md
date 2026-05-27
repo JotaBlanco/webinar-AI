@@ -17,11 +17,11 @@ Do not "fix" lateral residuals by unclamping `v` or `δ` — that breaks the con
 ## Build / run
 
 ```bash
-source .venv/bin/activate                                    # at the repo root
-python code/run_ks_synthetic.py                              # no rlog needed
-python code/generate_simdata.py                              # Tesla
-python code/generate_simdata_ford.py                         # both Fords
-python code/generate_simdata_ford.py FORD_MUSTANG_MACH_E_MK1 # one platform
+# system python3 has pandas/numpy/scipy/matplotlib pre-installed; no venv needed
+python3 code/run_ks_synthetic.py                              # no rlog needed
+python3 code/generate_simdata.py                              # Tesla
+python3 code/generate_simdata_ford.py                         # both Fords
+python3 code/generate_simdata_ford.py FORD_MUSTANG_MACH_E_MK1 # one platform
 python code/plot_simdata_ford.py                             # PNGs alongside CSVs
 ```
 

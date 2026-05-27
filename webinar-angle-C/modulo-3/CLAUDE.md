@@ -29,7 +29,7 @@ Platforms present under `data/raw/segments/` and `data/sim/segments/`:
 
 ## How to run
 
-There is a virtualenv at the repo root (`.venv/`). Code runs as plain python.
+System `python3` already has `pandas`, `numpy`, `scipy`, `matplotlib` pre-installed. Run scripts as `python3 ...`.
 
 ```bash
 python code/run_ks_synthetic.py            # synthetic open-loop demo

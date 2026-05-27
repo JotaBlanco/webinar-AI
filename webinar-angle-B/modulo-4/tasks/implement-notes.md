@@ -55,8 +55,8 @@
 - `tools/lateral_corrections.py`
 - `tools/regenerate_with_corrections.py`
 - `tools/eval_ablation.py`
-- `data/sim/segments/*/*/sim_baseline.csv` (x4, redundant sanity)
-- `data/sim/segments/*/*/sim_h1.csv` (x4)
-- `data/sim/segments/*/*/sim_h3.csv` (x4)
-- `data/sim/segments/*/*/sim_h1_h3.csv` (x4)
+- `out/sim/segments/*/*/sim_baseline.csv` (x4, redundant sanity)
+- `out/sim/segments/*/*/sim_h1.csv` (x4)
+- `out/sim/segments/*/*/sim_h3.csv` (x4)
+- `out/sim/segments/*/*/sim_h1_h3.csv` (x4)
 - `REPORT.md` at module root

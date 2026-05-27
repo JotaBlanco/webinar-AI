@@ -1,0 +1,28 @@
+Loading ...
+Loaded 1,580,767 rows, 545 segments, platforms: ['FORD_MUSTANG_MACH_E_MK1', 'FORD_F_150_LIGHTNING_MK1']
+
+V0 baseline (all rows, no hygiene):  yaw-rate RMS = 0.01804 rad/s (1.034°/s)
+
+V1 + data hygiene (v>2, sane telemetry):  rows 1,364,925/1,580,767, RMS = 0.01474 rad/s (0.845°/s)
+
+   (train/test split: train=682,319, test=682,606)
+V1 (test only) RMS = 0.01488
+V2 + steer-bias (b=0.014° road = 0.23° wheel): RMS = 0.01477  Δ=+0.00012
+V3 + time-align tau=3 samples (60 ms): RMS = 0.01437  Δ=+0.00040
+V4 + understeer K_us=4.41640e-04 s²/m², refit b=0.014°: RMS = 0.01191  Δ=+0.00246
+
+--- Attribution (sequential, all on TEST set) ---
+step                                           RMS_before  RMS_after       drop       %
+V1 hygiene (drop stationary/glitched rows)        0.01804    0.01488   +0.00316    51.5%
+V2 steering-bias correction                       0.01488    0.01477   +0.00012     1.9%
+V3 transport-lag (delta -> yaw)                   0.01477    0.01437   +0.00040     6.5%
+V4 understeer gradient + refit bias               0.01437    0.01191   +0.00246    40.1%
+TOTAL                                             0.01804    0.01191   +0.00613   100.0%
+
+Baseline (V0): 0.01804 rad/s = 1.034 °/s
+Final    (V4): 0.01191 rad/s = 0.682 °/s
+Total improvement: 34.0% reduction in RMS
+
+--- Per-platform on test, final V4 ---
+  FORD_MUSTANG_MACH_E_MK1: RMS=0.01221 (0.700°/s)  rows=405,226
+  FORD_F_150_LIGHTNING_MK1: RMS=0.01146 (0.656°/s)  rows=277,380

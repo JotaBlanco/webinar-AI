@@ -8,7 +8,7 @@ Compare a Kinematic Single-Track (KS) vehicle dynamics model's predictions again
 
 ## Build / run
 
-- Python 3.11+. Use the repo `.venv` if present.
+- Python 3.11+. System `python3` already has `pandas`, `numpy`, `scipy`, `matplotlib` installed — no venv setup needed. Run with `python3 ...`.
 - Outputs go in `out/` inside this module. **Never** write to `data/` and **never** edit `code/` in place — both are shared with the other modules running in parallel.
 
 ## Vehicle dynamics — units and sign conventions

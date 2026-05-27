@@ -1,0 +1,25 @@
+{
+  "_comment": "Paste the `hooks` block into <angle-root>/.claude/settings.json (merge with the permissions block from settings-deny-snippet.json). Replace ABSOLUTE PATH PLACEHOLDERS.",
+
+  "_replace_placeholders": {
+    "<HOOK_SCRIPT>": "Absolute path to webinar-00/skills/launch-isolated-module-agents/hook-blocker.py",
+    "<ANGLE_ROOT>": "Absolute path to the current angle folder (e.g. /Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C)",
+    "<REPO_ROOT>": "Absolute path to webinar-AI repo root"
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 <HOOK_SCRIPT> --angle-root <ANGLE_ROOT> --repo-root <REPO_ROOT>"
+          }
+        ]
+      }
+    ]
+  },
+
+  "_what_this_does": "On every Read/Bash/Edit/Write tool call (from the parent session AND from any subagent it spawns), the hook reads the tool input, resolves any file paths to canonical absolute paths, checks them against the allow-list (modulo-*, code/, data/, _launch/ within the angle), and exits 2 (block) with a stderr message if any path is outside. Every blocked attempt is appended to <ANGLE_ROOT>/_launch/blocked-attempts.log with a timestamp and the calling tool. The log is the source-of-truth view #3 for post-run-verify."
+}

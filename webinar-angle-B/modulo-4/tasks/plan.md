@@ -39,8 +39,9 @@ should compose roughly additively in the ablation.
 
 2. **New driver script `tools/regenerate_with_corrections.py`.** Mirrors
    `code/generate_simdata_ford.py` structure but writes to
-   `data/sim/segments/<PLATFORM>/<seg>/sim_<variant>.csv` (does NOT touch the
-   baseline `sim.csv`). Variants:
+   `out/sim/segments/<PLATFORM>/<seg>/sim_<variant>.csv` under this module
+   (the shared `data/sim/` baseline is read-only — do NOT touch `sim.csv`
+   there). Variants:
    - `sim_baseline.csv` — re-run baseline (sanity, should match `sim.csv`).
    - `sim_h1.csv` — apply yaw-bias correction to `psi_dot_pred` (subtract
      `b_hat` from `psi_dot_meas` equivalently → adjust `psi_dot_resid` and
