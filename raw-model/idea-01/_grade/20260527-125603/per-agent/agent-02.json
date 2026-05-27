@@ -1,0 +1,85 @@
+{
+  "agent_id": "agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Primary metric: **sample-weighted RMSE of yaw-rate prediction** (rad/s), aggregated across all 522 Ford segments with moving-vehicle samples",
+        "the IMU yaw signal `Yaw_Data_FD1.VehYaw_W_Actl` is already filtered/processed by the chassis ABS module"
+      ],
+      "reasoning": "Agent scores against the Ford IMU-measured yaw rate channel, naming the specific CAN signal as the measured source."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Stayed within the speed-known framing \u2014 `(v, \u03b4)` clamped to measurements; I only refined how `\u03c8\u0307` is computed from them."
+      ],
+      "reasoning": "Methodology explicitly states v and delta are clamped to measurements while yaw rate is predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "Report only presents sample-weighted aggregate RMSE; no per-regime (straight/cornering/transient) breakdown table or chart is provided."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "sample-weighted RMSE of yaw-rate prediction** (rad/s), aggregated across all 522 Ford segments with moving-vehicle samples (~1.39 M rows; Mach-E + F-150 Lightning). Stationary samples (v<1 m/s) and impossible IMU spikes (|a_lat|>20 m/s\u00b2) excluded."
+      ],
+      "reasoning": "A single segment set and metric definition with explicit exclusions is declared up front and used across the ladder table."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0,
+      "threshold_met": true,
+      "evidence": [
+        "| B0\u2192B1  steering offset | +0.12 | 4.3% |",
+        "| B1\u2192B2  understeer factor K | +2.43 | 86.0% |",
+        "| B2\u2192B3  lag compensation | +0.27 | 9.6% |",
+        "| **Total** | **+2.82 mrad/s** | **100%** |"
+      ],
+      "reasoning": "Marginal drops 0.12+2.43+0.27=2.82 exactly equal the stated total 2.82 mrad/s, so |\u03a3\u2212total|/total = 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No regressions occurred in the ladder and no explicit 'no regressions observed' statement is made, so vacuously not addressed."
+    }
+  ],
+  "headline": {
+    "primary_metric": "sample-weighted RMSE of yaw-rate prediction (rad/s)",
+    "platform": "522 Ford segments with moving-vehicle samples (~1.39 M rows; Mach-E + F-150 Lightning)",
+    "baseline_value": "Baseline RMSE: 18.25 mrad/s",
+    "final_value": "Final RMSE (per-platform tuned ladder): 15.43 mrad/s",
+    "improvement": "\u221215.5% relative",
+    "top_contributor": "Understeer-gradient factor K"
+  },
+  "honesty_flags": {
+    "declared_limitations": 6,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}
