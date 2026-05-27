@@ -68,3 +68,4 @@ Body sections, in order: **The naked prompt** → **Why this is challenging in g
 | # | Slug | Domain | Tests | Best fit angles |
 |---|---|---|---|---|
 | 01 | `idea-01-lateral-attribution.md` | vehicle-dynamics | attribution-discipline, regime-segmentation, operating-contract, metric-selection, truth-channel-discovery | 01 accretion, 04 author, 05 experiment |
+| 02 | `idea-02-longitudinal-closed-loop.md` | vehicle-dynamics | operating-contract, regime-segmentation, truth-channel-discovery, data-provenance, tradeoff-framing, failure-repro | 01 accretion, 04 author, 05 experiment |

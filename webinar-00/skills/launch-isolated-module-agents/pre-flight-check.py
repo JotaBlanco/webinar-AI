@@ -101,11 +101,13 @@ def check_module(m: dict) -> dict:
 
 
 def check_manifest_global(manifest: list[dict]) -> tuple[bool, str]:
-    """P7 — no module_path contains another's basename."""
-    paths = [Path(m["module_path"]) for m in manifest]
-    names = [p.name for p in paths]
-    if len(set(names)) != len(names):
-        return False, f"duplicate module names: {names}"
+    """P7 — module_paths are unique full paths, and no path contains another."""
+    paths = [Path(m["module_path"]).resolve(strict=False) for m in manifest]
+    if len(set(paths)) != len(paths):
+        return False, "duplicate module_path entries"
+    mod_names = [m["module_name"] for m in manifest]
+    if len(set(mod_names)) != len(mod_names):
+        return False, f"duplicate module_name entries: {mod_names}"
     for a in paths:
         for b in paths:
             if a == b:

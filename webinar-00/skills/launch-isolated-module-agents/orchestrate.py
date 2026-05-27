@@ -73,7 +73,7 @@ def cmd_launch(angle_root: Path) -> int:
         fail("pre-flight failed — fix the substrate, don't bypass.", 1)
 
     print("\n─── 2/3 launch-all (snapshot + prompts + invocations) ───")
-    extra_args: list[str] = []
+    extra_args: list[str] = ["--angle-root", str(angle_root), "--repo-root", str(repo_root)]
     for f in cfg["extra_forbidden"]:
         extra_args += ["--extra-forbidden", f]
     rc = subprocess.call(["python3", str(LAUNCH_ALL), str(manifest)] + extra_args)

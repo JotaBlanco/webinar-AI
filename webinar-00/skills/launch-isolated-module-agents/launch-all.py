@@ -157,19 +157,19 @@ def main():
     # Load template
     skill_dir = Path(__file__).resolve().parent
     template = (skill_dir / "prompt-template.md").read_text()
-    # Strip the front-matter delimiter blob — keep only from first '---' onward
-    parts = template.split("---", 2)
-    if len(parts) >= 3:
-        body = parts[2]
-    else:
-        body = template
+    # Strip the meta header — everything up to and including the first '---' line on its own.
+    import re as _re
+    _m = _re.search(r"(?m)^---\s*$", template)
+    body = template[_m.end():] if _m else template
+    body = body.lstrip("\n")
 
     # 3) Per-module prompt + invocation
     invocations: list[dict] = []
     for m in manifest:
+        m_path_resolved = Path(m["module_path"]).resolve(strict=False)
         per_mod_forbidden = list(common_forbidden) + [
-            str(Path(p)) for p in module_paths
-            if Path(p).name != m["module_name"]
+            str(p.resolve(strict=False)) for p in module_paths
+            if p.resolve(strict=False) != m_path_resolved
         ]
         prompt_text = fill_template(body, m, angle_name, shared_code, shared_data, per_mod_forbidden)
         prompt_file = out_dir / f"{m['module_name']}.prompt.md"

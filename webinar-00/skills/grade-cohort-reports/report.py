@@ -3,15 +3,9 @@
 
 Reads:
     <grade-dir>/raw/<agent_id>.json   # per-agent strict-JSON scorecards
-    <grade-dir>/cohort.json           # aggregate (from aggregate.py; optional)
 
 Writes:
-    <grade-dir>/cohort.pdf            # 3-page PDF: outcome bars + attribution stacks + rubric heatmap
-
-Outcome page is the headline visual the human asked for: how much did each
-agent improve the primary metric. Agents on non-canonical platforms / fabricated
-truth channels are visually flagged so they don't get falsely compared to
-canonical runs.
+    <grade-dir>/cohort.pdf            # 4-page PDF
 """
 
 import argparse
@@ -23,7 +17,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.patches import Patch
 import numpy as np
+
+
+PAGE_LANDSCAPE = (11.0, 8.5)
+PAGE_PORTRAIT  = (8.5, 11.0)
 
 
 def load_cards(grade_dir: Path) -> list[dict]:
@@ -38,65 +37,150 @@ def load_cards(grade_dir: Path) -> list[dict]:
             print(f"report: WARN — {f.name} not parseable: {e}", file=sys.stderr)
     if not cards:
         sys.exit("report: no parseable scorecards")
+    # alphabetical by agent_id, stable.
+    cards.sort(key=lambda c: c["agent_id"])
     return cards
 
 
+def fig_summary(cards: list[dict]) -> plt.Figure:
+    """Cover page — single-column text block with proper margins."""
+    n = len(cards)
+    vals = [(c.get("headline", {}) or {}).get("improvement_pct_numeric") or 0.0 for c in cards]
+    canonical_vals = [
+        (c.get("headline", {}) or {}).get("improvement_pct_numeric") or 0.0
+        for c in cards
+        if (c.get("headline", {}) or {}).get("comparable_to_canonical") is True
+    ]
+    n_canonical = len(canonical_vals)
+    n_flagged = n - n_canonical
+    median_all = float(np.median(vals)) if vals else 0.0
+    median_canon = float(np.median(canonical_vals)) if canonical_vals else 0.0
+    lo, hi = (min(vals), max(vals)) if vals else (0, 0)
+
+    fig = plt.figure(figsize=PAGE_PORTRAIT)
+    fig.subplots_adjust(left=0.08, right=0.92, top=0.92, bottom=0.08)
+    ax = fig.add_subplot(111)
+    ax.axis("off")
+
+    title = "Cohort grading report"
+    subtitle = f"{n} agents · alphabetical order throughout"
+
+    ax.text(0.0, 1.00, title, transform=ax.transAxes,
+            fontsize=22, fontweight="bold", va="top")
+    ax.text(0.0, 0.95, subtitle, transform=ax.transAxes,
+            fontsize=11, color="#555", va="top")
+
+    # Stats table
+    rows = [
+        ("Canonical platform / measured truth", f"{n_canonical} / {n}"),
+        ("Non-canonical / flagged",              f"{n_flagged} / {n}"),
+        ("",                                     ""),
+        ("Median improvement (all)",             f"{median_all:+.1f} %"),
+        ("Median improvement (canonical only)",  f"{median_canon:+.1f} %"),
+        ("Range across cohort",                  f"{lo:+.1f} %  …  {hi:+.1f} %"),
+    ]
+    y = 0.85
+    for k, v in rows:
+        ax.text(0.0,  y, k, transform=ax.transAxes, fontsize=11, va="top")
+        ax.text(0.55, y, v, transform=ax.transAxes, fontsize=11, va="top",
+                family="monospace")
+        y -= 0.04
+
+    # Pages
+    ax.text(0.0, 0.55, "Contents", transform=ax.transAxes,
+            fontsize=14, fontweight="bold", va="top")
+    pages = [
+        "Page 2 — Outcome bars: per-agent % improvement on the primary metric",
+        "Page 3 — Attribution: what each agent credits for the improvement",
+        "Page 4 — Methodology rubric heatmap (agents × rubric items)",
+    ]
+    y = 0.50
+    for line in pages:
+        ax.text(0.02, y, line, transform=ax.transAxes, fontsize=10, va="top")
+        y -= 0.035
+
+    # Caveats
+    ax.text(0.0, 0.36, "Caveats", transform=ax.transAxes,
+            fontsize=14, fontweight="bold", va="top")
+    cavs = [
+        "Improvement % is self-reported on the agent's chosen metric and unit.",
+        "Different agents picked rad/s, mrad/s, deg/s, °/s on different masks and splits.",
+        "Relative % is the only universally comparable axis; absolute values are not.",
+        "",
+        "A non-canonical bar (grey) means the agent scored on a non-canonical platform",
+        "OR substituted a fabricated proxy for the measured truth channel. Its number",
+        "is not directly comparable to canonical bars.",
+    ]
+    y = 0.31
+    for line in cavs:
+        ax.text(0.02, y, line, transform=ax.transAxes, fontsize=9.5, va="top", color="#333")
+        y -= 0.028
+
+    return fig
+
+
 def fig_outcome(cards: list[dict]) -> plt.Figure:
-    """Horizontal bar: % improvement on the agent's self-reported primary metric.
-    Bars for non-comparable agents drawn in a flag colour with a hatch.
+    """Horizontal bar: % improvement, alphabetical, % label inside bar end,
+    metric unit under the agent name, top contributor in a small side column.
     """
-    cards = sorted(cards, key=lambda c: (c.get("headline", {}) or {}).get("improvement_pct_numeric") or 0)
     labels = [c["agent_id"] for c in cards]
     vals = [(c.get("headline", {}) or {}).get("improvement_pct_numeric") or 0.0 for c in cards]
     units = [(c.get("headline", {}) or {}).get("unit_normalized") or "?" for c in cards]
-    comparable = [(c.get("headline", {}) or {}).get("comparable_to_canonical") for c in cards]
+    canonical = [(c.get("headline", {}) or {}).get("comparable_to_canonical") for c in cards]
     top = [(c.get("headline", {}) or {}).get("top_contributor") or "" for c in cards]
 
-    fig, ax = plt.subplots(figsize=(8.5, 0.45 * len(cards) + 2.5))
+    fig = plt.figure(figsize=PAGE_LANDSCAPE)
+    fig.subplots_adjust(left=0.16, right=0.96, top=0.90, bottom=0.10)
+    ax = fig.add_subplot(111)
+
     y = np.arange(len(cards))
-    colours = ["#888888" if c is False else "#2a7ae2" for c in comparable]
-    hatches = ["//" if c is False else "" for c in comparable]
-    bars = ax.barh(y, vals, color=colours, edgecolor="black", linewidth=0.6)
-    for b, h in zip(bars, hatches):
-        if h:
-            b.set_hatch(h)
+    colours = ["#2a7ae2" if c else "#9a9a9a" for c in canonical]
+    bars = ax.barh(y, vals, color=colours, edgecolor="black", linewidth=0.5, height=0.7)
+
     ax.set_yticks(y)
-    ax.set_yticklabels(labels)
+    ax.set_yticklabels(labels, fontsize=10)
     ax.invert_yaxis()
-    ax.set_xlabel("Self-reported improvement on primary metric (%, higher = better)")
-    ax.set_title("Outcome — how much each agent improved the lateral metric\n(grey + hatched = non-canonical platform / fabricated proxy)",
-                 fontsize=11)
+    ax.set_xlabel("Self-reported improvement on primary metric (%)")
+    ax.set_title("Outcome — improvement on the lateral metric (alphabetical)",
+                 fontsize=13, pad=14)
     ax.axvline(0, color="k", linewidth=0.5)
     ax.grid(True, axis="x", alpha=0.3)
 
-    # annotate
+    # % labels just right of each bar; top contributor on a separate right column.
+    max_v = max(vals) if vals else 1.0
+    ax.set_xlim(0, max_v * 1.55)
     for i, (v, u, t) in enumerate(zip(vals, units, top)):
-        txt = f"  {v:+.1f}% ({u}) — top: {t[:40]}"
-        ax.text(v, i, txt, va="center", fontsize=8)
+        ax.text(v + max_v * 0.01, i, f"{v:+.1f}%", va="center", ha="left",
+                fontsize=10, fontweight="bold")
+        ax.text(max_v * 1.20, i, f"unit: {u}",
+                va="center", ha="left", fontsize=9, color="#444",
+                family="monospace")
+    # Side legend
+    ax.legend(handles=[
+        Patch(facecolor="#2a7ae2", edgecolor="black", label="canonical platform"),
+        Patch(facecolor="#9a9a9a", edgecolor="black", label="non-canonical / flagged"),
+    ], loc="lower right", fontsize=9, framealpha=0.95)
 
-    # legend
-    from matplotlib.patches import Patch
-    legend_elems = [
-        Patch(facecolor="#2a7ae2", edgecolor="black", label="canonical platform + measured truth"),
-        Patch(facecolor="#888888", edgecolor="black", hatch="//", label="non-canonical (fabricated / wrong platform)"),
-    ]
-    ax.legend(handles=legend_elems, loc="lower right", fontsize=8)
-    fig.tight_layout()
+    # subtitle below title noting top contributors are on page 3
+    ax.text(0.5, 1.01,
+            "Top contributor per agent is shown on page 3 (attribution breakdown).",
+            transform=ax.transAxes, ha="center", fontsize=9, color="#555")
     return fig
 
 
 def fig_attribution(cards: list[dict]) -> plt.Figure:
-    """Per-agent stacked horizontal bar of variant contribution_pct.
-    Each agent's variants are stacked using their own labels.
+    """Stacked horizontal bar per agent, alphabetical. Variant chunks labelled
+    only when wide enough; small chunks get a small marker without text overlap.
     """
-    cards = sorted(cards, key=lambda c: c["agent_id"])
-    fig, ax = plt.subplots(figsize=(9.5, 0.55 * len(cards) + 2.5))
+    fig = plt.figure(figsize=PAGE_LANDSCAPE)
+    fig.subplots_adjust(left=0.14, right=0.96, top=0.90, bottom=0.10)
+    ax = fig.add_subplot(111)
     y = np.arange(len(cards))
     cmap = plt.get_cmap("tab20")
+    label_min_width = 8.0  # only label chunks this wide (%)
 
     for i, card in enumerate(cards):
         ab = card.get("attribution_breakdown", []) or []
-        # Normalise positive/negative so negatives draw to the left of zero
         left_pos = 0.0
         left_neg = 0.0
         for j, v in enumerate(ab):
@@ -104,35 +188,39 @@ def fig_attribution(cards: list[dict]) -> plt.Figure:
             if pct is None:
                 continue
             color = cmap(j % 20)
+            name = v.get("variant_name", "?")
+            short = (name[:22] + "…") if len(name) > 23 else name
             if pct >= 0:
-                ax.barh(i, pct, left=left_pos, color=color, edgecolor="black", linewidth=0.4)
-                if pct >= 4:  # only label visible chunks
-                    ax.text(left_pos + pct / 2, i, f"{v.get('variant_name','?')[:24]}\n{pct:.1f}%",
-                            ha="center", va="center", fontsize=7, color="black")
+                ax.barh(i, pct, left=left_pos, color=color,
+                        edgecolor="black", linewidth=0.4, height=0.7)
+                if pct >= label_min_width:
+                    ax.text(left_pos + pct / 2, i,
+                            f"{short}\n{pct:.1f}%",
+                            ha="center", va="center", fontsize=8, color="black")
                 left_pos += pct
             else:
                 left_neg += pct
-                ax.barh(i, pct, left=left_neg - pct, color=color, edgecolor="black", linewidth=0.4)
-                ax.text(left_neg - pct / 2, i, f"{v.get('variant_name','?')[:18]}\n{pct:.1f}%",
-                        ha="center", va="center", fontsize=7, color="black")
+                ax.barh(i, pct, left=left_neg - pct, color=color,
+                        edgecolor="black", linewidth=0.4, height=0.7)
+                if abs(pct) >= label_min_width:
+                    ax.text(left_neg - pct / 2, i,
+                            f"{short}\n{pct:.1f}%",
+                            ha="center", va="center", fontsize=8, color="black")
 
     ax.set_yticks(y)
-    ax.set_yticklabels([c["agent_id"] for c in cards])
+    ax.set_yticklabels([c["agent_id"] for c in cards], fontsize=10)
     ax.invert_yaxis()
-    ax.set_xlabel("% of total improvement attributed to each variant (per the agent's own attribution scheme)")
-    ax.set_title("Attribution breakdown — what each agent credits for the improvement",
-                 fontsize=11)
+    ax.set_xlabel("% of total improvement attributed to each variant (agent's own scheme)")
+    ax.set_title("Attribution breakdown — variant contributions per agent (alphabetical)",
+                 fontsize=13, pad=14)
     ax.axvline(0, color="k", linewidth=0.5)
-    ax.set_xlim(-30, 110)
+    ax.set_xlim(-25, 110)
     ax.grid(True, axis="x", alpha=0.3)
-    fig.tight_layout()
     return fig
 
 
 def fig_rubric_heatmap(cards: list[dict]) -> plt.Figure:
-    """Methodology rubric heatmap: agents × rubric items, green/red/grey."""
-    cards = sorted(cards, key=lambda c: c["agent_id"])
-    # Build a canonical list of item ids from the first card.
+    """Methodology rubric heatmap — pcolormesh avoids the imshow gap artefact."""
     item_ids = []
     for c in cards:
         for it in c.get("items", []):
@@ -152,75 +240,39 @@ def fig_rubric_heatmap(cards: list[dict]) -> plt.Figure:
             elif res is False:
                 grid[r, col] = 0
             else:
-                grid[r, col] = -1  # null
+                grid[r, col] = -1
 
-    fig, ax = plt.subplots(figsize=(1.3 * len(item_ids) + 1.5, 0.45 * len(cards) + 2.0))
+    fig = plt.figure(figsize=PAGE_LANDSCAPE)
+    fig.subplots_adjust(left=0.14, right=0.96, top=0.88, bottom=0.18)
+    ax = fig.add_subplot(111)
+
     cmap = matplotlib.colors.ListedColormap(["#cccccc", "#d9534f", "#5cb85c"])
     bounds = [-1.5, -0.5, 0.5, 1.5]
     norm = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
-    ax.imshow(grid, cmap=cmap, norm=norm, aspect="auto")
 
-    # annotate cells
-    for r in range(len(cards)):
-        for col in range(len(item_ids)):
-            val = grid[r, col]
-            sym = {1: "✓", 0: "✗", -1: "—"}.get(int(val) if not np.isnan(val) else -2, "?")
-            ax.text(col, r, sym, ha="center", va="center",
-                    color="white", fontsize=11, fontweight="bold")
+    nr, nc = grid.shape
+    X = np.arange(nc + 1)
+    Y = np.arange(nr + 1)
+    ax.pcolormesh(X, Y, grid, cmap=cmap, norm=norm, edgecolors="white", linewidth=2)
 
-    ax.set_xticks(range(len(item_ids)))
-    ax.set_xticklabels(item_ids, rotation=30, ha="right", fontsize=8)
-    ax.set_yticks(range(len(cards)))
-    ax.set_yticklabels([c["agent_id"] for c in cards], fontsize=9)
-    ax.set_title("Methodology rubric — green ✓ pass, red ✗ fail, grey — null/not addressed",
-                 fontsize=11)
-    fig.tight_layout()
-    return fig
+    for r in range(nr):
+        for col in range(nc):
+            v = grid[r, col]
+            sym = {1: "✓", 0: "✗", -1: "—"}.get(int(v) if not np.isnan(v) else -99, "?")
+            ax.text(col + 0.5, r + 0.5, sym, ha="center", va="center",
+                    color="white", fontsize=14, fontweight="bold")
 
-
-def fig_summary_text(cards: list[dict]) -> plt.Figure:
-    """Cover page with the cohort headline numbers as a styled text block."""
-    n = len(cards)
-    vals = [(c.get("headline", {}) or {}).get("improvement_pct_numeric") or 0.0 for c in cards]
-    comparable_vals = [
-        (c.get("headline", {}) or {}).get("improvement_pct_numeric") or 0.0
-        for c in cards
-        if (c.get("headline", {}) or {}).get("comparable_to_canonical") is True
-    ]
-    n_comparable = len(comparable_vals)
-    n_noncomparable = n - n_comparable
-    median_imp = float(np.median(vals)) if vals else 0.0
-    range_imp = (min(vals), max(vals)) if vals else (0, 0)
-    median_comp = float(np.median(comparable_vals)) if comparable_vals else 0.0
-
-    fig, ax = plt.subplots(figsize=(8.5, 11))
-    ax.axis("off")
-    txt = [
-        f"Cohort grading — {n} agents",
-        "",
-        f"Comparable-to-canonical:    {n_comparable}/{n}",
-        f"Non-canonical / flagged:    {n_noncomparable}/{n}",
-        "",
-        f"Improvement on primary metric (self-reported, % — higher is better):",
-        f"  • cohort median:                  {median_imp:+.1f}%",
-        f"  • cohort range:                   {range_imp[0]:+.1f}% … {range_imp[1]:+.1f}%",
-        f"  • median among canonical only:    {median_comp:+.1f}%",
-        "",
-        "Pages:",
-        "  1 — Outcome bars (this view): per-agent % improvement, with non-canonical agents flagged",
-        "  2 — Attribution: what each agent credits for the gain (stacked by their own variant labels)",
-        "  3 — Rubric heatmap: methodology pass / fail / null per agent × rubric item",
-        "",
-        "Caveats:",
-        "  • Improvement percentages are self-reported on the agent's chosen metric & unit.",
-        "    Different agents picked rad/s, mrad/s, deg/s, and °/s on different masks and",
-        "    splits. The % is the only universally-comparable axis; absolute values are not.",
-        "  • A non-canonical bar (grey + hatched) means the agent scored on a non-canonical",
-        "    platform OR substituted a fabricated proxy for the measured truth channel.",
-        "    Its number is not directly comparable to the canonical bars.",
-    ]
-    ax.text(0.05, 0.95, "\n".join(txt), va="top", ha="left",
-            family="monospace", fontsize=10)
+    ax.set_xticks(np.arange(nc) + 0.5)
+    ax.set_xticklabels(item_ids, rotation=25, ha="right", fontsize=9)
+    ax.set_yticks(np.arange(nr) + 0.5)
+    ax.set_yticklabels([c["agent_id"] for c in cards], fontsize=10)
+    ax.invert_yaxis()
+    ax.set_xlim(0, nc)
+    ax.set_ylim(nr, 0)
+    ax.set_title("Methodology rubric — green ✓ pass · red ✗ fail · grey — null / not addressed",
+                 fontsize=13, pad=14)
+    # remove tick lines for cleanliness
+    ax.tick_params(length=0)
     return fig
 
 
@@ -233,10 +285,10 @@ def main():
     pdf_path = args.grade_dir / "cohort.pdf"
 
     with PdfPages(pdf_path) as pdf:
-        pdf.savefig(fig_summary_text(cards))
-        pdf.savefig(fig_outcome(cards))
-        pdf.savefig(fig_attribution(cards))
-        pdf.savefig(fig_rubric_heatmap(cards))
+        pdf.savefig(fig_summary(cards),         bbox_inches="tight")
+        pdf.savefig(fig_outcome(cards),         bbox_inches="tight")
+        pdf.savefig(fig_attribution(cards),     bbox_inches="tight")
+        pdf.savefig(fig_rubric_heatmap(cards),  bbox_inches="tight")
 
     print(f"cohort PDF: {pdf_path}")
 
