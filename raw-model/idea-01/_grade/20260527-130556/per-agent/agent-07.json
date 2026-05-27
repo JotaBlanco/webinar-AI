@@ -1,0 +1,114 @@
+{
+  "agent_id": "agent-07",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-07/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Headline metric**: RMS yaw-rate residual (deg/s), aggregated across **545 Ford segments / 1,580,767 samples** at 50 Hz from both `FORD_MUSTANG_MACH_E_MK1` and `FORD_F_150_LIGHTNING_MK1`. (Tesla has no measured yaw-rate truth channel in the CSVs, so it's excluded.)"
+      ],
+      "reasoning": "Agent names yaw-rate on Ford as scored, explicitly contrasting with Tesla's missing measured channel."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No explicit clamped-vs-predicted statement."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No per-regime breakdown chart or table."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "545 Ford segments / 1,580,767 samples",
+        "Each level's contribution = `RMS_prev \u2212 RMS_this`"
+      ],
+      "reasoning": "Same segment set and metric used across every variant."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "By construction the deltas sum to the total.",
+        "| **Total** | | **+0.2935** | **28.4 %** |"
+      ],
+      "reasoning": "Marginal drops sum exactly to total drop."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No regressions and no 'no regressions observed' statement."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMS yaw-rate residual (deg/s)",
+    "platform": "545 Ford segments",
+    "baseline_value": "1.0336",
+    "final_value": "0.7401",
+    "improvement": "28.4 % reduction",
+    "top_contributor": "V1 per-seg \u03b4-bias",
+    "baseline_numeric": 1.0336,
+    "final_numeric": 0.7401,
+    "unit_normalized": "deg/s",
+    "improvement_pct_numeric": 28.4,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford with measured yaw-rate truth channel."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 per-seg \u03b4-bias",
+      "contribution_pct": 42.96,
+      "contribution_abs": 0.1261,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 per-platform i_s rescale",
+      "contribution_pct": 38.02,
+      "contribution_abs": 0.1116,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 understeer K_us",
+      "contribution_pct": 17.92,
+      "contribution_abs": 0.0526,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 per-platform yaw lag",
+      "contribution_pct": 1.09,
+      "contribution_abs": 0.0032,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 5,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

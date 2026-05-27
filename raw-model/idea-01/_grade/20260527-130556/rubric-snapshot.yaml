@@ -1,0 +1,43 @@
+title: Idea 01 — Lateral attribution
+slug: idea-01-lateral-attribution
+domain: vehicle-dynamics
+tests:
+  - attribution-discipline
+  - regime-segmentation
+  - operating-contract
+  - metric-selection
+  - truth-channel-discovery
+best-fit-angles: [01-accretion, 04-author, 05-experiment]
+weak-fit-angles: [02-empathy, 03-harness-as-product]
+success-metrics:
+  - id: truth-channel-correct
+    type: binary
+    rubric: the report scores against a measured channel, not a clamped or self-predicted one
+    evidence-in-report: report names the scored channel and identifies it as measured, citing the dataset/source
+  - id: contract-acknowledged
+    type: binary
+    rubric: the report states which channels are clamped to truth vs predicted by the model
+    evidence-in-report: an explicit clamped-vs-predicted statement in the methodology section
+  - id: regime-breakdown-present
+    type: binary
+    rubric: the report breaks out error by regime (straight / cornering / transient), not only an aggregate
+    evidence-in-report: a per-regime table or chart of the chosen metric
+  - id: methodology-consistent
+    type: binary
+    rubric: same segment list and same metric definition across every variant on the ladder
+    evidence-in-report: variant table shares a fixed segment-set / regime-mask declaration in its header or caption
+  - id: attribution-coherent
+    type: numeric
+    rubric: "|Σ marginal RMSE drops − total drop| / total drop (no double-counting)"
+    threshold: "< 0.15"
+    evidence-in-report: marginal-RMSE column and total-drop value both present and reconcilable
+  - id: honest-regression-flagged
+    type: binary
+    rubric: any variant that worsened the metric is reported as a regression with a physical reason; vacuous if no regression occurred
+    evidence-in-report: variant table includes regression rows with a physical-cause column, OR an explicit "no regressions observed" statement
+naked-prompt-audit:
+  metric-named: false
+  platform-named: false
+  contract-named: false
+  catalogue-suggested: false
+  scoring-procedure-suggested: false
