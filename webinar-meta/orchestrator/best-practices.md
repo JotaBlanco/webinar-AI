@@ -65,6 +65,24 @@ These help you debug; they're not what you're optimising:
 
 ---
 
+## Lessons distilled — read these first
+
+Prior cohort: ~85 agents on this exact task across one raw baseline and 15 scaffolded variants. The five principles below cost prior agents 15–60 canonical points each time they were ignored. They are the meta-framing for the specific anti-patterns later in this file.
+
+1. **Aim at the canonical KPIs. Nothing else.** Scaffolding is a force vector, not a force multiplier — whatever it points at, agents go toward. Prior agents who optimised against rubric items or in-sample slices delivered defensible reports with worse canonical numbers. Every iteration must close its loop against the canonical KPIs above (yaw-rate RMSE + CTE RMSE on the held-out val pool), not against "skill passes" or "report looks complete."
+
+2. **Tools we hand you are starting points, not recipes.** Every prior angle that shipped a runnable Python recipe (`triage.py`, `step4_run_st_upgrade.py`, etc.) plateaued at that recipe's reach — capped Cα bounds capped the ceiling; hardcoded `--platform FORD_MUSTANG_MACH_E_MK1` defaults capped the dataset; named `V1, V2, V3, V4` rungs capped the variant space. The only family that beat raw was the one that documented constraints without prescribing methodology. Modify, extend, or delete any tool we give you. Document what you changed and why.
+
+3. **Self-evolution amplifies whatever target you point it at.** The prior cohort module that evolved its scaffolding against the canonical baseline gained 31 points (Angle C M3). The one that evolved against rubric lost 15 points (Angle A M4). Same mechanism, opposite outcome. If you iterate, your stop condition must be canonical KPI improvement — not "skill is patched" or "rubric items pass."
+
+4. **Force diversity. Don't ship the first thing that beats V0.** Variance collapses faster than mean rises — prior cohorts had 5-agent families converge on identical numbers with zero standard deviation, all running the same V1 per-segment-bias trick. Explore at least three distinct variants before declaring a favourite, with at least one outside any prescribed ladder. If your variants all look like each other, you haven't searched.
+
+5. **Lock the evaluation pool before fitting.** Pick the segments, truth channel, and filter before you fit anything. Prior agents who fit on Mach-E only and shipped a model that got applied to both Ford platforms canonically scored at −60% or worse. From your first variant onwards, evaluate on the same pool the grading skill will use: both Ford platforms, the `v_mps > 2.0` filter, both KPIs.
+
+The single-sentence version: **"Start from what we give you. Propose extensions. Justify them against the canonical metric. Diversify."**
+
+---
+
 ## If you split your own train into train/dev for iteration
 
 You have the train pool under [webinar-AI/data/](../../data/). If you want to evaluate yourself before shipping, split a dev set out of it. The split rules below are what prior cohorts got wrong; copy them, don't reinvent them.
