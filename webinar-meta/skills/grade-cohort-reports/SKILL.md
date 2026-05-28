@@ -43,6 +43,12 @@ The judge credits paraphrases (an agent saying "I scored against `yaw_rate_meas_
 
 Agents pick different metrics (yaw-rate RMSE in rad/s vs mrad/s vs deg/s; pooled vs train/test; Ford-only vs Tesla-fabricated). There is no single "correct" headline. The aggregator emits a table of `(agent_id, primary_metric, baseline, final, improvement)` as the agent stated them — no normalisation, no ranking. The **variance** across the cohort is the signal.
 
+### Canonical eval = held-out val-data (since 2026-05-28)
+
+The canonical-eval pipeline (`prepare_canonical.py` + per-agent judges) scores every agent's reconstructed model against a route-stratified validation hold-out that no agent has seen. The val-data root is declared in the idea's `.canonical.yaml` as `eval_data_root:` (absolute path, outside the repo). Segment globs in the YAML are resolved against that root.
+
+Implication for cohort interpretation: agents whose "headline" comes from per-segment overfitting (e.g. fitting a bias on each segment they were given) will score canonically lower than they self-reported, because the val segments are unseen. Agents whose model is a parameterised function generalising across segments will score similarly to their self-report. The gap between self-reported and canonical &Delta;% is now a generalisation diagnostic, not a "different evaluation surface" artefact.
+
 ### Honesty flags are tracked separately
 
 "Did the agent declare a limitation" is more important than "is their number good." A 7.8 % improvement with an honest "I had no truth channel and synthesised one from wheel-speed differentials" is qualitatively different from a 34 % improvement that silently glosses over a data-cleaning trick. The aggregator surfaces `declared_limitations: count` and `named_data_gap: bool` as first-class fields.

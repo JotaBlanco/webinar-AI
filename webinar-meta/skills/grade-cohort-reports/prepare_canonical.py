@@ -142,12 +142,20 @@ def compute_baseline(parsed_yaml: dict) -> dict:
     sample_filter_expr = eval_set.get("sample_filter", "True")
     truth_col = eval_set.get("truth_channel", "yaw_rate_meas_rads")
 
+    # If the YAML declares an eval_data_root, resolve globs against that. Otherwise
+    # fall back to REPO_ROOT (legacy behaviour, when train and eval shared the repo).
+    eval_root_str = parsed_yaml.get("eval_data_root", "").strip()
+    eval_root = Path(eval_root_str) if eval_root_str else REPO_ROOT
+    if not eval_root.is_dir():
+        sys.exit(f"prepare_canonical: eval_data_root does not exist: {eval_root}")
+
     seg_paths: list[Path] = []
     for g in globs:
-        for p in glob.glob(str(REPO_ROOT / g), recursive=True):
+        for p in glob.glob(str(eval_root / g), recursive=True):
             seg_paths.append(Path(p))
     seg_paths = sorted(set(seg_paths))
 
+    print(f"prepare_canonical: eval_data_root = {eval_root}")
     print(f"prepare_canonical: globbed {len(seg_paths)} sim.csv files for V0 baseline")
 
     sum_sq = 0.0
@@ -177,6 +185,7 @@ def compute_baseline(parsed_yaml: dict) -> dict:
         "n_samples_after_filter": n,
         "truth_channel": truth_col,
         "sample_filter": sample_filter_expr,
+        "eval_data_root": str(eval_root),
         "globs": globs,
         "computed_at": datetime.datetime.now().isoformat(timespec="seconds"),
     }

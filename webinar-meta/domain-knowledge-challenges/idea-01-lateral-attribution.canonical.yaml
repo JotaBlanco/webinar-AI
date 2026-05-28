@@ -3,14 +3,22 @@ idea_id: idea-01-lateral-attribution
 description: |
   Canonical evaluation spec for idea-01. Each agent's "favourite" yaw-rate model is
   reconstructed from their report + scripts + outputs, then run against this fixed
-  dataset under fixed conditions. The resulting RMSE replaces the agent's
+  held-out dataset under fixed conditions. The resulting RMSE replaces the agent's
   self-reported headline for cross-agent comparison.
 
+  As of 2026-05-28 the eval set is a held-out validation pool that no agent has seen
+  during training. See `split_note` below.
+
+# Absolute path to the validation data root. The segment_globs below are resolved
+# relative to this root. Agents are NOT given access to this directory; only the
+# grading skill reads from it.
+eval_data_root: /Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data
+
 eval_set:
-  description: All Ford sim segments under data/sim/segments/FORD_*/...
+  description: All Ford sim segments under <eval_data_root>/sim/segments/FORD_*/...
   segment_globs:
-    - data/sim/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv
-    - data/sim/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv
+    - sim/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv
+    - sim/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv
   sample_filter: "v_mps > 2.0"
   truth_channel: yaw_rate_meas_rads
 
@@ -38,10 +46,16 @@ failure_action: |
   model is described too vaguely to reproduce, or platform-restricted to non-Ford —
   return status="failed" with a one-sentence reason. Do not fabricate numbers.
 
-leakage_note: |
-  Many agents trained on the same Ford segments we score against. We accept this
-  leakage: the "model" each agent shipped is their fitted parameter set, and we
-  measure how well that parameter set predicts the full Ford dataset. Linear-fit
-  generalisation is good and the cross-agent comparison stays valid because every
-  agent is scored on the same data with the same baseline.
+split_note: |
+  This eval set is held out from every agent. Agents see and train against the data
+  under webinar-AI/data/ (the train pool); this YAML scores against val-data/, which
+  is a separate route-stratified hold-out (split defined in val-data/split.json —
+  whole routes held out, ~24% per platform, seed 42). An agent's score here is its
+  generalisation, not its in-sample fit.
+
+  Implication: per-segment overfitting tricks (e.g. fitting a bias per segment) will
+  no longer score well — the val segments are unseen, so there is nothing per-segment
+  to fit at score time unless the agent's predict function recomputes a bias on the
+  val segment itself (in which case it is no longer "their model" — it is "their
+  procedure," and the score reflects the procedure's generalisation, not memorisation).
 ---

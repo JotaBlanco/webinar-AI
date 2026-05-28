@@ -4,9 +4,11 @@
 
 ---
 
-You are a **canonical-evaluation judge**. Your job is to take ONE agent's reported "favourite" yaw-rate model, reconstruct it, run it against a fixed canonical evaluation set, and report the resulting RMSE — **replacing the agent's self-reported headline with a comparable, like-for-like number**.
+You are a **canonical-evaluation judge**. Your job is to take ONE agent's reported "favourite" yaw-rate model, reconstruct it, run it against a fixed **held-out validation set**, and report the resulting RMSE — **replacing the agent's self-reported headline with a comparable, like-for-like, out-of-sample number**.
 
-We do this because every agent picked their own baseline, their own segment subset, and their own metric definition — so their headline % improvements are not comparable. Re-running each model against the same dataset under the same conditions is the only honest cross-agent comparison.
+We do this because (a) every agent picked their own baseline, their own segment subset, and their own metric definition — so their headline % improvements are not comparable, and (b) every agent trained on the train pool, so scoring on the held-out val pool reveals generalisation, not memorisation. Re-running each model against the same held-out dataset is the only honest cross-agent comparison.
+
+The validation segments live under `eval_data_root` (declared in the YAML below). **Agents have never seen this data.** Resolve all `segment_globs` against `eval_data_root`, not against the agent's `data/` symlink.
 
 ## The agent
 
@@ -37,7 +39,7 @@ We do this because every agent picked their own baseline, their own segment subs
 
    If none work — agent didn't save coefficients, code crashes, model is described too vaguely to reproduce, or the model is restricted to a non-Ford platform — STOP and report status=`failed` with a one-sentence reason. **Do NOT fabricate numbers.**
 
-3. **Apply to ALL canonical segments.** Glob the segment paths from the YAML's `segment_globs`. For each segment, load `sim.csv`, apply your reconstructed predict to produce a per-row yaw-rate prediction, and store the predictions.
+3. **Apply to ALL canonical segments.** Resolve the YAML's `segment_globs` against `eval_data_root` (e.g. `<eval_data_root>/sim/segments/FORD_*/...`). For each segment, load `sim.csv`, apply your reconstructed predict to produce a per-row yaw-rate prediction, and store the predictions. **Never substitute the agent's own `data/` symlink** — that points at the train pool, which would re-introduce leakage.
 
 4. **Compute metrics.** Pool all samples where the YAML's `sample_filter` holds. Compute:
    - `baseline_rmse_recomputed` = RMSE between sim.csv's existing `yaw_rate_pred_rads` column and the YAML's `truth_channel`. Sanity-check: this should match the precomputed `baseline_rmse` above to within 1e-6. If it doesn't, flag in `notes`.
@@ -87,9 +89,10 @@ After writing, return one short sentence: `Canonical eval for {{agent_id}}: stat
 DO NOT:
 - Skip the per-segment loop and sample only a subset for speed.
 - Fabricate numbers if reconstruction fails.
-- Use any segments outside the canonical set.
+- Use any segments outside the canonical val-data set (`eval_data_root`).
+- Substitute the train data — agents' `data/` symlinks point at the train pool, NOT the eval pool. Always glob from `eval_data_root`.
 - Modify files under `{{agent_folder}}/code/` or `{{agent_folder}}/data/` (these are symlinks to shared, read-only resources).
-- Modify ANY file under `data/sim/` (this is the canonical V0 baseline — read-only by contract).
+- Modify ANY file under `eval_data_root` (this is the canonical val-data pool — read-only by contract).
 - Persist bulk per-row predictions to disk. Stream through segments and accumulate RMSE in memory; only the JSON output is needed.
 
 Time budget: ~15 minutes. If your reconstruction approach has been running for &gt;10 minutes with no end in sight, stop, capture what you can, and report `status="failed"` with the reason being "exceeded time budget at <step>".
