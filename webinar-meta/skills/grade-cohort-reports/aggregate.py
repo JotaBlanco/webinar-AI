@@ -227,8 +227,38 @@ def render_family_section(cards: list[dict], families: dict[str, str]) -> tuple[
     return out, cohort_json
 
 
+def _yaw_block(c: dict) -> dict:
+    """Pull the yaw_rate sub-block, falling back to legacy top-level fields."""
+    yr = c.get("yaw_rate")
+    if isinstance(yr, dict):
+        return yr
+    # Legacy / failed-status agents — synthesise from top-level.
+    return {
+        "baseline_rmse": c.get("baseline_rmse"),
+        "agent_rmse": c.get("agent_rmse"),
+        "improvement_pct": c.get("improvement_pct"),
+        "n_samples_after_filter": c.get("n_samples_after_filter"),
+    }
+
+
+def _cte_block(c: dict) -> dict | None:
+    """Pull the cte sub-block. Returns None for agents graded before CTE existed."""
+    cte = c.get("cte")
+    return cte if isinstance(cte, dict) else None
+
+
+def _family_stats(values: list[float]) -> dict:
+    return {
+        "mean": statistics.fmean(values),
+        "median": statistics.median(values),
+        "std": statistics.pstdev(values) if len(values) >= 2 else 0.0,
+        "min": min(values),
+        "max": max(values),
+    }
+
+
 def render_canonical_section(canonical: list[dict], families: dict[str, str]) -> tuple[list[str], dict]:
-    """Render the canonical headline section + per-family canonical performance."""
+    """Render the canonical headline section + per-family canonical performance for both KPIs."""
     by_fam: dict[str, list[dict]] = defaultdict(list)
     for c in canonical:
         fam = families.get(c.get("agent_id", ""), "unknown")
@@ -238,15 +268,26 @@ def render_canonical_section(canonical: list[dict], families: dict[str, str]) ->
     out: list[str] = []
     cohort_json: dict = {"families": {}, "per_agent": []}
 
-    # Pull V0 baseline (constant across all agents — use the first OK one).
-    v0 = None
+    # Pull V0 baselines (constant across all agents — use the first OK one).
+    v0_yaw = None
+    v0_cte = None
+    cte_available = False
     for c in canonical:
-        if c.get("status") == "ok" and c.get("baseline_rmse") is not None:
-            v0 = c["baseline_rmse"]
+        if c.get("status") != "ok":
+            continue
+        yr = _yaw_block(c)
+        if v0_yaw is None and yr.get("baseline_rmse") is not None:
+            v0_yaw = yr["baseline_rmse"]
+        cte = _cte_block(c)
+        if cte:
+            cte_available = True
+            if v0_cte is None and cte.get("baseline_rmse_meters") is not None:
+                v0_cte = cte["baseline_rmse_meters"]
+        if v0_yaw is not None and (v0_cte is not None or not cte_available):
             break
-    if v0 is None:
-        # all failed — use the precomputed baseline.json fallback (handled in main).
-        v0 = canonical[0].get("baseline_rmse") if canonical else None
+    if v0_yaw is None and canonical:
+        # All failed — fall back to top-level baseline_rmse on the first card.
+        v0_yaw = canonical[0].get("baseline_rmse")
 
     n_total = len(canonical)
     n_ok = sum(1 for c in canonical if c.get("status") == "ok")
@@ -254,69 +295,124 @@ def render_canonical_section(canonical: list[dict], families: dict[str, str]) ->
 
     out.append("## Canonical evaluation — each agent's model re-run against the fixed eval set")
     out.append("")
-    out.append(f"- V0 baseline RMSE: **{v0:.6f} rad/s** (computed from `yaw_rate_pred_rads` in sim.csv across the canonical Ford segments)")
+    out.append("Two primary KPIs. `yaw-rate RMSE` measures instantaneous fidelity; `CTE RMSE` measures cumulative trajectory drift over distance. A model that wins one but loses the other has a known signature (see best-practices.md).")
+    out.append("")
+    if v0_yaw is not None:
+        out.append(f"- V0 yaw-rate baseline: **{v0_yaw:.6f} rad/s**")
+    if cte_available and v0_cte is not None:
+        out.append(f"- V0 CTE baseline: **{v0_cte:.4f} m** (distance-resampled, 1m grid, ≥20m segments)")
     out.append(f"- Agents successfully re-run: **{n_ok}/{n_total}**" + (f" — {n_failed} failed reconstruction" if n_failed else ""))
     out.append("")
 
-    # ---- Per-family canonical performance & variance ----
-    out.append("### Per-family canonical performance & variance")
+    # ---- Per-family canonical performance & variance — yaw-rate ----
+    out.append("### Per-family canonical performance — KPI 1: yaw-rate RMSE")
     out.append("")
-    out.append("Honest cross-agent comparison: every agent's favourite model run against the SAME Ford segments, "
-               "scored against the SAME truth channel, with the SAME V0 baseline. Improvement % is "
-               "`(V0_RMSE - agent_RMSE) / V0_RMSE * 100`. Positive = better.")
+    out.append("Cross-agent comparison: every agent's favourite model run against the SAME held-out Ford segments, "
+               "scored against the SAME truth channel, with the SAME V0 baseline. "
+               "`Δ% = (V0_RMSE - agent_RMSE) / V0_RMSE * 100`. Positive = better.")
     out.append("")
     out.append("| family | n ok / total | mean Δ% vs V0 | median Δ% | std Δ% | range |")
     out.append("|---|---|---|---|---|---|")
     for fam in fam_order:
         cs = by_fam[fam]
-        ok = [c for c in cs if c.get("status") == "ok" and c.get("improvement_pct") is not None]
-        imp = [c["improvement_pct"] for c in ok]
+        ok = [c for c in cs if c.get("status") == "ok"]
+        imp = [_yaw_block(c).get("improvement_pct") for c in ok]
+        imp = [v for v in imp if v is not None]
+        fam_entry: dict = cohort_json["families"].setdefault(fam, {"n_total": len(cs)})
         if not imp:
             out.append(f"| `{fam}` | 0/{len(cs)} | _n=0_ | _n=0_ | _n=0_ | _n=0_ |")
-            cohort_json["families"][fam] = {"n_ok": 0, "n_total": len(cs), "improvement_pct": None}
+            fam_entry["yaw_rate"] = {"n_ok": 0, "improvement_pct": None}
             continue
-        s = {
-            "mean": statistics.fmean(imp),
-            "median": statistics.median(imp),
-            "std": statistics.pstdev(imp) if len(imp) >= 2 else 0.0,
-            "min": min(imp),
-            "max": max(imp),
-        }
-        out.append(f"| `{fam}` | {len(ok)}/{len(cs)} | {s['mean']:+.1f}% | {s['median']:+.1f}% | "
+        s = _family_stats(imp)
+        out.append(f"| `{fam}` | {len(imp)}/{len(cs)} | {s['mean']:+.1f}% | {s['median']:+.1f}% | "
                    f"{s['std']:.1f}% | {s['min']:+.1f}% … {s['max']:+.1f}% |")
-        cohort_json["families"][fam] = {
-            "n_ok": len(ok),
-            "n_total": len(cs),
+        fam_entry["yaw_rate"] = {
+            "n_ok": len(imp),
             "improvement_pct": {"mean": round(s["mean"], 3), "median": round(s["median"], 3),
-                                 "std": round(s["std"], 3), "min": round(s["min"], 3), "max": round(s["max"], 3)},
+                                "std": round(s["std"], 3), "min": round(s["min"], 3), "max": round(s["max"], 3)},
         }
     out.append("")
 
-    # ---- Per-agent canonical table ----
+    # ---- Per-family canonical performance & variance — CTE ----
+    if cte_available:
+        out.append("### Per-family canonical performance — KPI 2: cross-track-error RMSE")
+        out.append("")
+        out.append("Same cohort, same held-out segments, distance-resampled CTE in meters. "
+                   "`Δ% = (V0_CTE - agent_CTE) / V0_CTE * 100`. Positive = better.")
+        out.append("")
+        out.append("| family | n ok / total | mean Δ% vs V0 | median Δ% | std Δ% | range |")
+        out.append("|---|---|---|---|---|---|")
+        for fam in fam_order:
+            cs = by_fam[fam]
+            ok = [c for c in cs if c.get("status") == "ok"]
+            imp = [(_cte_block(c) or {}).get("improvement_pct") for c in ok]
+            imp = [v for v in imp if v is not None]
+            fam_entry = cohort_json["families"].setdefault(fam, {"n_total": len(cs)})
+            if not imp:
+                out.append(f"| `{fam}` | 0/{len(cs)} | _n=0_ | _n=0_ | _n=0_ | _n=0_ |")
+                fam_entry["cte"] = {"n_ok": 0, "improvement_pct": None}
+                continue
+            s = _family_stats(imp)
+            out.append(f"| `{fam}` | {len(imp)}/{len(cs)} | {s['mean']:+.1f}% | {s['median']:+.1f}% | "
+                       f"{s['std']:.1f}% | {s['min']:+.1f}% … {s['max']:+.1f}% |")
+            fam_entry["cte"] = {
+                "n_ok": len(imp),
+                "improvement_pct": {"mean": round(s["mean"], 3), "median": round(s["median"], 3),
+                                    "std": round(s["std"], 3), "min": round(s["min"], 3), "max": round(s["max"], 3)},
+            }
+        out.append("")
+
+    # ---- Per-agent canonical table — both KPIs side by side ----
     out.append("### Per-agent canonical headline (replaces self-reported)")
     out.append("")
-    out.append("| agent | family | status | baseline RMSE | agent RMSE | Δ% vs V0 | reconstruction | notes |")
-    out.append("|---|---|---|---|---|---|---|---|")
+    if cte_available:
+        out.append("| agent | family | status | yaw V0 (rad/s) | yaw agent | yaw Δ% | CTE V0 (m) | CTE agent | CTE Δ% | reconstruction | notes |")
+        out.append("|---|---|---|---|---|---|---|---|---|---|---|")
+    else:
+        out.append("| agent | family | status | baseline RMSE | agent RMSE | Δ% vs V0 | reconstruction | notes |")
+        out.append("|---|---|---|---|---|---|---|---|")
     for c in sorted(canonical, key=lambda c: (families.get(c.get("agent_id", ""), "zz"), c.get("agent_id", ""))):
         aid = c.get("agent_id", "?")
         fam = families.get(aid, "unknown")
         st = c.get("status", "?")
-        br = c.get("baseline_rmse")
-        ar = c.get("agent_rmse")
-        ip = c.get("improvement_pct")
+        yr = _yaw_block(c)
+        cte = _cte_block(c)
         method = c.get("reconstruction_method", "?")
         notes = (c.get("notes") or "")[:80]
+        br = yr.get("baseline_rmse")
+        ar = yr.get("agent_rmse")
+        ip = yr.get("improvement_pct")
         if st == "ok":
-            out.append(f"| **{aid}** | `{fam}` | ok | {br:.6f} | {ar:.6f} | **{ip:+.1f}%** | {method} | {notes} |")
+            if cte_available:
+                cbr = (cte or {}).get("baseline_rmse_meters")
+                car = (cte or {}).get("agent_rmse_meters")
+                cip = (cte or {}).get("improvement_pct")
+                cbr_s = f"{cbr:.4f}" if cbr is not None else "—"
+                car_s = f"{car:.4f}" if car is not None else "—"
+                cip_s = f"**{cip:+.1f}%**" if cip is not None else "—"
+                out.append(f"| **{aid}** | `{fam}` | ok | {br:.6f} | {ar:.6f} | **{ip:+.1f}%** | "
+                           f"{cbr_s} | {car_s} | {cip_s} | {method} | {notes} |")
+            else:
+                out.append(f"| **{aid}** | `{fam}` | ok | {br:.6f} | {ar:.6f} | **{ip:+.1f}%** | {method} | {notes} |")
         else:
             reason = c.get("reason") or "?"
             br_cell = f"{br:.6f}" if br is not None else "?"
-            out.append(f"| **{aid}** | `{fam}` | **FAILED** | {br_cell} | – | – | failed | {reason[:80]} |")
-        cohort_json["per_agent"].append({
+            if cte_available:
+                out.append(f"| **{aid}** | `{fam}` | **FAILED** | {br_cell} | – | – | – | – | – | failed | {reason[:80]} |")
+            else:
+                out.append(f"| **{aid}** | `{fam}` | **FAILED** | {br_cell} | – | – | failed | {reason[:80]} |")
+        per_agent_entry = {
             "agent_id": aid, "family": fam, "status": st,
-            "baseline_rmse": br, "agent_rmse": ar, "improvement_pct": ip,
+            "yaw_rate": {"baseline_rmse": br, "agent_rmse": ar, "improvement_pct": ip},
             "reconstruction_method": method,
-        })
+        }
+        if cte:
+            per_agent_entry["cte"] = {
+                "baseline_rmse_meters": cte.get("baseline_rmse_meters"),
+                "agent_rmse_meters": cte.get("agent_rmse_meters"),
+                "improvement_pct": cte.get("improvement_pct"),
+            }
+        cohort_json["per_agent"].append(per_agent_entry)
     out.append("")
 
     return out, cohort_json

@@ -26,7 +26,8 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-CHALLENGES_DIR = REPO_ROOT / "webinar-00" / "domain-knowledge-challenges"
+# Challenges live under webinar-meta (relocated from webinar-00 in May 2026).
+CHALLENGES_DIR = REPO_ROOT / "webinar-meta" / "domain-knowledge-challenges"
 SKILL_DIR = Path(__file__).resolve().parent
 
 # Reuse derive_agent_id_and_family from prepare.py.
@@ -130,8 +131,15 @@ def _parse_yaml_minimal(text: str) -> dict:
 
 
 def compute_baseline(parsed_yaml: dict) -> dict:
-    """Compute V0 RMSE across the canonical eval set using sim.csv's pre-existing
-    `yaw_rate_pred_rads` column. Returns dict ready to serialize as baseline.json."""
+    """Compute V0 baselines across the canonical eval set for BOTH primary KPIs:
+
+    - yaw_rate_rmse: pooled-sample yaw-rate RMSE in rad/s
+    - cte_rmse:      distance-resampled cross-track-error RMSE in meters
+
+    Returns a single dict ready to serialize as baseline.json. The structure is
+    nested under "yaw_rate" and "cte" keys; legacy `rmse_rad_per_s` is mirrored
+    at the top level so older readers don't break.
+    """
     import csv
     import math
 
@@ -156,8 +164,9 @@ def compute_baseline(parsed_yaml: dict) -> dict:
     seg_paths = sorted(set(seg_paths))
 
     print(f"prepare_canonical: eval_data_root = {eval_root}")
-    print(f"prepare_canonical: globbed {len(seg_paths)} sim.csv files for V0 baseline")
+    print(f"prepare_canonical: globbed {len(seg_paths)} sim.csv files for V0 baselines")
 
+    # ---- KPI 1: pooled yaw-rate RMSE ----
     sum_sq = 0.0
     n = 0
     fcode = compile(f"({sample_filter_expr})", "<filter>", "eval")
@@ -177,18 +186,57 @@ def compute_baseline(parsed_yaml: dict) -> dict:
                 sum_sq += d * d
                 n += 1
     if n == 0:
-        sys.exit("prepare_canonical: zero samples after filter — check segment_globs and sample_filter")
-    rmse = math.sqrt(sum_sq / n)
+        sys.exit("prepare_canonical: zero yaw-rate samples after filter — check segment_globs and sample_filter")
+    yaw_rmse = math.sqrt(sum_sq / n)
+    print(f"  yaw-rate V0 RMSE = {yaw_rmse:.6f} rad/s over {n:,} samples in {len(seg_paths)} segments")
+
+    # ---- KPI 2: distance-resampled CTE RMSE ----
+    # Read cte_rmse config from the YAML's flat `cte_metric:` block (the `metrics:`
+    # list is descriptive only — the minimal YAML parser cannot recurse into list items).
+    cte_cfg = parsed_yaml.get("cte_metric", {}) or {}
+    grid_step_m = float(cte_cfg.get("grid_step_m", 1.0))
+    min_dist_m = float(cte_cfg.get("min_segment_distance_m", 20.0))
+
+    sys.path.insert(0, str(SKILL_DIR))
+    from traj_metrics import cte_baseline_from_segments  # noqa: E402
+
+    cte_baseline = cte_baseline_from_segments(
+        segment_paths=seg_paths,
+        truth_channel=truth_col,
+        pred_channel="yaw_rate_pred_rads",
+        grid_step_m=grid_step_m,
+        min_distance_m=min_dist_m,
+        sample_filter_expr=sample_filter_expr,
+    )
+    print(f"  CTE V0 RMSE = {cte_baseline['rmse_meters']:.4f} m over "
+          f"{cte_baseline['n_distance_bins']:,} distance-bins in "
+          f"{cte_baseline['n_segments_used']} segments "
+          f"({cte_baseline['n_segments_skipped_short']} short, "
+          f"{cte_baseline['n_segments_skipped_bad']} bad)")
+
     return {
-        "rmse_rad_per_s": rmse,
+        # Nested per-metric blocks — the new contract.
+        "yaw_rate": {
+            "rmse_rad_per_s": yaw_rmse,
+            "n_samples_after_filter": n,
+            "truth_channel": truth_col,
+            "sample_filter": sample_filter_expr,
+        },
+        "cte": cte_baseline,
+        # Common metadata.
         "n_segments": len(seg_paths),
-        "n_samples_after_filter": n,
-        "truth_channel": truth_col,
-        "sample_filter": sample_filter_expr,
         "eval_data_root": str(eval_root),
         "globs": globs,
         "computed_at": datetime.datetime.now().isoformat(timespec="seconds"),
+        # Legacy top-level mirror — old readers and the existing aggregate.py
+        # field name continue to work.
+        "rmse_rad_per_s": yaw_rmse,
+        "n_samples_after_filter": n,
+        "truth_channel": truth_col,
+        "sample_filter": sample_filter_expr,
     }
+
+
 
 
 def main():
@@ -212,11 +260,10 @@ def main():
     (args.out_dir / "canonical-eval-snapshot.yaml").write_text(eval_yaml_raw)
 
     # 1) Compute V0 baseline (once).
-    print("prepare_canonical: computing V0 baseline across canonical eval set...")
+    print("prepare_canonical: computing V0 baselines (yaw-rate + CTE) across canonical eval set...")
     baseline = compute_baseline(eval_yaml_parsed)
     (canon_dir / "baseline.json").write_text(json.dumps(baseline, indent=2))
-    print(f"  baseline RMSE = {baseline['rmse_rad_per_s']:.6f} rad/s over "
-          f"{baseline['n_samples_after_filter']:,} samples in {baseline['n_segments']} segments")
+    print(f"  baseline.json written to {canon_dir}")
 
     # 2) Render one canonical-eval prompt per agent.
     template = (SKILL_DIR / "canonical-eval-template.md").read_text()
@@ -236,6 +283,7 @@ def main():
                   .replace("{{report_path}}", str(report))
                   .replace("{{eval_yaml}}", eval_yaml_raw)
                   .replace("{{baseline_json}}", json.dumps(baseline, indent=2))
+                  .replace("{{skill_dir}}", str(SKILL_DIR))
                   .replace("{{output_path}}", str(output_path)))
         prompt_file = args.out_dir / f"canonical-judge-{agent_id}.prompt.md"
         prompt_file.write_text(prompt)
