@@ -1,0 +1,120 @@
+{
+  "agent_id": "angleD-m3-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-D/module-3/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Truth channel:** `yaw_rate_meas_rads` is **measured** truth (decoded Ford IMU from rlog)."
+      ],
+      "reasoning": "Report names the scored channel and identifies it as measured truth from the Ford IMU rlog."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Contract:** `v` and `\u03b4` are **clamped to measured** at every step (`clamp_v_to_measured=True`, `clamp_delta_to_measured=True`). Speed-state agreement is therefore not a metric here; only lateral residual is."
+      ],
+      "reasoning": "Methodology explicitly states which channels are clamped to measured versus what is being predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | Overall | Straight | Steady cornering | Transient cornering | Marginal \u0394 (overall) | Notes |"
+      ],
+      "reasoning": "Variant table breaks out RMSE across straight, steady cornering, and transient cornering regimes."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "- **Segment set:** 30 Mach-E `sim.csv` files (evenly sampled from 315 available), 87 040 rows total.",
+        "- **Regime mask:** straight `|\u03b4|<0.01 rad`; steady `|\u03b4|\u22650.01 & |d\u03b4/dt|<0.05 rad/s`; transient `|\u03b4|\u22650.01 & |d\u03b4/dt|\u22650.05`."
+      ],
+      "reasoning": "Header declares a fixed segment set and regime mask that applies to every variant in the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "**Accounting:** strict marginal, fixed order V0\u2192V1\u2192V2\u2192V3\u2192V4. Sum of marginal drops = total V0\u2192V4 drop (0.00288 rad/s); 0 % off \u2014 within the 15 % tolerance."
+      ],
+      "reasoning": "Report explicitly states sum of marginal drops equals total drop with 0% discrepancy, well within the 15% threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| V3 \u2014 Linear ST with fit `C_\u03b1` | 0.00853 | 0.00333 | 0.01870 | 0.03293 | +0.00032 (+4 %) | **Regression.** L-BFGS-B did not move from `x0=(1.5e5,1.5e5)` \u2014 not pegged at upper bound, but evidently stuck on a flat region of the loss surface for this subset.",
+        "| V4 \u2014 Ridge residual learner on `[v, |a_y|, |\u03b4|, sign(\u03b4\u0307)]`, leave-one-segment-out | 0.00855 | 0.00394 | 0.01836 | 0.03113 | +0.00002 (+0 %) | **Regression.** OOF Ridge cannot beat V3 out-of-fold"
+      ],
+      "reasoning": "Variant table explicitly labels V3 and V4 as regressions with physical/algorithmic causes (optimiser stuck, OOF Ridge fails gate)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE of yaw-rate residual, rad/s",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01143",
+    "final_value": "0.00821",
+    "improvement": "\u22120.00288 rad/s total V0\u2192V4 drop; V2 best at 0.00821 vs V0 0.01143",
+    "top_contributor": "V1 \u2014 KS recalibrated + per-segment straight-line gyro bias",
+    "baseline_numeric": 0.01143,
+    "final_numeric": 0.00821,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 28.17,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads truth channel with clamped v and \u03b4 contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 \u2014 KS recalibrated + per-segment straight-line gyro bias",
+      "contribution_pct": 88.0,
+      "contribution_abs": -0.00255,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 \u2014 Linear ST, prior C_\u03b1",
+      "contribution_pct": 23.0,
+      "contribution_abs": -0.00068,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 \u2014 Linear ST with fit C_\u03b1",
+      "contribution_pct": -11.0,
+      "contribution_abs": 0.00032,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4 \u2014 Ridge LOO residual learner",
+      "contribution_pct": -0.7,
+      "contribution_abs": 2e-05,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

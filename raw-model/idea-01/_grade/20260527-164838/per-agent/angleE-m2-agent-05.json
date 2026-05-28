@@ -1,0 +1,113 @@
+{
+  "agent_id": "angleE-m2-agent-05",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-E/module-2/agent-05/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`yaw_rate_meas_rads` is measured truth (Ford rlog IMU)."
+      ],
+      "reasoning": "Report names the scored channel and identifies it as measured, citing the Ford rlog IMU source."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Speed `v` and steering `\u03b4` are **clamped** to measured throughout (`clamp_v_to_measured=True`, `clamp_delta_to_measured=True`)."
+      ],
+      "reasoning": "Explicit statement of which channels are clamped vs predicted in the methodology section."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| variant | overall | straight | steady | transient |"
+      ],
+      "reasoning": "Variant table breaks out error by straight/steady/transient regimes, not only aggregate."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Platform scored: **FORD_MUSTANG_MACH_E_MK1** (315 segments, 913,626 rows).",
+        "Speed `v` and steering `\u03b4` are **clamped** to measured throughout (`clamp_v_to_measured=True`, `clamp_delta_to_measured=True`). The speed-known operating contract held for every variant"
+      ],
+      "reasoning": "Same segment set (315 segments) and same clamped contract applied across every variant on the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "**Sum of marginals vs total V0\u2192V3 drop:** +0.00050 vs +0.00050. Identical \u2014 there's no interaction term in this sequential ladder, so attribution is exact."
+      ],
+      "reasoning": "Agent explicitly reconciles marginal sum (+0.00050) with total drop (+0.00050) \u2014 discrepancy is 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V1\u2192V2: +0.00184 (regression).** Both steady (0.0317 \u2192 0.0345) and transient (0.0573 \u2192 0.0623) get worse. The openpilot prior `C_\u03b1` understeer term `K_us\u00b7v\u00b2` reduces predicted \u03c8\u0307 at high speed in a direction the Mach-E does not require"
+      ],
+      "reasoning": "Regressions explicitly flagged with physical reasons (understeer term reduces predicted yaw rate in wrong direction)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "overall RMSE (rad/s)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01613",
+    "final_value": "0.01663",
+    "improvement": "+0.00050 (regression V0\u2192V3)",
+    "top_contributor": "V1 (KS recalib + bias)",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.01663,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": -3.1,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using measured yaw_rate_meas_rads (IMU) with the clamped-v, clamped-\u03b4 contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 (KS recalib + bias)",
+      "contribution_pct": 288.0,
+      "contribution_abs": -0.00144,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 (Linear ST, prior C\u03b1)",
+      "contribution_pct": -368.0,
+      "contribution_abs": 0.00184,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 (Linear ST, fit C\u03b1)",
+      "contribution_pct": -20.0,
+      "contribution_abs": 0.0001,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

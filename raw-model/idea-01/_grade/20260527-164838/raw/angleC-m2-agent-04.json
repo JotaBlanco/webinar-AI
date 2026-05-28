@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleC-m2-agent-04",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/module-2/agent-04/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["`yaw_rate_meas_rads` is **measured truth** from the rlog (Ford CAN decode; Tesla excluded per ratchet rule 4)."],
+      "reasoning": "Agent explicitly names the scored channel as measured truth and cites the rlog/Ford CAN source."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Operating contract (rule 5):** `clamp_v_to_measured=True, clamp_delta_to_measured=True`. Only lateral states are predicted; speed-state agreement is zero by construction."],
+      "reasoning": "Explicit clamped-vs-predicted statement: v and delta clamped to measured; lateral states predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| # | Variant | All | Straight | Steady | Transient | Δ vs prev | Fit scope |"],
+      "reasoning": "Variant table breaks RMSE out by Straight, Steady, and Transient regimes in addition to All."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Regime masks** (fixed across all variants, rule 11):"],
+      "reasoning": "Regime masks declared fixed across all variants, and the variant table uses the same metric (RMSE in deg/s) throughout."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.03,
+      "threshold_met": true,
+      "evidence": ["| V1 | global bias removal (b=+0.093 deg/s) | 1.015 | 0.484 | 2.321 | 3.024 | **+0.2% (regression)** | per-platform |", "**With per-segment calibration (V0 → V4):** -16.3% overall, -53% on straight regime (sensor zero offsets)."],
+      "reasoning": "Marginal drops on 'All' RMSE (+0.2 -5.0 -1.5 -10.7 = -17.0%) reconcile within ~0.04 of the reported -16.3% total drop, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**V1 ↑0.2%** is a real regression. Physical cause: the global median residual on the train set is non-zero because cornering samples have asymmetric pred-meas error (model under-gains in turns)."],
+      "reasoning": "V1 explicitly flagged as a regression with a physical cause provided."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE in deg/s",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "1.013",
+    "final_value": "0.848",
+    "improvement": "-16.3% overall",
+    "top_contributor": "V4 per-segment bias (-10.7%)",
+    "baseline_numeric": 1.013,
+    "final_numeric": 0.848,
+    "unit_normalized": "deg/s",
+    "improvement_pct_numeric": 16.3,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on canonical Ford platform using measured yaw_rate_meas_rads as truth and explicitly declared the clamp contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 global bias removal",
+      "contribution_pct": -1.2,
+      "contribution_abs": -0.002,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 affine gain+bias on ψ̇_pred",
+      "contribution_pct": 30.9,
+      "contribution_abs": 0.051,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 per-segment lag align (60 ms)",
+      "contribution_pct": 9.1,
+      "contribution_abs": 0.015,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 per-segment median-bias subtraction",
+      "contribution_pct": 61.2,
+      "contribution_abs": 0.101,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

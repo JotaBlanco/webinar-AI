@@ -1,0 +1,119 @@
+{
+  "agent_id": "angleC-m3-agent-04",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/module-3/agent-04/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Measured truth**: Ford has `yaw_rate_meas_rads` from CAN; Tesla does not (rule 4 \u2014 Tesla excluded)."
+      ],
+      "reasoning": "Agent names the scored channel (yaw_rate_meas_rads) and explicitly identifies it as measured from CAN on Ford platforms."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Clamped vs predicted**: `v_mps` and `delta_road_rad` clamped to measured (lateral-only mode); \u03c8\u0307 and a_y predicted (rule 5)."
+      ],
+      "reasoning": "Explicit clamped-vs-predicted statement is present in the Setting section."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | overall | straight | steady | transient | scope |"
+      ],
+      "reasoning": "Variant tables break out RMSE per regime (straight / steady / transient) for both platforms."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "## Variant ladder (held-out interleaved every-5th-sample TEST, rule 7)"
+      ],
+      "reasoning": "Both platform tables share the same regime columns (overall/straight/steady/transient) and the section header declares a single TEST split applied across all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Attribution: strict marginal V0\u2192V1\u2192V2\u2192V3\u2192V4."
+      ],
+      "reasoning": "Marginal RMSE drops sum exactly to total drop on each platform (Lightning V0 0.02037 \u2192 V4 0.01654 total drop 0.00383; marginals 0.00031+0.00068+0.00240+0.00044=0.00383), reconciling to 0."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "V3 worsens **straight** RMSE on Mach-E (0.00878 \u2192 0.00999): k>1 amplifies near-zero \u03b4 jitter.",
+        "V4 vs V3 on Mach-E transient regressed (0.05085 \u2192 0.05214): bias term stole variance from gain."
+      ],
+      "reasoning": "Regressions are explicitly listed with physical causes (jitter amplification; bias stealing variance from gain)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Lateral yaw-rate RMSE",
+    "platform": "Mach-E (segment-bias variant) and Lightning (per-platform affine variant)",
+    "baseline_value": "0.02037",
+    "final_value": "0.01654",
+    "improvement": "18.8% on Lightning",
+    "top_contributor": "V3 steering gain k=0.892",
+    "baseline_numeric": 0.02037,
+    "final_numeric": 0.01654,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 18.8,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored against measured yaw_rate_meas_rads from CAN on Ford platforms with explicit clamped/predicted contract, matching the rubric's canonical setup."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 platform bias b=-4.4e-3",
+      "contribution_pct": 8.1,
+      "contribution_abs": 0.00031,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 segment bias",
+      "contribution_pct": 17.8,
+      "contribution_abs": 0.00068,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 steering gain k=0.892",
+      "contribution_pct": 62.7,
+      "contribution_abs": 0.0024,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 affine + bias",
+      "contribution_pct": 11.5,
+      "contribution_abs": 0.00044,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

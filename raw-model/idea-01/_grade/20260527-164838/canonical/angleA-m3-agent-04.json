@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m3-agent-04",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Re-ran V4: imported triage.linear_st_yaw_rate with saved C\u03b1=(1.5e5,1.5e5), applied per-segment straight-line yaw-bias to form V3 prediction, then triage.residual_learner_loo (Ridge \u03b1=1, LOO) on V3 residuals across all 545 canonical Ford segments.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723487,
+  "agent_rmse": 0.011013013325083853,
+  "improvement_pct": 25.284954443175145,
+  "notes": "Favourite = V4 (declared best in REPORT: 'Recovers everything V2+V3 lost and pushes overall below V1'). Reconstructed by importing agent's triage module and re-running V3 (linear single-track with saved C\u03b1=1.5e5 N/rad both axles + per-segment straight-line yaw-bias) plus V4 Ridge residual learner with leave-one-segment-out CV on features [v,|a_y|,|delta|,sign(ddelta)]. V3 C\u03b1 coefficients are from agent's saved out/ladder_results.json (L-BFGS-B returned the initial guess \u2014 flat loss surface). Per-platform L, l_f, l_r, m, I_z used (Mach-E and F-150). LOO Ridge applied across full 545-segment canonical set (the agent's procedure rather than fixed coefficients, since LOO doesn't yield a single saved model)."
+}

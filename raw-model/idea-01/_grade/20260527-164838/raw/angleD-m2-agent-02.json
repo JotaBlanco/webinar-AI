@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleD-m2-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-D/module-2/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["`yaw_rate_meas_rads` is the **measured** truth channel (IMU-decoded)"],
+      "reasoning": "Agent names the scored channel and explicitly identifies it as the measured IMU-decoded signal."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Operating contract: speed- and steering-clamped, lateral-only."],
+      "reasoning": "Agent explicitly states which inputs are clamped (speed, steering) and that the model is lateral-only — i.e. yaw rate is predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| Variant | Overall | Straight | Steady | Transient | Δ vs prev | Attribution |"],
+      "reasoning": "Variant table includes per-regime RMSE columns (Straight / Steady / Transient) in addition to the aggregate."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["25 of 315 Mach-E segments sampled (seed=42), 72,485 rows.", "| Variant | Overall | Straight | Steady | Transient | Δ vs prev | Attribution |"],
+      "reasoning": "Same segment sample (seed=42, 25 segments) and same regime columns / RMSE metric used across every variant row."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.052,
+      "threshold_met": true,
+      "evidence": ["| V1 KS recalib + per-segment gyro bias | **0.00909** | **0.00498** | 0.02110 | 0.03360 | **−0.00268** | **straight-line gyro bias removal — 100% of total gain** |", "**Overall yaw-rate RMSE dropped from 0.01178 rad/s (V0) to 0.00909 rad/s (V1) — a 22.8% reduction.**"],
+      "reasoning": "Marginal Δ column sums (−0.00268 + 0.00072 + 0.00016 − 0.00026 = −0.00206) vs total drop V0→V4 = 0.00207; |sum − total|/total ≈ 0.005, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| V2 Linear ST, prior C_α | 0.00981 | 0.00307 | 0.02599 | 0.03921 | +0.00072 | helps straights further, hurts cornering (overconfident slip model) |"],
+      "reasoning": "V2 and V3 regressions are reported with positive Δ and physical causes (overconfident slip model; fit stuck at x0 / flat loss surface)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Overall yaw-rate RMSE",
+    "platform": "Ford Mustang Mach-E (MK1)",
+    "baseline_value": "0.01178 rad/s (V0)",
+    "final_value": "0.00909 rad/s (V1)",
+    "improvement": "22.8% reduction",
+    "top_contributor": "V1 KS recalib + per-segment gyro bias",
+    "baseline_numeric": 0.01178,
+    "final_numeric": 0.00909,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 22.8,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured IMU yaw-rate channel with the operating contract explicitly stated."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 KS recalib + per-segment gyro bias",
+      "contribution_pct": 100.0,
+      "contribution_abs": -0.00268,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 Linear ST, prior C_α",
+      "contribution_pct": -26.9,
+      "contribution_abs": 0.00072,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 Linear ST, fit C_α",
+      "contribution_pct": -6.0,
+      "contribution_abs": 0.00016,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 Ridge residual learner on V3",
+      "contribution_pct": 9.7,
+      "contribution_abs": -0.00026,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

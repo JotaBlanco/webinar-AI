@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m4-agent-03",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "Re-ran agent's favourite V4 model: linear single-track with their DE-fitted Mach-E cf=401575, cr=389774 (from out/ladder_results.json) and Mach-E geom (L=2.984, m=2336, l_f=1.313, l_r=1.671, I_z=4879.05), minus per-segment straight-line bias, plus a Ridge residual learner on [v, |a_y|, |delta|, sign(ddelta)] trained leave-one-segment-out across all 545 canonical Ford segments.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.020791548696118198,
+  "improvement_pct": -41.05508294348547,
+  "notes": "Agent only trained/fit on FORD_MUSTANG_MACH_E_MK1 (315 segs). Their fitted (cf, cr) and Mach-E mechanical parameters were applied uniformly to the 545-segment canonical set (Mach-E + F-150 Lightning); F-150 has different mass/wheelbase/inertia, so the linear-ST predictions on F-150 are off-platform. The agent's V4 also depends on a residual learner trained per-fold: I reproduced the LOO procedure across all 545 canonical segments (not just Mach-E)."
+}

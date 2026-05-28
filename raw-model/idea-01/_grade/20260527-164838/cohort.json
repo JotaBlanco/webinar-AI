@@ -1,0 +1,3746 @@
+{
+  "n_agents": 85,
+  "per_item": {
+    "truth-channel-correct": {
+      "pass": 83,
+      "fail": 1,
+      "null": 1,
+      "rate": "83/84 = 99%"
+    },
+    "contract-acknowledged": {
+      "pass": 79,
+      "fail": 5,
+      "null": 1,
+      "rate": "79/84 = 94%"
+    },
+    "regime-breakdown-present": {
+      "pass": 75,
+      "fail": 10,
+      "null": 0,
+      "rate": "75/85 = 88%"
+    },
+    "methodology-consistent": {
+      "pass": 85,
+      "fail": 0,
+      "null": 0,
+      "rate": "85/85 = 100%"
+    },
+    "attribution-coherent": {
+      "pass": 85,
+      "fail": 0,
+      "null": 0,
+      "rate": "85/85 = 100%"
+    },
+    "honest-regression-flagged": {
+      "pass": 77,
+      "fail": 2,
+      "null": 6,
+      "rate": "77/79 = 97%"
+    }
+  },
+  "headline": [
+    {
+      "agent_id": "angleA-m2-agent-01",
+      "primary_metric": "Overall yaw-rate RMSE",
+      "platform": "Ford (Mach-E MK1 + F-150 Lightning MK1), 545 segments total",
+      "baseline_value": "0.01804 rad/s (V0)",
+      "final_value": "0.01568 rad/s (V4)",
+      "improvement": "13.1% reduction",
+      "top_contributor": "V4 understeer",
+      "baseline_numeric": 0.01804,
+      "final_numeric": 0.01568,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 13.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored predicted yaw-rate against measured CAN-decoded yaw_rate_meas_rads on Ford platform with clamped v/\u03b4 contract explicitly acknowledged \u2014 matches canonical rubric setup."
+    },
+    {
+      "agent_id": "angleA-m2-agent-02",
+      "primary_metric": "RMSE on `yaw_rate_pred \u2212 yaw_rate_meas`, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01550",
+      "final_value": "0.01313",
+      "improvement": "15.3% reduction",
+      "top_contributor": "V1_seg_bias",
+      "baseline_numeric": 0.0155,
+      "final_numeric": 0.01313,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 15.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using the measured yaw_rate_meas_rads channel from rlog CAN, with clamped/predicted contract honoured."
+    },
+    {
+      "agent_id": "angleA-m2-agent-03",
+      "primary_metric": "pooled-sample RMSE on `yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads` (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01380",
+      "improvement": "14.5% drop",
+      "top_contributor": "V1 (bias removal)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.0138,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 14.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on a canonical platform (Mach-E) against a measured IMU-derived truth channel with the clamped-vs-predicted contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleA-m2-agent-04",
+      "primary_metric": "RMSE of `yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas` (rad/s)",
+      "platform": "`FORD_MUSTANG_MACH_E_MK1` (Ford Mach-E MK1, 315 segments, 913,626 samples @ 50 Hz)",
+      "baseline_value": "0.01613",
+      "final_value": "0.01077",
+      "improvement": "total drop = 33.2% overall (V0 0.01613 \u2192 V4 0.01077)",
+      "top_contributor": "V3_perseg_gain_fit",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01077,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 33.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads truth channel with explicit clamped/predicted contract."
+    },
+    {
+      "agent_id": "angleA-m2-agent-05",
+      "primary_metric": "lateral residual `yaw_rate_pred \u2212 yaw_rate_meas`",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "V0 = 0.01613",
+      "final_value": "V4 = 0.01035",
+      "improvement": "35.8% reduction",
+      "top_contributor": "V2 + \u03b1 re-fit",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01035,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 35.8,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against a measured truth channel (Ford IMU yaw_rate_meas_rads) on a canonical platform with the speed-known contract explicitly honoured."
+    },
+    {
+      "agent_id": "angleA-m3-agent-01",
+      "primary_metric": "RMSE on `yaw_rate_resid_rads` (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01190",
+      "final_value": "0.01003",
+      "improvement": "15.7% improvement vs V0",
+      "top_contributor": "V4 Ridge residual learner on V3, LOSO",
+      "baseline_numeric": 0.0119,
+      "final_numeric": 0.01003,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 15.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Mach-E platform against a measured IMU yaw-rate truth channel with an explicit speed-known clamped contract."
+    },
+    {
+      "agent_id": "angleA-m3-agent-02",
+      "primary_metric": "RMSE(yaw_rate_pred \u2212 yaw_rate_meas)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01469",
+      "improvement": "-0.00143",
+      "top_contributor": "V1 \u2014 KS recalibrated + per-segment straight-line yaw-gyro bias",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.93,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on canonical Ford Mach-E platform against measured CAN-decoded yaw rate with explicit contract acknowledgement."
+    },
+    {
+      "agent_id": "angleA-m3-agent-03",
+      "primary_metric": "lateral yaw-rate RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "V0 = 0.01613",
+      "final_value": "V1 = 0.01469 rad/s",
+      "improvement": "8.9% reduction",
+      "top_contributor": "V1 KS recalibrated (canonical L) + per-segment yaw-gyro bias on straights",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using the measured CAN/IMU yaw_rate_meas_rads truth channel with the lateral-only clamped contract explicitly stated."
+    },
+    {
+      "agent_id": "angleA-m3-agent-04",
+      "primary_metric": "RMSE on `yaw_rate_resid_rads`, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.012144",
+      "final_value": "0.010045",
+      "improvement": "0.002099 rad/s (17.3% relative)",
+      "top_contributor": "V4 Ridge residual learner on V3 (LOO CV)",
+      "baseline_numeric": 0.012144,
+      "final_numeric": 0.010045,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 17.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Mach-E platform against the measured rlog yaw-rate gyro channel with clamped speed/steer contract acknowledged."
+    },
+    {
+      "agent_id": "angleA-m3-agent-05",
+      "primary_metric": "RMSE of yaw-rate residual, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01190",
+      "final_value": "0.00963",
+      "improvement": "total drop = 19% relative (0.00227 rad/s absolute)",
+      "top_contributor": "V4 Residual learner on V3 (LOO)",
+      "baseline_numeric": 0.0119,
+      "final_numeric": 0.00963,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using the measured IMU yaw-rate channel, with the speed-known contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleA-m4-agent-01",
+      "primary_metric": "RMSE overall (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01394",
+      "final_value": "0.01120",
+      "improvement": "\u221219.6%",
+      "top_contributor": "V4",
+      "baseline_numeric": 0.01394,
+      "final_numeric": 0.0112,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.6,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on Mach-E (canonical platform with measured IMU yaw-rate truth), contract is explicitly acknowledged with clamped v/\u03b4, and RMSE computed against the measured channel."
+    },
+    {
+      "agent_id": "angleA-m4-agent-02",
+      "primary_metric": "RMSE overall (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.012144",
+      "final_value": "0.009608",
+      "improvement": "~21% overall reduction; ~60% reduction on the straight regime",
+      "top_contributor": "V4",
+      "baseline_numeric": 0.012144,
+      "final_numeric": 0.009608,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 20.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured IMU yaw-rate channel with the speed-known contract explicitly declared."
+    },
+    {
+      "agent_id": "angleA-m4-agent-03",
+      "primary_metric": "Overall yaw-rate RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "V0 = 0.016127 rad/s",
+      "final_value": "V4 = 0.014897 rad/s",
+      "improvement": "7.6% relative improvement",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.016127,
+      "final_numeric": 0.014897,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 7.6,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mustang Mach-E platform using a measured yaw-rate truth channel (rlog gyro), with the clamped-vs-predicted contract acknowledged."
+    },
+    {
+      "agent_id": "angleA-m4-agent-04",
+      "primary_metric": "Overall RMSE (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01214",
+      "final_value": "0.01005",
+      "improvement": "0.00210 rad/s (17.3% reduction)",
+      "top_contributor": "V4 \u2014 Ridge residual learner on V3, LOSO CV",
+      "baseline_numeric": 0.01214,
+      "final_numeric": 0.01005,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 17.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mustang Mach-E platform against the measured yaw-rate channel from rlog IMU, with the clamped-vs-predicted contract explicitly declared."
+    },
+    {
+      "agent_id": "angleA-m4-agent-05",
+      "primary_metric": "RMSE overall (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.02570",
+      "final_value": "0.02463",
+      "improvement": "V0\u2192V3 total RMSE drop = **0.00064 rad/s** (2.5% reduction). Largest single improvement comes from **V1 alone** (0.00107 rad/s, 4.1%)",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.0257,
+      "final_numeric": 0.02463,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 4.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mustang Mach-E MK1 platform using measured IMU yaw rate as truth, with the speed-known contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleB-m2-agent-01",
+      "primary_metric": "RMSE in mrad/s",
+      "platform": "Ford Mustang Mach-E MK1 and Ford F-150 Lightning MK1",
+      "baseline_value": "15.84",
+      "final_value": "7.92",
+      "improvement": "-50.0% vs V0",
+      "top_contributor": "V3",
+      "baseline_numeric": 15.84,
+      "final_numeric": 7.92,
+      "unit_normalized": "mrad/s",
+      "improvement_pct_numeric": 50.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against the measured yaw_rate_meas_rads from the Ford CAN DBC on canonical Ford platforms with an explicit speed-known clamped contract."
+    },
+    {
+      "agent_id": "angleB-m2-agent-02",
+      "primary_metric": "Yaw-rate RMSE 0.01190 \u2192 0.00864 rad/s (-27.4%) across 80-segment Mach-E set, mask locked.",
+      "platform": "`FORD_MUSTANG_MACH_E_MK1`, 80 segments (first 80 alphabetically), pre-generated `sim.csv`.",
+      "baseline_value": "0.01190",
+      "final_value": "0.00864",
+      "improvement": "-27.4%",
+      "top_contributor": "steering-lag (V3, 0.0022 rad/s)",
+      "baseline_numeric": 0.0119,
+      "final_numeric": 0.00864,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 27.4,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mustang Mach-E platform against a measured CAN-bus yaw rate channel with explicit clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleB-m2-agent-03",
+      "primary_metric": "RMSE of `yaw_rate_resid_rads = \u03c8\u0307_pred \u2212 \u03c8\u0307_meas`, broken out by regime, in **mrad/s**",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "16.127",
+      "final_value": "14.202",
+      "improvement": "1.924 mrad/s (11.9%)",
+      "top_contributor": "V1",
+      "baseline_numeric": 16.127,
+      "final_numeric": 14.202,
+      "unit_normalized": "mrad/s",
+      "improvement_pct_numeric": 11.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford platform against the measured CAN-bus yaw-rate channel with an explicit clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleB-m2-agent-04",
+      "primary_metric": "Lateral yaw-rate RMSE on FORD_MUSTANG_MACH_E_MK1",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01388",
+      "improvement": "-14.0%",
+      "top_contributor": "V1 per-segment yaw-rate bias removal",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01388,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 14.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford platform against a measured CAN-IMU yaw-rate channel with the contract (v, \u03b4 clamped) explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleB-m2-agent-05",
+      "primary_metric": "RMSE of `yaw_rate_resid_rads` (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01161",
+      "final_value": "0.00714",
+      "improvement": "Total V0 \u2192 V3 drop = 0.00447 rad/s (38% of V0)",
+      "top_contributor": "V1 (+ per-segment yaw-rate bias removal)",
+      "baseline_numeric": 0.01161,
+      "final_numeric": 0.00714,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 38.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against the measured Ford IMU yaw-rate channel on a canonical platform with explicit clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleB-m3-agent-01",
+      "primary_metric": "RMSE of `pred \u2212 meas` over 315 segments / 913 626 samples at 50 Hz",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01530",
+      "improvement": "V0\u2192V4 drop = 0.0008 rad/s (~5%)",
+      "top_contributor": "V1 KS + per-seg straight-line bias",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.0153,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 5.15,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads with contract (v, \u03b4 clamped) explicitly declared."
+    },
+    {
+      "agent_id": "angleB-m3-agent-02",
+      "primary_metric": "Yaw-rate RMSE (rad/s), same segments, same regime mask",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.0161",
+      "final_value": "0.0149",
+      "improvement": "0.0012 rad/s (7.5%)",
+      "top_contributor": "V1 + per-seg straight-line yaw bias removal",
+      "baseline_numeric": 0.0161,
+      "final_numeric": 0.0149,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 7.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "TRUE \u2014 the agent scored on the canonical Mach-E platform against the measured yaw_rate_meas_rads channel with a clearly stated clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleB-m3-agent-03",
+      "primary_metric": "RMSE of `\u03c8\u0307_pred \u2212 \u03c8\u0307_meas` in rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01550",
+      "final_value": "0.01251",
+      "improvement": "-0.00299",
+      "top_contributor": "V4 \u2014 V3 + Ridge residual LOSO on [v, |a_y|, |\u03b4|, sign(\u03b4\u0307)]",
+      "baseline_numeric": 0.0155,
+      "final_numeric": 0.01251,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.29,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads with contract (v, \u03b4 clamped) explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleB-m3-agent-04",
+      "primary_metric": "RMSE of yaw-rate residual, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01326",
+      "final_value": "0.01098",
+      "improvement": "-17%",
+      "top_contributor": "V1 KS + per-segment bias from straights",
+      "baseline_numeric": 0.01326,
+      "final_numeric": 0.01098,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 17.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform against measured yaw_rate_meas_rads with clamp contract explicitly declared."
+    },
+    {
+      "agent_id": "angleB-m3-agent-05",
+      "primary_metric": "RMSE of `yaw_rate_pred \u2212 yaw_rate_meas_rads`",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01316",
+      "final_value": "0.01166",
+      "improvement": "Total drop V0\u2192V3 = -0.00150 rad/s (\u224811% of V0)",
+      "top_contributor": "V1 + per-segment straight-line bias (IMU gyro offset)",
+      "baseline_numeric": 0.01316,
+      "final_numeric": 0.01166,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 11.4,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored predicted yaw rate against the measured yaw_rate_meas_rads channel on the Ford Mustang Mach-E platform, with clamped-vs-predicted contract acknowledged."
+    },
+    {
+      "agent_id": "angleB-m4-agent-01",
+      "primary_metric": "yaw-rate RMSE (rad/s)",
+      "platform": "Ford Mustang Mach-E MK1",
+      "baseline_value": "0.01214",
+      "final_value": "0.01055",
+      "improvement": "-13% overall RMSE (0.01214 \u2192 0.01055 rad/s)",
+      "top_contributor": "V1 per-segment IMU yaw-gyro bias removal",
+      "baseline_numeric": 0.01214,
+      "final_numeric": 0.01055,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 13.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Mach-E platform against measured yaw-rate truth channel with clamped (v,\u03b4) contract \u2014 matches rubric expectations."
+    },
+    {
+      "agent_id": "angleB-m4-agent-02",
+      "primary_metric": "all-regime RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01515",
+      "improvement": "Total drop V0\u2192V3 = -0.000972",
+      "top_contributor": "V1 + per-segment straight-line bias",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01515,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 6.08,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the Ford Mach-E platform against the measured yaw_rate_meas_rads truth channel with explicit clamp contract; matches the rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleB-m4-agent-03",
+      "primary_metric": "overall yaw-rate-residual RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01451",
+      "final_value": "0.01262",
+      "improvement": "-13%",
+      "top_contributor": "V1 IMU yaw-gyro bias / seg",
+      "baseline_numeric": 0.01451,
+      "final_numeric": 0.01262,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 13.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform against the measured yaw-rate channel with an explicit clamped/predicted contract."
+    },
+    {
+      "agent_id": "angleB-m4-agent-04",
+      "primary_metric": "overall yaw-rate-residual RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 (315 segments, 913 626 samples, 50 Hz, clamped `v` + `\u03b4`; predicting `yaw_rate_pred_rads` against `yaw_rate_meas_rads`)",
+      "baseline_value": "0.01613",
+      "final_value": "0.01533 rad/s",
+      "improvement": "-4.96%",
+      "top_contributor": "V2 Linear ST steady-state, prior C_\u03b1",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01533,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 4.96,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored predicted yaw rate against measured yaw rate on the canonical Ford Mach-E platform with the clamped/predicted contract explicitly stated."
+    },
+    {
+      "agent_id": "angleB-m4-agent-05",
+      "primary_metric": "overall RMSE 0.01190 \u2192 0.01013 rad/s (-15%)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01190",
+      "final_value": "0.01656",
+      "improvement": "Net V0\u2192V4 is a regression",
+      "top_contributor": "V1 per-seg bias",
+      "baseline_numeric": 0.0119,
+      "final_numeric": 0.01656,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -39.16,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured yaw-rate truth channel with an explicit clamped/predicted contract."
+    },
+    {
+      "agent_id": "angleC-m2-agent-01",
+      "primary_metric": "Yaw-rate RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.924",
+      "final_value": "0.892",
+      "improvement": "3.5% reduction",
+      "top_contributor": "V2 steering-gain k",
+      "baseline_numeric": 0.924,
+      "final_numeric": 0.892,
+      "unit_normalized": "deg/s",
+      "improvement_pct_numeric": 3.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the measured IMU yaw-rate channel on the Ford platform with an explicit clamped contract, matching the rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleC-m2-agent-02",
+      "primary_metric": "Mach-E lateral RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "16.13",
+      "final_value": "15.53",
+      "improvement": "~3.7%",
+      "top_contributor": "V2 gain",
+      "baseline_numeric": 16.13,
+      "final_numeric": 15.53,
+      "unit_normalized": "mrad/s",
+      "improvement_pct_numeric": 3.72,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform against measured IMU yaw-rate truth with v and \u03b4 clamped per the contract."
+    },
+    {
+      "agent_id": "angleC-m2-agent-03",
+      "primary_metric": "lateral-yaw-rate ladder RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.924 deg/s (V0)",
+      "final_value": "0.879 deg/s (V3)",
+      "improvement": "4.9% global cut",
+      "top_contributor": "V3 + steering-gain k=1.0848 (per-platform LS, cornering-train)",
+      "baseline_numeric": 0.924,
+      "final_numeric": 0.879,
+      "unit_normalized": "deg/s",
+      "improvement_pct_numeric": 4.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform using measured IMU-decoded yaw_rate with explicit clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleC-m2-agent-04",
+      "primary_metric": "RMSE in deg/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "1.013",
+      "final_value": "0.848",
+      "improvement": "-16.3% overall",
+      "top_contributor": "V4 per-segment bias (-10.7%)",
+      "baseline_numeric": 1.013,
+      "final_numeric": 0.848,
+      "unit_normalized": "deg/s",
+      "improvement_pct_numeric": 16.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on canonical Ford platform using measured yaw_rate_meas_rads as truth and explicitly declared the clamp contract."
+    },
+    {
+      "agent_id": "angleC-m2-agent-05",
+      "primary_metric": "test-only RMSE of yaw-rate residual (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01561",
+      "improvement": "V2 alone delivers +3.3% net",
+      "top_contributor": "V2 steer-gain k = 1.0843",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01561,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 3.22,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using a measured IMU yaw-rate truth channel with the operating contract (v, \u03b4 clamped) explicitly declared."
+    },
+    {
+      "agent_id": "angleC-m3-agent-01",
+      "primary_metric": "overall test-set RMSE",
+      "platform": "F-150 Lightning",
+      "baseline_value": "0.02037",
+      "final_value": "0.01636",
+      "improvement": "19.7%",
+      "top_contributor": "V2 +bias+gain",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01636,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored against measured per-platform yaw-rate on canonical Ford platforms, with the clamped/predicted contract acknowledged and consistent segmentation across variants."
+    },
+    {
+      "agent_id": "angleC-m3-agent-02",
+      "primary_metric": "test-set RMSE, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 and FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "Mach-E overall RMSE 0.01613; Lightning 0.02037",
+      "final_value": "Mach-E 0.01567; Lightning 0.01638",
+      "improvement": "Mach-E -2.9%; Lightning -19.6%",
+      "top_contributor": "V2 \u00d7gain",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01638,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.6,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platforms against the measured yaw_rate_meas_rads truth channel with an explicit clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleC-m3-agent-03",
+      "primary_metric": "overall RMSE rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 (315 seg / 913 626 samples) and FORD_F_150_LIGHTNING_MK1 (230 seg / 667 141 samples)",
+      "baseline_value": "0.02037",
+      "final_value": "0.01643",
+      "improvement": "dropping overall by 19.3%",
+      "top_contributor": "V2 +gain (per-platform)",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01643,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Headline scores yaw-rate RMSE on Ford platforms against measured rlog truth (yaw_rate_meas_rads) with an explicit clamped-vs-predicted contract \u2014 matches the rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleC-m3-agent-04",
+      "primary_metric": "Lateral yaw-rate RMSE",
+      "platform": "Mach-E (segment-bias variant) and Lightning (per-platform affine variant)",
+      "baseline_value": "0.02037",
+      "final_value": "0.01654",
+      "improvement": "18.8% on Lightning",
+      "top_contributor": "V3 steering gain k=0.892",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01654,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 18.8,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against measured yaw_rate_meas_rads from CAN on Ford platforms with explicit clamped/predicted contract, matching the rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleC-m3-agent-05",
+      "primary_metric": "yaw-rate test RMSE (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 (primary, 315 segs / 913 626 samp) and FORD_F_150_LIGHTNING_MK1 (230 segs / 667 141 samp)",
+      "baseline_value": "0.01613",
+      "final_value": "0.01534",
+      "improvement": "-4.9%",
+      "top_contributor": "V2 +gain `k=1.069`",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01534,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 4.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on canonical Ford platforms using measured yaw_rate_meas_rads from CAN, with contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleC-m4-agent-01",
+      "primary_metric": "held-out RMSE",
+      "platform": "Mustang Mach-E and **19.0% on F-150 Lightning**",
+      "baseline_value": "V0=0.02037",
+      "final_value": "V3=0.01651",
+      "improvement": "19.0% on F-150 Lightning",
+      "top_contributor": "V2 +gain=0.859",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01635,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 19.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent does not name the scored channel as a measured truth channel nor declare clamped-vs-predicted contract; canonical setup for this idea requires evidence the truth channel is measured."
+    },
+    {
+      "agent_id": "angleC-m4-agent-02",
+      "primary_metric": "overall yaw-rate RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 (Mustang Mach-E MK1, 315 segments, 913 626 samples; test fold 182 725 via interleaved every-5th split)",
+      "baseline_value": "0.01613",
+      "final_value": "0.01557",
+      "improvement": "-3.5% overall, **-10% on transient cornering**, -6% on steady",
+      "top_contributor": "V3 L_eff fit (L_eff=2.793 m)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01557,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 3.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform against the measured IMU yaw-rate channel with contract (clamped vs predicted) explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleC-m4-agent-03",
+      "primary_metric": "held-out test RMSE",
+      "platform": "F-150 Lightning",
+      "baseline_value": "0.02037",
+      "final_value": "0.01499 rad/s",
+      "improvement": "-26%",
+      "top_contributor": "V2",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01499,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 26.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform with measured yaw-rate truth channel under an explicit speed-known lateral-only KS contract."
+    },
+    {
+      "agent_id": "angleC-m4-agent-04",
+      "primary_metric": "TEST RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 and FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "0.01613 (Mustang); 0.02037 (F-150)",
+      "final_value": "0.01585 (Mustang); 0.01662 (F-150)",
+      "improvement": "+1.7% on FORD_MUSTANG_MACH_E_MK1 (0.01613 \u2192 0.01585 rad/s) and +18.4% on FORD_F_150_LIGHTNING_MK1 (0.02037 \u2192 0.01662 rad/s)",
+      "top_contributor": "per-platform steering-gain calibration (V3)",
+      "baseline_numeric": 0.02037,
+      "final_numeric": 0.01662,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 18.4,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on measured Ford CAN yaw_rate_meas_rads on canonical Ford platforms with clamped-vs-predicted contract explicit."
+    },
+    {
+      "agent_id": "angleC-m4-agent-05",
+      "primary_metric": "\u03c8\u0307 residual recomputed as `pred \u2212 meas`",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 (315 segments / 913 626 samples), FORD_F_150_LIGHTNING_MK1 (230 / 667 141)",
+      "baseline_value": "Mach-E V0 0.01613; F-150 V0 0.02037",
+      "final_value": "Mach-E V4 0.01323; F-150 V4 0.01488",
+      "improvement": "Mach-E 0.01613\u21920.01323; F-150 0.02037\u21920.01488",
+      "top_contributor": "V4 per-seg bias (cal)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01323,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 17.98,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scores against the measured yaw_rate_meas_rads channel on canonical Ford platforms with the clamped-vs-predicted contract explicitly stated."
+    },
+    {
+      "agent_id": "angleD-m2-agent-01",
+      "primary_metric": "overall RMSE [rad/s]",
+      "platform": "FORD_MUSTANG_MACH_E_MK1 (Mach-E MK1)",
+      "baseline_value": "0.01192",
+      "final_value": "0.00993",
+      "improvement": "\u22120.00199 (\u221216.7%)",
+      "top_contributor": "V1 KS recalibrated, canonical L, per-segment straight bias",
+      "baseline_numeric": 0.01192,
+      "final_numeric": 0.00993,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 16.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads (decoded IMU), with the speed-known lateral-only contract explicitly declared."
+    },
+    {
+      "agent_id": "angleD-m2-agent-02",
+      "primary_metric": "Overall yaw-rate RMSE",
+      "platform": "Ford Mustang Mach-E (MK1)",
+      "baseline_value": "0.01178 rad/s (V0)",
+      "final_value": "0.00909 rad/s (V1)",
+      "improvement": "22.8% reduction",
+      "top_contributor": "V1 KS recalib + per-segment gyro bias",
+      "baseline_numeric": 0.01178,
+      "final_numeric": 0.00909,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 22.8,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured IMU yaw-rate channel with the operating contract explicitly stated."
+    },
+    {
+      "agent_id": "angleD-m2-agent-03",
+      "primary_metric": "Overall RMSE (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01277",
+      "final_value": "0.01133",
+      "improvement": "\u22120.00144 (\u221211.3%)",
+      "top_contributor": "V1 \u2014 KS w/ canonical `L` + per-segment yaw-gyro bias on straights",
+      "baseline_numeric": 0.01277,
+      "final_numeric": 0.01133,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 11.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against measured yaw_rate_meas_rads on the canonical Mach-E platform with the lateral-only operating contract explicitly stated."
+    },
+    {
+      "agent_id": "angleD-m2-agent-04",
+      "primary_metric": "RMSE of yaw-rate residual (rad/s)",
+      "platform": "Ford Mustang Mach-E (MK1)",
+      "baseline_value": "0.01403",
+      "final_value": "0.00825",
+      "improvement": "\u0394 overall RMSE = \u22120.00578 rad/s, \u221241%",
+      "top_contributor": "V1 KS recalibrated + per-segment yaw-gyro bias",
+      "baseline_numeric": 0.01403,
+      "final_numeric": 0.00825,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 41.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Mach-E platform using a measured IMU yaw-rate channel, with the operating contract explicitly declared."
+    },
+    {
+      "agent_id": "angleD-m2-agent-05",
+      "primary_metric": "RMSE of `(\u03c8\u0307_pred \u2212 \u03c8\u0307_meas)` in rad/s",
+      "platform": "`FORD_MUSTANG_MACH_E_MK1` (Mach-E)",
+      "baseline_value": "0.01575",
+      "final_value": "0.01499",
+      "improvement": "\u22124.8% RMSE",
+      "top_contributor": "V1  KS recal (`L=2.875`) + per-seg straight-line bias",
+      "baseline_numeric": 0.01575,
+      "final_numeric": 0.01499,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 4.8,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform (Mach-E) against a measured IMU yaw-rate channel with the operating contract (v and \u03b4 clamped) explicitly declared."
+    },
+    {
+      "agent_id": "angleD-m3-agent-01",
+      "primary_metric": "yaw-rate RMSE, rad/s",
+      "platform": "Ford Mustang Mach-E MK1 (`FORD_MUSTANG_MACH_E_MK1`), 30 of 315 available `sim.csv` segments, 86,964 rows total.",
+      "baseline_value": "0.01563",
+      "final_value": "0.01381",
+      "improvement": "\u22120.00182 (improvement)",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.01563,
+      "final_numeric": 0.01381,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 11.64,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored yaw rate against the measured truth channel (yaw_rate_meas_rads from Ford DBC IMU) on the canonical Mach-E platform with operating contract explicitly stated."
+    },
+    {
+      "agent_id": "angleD-m3-agent-02",
+      "primary_metric": "RMSE of yaw-rate residual, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01143",
+      "final_value": "0.00821",
+      "improvement": "\u22120.00288 rad/s total V0\u2192V4 drop; V2 best at 0.00821 vs V0 0.01143",
+      "top_contributor": "V1 \u2014 KS recalibrated + per-segment straight-line gyro bias",
+      "baseline_numeric": 0.01143,
+      "final_numeric": 0.00821,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 28.17,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads truth channel with clamped v and \u03b4 contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleD-m3-agent-03",
+      "primary_metric": "Overall yaw-rate residual **RMSE 0.01403 \u2192 0.00840 rad/s**",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01403",
+      "final_value": "0.00840",
+      "improvement": "40.1 % drop",
+      "top_contributor": "V1  KS recalibrated (canonical `L`, per-seg yaw-gyro bias on straights)",
+      "baseline_numeric": 0.01403,
+      "final_numeric": 0.0084,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 40.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads with v and delta clamped to measured, matching the rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleD-m3-agent-04",
+      "primary_metric": "Overall RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01214",
+      "final_value": "0.01005",
+      "improvement": "Net honest gain over V0 is 0.00210 rad/s (~17%)",
+      "top_contributor": "V4  Ridge residual learner on V3 (LOO out-of-fold)",
+      "baseline_numeric": 0.01214,
+      "final_numeric": 0.01005,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 17.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on Ford Mach-E (canonical platform) against measured yaw_rate from rlog with explicit clamped-to-measured contract."
+    },
+    {
+      "agent_id": "angleD-m3-agent-05",
+      "primary_metric": "RMSE in rad/s, lower is better",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01575",
+      "final_value": "0.01368",
+      "improvement": "\u221239.5%",
+      "top_contributor": "V1 KS + per-seg yaw-gyro bias",
+      "baseline_numeric": 0.01575,
+      "final_numeric": 0.01368,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 13.14,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Mach-E platform against a measured IMU yaw-rate truth channel with clamped v and \u03b4 as the rubric expects."
+    },
+    {
+      "agent_id": "angleD-m4-agent-01",
+      "primary_metric": "Overall RMSE (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "RMSE(V0) = 0.01082",
+      "final_value": "RMSE(V1) = 0.00885",
+      "improvement": "an 18.2 % drop vs V0",
+      "top_contributor": "V1 \u2014 KS recalibrated + per-segment straight-line yaw-gyro de-bias",
+      "baseline_numeric": 0.01082,
+      "final_numeric": 0.00885,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 18.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Mach-E platform against a measured IMU yaw-rate channel with the clamped/predicted contract explicitly declared."
+    },
+    {
+      "agent_id": "angleD-m4-agent-02",
+      "primary_metric": "Lateral yaw-rate RMSE on 12 Ford Mustang Mach-E segments",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "V0 = 0.01403 rad/s",
+      "final_value": "V2 = 0.00825 rad/s",
+      "improvement": "41 % reduction",
+      "top_contributor": "V1 KS recal + yaw-bias",
+      "baseline_numeric": 0.01403,
+      "final_numeric": 0.00825,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 41.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored against measured yaw_rate from the Ford party-DBC gyro on the canonical Mustang Mach-E platform, with clamped-vs-predicted contract explicitly stated."
+    },
+    {
+      "agent_id": "angleD-m4-agent-03",
+      "primary_metric": "yaw_rate_pred \u2212 yaw_rate_meas",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "17.96",
+      "final_value": "15.24",
+      "improvement": "+15.2%",
+      "top_contributor": "V1  KS recalibrated + per-segment gyro bias",
+      "baseline_numeric": 17.96,
+      "final_numeric": 15.24,
+      "unit_normalized": "mrad/s",
+      "improvement_pct_numeric": 15.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Mach-E platform against measured yaw_rate_meas_rads channel with explicit clamped-vs-predicted contract."
+    },
+    {
+      "agent_id": "angleD-m4-agent-04",
+      "primary_metric": "Overall RMSE (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01704",
+      "final_value": "0.01635",
+      "improvement": "\u22120.00069 rad/s overall, **\u22120.00433 in the straight regime**",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.01704,
+      "final_numeric": 0.01635,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 4.05,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform using measured yaw_rate_meas_rads from openpilot rlog IMU, with clamped v/\u03b4 contract explicitly declared."
+    },
+    {
+      "agent_id": "angleD-m4-agent-05",
+      "primary_metric": "RMSE in rad/s; lower is better",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01545",
+      "final_value": "0.00911",
+      "improvement": "Marginals sum to 0.006241; total drop is 0.006241",
+      "top_contributor": "V1 KS recal `(v/L) tan \u03b4` + per-segment yaw-gyro bias on straights",
+      "baseline_numeric": 0.01545,
+      "final_numeric": 0.00911,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 41.04,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored against measured yaw_rate_meas_rads on canonical Ford Mustang Mach-E platform with v and \u03b4 explicitly clamped \u2014 matches rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleE-m2-agent-01",
+      "primary_metric": "yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01469",
+      "improvement": "\u22120.00144 rad/s (\u22128.9 %)",
+      "top_contributor": "V1 (KS recalib L + per-segment straight-row yaw-gyro bias)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using measured yaw_rate_meas_rads truth channel under the explicitly stated speed-known clamped contract."
+    },
+    {
+      "agent_id": "angleE-m2-agent-02",
+      "primary_metric": "yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01663",
+      "improvement": "+0.00050",
+      "top_contributor": "V1 (KS recalib + per-seg bias)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01663,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on canonical Ford Mach-E platform against measured yaw_rate from rlog IMU with the operating contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleE-m2-agent-03",
+      "primary_metric": "yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01469",
+      "improvement": "\u22128.9%",
+      "top_contributor": "V1 (KS recalib + per-seg gyro bias)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.93,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using measured yaw_rate (rlog IMU) as truth with the clamped-v/\u03b4 contract acknowledged."
+    },
+    {
+      "agent_id": "angleE-m2-agent-04",
+      "primary_metric": "Lateral residual `yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads` is the sole metric.",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01469",
+      "improvement": "+0.00144 improvement (8.9% relative)",
+      "top_contributor": "V1 (KS recalib + per-segment yaw-gyro bias)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E with measured IMU yaw-rate as truth and clamps explicitly declared, matching the rubric's canonical setup."
+    },
+    {
+      "agent_id": "angleE-m2-agent-05",
+      "primary_metric": "overall RMSE (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01663",
+      "improvement": "+0.00050 (regression V0\u2192V3)",
+      "top_contributor": "V1 (KS recalib + bias)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01663,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using measured yaw_rate_meas_rads (IMU) with the clamped-v, clamped-\u03b4 contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleE-m3-agent-01",
+      "primary_metric": "RMSE overall (rad/s)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01612",
+      "final_value": "0.01664",
+      "improvement": "\u22120.00051 = total drop V0\u2192V3",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.01612,
+      "final_numeric": 0.01664,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.23,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform using measured yaw_rate_meas_rads with v and delta clamped, matching the rubric's expected contract."
+    },
+    {
+      "agent_id": "angleE-m3-agent-02",
+      "primary_metric": "RMSE of yaw-rate residual, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.016127",
+      "final_value": "0.016635",
+      "improvement": "Total drop V0\u2192V3: **\u22120.000508 rad/s** (i.e. the ladder ends worse than it started).",
+      "top_contributor": "V1  KS recalib + per-seg bias",
+      "baseline_numeric": 0.016127,
+      "final_numeric": 0.016635,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.15,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform against the measured yaw_rate_meas_rads channel with v and \u03b4 clamped \u2014 matches the rubric's canonical contract."
+    },
+    {
+      "agent_id": "angleE-m3-agent-03",
+      "primary_metric": "RMSE of `yaw_rate_resid_rads`, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01628",
+      "improvement": "V0\u2192V3 total drop = \u22120.000155 rad/s (regression)",
+      "top_contributor": "V1 KS recalibrated + per-segment straight-line gyro-bias removed",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01628,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -0.93,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured yaw_rate_meas_rads channel with the contract explicitly stated."
+    },
+    {
+      "agent_id": "angleE-m3-agent-04",
+      "primary_metric": "RMSE(yaw_rate_pred_rads \u2212 yaw_rate_meas_rads)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.016127",
+      "final_value": "0.016635",
+      "improvement": "\u22120.001434 rad/s overall RMSE (\u2248 \u22128.9%)",
+      "top_contributor": "V1 KS recalibrated (canonical L + per-segment bias)",
+      "baseline_numeric": 0.016127,
+      "final_numeric": 0.016635,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.15,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against the measured yaw_rate_meas_rads channel on the canonical Ford Mach-E platform with clamps acknowledged."
+    },
+    {
+      "agent_id": "angleE-m3-agent-05",
+      "primary_metric": "RMSE of `\u03c8\u0307_pred \u2212 \u03c8\u0307_meas`, rad/s",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01469",
+      "improvement": "\u22128.9 %",
+      "top_contributor": "V1 (KS recalibrated with per-segment straight-line gyro-bias subtraction)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform against measured yaw_rate_meas_rads with clamping contract clearly declared."
+    },
+    {
+      "agent_id": "angleE-m4-agent-01",
+      "primary_metric": "yaw_rate_resid_rads",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01469",
+      "improvement": "-0.00143 rad/s (-8.9%)",
+      "top_contributor": "V1 \u2014 KS recalib + per-segment straight-line bias",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01469,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 8.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured yaw_rate_meas_rads channel, with the clamped-vs-predicted contract explicitly declared."
+    },
+    {
+      "agent_id": "angleE-m4-agent-02",
+      "primary_metric": "RMSE(yaw_rate_resid_rads)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01663",
+      "improvement": "Total drop V0 \u2192 V3: \u22120.000508 rad/s (the ladder net-regresses)",
+      "top_contributor": "V1 KS recalibrated (bias-subtracted)",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01663,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against measured yaw_rate_meas_rads gyro truth with contract explicitly declared."
+    },
+    {
+      "agent_id": "angleE-m4-agent-03",
+      "primary_metric": "RMSE(yaw_rate_resid_rads)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01663 rad/s",
+      "improvement": "\u22120.0005, i.e. worse",
+      "top_contributor": "V1 KS recalibrated + per-segment straight-line bias",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01663,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on Ford Mach-E canonical platform using measured yaw_rate_meas_rads with contract (clamped speed/steer) explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleE-m4-agent-04",
+      "primary_metric": "RMSE(yaw_rate_resid_rads)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.016127",
+      "final_value": "0.016635",
+      "improvement": "Total drop V0 \u2192 V3: **\u22120.00051 rad/s** (V3 is worse than V0).",
+      "top_contributor": "V1 \u2014 KS, canonical `L`, per-segment straight-line bias removed",
+      "baseline_numeric": 0.016127,
+      "final_numeric": 0.016635,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.15,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on canonical Ford Mach-E platform using measured yaw_rate_meas_rads as truth with contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "angleE-m4-agent-05",
+      "primary_metric": "RMSE(yaw_rate_resid_rads)",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01613",
+      "final_value": "0.01663",
+      "improvement": "\u22120.00051 rad/s",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.01613,
+      "final_numeric": 0.01663,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": -3.1,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Mach-E platform with measured yaw_rate_meas_rads as truth channel and contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "raw-agent-01",
+      "primary_metric": "pooled yaw-rate RMSE (rad/s, reported in deg/s), on Tesla Model 3 segments, activity-masked (v \u2265 5 m/s **and** |\u03c8\u0307_truth| \u2265 2 deg/s; n \u2248 85 300 samples across 120 segments)",
+      "platform": "Tesla Model 3",
+      "baseline_value": "2.763 deg/s",
+      "final_value": "2.547 deg/s",
+      "improvement": "\u20130.215 deg/s, \u20137.8 %",
+      "top_contributor": "C1 (effective steer-ratio \u03b1)",
+      "baseline_numeric": 2.763,
+      "final_numeric": 2.547,
+      "unit_normalized": "deg/s",
+      "improvement_pct_numeric": 7.8,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent scored against a fabricated rear-wheel-speed-differential proxy rather than a measured IMU/locationd yaw-rate truth channel, so the headline is not directly comparable to a canonical setup."
+    },
+    {
+      "agent_id": "raw-agent-02",
+      "primary_metric": "sample-weighted RMSE of yaw-rate prediction",
+      "platform": "522 Ford segments with moving-vehicle samples (~1.39 M rows; Mach-E + F-150 Lightning)",
+      "baseline_value": "Baseline RMSE: 18.25 mrad/s",
+      "final_value": "Final RMSE (per-platform tuned ladder): 15.43 mrad/s",
+      "improvement": "\u221215.5% relative",
+      "top_contributor": "B2 understeer factor K",
+      "baseline_numeric": 18.25,
+      "final_numeric": 15.43,
+      "unit_normalized": "mrad/s",
+      "improvement_pct_numeric": 15.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford IMU measured yaw-rate channel with explicit clamped-vs-predicted contract; matches the rubric's canonical setup."
+    },
+    {
+      "agent_id": "raw-agent-03",
+      "primary_metric": "RMSE of yaw-rate prediction (rad/s), evaluated on a held-out 20 % segment-level test split, pooled across both Ford platforms (Mustang Mach-E MK1 and F-150 Lightning MK1)",
+      "platform": "Ford platforms (Mustang Mach-E MK1 and F-150 Lightning MK1)",
+      "baseline_value": "0.01270 rad/s",
+      "final_value": "0.00839 rad/s",
+      "improvement": "33.9 %",
+      "top_contributor": "understeer (K_us)",
+      "baseline_numeric": 0.0127,
+      "final_numeric": 0.00839,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 33.9,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on Ford platforms using the measured yaw-rate truth channel from the simdata, matching the rubric's canonical setup despite excluding Tesla (where truth was unavailable)."
+    },
+    {
+      "agent_id": "raw-agent-04",
+      "primary_metric": "Yaw-rate RMS residual",
+      "platform": "545 Ford segments (Mach-E + F-150 Lightning)",
+      "baseline_value": "0.01804 rad/s (1.034 \u00b0/s)",
+      "final_value": "0.01191 rad/s (0.682 \u00b0/s)",
+      "improvement": "34% reduction in RMS yaw-rate residual",
+      "top_contributor": "V1 hygiene",
+      "baseline_numeric": 1.034,
+      "final_numeric": 0.682,
+      "unit_normalized": "\u00b0/s",
+      "improvement_pct_numeric": 34.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on measured yaw-rate on Ford segments with explicit clamped (v, \u03b4) vs predicted (\u03c8\u0307) contract \u2014 matches the rubric's canonical setup."
+    },
+    {
+      "agent_id": "raw-agent-05",
+      "primary_metric": "pooled RMSE of predicted yaw rate vs. measured yaw rate, across all 545 Ford segments (Mach-E + F-150 Lightning, ~1.58 M samples)",
+      "platform": "Ford (Mach-E + F-150 Lightning)",
+      "baseline_value": "0.01804",
+      "final_value": "0.01466",
+      "improvement": "\u221218.7 %",
+      "top_contributor": "v3 + steady-state understeer (canonical Caf/Car)",
+      "baseline_numeric": 0.01804,
+      "final_numeric": 0.01466,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 18.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored against the measured Ford yaw-rate truth channel (Yaw_Data_FD1.VehYaw_W_Actl), which matches the rubric's canonical measured-channel expectation."
+    },
+    {
+      "agent_id": "raw-agent-06",
+      "primary_metric": "yaw-rate RMSE across 520 Ford segments (1.36 M samples at 50 Hz), in-motion (v > 2 m/s) only",
+      "platform": "520 Ford segments",
+      "baseline_value": "0.01431 rad/s",
+      "final_value": "0.00999 rad/s",
+      "improvement": "30.2 % reduction",
+      "top_contributor": "v2_understeer",
+      "baseline_numeric": 0.01431,
+      "final_numeric": 0.00999,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 30.2,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored against measured yaw-rate on the canonical Ford platform with a real truth channel."
+    },
+    {
+      "agent_id": "raw-agent-07",
+      "primary_metric": "RMS yaw-rate residual (deg/s)",
+      "platform": "545 Ford segments / 1,580,767 samples at 50 Hz from both FORD_MUSTANG_MACH_E_MK1 and FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "1.0336",
+      "final_value": "0.7401",
+      "improvement": "28.4 % reduction",
+      "top_contributor": "V1 + per-seg \u03b4-bias",
+      "baseline_numeric": 1.0336,
+      "final_numeric": 0.7401,
+      "unit_normalized": "deg/s",
+      "improvement_pct_numeric": 28.4,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored against a measured yaw-rate truth channel on the Ford platforms and explicitly excluded Tesla due to missing truth, matching the rubric's canonical setup."
+    },
+    {
+      "agent_id": "raw-agent-08",
+      "primary_metric": "Pooled yaw-rate RMSE across all 545 Ford segments (1.58M samples)",
+      "platform": "Ford (F-150 Lightning + Mach-E); Tesla excluded",
+      "baseline_value": "1.034 deg/s",
+      "final_value": "0.809 deg/s",
+      "improvement": "Reduction: 0.225 deg/s = 21.7 % of baseline RMSE",
+      "top_contributor": "V3 understeer",
+      "baseline_numeric": 1.034,
+      "final_numeric": 0.809,
+      "unit_normalized": "deg/s",
+      "improvement_pct_numeric": 21.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on a measured yaw-rate truth channel from the Ford rlog DBC, with model prediction vs measurement and v_meas clamped \u2014 matches the rubric's canonical setup."
+    },
+    {
+      "agent_id": "raw-agent-09",
+      "primary_metric": "pooled yaw-rate RMSE over all 520 Ford segments (Mach-E + F-150 Lightning), masked to `v > 2 m/s` (1.36M samples)",
+      "platform": "Ford segments (Mach-E + F-150 Lightning)",
+      "baseline_value": "0.01474 rad/s",
+      "final_value": "0.00894 rad/s",
+      "improvement": "\u221239.4% RMSE",
+      "top_contributor": "V4 \u2014 understeer `K\u00b7v\u00b2`",
+      "baseline_numeric": 14.74,
+      "final_numeric": 8.94,
+      "unit_normalized": "mrad/s",
+      "improvement_pct_numeric": 39.4,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on canonical Ford platform using measured yaw-rate truth channel with the speed-clamp contract explicitly acknowledged."
+    },
+    {
+      "agent_id": "raw-agent-10",
+      "primary_metric": "RMSE of predicted yaw rate vs measured Yaw_Data_FD1 truth across **all 545 Ford segments** (both Mach-E and F-150 Lightning), restricted to moving samples (v > 2 m/s, N = 1,364,925).",
+      "platform": "all 545 Ford segments (both Mach-E and F-150 Lightning)",
+      "baseline_value": "0.01481",
+      "final_value": "0.00985",
+      "improvement": "\u221245% vs raw baseline; \u221233% vs hygiene-clean baseline",
+      "top_contributor": "V3\u2192V4 (understeer K_us)",
+      "baseline_numeric": 0.01481,
+      "final_numeric": 0.00985,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 33.5,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on the canonical Ford platform using the measured Yaw_Data_FD1 truth channel (VehYaw_W_Actl)."
+    }
+  ],
+  "convergence": {
+    "platform": {
+      "Ford (Mach-E MK1 + F-150 Lightning MK1), 545 segments total": 1,
+      "FORD_MUSTANG_MACH_E_MK1": 54,
+      "`FORD_MUSTANG_MACH_E_MK1` (Ford Mach-E MK1, 315 segments, 913,626 samples @ 50 Hz)": 1,
+      "Ford Mustang Mach-E MK1 and Ford F-150 Lightning MK1": 1,
+      "`FORD_MUSTANG_MACH_E_MK1`, 80 segments (first 80 alphabetically), pre-generated `sim.csv`.": 1,
+      "Ford Mustang Mach-E MK1": 1,
+      "FORD_MUSTANG_MACH_E_MK1 (315 segments, 913 626 samples, 50 Hz, clamped `v` + `\u03b4`; predicting `yaw_rate_pred_rads` against `yaw_rate_meas_rads`)": 1,
+      "F-150 Lightning": 2,
+      "FORD_MUSTANG_MACH_E_MK1 and FORD_F_150_LIGHTNING_MK1": 2,
+      "FORD_MUSTANG_MACH_E_MK1 (315 seg / 913 626 samples) and FORD_F_150_LIGHTNING_MK1 (230 seg / 667 141 samples)": 1,
+      "Mach-E (segment-bias variant) and Lightning (per-platform affine variant)": 1,
+      "FORD_MUSTANG_MACH_E_MK1 (primary, 315 segs / 913 626 samp) and FORD_F_150_LIGHTNING_MK1 (230 segs / 667 141 samp)": 1,
+      "Mustang Mach-E and **19.0% on F-150 Lightning**": 1,
+      "FORD_MUSTANG_MACH_E_MK1 (Mustang Mach-E MK1, 315 segments, 913 626 samples; test fold 182 725 via interleaved every-5th split)": 1,
+      "FORD_MUSTANG_MACH_E_MK1 (315 segments / 913 626 samples), FORD_F_150_LIGHTNING_MK1 (230 / 667 141)": 1,
+      "FORD_MUSTANG_MACH_E_MK1 (Mach-E MK1)": 1,
+      "Ford Mustang Mach-E (MK1)": 2,
+      "`FORD_MUSTANG_MACH_E_MK1` (Mach-E)": 1,
+      "Ford Mustang Mach-E MK1 (`FORD_MUSTANG_MACH_E_MK1`), 30 of 315 available `sim.csv` segments, 86,964 rows total.": 1,
+      "Tesla Model 3": 1,
+      "522 Ford segments with moving-vehicle samples (~1.39 M rows; Mach-E + F-150 Lightning)": 1,
+      "Ford platforms (Mustang Mach-E MK1 and F-150 Lightning MK1)": 1,
+      "545 Ford segments (Mach-E + F-150 Lightning)": 1,
+      "Ford (Mach-E + F-150 Lightning)": 1,
+      "520 Ford segments": 1,
+      "545 Ford segments / 1,580,767 samples at 50 Hz from both FORD_MUSTANG_MACH_E_MK1 and FORD_F_150_LIGHTNING_MK1": 1,
+      "Ford (F-150 Lightning + Mach-E); Tesla excluded": 1,
+      "Ford segments (Mach-E + F-150 Lightning)": 1,
+      "all 545 Ford segments (both Mach-E and F-150 Lightning)": 1
+    },
+    "primary_metric": {
+      "Overall yaw-rate RMSE": 3,
+      "RMSE on `yaw_rate_pred \u2212 yaw_rate_meas`, rad/s": 1,
+      "pooled-sample RMSE on `yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads` (rad/s)": 1,
+      "RMSE of `yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas` (rad/s)": 1,
+      "lateral residual `yaw_rate_pred \u2212 yaw_rate_meas`": 1,
+      "RMSE on `yaw_rate_resid_rads` (rad/s)": 1,
+      "RMSE(yaw_rate_pred \u2212 yaw_rate_meas)": 1,
+      "lateral yaw-rate RMSE": 1,
+      "RMSE on `yaw_rate_resid_rads`, rad/s": 1,
+      "RMSE of yaw-rate residual, rad/s": 4,
+      "RMSE overall (rad/s)": 4,
+      "Overall RMSE (rad/s)": 4,
+      "RMSE in mrad/s": 1,
+      "Yaw-rate RMSE 0.01190 \u2192 0.00864 rad/s (-27.4%) across 80-segment Mach-E set, mask locked.": 1,
+      "RMSE of `yaw_rate_resid_rads = \u03c8\u0307_pred \u2212 \u03c8\u0307_meas`, broken out by regime, in **mrad/s**": 1,
+      "Lateral yaw-rate RMSE on FORD_MUSTANG_MACH_E_MK1": 1,
+      "RMSE of `yaw_rate_resid_rads` (rad/s)": 1,
+      "RMSE of `pred \u2212 meas` over 315 segments / 913 626 samples at 50 Hz": 1,
+      "Yaw-rate RMSE (rad/s), same segments, same regime mask": 1,
+      "RMSE of `\u03c8\u0307_pred \u2212 \u03c8\u0307_meas` in rad/s": 1,
+      "RMSE of `yaw_rate_pred \u2212 yaw_rate_meas_rads`": 1,
+      "yaw-rate RMSE (rad/s)": 1,
+      "all-regime RMSE": 1,
+      "overall yaw-rate-residual RMSE": 2,
+      "overall RMSE 0.01190 \u2192 0.01013 rad/s (-15%)": 1,
+      "Yaw-rate RMSE": 1,
+      "Mach-E lateral RMSE": 1,
+      "lateral-yaw-rate ladder RMSE": 1,
+      "RMSE in deg/s": 1,
+      "test-only RMSE of yaw-rate residual (rad/s)": 1,
+      "overall test-set RMSE": 1,
+      "test-set RMSE, rad/s": 1,
+      "overall RMSE rad/s": 1,
+      "Lateral yaw-rate RMSE": 1,
+      "yaw-rate test RMSE (rad/s)": 1,
+      "held-out RMSE": 1,
+      "overall yaw-rate RMSE": 1,
+      "held-out test RMSE": 1,
+      "TEST RMSE": 1,
+      "\u03c8\u0307 residual recomputed as `pred \u2212 meas`": 1,
+      "overall RMSE [rad/s]": 1,
+      "RMSE of yaw-rate residual (rad/s)": 1,
+      "RMSE of `(\u03c8\u0307_pred \u2212 \u03c8\u0307_meas)` in rad/s": 1,
+      "yaw-rate RMSE, rad/s": 1,
+      "Overall yaw-rate residual **RMSE 0.01403 \u2192 0.00840 rad/s**": 1,
+      "Overall RMSE": 1,
+      "RMSE in rad/s, lower is better": 1,
+      "Lateral yaw-rate RMSE on 12 Ford Mustang Mach-E segments": 1,
+      "yaw_rate_pred \u2212 yaw_rate_meas": 1,
+      "RMSE in rad/s; lower is better": 1,
+      "yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas": 2,
+      "yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads": 1,
+      "Lateral residual `yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads` is the sole metric.": 1,
+      "overall RMSE (rad/s)": 1,
+      "RMSE of `yaw_rate_resid_rads`, rad/s": 1,
+      "RMSE(yaw_rate_pred_rads \u2212 yaw_rate_meas_rads)": 1,
+      "RMSE of `\u03c8\u0307_pred \u2212 \u03c8\u0307_meas`, rad/s": 1,
+      "yaw_rate_resid_rads": 1,
+      "RMSE(yaw_rate_resid_rads)": 4,
+      "pooled yaw-rate RMSE (rad/s, reported in deg/s), on Tesla Model 3 segments, activity-masked (v \u2265 5 m/s **and** |\u03c8\u0307_truth| \u2265 2 deg/s; n \u2248 85 300 samples across 120 segments)": 1,
+      "sample-weighted RMSE of yaw-rate prediction": 1,
+      "RMSE of yaw-rate prediction (rad/s), evaluated on a held-out 20 % segment-level test split, pooled across both Ford platforms (Mustang Mach-E MK1 and F-150 Lightning MK1)": 1,
+      "Yaw-rate RMS residual": 1,
+      "pooled RMSE of predicted yaw rate vs. measured yaw rate, across all 545 Ford segments (Mach-E + F-150 Lightning, ~1.58 M samples)": 1,
+      "yaw-rate RMSE across 520 Ford segments (1.36 M samples at 50 Hz), in-motion (v > 2 m/s) only": 1,
+      "RMS yaw-rate residual (deg/s)": 1,
+      "Pooled yaw-rate RMSE across all 545 Ford segments (1.58M samples)": 1,
+      "pooled yaw-rate RMSE over all 520 Ford segments (Mach-E + F-150 Lightning), masked to `v > 2 m/s` (1.36M samples)": 1,
+      "RMSE of predicted yaw rate vs measured Yaw_Data_FD1 truth across **all 545 Ford segments** (both Mach-E and F-150 Lightning), restricted to moving samples (v > 2 m/s, N = 1,364,925).": 1
+    },
+    "top_contributor": {
+      "V4 understeer": 1,
+      "V1_seg_bias": 1,
+      "V1 (bias removal)": 1,
+      "V3_perseg_gain_fit": 1,
+      "V2 + \u03b1 re-fit": 1,
+      "V4 Ridge residual learner on V3, LOSO": 1,
+      "V1 \u2014 KS recalibrated + per-segment straight-line yaw-gyro bias": 1,
+      "V1 KS recalibrated (canonical L) + per-segment yaw-gyro bias on straights": 1,
+      "V4 Ridge residual learner on V3 (LOO CV)": 1,
+      "V4 Residual learner on V3 (LOO)": 1,
+      "V4": 2,
+      "V1": 7,
+      "V4 \u2014 Ridge residual learner on V3, LOSO CV": 1,
+      "V3": 1,
+      "steering-lag (V3, 0.0022 rad/s)": 1,
+      "V1 per-segment yaw-rate bias removal": 1,
+      "V1 (+ per-segment yaw-rate bias removal)": 1,
+      "V1 KS + per-seg straight-line bias": 1,
+      "V1 + per-seg straight-line yaw bias removal": 1,
+      "V4 \u2014 V3 + Ridge residual LOSO on [v, |a_y|, |\u03b4|, sign(\u03b4\u0307)]": 1,
+      "V1 KS + per-segment bias from straights": 1,
+      "V1 + per-segment straight-line bias (IMU gyro offset)": 1,
+      "V1 per-segment IMU yaw-gyro bias removal": 1,
+      "V1 + per-segment straight-line bias": 1,
+      "V1 IMU yaw-gyro bias / seg": 1,
+      "V2 Linear ST steady-state, prior C_\u03b1": 1,
+      "V1 per-seg bias": 1,
+      "V2 steering-gain k": 1,
+      "V2 gain": 1,
+      "V3 + steering-gain k=1.0848 (per-platform LS, cornering-train)": 1,
+      "V4 per-segment bias (-10.7%)": 1,
+      "V2 steer-gain k = 1.0843": 1,
+      "V2 +bias+gain": 1,
+      "V2 \u00d7gain": 1,
+      "V2 +gain (per-platform)": 1,
+      "V3 steering gain k=0.892": 1,
+      "V2 +gain `k=1.069`": 1,
+      "V2 +gain=0.859": 1,
+      "V3 L_eff fit (L_eff=2.793 m)": 1,
+      "V2": 1,
+      "per-platform steering-gain calibration (V3)": 1,
+      "V4 per-seg bias (cal)": 1,
+      "V1 KS recalibrated, canonical L, per-segment straight bias": 1,
+      "V1 KS recalib + per-segment gyro bias": 1,
+      "V1 \u2014 KS w/ canonical `L` + per-segment yaw-gyro bias on straights": 1,
+      "V1 KS recalibrated + per-segment yaw-gyro bias": 1,
+      "V1  KS recal (`L=2.875`) + per-seg straight-line bias": 1,
+      "V1 \u2014 KS recalibrated + per-segment straight-line gyro bias": 1,
+      "V1  KS recalibrated (canonical `L`, per-seg yaw-gyro bias on straights)": 1,
+      "V4  Ridge residual learner on V3 (LOO out-of-fold)": 1,
+      "V1 KS + per-seg yaw-gyro bias": 1,
+      "V1 \u2014 KS recalibrated + per-segment straight-line yaw-gyro de-bias": 1,
+      "V1 KS recal + yaw-bias": 1,
+      "V1  KS recalibrated + per-segment gyro bias": 1,
+      "V1 KS recal `(v/L) tan \u03b4` + per-segment yaw-gyro bias on straights": 1,
+      "V1 (KS recalib L + per-segment straight-row yaw-gyro bias)": 1,
+      "V1 (KS recalib + per-seg bias)": 1,
+      "V1 (KS recalib + per-seg gyro bias)": 1,
+      "V1 (KS recalib + per-segment yaw-gyro bias)": 1,
+      "V1 (KS recalib + bias)": 1,
+      "V1  KS recalib + per-seg bias": 1,
+      "V1 KS recalibrated + per-segment straight-line gyro-bias removed": 1,
+      "V1 KS recalibrated (canonical L + per-segment bias)": 1,
+      "V1 (KS recalibrated with per-segment straight-line gyro-bias subtraction)": 1,
+      "V1 \u2014 KS recalib + per-segment straight-line bias": 1,
+      "V1 KS recalibrated (bias-subtracted)": 1,
+      "V1 KS recalibrated + per-segment straight-line bias": 1,
+      "V1 \u2014 KS, canonical `L`, per-segment straight-line bias removed": 1,
+      "C1 (effective steer-ratio \u03b1)": 1,
+      "B2 understeer factor K": 1,
+      "understeer (K_us)": 1,
+      "V1 hygiene": 1,
+      "v3 + steady-state understeer (canonical Caf/Car)": 1,
+      "v2_understeer": 1,
+      "V1 + per-seg \u03b4-bias": 1,
+      "V3 understeer": 1,
+      "V4 \u2014 understeer `K\u00b7v\u00b2`": 1,
+      "V3\u2192V4 (understeer K_us)": 1
+    }
+  },
+  "honesty": {
+    "declared_per_agent": [
+      2,
+      3,
+      3,
+      3,
+      2,
+      3,
+      2,
+      3,
+      3,
+      2,
+      2,
+      3,
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      2,
+      2,
+      5,
+      3,
+      5,
+      4,
+      3,
+      3,
+      4,
+      4,
+      4,
+      2,
+      6,
+      3,
+      3,
+      3,
+      3,
+      4,
+      3,
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      5,
+      2,
+      3,
+      5,
+      3,
+      3,
+      3,
+      2,
+      4,
+      3,
+      3,
+      4,
+      4,
+      3,
+      5,
+      3,
+      2,
+      3,
+      3,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5,
+      5
+    ],
+    "named_gap_count": 54,
+    "fabricated_undeclared_count": 0
+  },
+  "by_family": {
+    "families": {
+      "raw": {
+        "n": 10,
+        "agent_ids": [
+          "raw-agent-01",
+          "raw-agent-02",
+          "raw-agent-03",
+          "raw-agent-04",
+          "raw-agent-05",
+          "raw-agent-06",
+          "raw-agent-07",
+          "raw-agent-08",
+          "raw-agent-09",
+          "raw-agent-10"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 10,
+          "mean": 0.683,
+          "median": 0.667,
+          "std": 0.105,
+          "min": 0.5,
+          "max": 0.8
+        },
+        "improvement_pct": {
+          "n": 10,
+          "mean": 26.31,
+          "median": 29.3,
+          "std": 9.476,
+          "min": 7.8,
+          "max": 39.4
+        },
+        "honesty": {
+          "mean_declared_per_agent": 5.6,
+          "named_data_gap": 10,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-A/module-2": {
+        "n": 5,
+        "agent_ids": [
+          "angleA-m2-agent-01",
+          "angleA-m2-agent-02",
+          "angleA-m2-agent-03",
+          "angleA-m2-agent-04",
+          "angleA-m2-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 22.38,
+          "median": 15.3,
+          "std": 9.955,
+          "min": 13.1,
+          "max": 35.8
+        },
+        "honesty": {
+          "mean_declared_per_agent": 2.6,
+          "named_data_gap": 1,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-A/module-3": {
+        "n": 5,
+        "agent_ids": [
+          "angleA-m3-agent-01",
+          "angleA-m3-agent-02",
+          "angleA-m3-agent-03",
+          "angleA-m3-agent-04",
+          "angleA-m3-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 13.966,
+          "median": 15.7,
+          "std": 4.254,
+          "min": 8.9,
+          "max": 19.0
+        },
+        "honesty": {
+          "mean_declared_per_agent": 2.6,
+          "named_data_gap": 2,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-A/module-4": {
+        "n": 5,
+        "agent_ids": [
+          "angleA-m4-agent-01",
+          "angleA-m4-agent-02",
+          "angleA-m4-agent-03",
+          "angleA-m4-agent-04",
+          "angleA-m4-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 13.9,
+          "median": 17.3,
+          "std": 6.764,
+          "min": 4.1,
+          "max": 20.9
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.2,
+          "named_data_gap": 3,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-B/module-2": {
+        "n": 5,
+        "agent_ids": [
+          "angleB-m2-agent-01",
+          "angleB-m2-agent-02",
+          "angleB-m2-agent-03",
+          "angleB-m2-agent-04",
+          "angleB-m2-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 28.36,
+          "median": 27.4,
+          "std": 14.486,
+          "min": 11.9,
+          "max": 50.0
+        },
+        "honesty": {
+          "mean_declared_per_agent": 2.6,
+          "named_data_gap": 4,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-B/module-3": {
+        "n": 5,
+        "agent_ids": [
+          "angleB-m3-agent-01",
+          "angleB-m3-agent-02",
+          "angleB-m3-agent-03",
+          "angleB-m3-agent-04",
+          "angleB-m3-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 12.108,
+          "median": 11.4,
+          "std": 5.434,
+          "min": 5.15,
+          "max": 19.29
+        },
+        "honesty": {
+          "mean_declared_per_agent": 4.0,
+          "named_data_gap": 5,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-B/module-4": {
+        "n": 5,
+        "agent_ids": [
+          "angleB-m4-agent-01",
+          "angleB-m4-agent-02",
+          "angleB-m4-agent-03",
+          "angleB-m4-agent-04",
+          "angleB-m4-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": -0.424,
+          "median": 6.08,
+          "std": 19.658,
+          "min": -39.16,
+          "max": 13.0
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.4,
+          "named_data_gap": 4,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-C/module-2": {
+        "n": 5,
+        "agent_ids": [
+          "angleC-m2-agent-01",
+          "angleC-m2-agent-02",
+          "angleC-m2-agent-03",
+          "angleC-m2-agent-04",
+          "angleC-m2-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 6.328,
+          "median": 3.72,
+          "std": 5.019,
+          "min": 3.22,
+          "max": 16.3
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.6,
+          "named_data_gap": 5,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-C/module-3": {
+        "n": 5,
+        "agent_ids": [
+          "angleC-m3-agent-01",
+          "angleC-m3-agent-02",
+          "angleC-m3-agent-03",
+          "angleC-m3-agent-04",
+          "angleC-m3-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 16.46,
+          "median": 19.3,
+          "std": 5.788,
+          "min": 4.9,
+          "max": 19.7
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.6,
+          "named_data_gap": 4,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-C/module-4": {
+        "n": 5,
+        "agent_ids": [
+          "angleC-m4-agent-01",
+          "angleC-m4-agent-02",
+          "angleC-m4-agent-03",
+          "angleC-m4-agent-04",
+          "angleC-m4-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 0.96,
+          "median": 1.0,
+          "std": 0.08,
+          "min": 0.8,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 17.116,
+          "median": 18.4,
+          "std": 7.394,
+          "min": 3.5,
+          "max": 26.0
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.0,
+          "named_data_gap": 3,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-D/module-2": {
+        "n": 5,
+        "agent_ids": [
+          "angleD-m2-agent-01",
+          "angleD-m2-agent-02",
+          "angleD-m2-agent-03",
+          "angleD-m2-agent-04",
+          "angleD-m2-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 19.32,
+          "median": 16.7,
+          "std": 12.362,
+          "min": 4.8,
+          "max": 41.0
+        },
+        "honesty": {
+          "mean_declared_per_agent": 4.2,
+          "named_data_gap": 4,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-D/module-3": {
+        "n": 5,
+        "agent_ids": [
+          "angleD-m3-agent-01",
+          "angleD-m3-agent-02",
+          "angleD-m3-agent-03",
+          "angleD-m3-agent-04",
+          "angleD-m3-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 22.05,
+          "median": 17.2,
+          "std": 10.719,
+          "min": 11.64,
+          "max": 40.1
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.2,
+          "named_data_gap": 0,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-D/module-4": {
+        "n": 5,
+        "agent_ids": [
+          "angleD-m4-agent-01",
+          "angleD-m4-agent-02",
+          "angleD-m4-agent-03",
+          "angleD-m4-agent-04",
+          "angleD-m4-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 23.938,
+          "median": 18.2,
+          "std": 14.8,
+          "min": 4.05,
+          "max": 41.2
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.0,
+          "named_data_gap": 3,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-E/module-2": {
+        "n": 5,
+        "agent_ids": [
+          "angleE-m2-agent-01",
+          "angleE-m2-agent-02",
+          "angleE-m2-agent-03",
+          "angleE-m2-agent-04",
+          "angleE-m2-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": 4.106,
+          "median": 8.9,
+          "std": 5.884,
+          "min": -3.1,
+          "max": 8.93
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.8,
+          "named_data_gap": 2,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-E/module-3": {
+        "n": 5,
+        "agent_ids": [
+          "angleE-m3-agent-01",
+          "angleE-m3-agent-02",
+          "angleE-m3-agent-03",
+          "angleE-m3-agent-04",
+          "angleE-m3-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": -0.312,
+          "median": -3.15,
+          "std": 4.688,
+          "min": -3.23,
+          "max": 8.9
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.0,
+          "named_data_gap": 1,
+          "fabricated_undeclared": 0
+        }
+      },
+      "angle-E/module-4": {
+        "n": 5,
+        "agent_ids": [
+          "angleE-m4-agent-01",
+          "angleE-m4-agent-02",
+          "angleE-m4-agent-03",
+          "angleE-m4-agent-04",
+          "angleE-m4-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 1.0,
+          "median": 1.0,
+          "std": 0.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "improvement_pct": {
+          "n": 5,
+          "mean": -0.71,
+          "median": -3.1,
+          "std": 4.805,
+          "min": -3.15,
+          "max": 8.9
+        },
+        "honesty": {
+          "mean_declared_per_agent": 3.4,
+          "named_data_gap": 3,
+          "fabricated_undeclared": 0
+        }
+      }
+    },
+    "order": [
+      "raw",
+      "angle-A/module-2",
+      "angle-A/module-3",
+      "angle-A/module-4",
+      "angle-B/module-2",
+      "angle-B/module-3",
+      "angle-B/module-4",
+      "angle-C/module-2",
+      "angle-C/module-3",
+      "angle-C/module-4",
+      "angle-D/module-2",
+      "angle-D/module-3",
+      "angle-D/module-4",
+      "angle-E/module-2",
+      "angle-E/module-3",
+      "angle-E/module-4"
+    ],
+    "rubric_ids": [
+      "truth-channel-correct",
+      "contract-acknowledged",
+      "regime-breakdown-present",
+      "methodology-consistent",
+      "attribution-coherent",
+      "honest-regression-flagged"
+    ],
+    "per_item_per_family": {
+      "truth-channel-correct": {
+        "raw": {
+          "pass": 9,
+          "fail": 1,
+          "null": 0,
+          "rate": 0.9
+        },
+        "angle-A/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-4": {
+          "pass": 4,
+          "fail": 0,
+          "null": 1,
+          "rate": 1.0
+        },
+        "angle-D/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        }
+      },
+      "contract-acknowledged": {
+        "raw": {
+          "pass": 5,
+          "fail": 4,
+          "null": 1,
+          "rate": 0.5555555555555556
+        },
+        "angle-A/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-4": {
+          "pass": 4,
+          "fail": 1,
+          "null": 0,
+          "rate": 0.8
+        },
+        "angle-D/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        }
+      },
+      "regime-breakdown-present": {
+        "raw": {
+          "pass": 0,
+          "fail": 10,
+          "null": 0,
+          "rate": 0.0
+        },
+        "angle-A/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        }
+      },
+      "methodology-consistent": {
+        "raw": {
+          "pass": 10,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        }
+      },
+      "attribution-coherent": {
+        "raw": {
+          "pass": 10,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        }
+      },
+      "honest-regression-flagged": {
+        "raw": {
+          "pass": 2,
+          "fail": 2,
+          "null": 6,
+          "rate": 0.5
+        },
+        "angle-A/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-A/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-B/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-C/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-D/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-2": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-3": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        },
+        "angle-E/module-4": {
+          "pass": 5,
+          "fail": 0,
+          "null": 0,
+          "rate": 1.0
+        }
+      }
+    }
+  },
+  "canonical": {
+    "families": {
+      "raw": {
+        "n_ok": 10,
+        "n_total": 10,
+        "improvement_pct": {
+          "mean": 26.411,
+          "median": 29.251,
+          "std": 20.388,
+          "min": -29.338,
+          "max": 49.165
+        }
+      },
+      "angle-A/module-2": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 32.658,
+          "median": 23.939,
+          "std": 18.384,
+          "min": 14.407,
+          "max": 54.858
+        }
+      },
+      "angle-A/module-3": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 18.682,
+          "median": 19.548,
+          "std": 6.786,
+          "min": 10.912,
+          "max": 26.754
+        }
+      },
+      "angle-A/module-4": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 3.468,
+          "median": 10.912,
+          "std": 24.265,
+          "min": -41.055,
+          "max": 26.654
+        }
+      },
+      "angle-B/module-2": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": -6.197,
+          "median": -7.942,
+          "std": 39.472,
+          "min": -67.713,
+          "max": 36.386
+        }
+      },
+      "angle-B/module-3": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": -12.87,
+          "median": -19.568,
+          "std": 20.21,
+          "min": -37.705,
+          "max": 10.865
+        }
+      },
+      "angle-B/module-4": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 13.748,
+          "median": 10.912,
+          "std": 5.696,
+          "min": 10.863,
+          "max": 25.14
+        }
+      },
+      "angle-C/module-2": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": -12.954,
+          "median": -12.929,
+          "std": 1.956,
+          "min": -16.126,
+          "max": -10.923
+        }
+      },
+      "angle-C/module-3": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 17.953,
+          "median": 19.103,
+          "std": 2.824,
+          "min": 13.108,
+          "max": 21.493
+        }
+      },
+      "angle-C/module-4": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": -3.004,
+          "median": 19.134,
+          "std": 45.441,
+          "min": -93.844,
+          "max": 21.674
+        }
+      },
+      "angle-D/module-2": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 3.096,
+          "median": 10.912,
+          "std": 32.503,
+          "min": -60.111,
+          "max": 30.951
+        }
+      },
+      "angle-D/module-3": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 2.995,
+          "median": 10.912,
+          "std": 17.122,
+          "min": -28.47,
+          "max": 21.493
+        }
+      },
+      "angle-D/module-4": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 1.468,
+          "median": 10.912,
+          "std": 31.247,
+          "min": -60.111,
+          "max": 22.815
+        }
+      },
+      "angle-E/module-2": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 11.594,
+          "median": 10.912,
+          "std": 1.366,
+          "min": 10.912,
+          "max": 14.326
+        }
+      },
+      "angle-E/module-3": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 10.912,
+          "median": 10.912,
+          "std": 0.0,
+          "min": 10.912,
+          "max": 10.912
+        }
+      },
+      "angle-E/module-4": {
+        "n_ok": 5,
+        "n_total": 5,
+        "improvement_pct": {
+          "mean": 10.912,
+          "median": 10.912,
+          "std": 0.0,
+          "min": 10.912,
+          "max": 10.912
+        }
+      }
+    },
+    "per_agent": [
+      {
+        "agent_id": "angleA-m2-agent-01",
+        "family": "angle-A/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011211351915512494,
+        "improvement_pct": 23.939375682655527,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m2-agent-02",
+        "family": "angle-A/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.012616466248322206,
+        "improvement_pct": 14.406727506401193,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleA-m2-agent-03",
+        "family": "angle-A/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.012479085462787639,
+        "improvement_pct": 15.338753224237092,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m2-agent-04",
+        "family": "angle-A/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.00665440023817683,
+        "improvement_pct": 54.85763908597081,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleA-m2-agent-05",
+        "family": "angle-A/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.006670362292052224,
+        "improvement_pct": 54.74658862020273,
+        "reconstruction_method": "re-ran-script"
+      },
+      {
+        "agent_id": "angleA-m3-agent-01",
+        "family": "angle-A/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.010796502489591102,
+        "improvement_pct": 26.753818273616748,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleA-m3-agent-02",
+        "family": "angle-A/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m3-agent-03",
+        "family": "angle-A/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m3-agent-04",
+        "family": "angle-A/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011013013325083853,
+        "improvement_pct": 25.284954443175145,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleA-m3-agent-05",
+        "family": "angle-A/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011858666890752394,
+        "improvement_pct": 19.54782847962916,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m4-agent-01",
+        "family": "angle-A/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011485538955630016,
+        "improvement_pct": 22.079222009108992,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m4-agent-02",
+        "family": "angle-A/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.014924078472968312,
+        "improvement_pct": -1.2486928043344265,
+        "reconstruction_method": "json-coeffs + imported-function"
+      },
+      {
+        "agent_id": "angleA-m4-agent-03",
+        "family": "angle-A/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.020791548696118198,
+        "improvement_pct": -41.05508294348547,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleA-m4-agent-04",
+        "family": "angle-A/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.010811178816483101,
+        "improvement_pct": 26.654250389698454,
+        "reconstruction_method": "re-ran-script"
+      },
+      {
+        "agent_id": "angleA-m4-agent-05",
+        "family": "angle-A/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleB-m2-agent-01",
+        "family": "angle-B/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.009496303505246374,
+        "improvement_pct": 35.57469440267692,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleB-m2-agent-02",
+        "family": "angle-B/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.02472096271432724,
+        "improvement_pct": -67.71321353099925,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m2-agent-03",
+        "family": "angle-B/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.018762352437166053,
+        "improvement_pct": -27.28850639844223,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m2-agent-04",
+        "family": "angle-B/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01591069226983475,
+        "improvement_pct": -7.942128343177424,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m2-agent-05",
+        "family": "angle-B/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.009376765177354841,
+        "improvement_pct": 36.3856724111989,
+        "reconstruction_method": "re-ran-script"
+      },
+      {
+        "agent_id": "angleB-m3-agent-01",
+        "family": "angle-B/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01898594595800504,
+        "improvement_pct": -28.805420943314868,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m3-agent-02",
+        "family": "angle-B/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.020297765683683387,
+        "improvement_pct": -37.70513509722041,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m3-agent-03",
+        "family": "angle-B/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01762439277688968,
+        "improvement_pct": -19.568302549625884,
+        "reconstruction_method": "re-ran-script"
+      },
+      {
+        "agent_id": "angleB-m3-agent-04",
+        "family": "angle-B/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013138520163196603,
+        "improvement_pct": 10.8649827648309,
+        "reconstruction_method": "other"
+      },
+      {
+        "agent_id": "angleB-m3-agent-05",
+        "family": "angle-B/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013138741215344966,
+        "improvement_pct": 10.863483091594532,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleB-m4-agent-01",
+        "family": "angle-B/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01313163591906428,
+        "improvement_pct": 10.911687204277937,
+        "reconstruction_method": "other"
+      },
+      {
+        "agent_id": "angleB-m4-agent-02",
+        "family": "angle-B/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01313163591906428,
+        "improvement_pct": 10.911687204277937,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m4-agent-03",
+        "family": "angle-B/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013138741215344966,
+        "improvement_pct": 10.863483091594532,
+        "reconstruction_method": "other"
+      },
+      {
+        "agent_id": "angleB-m4-agent-04",
+        "family": "angle-B/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.0110343864327154,
+        "improvement_pct": 25.13995391850086,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleB-m4-agent-05",
+        "family": "angle-B/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01313163591906428,
+        "improvement_pct": 10.911687204277937,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m2-agent-01",
+        "family": "angle-C/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01635075677749573,
+        "improvement_pct": -10.927636375111224,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m2-agent-02",
+        "family": "angle-C/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.016350085307573467,
+        "improvement_pct": -10.923080954687139,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m2-agent-03",
+        "family": "angle-C/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.016783433374377994,
+        "improvement_pct": -13.863022966699159,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleC-m2-agent-04",
+        "family": "angle-C/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01664578538296137,
+        "improvement_pct": -12.929184457117573,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m2-agent-05",
+        "family": "angle-C/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01711703597426853,
+        "improvement_pct": -16.126266705079615,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m3-agent-01",
+        "family": "angle-C/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011916656967082022,
+        "improvement_pct": 19.154409252128236,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m3-agent-02",
+        "family": "angle-C/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01192416886366308,
+        "improvement_pct": 19.1034466609913,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m3-agent-03",
+        "family": "angle-C/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.012247906521214285,
+        "improvement_pct": 16.907129166549883,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m3-agent-04",
+        "family": "angle-C/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.012807869004752089,
+        "improvement_pct": 13.108203183926387,
+        "reconstruction_method": "re-ran-script"
+      },
+      {
+        "agent_id": "angleC-m3-agent-05",
+        "family": "angle-C/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011571953981505671,
+        "improvement_pct": 21.492960792082396,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m4-agent-01",
+        "family": "angle-C/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011919609730454025,
+        "improvement_pct": 19.134376964565732,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m4-agent-02",
+        "family": "angle-C/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.02857268240124635,
+        "improvement_pct": -93.84424628157386,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m4-agent-03",
+        "family": "angle-C/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011717601229981342,
+        "improvement_pct": 20.50485331560269,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m4-agent-04",
+        "family": "angle-C/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.012159185795782533,
+        "improvement_pct": 17.50903282786386,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleC-m4-agent-05",
+        "family": "angle-C/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.0115453107763214,
+        "improvement_pct": 21.67371498081915,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m2-agent-01",
+        "family": "angle-D/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.023600461070405,
+        "improvement_pct": -60.1114492453368,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m2-agent-02",
+        "family": "angle-D/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639016,
+        "improvement_pct": 10.91169139983009,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m2-agent-03",
+        "family": "angle-D/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01313163591906428,
+        "improvement_pct": 10.911687204277937,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m2-agent-04",
+        "family": "angle-D/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011377055773543298,
+        "improvement_pct": 22.81519913476064,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m2-agent-05",
+        "family": "angle-D/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01017789269151077,
+        "improvement_pct": 30.950622352678213,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m3-agent-01",
+        "family": "angle-D/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m3-agent-02",
+        "family": "angle-D/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.018936569187157873,
+        "improvement_pct": -28.470436541280925,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m3-agent-03",
+        "family": "angle-D/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011571889772147532,
+        "improvement_pct": 21.49339640447811,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m3-agent-04",
+        "family": "angle-D/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01472107590742334,
+        "improvement_pct": 0.12852753356337365,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m3-agent-05",
+        "family": "angle-D/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m4-agent-01",
+        "family": "angle-D/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.023600461070404997,
+        "improvement_pct": -60.11144924533678,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m4-agent-02",
+        "family": "angle-D/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011377055773543298,
+        "improvement_pct": 22.81519913476064,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleD-m4-agent-03",
+        "family": "angle-D/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01313163591906429,
+        "improvement_pct": 10.911687204277866,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m4-agent-04",
+        "family": "angle-D/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleD-m4-agent-05",
+        "family": "angle-D/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011377055773543298,
+        "improvement_pct": 22.81519913476064,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m2-agent-01",
+        "family": "angle-E/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m2-agent-02",
+        "family": "angle-E/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleE-m2-agent-03",
+        "family": "angle-E/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleE-m2-agent-04",
+        "family": "angle-E/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.012628423469288023,
+        "improvement_pct": 14.325606719308418,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m2-agent-05",
+        "family": "angle-E/module-2",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleE-m3-agent-01",
+        "family": "angle-E/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m3-agent-02",
+        "family": "angle-E/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "angleE-m3-agent-03",
+        "family": "angle-E/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m3-agent-04",
+        "family": "angle-E/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m3-agent-05",
+        "family": "angle-E/module-3",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m4-agent-01",
+        "family": "angle-E/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m4-agent-02",
+        "family": "angle-E/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "other"
+      },
+      {
+        "agent_id": "angleE-m4-agent-03",
+        "family": "angle-E/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m4-agent-04",
+        "family": "angle-E/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "angleE-m4-agent-05",
+        "family": "angle-E/module-4",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.013131635300639025,
+        "improvement_pct": 10.911691399830032,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "raw-agent-01",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.019064401000398502,
+        "improvement_pct": -29.33767963524245,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "raw-agent-02",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.010951168090322287,
+        "improvement_pct": 25.70452803273563,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "raw-agent-03",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.010713054511473396,
+        "improvement_pct": 27.319950294222632,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "raw-agent-04",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.011961448812018102,
+        "improvement_pct": 18.8505301378307,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "raw-agent-05",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.01000571099822266,
+        "improvement_pct": 32.11874616024424,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "raw-agent-06",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.010599176313176892,
+        "improvement_pct": 28.092528563448294,
+        "reconstruction_method": "imported-function"
+      },
+      {
+        "agent_id": "raw-agent-07",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.0074931140393713035,
+        "improvement_pct": 49.1648343383941,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "raw-agent-08",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.008586618557599212,
+        "improvement_pct": 41.74622532700711,
+        "reconstruction_method": "re-ran-script"
+      },
+      {
+        "agent_id": "raw-agent-09",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.008837227687329733,
+        "improvement_pct": 40.046030113211756,
+        "reconstruction_method": "json-coeffs"
+      },
+      {
+        "agent_id": "raw-agent-10",
+        "family": "raw",
+        "status": "ok",
+        "baseline_rmse": 0.014740020892723483,
+        "agent_rmse": 0.010257738225392192,
+        "improvement_pct": 30.40893021762271,
+        "reconstruction_method": "json-coeffs"
+      }
+    ]
+  }
+}

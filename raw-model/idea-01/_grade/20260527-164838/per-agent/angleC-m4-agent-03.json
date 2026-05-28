@@ -1,0 +1,112 @@
+{
+  "agent_id": "angleC-m4-agent-03",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/module-4/agent-03/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Per-platform variant ladder on both Fords (Tesla excluded \u2014 no truth). Speed-known lateral-only KS contract held."
+      ],
+      "reasoning": "Agent scores on measured yaw-rate on Fords and explicitly excludes Tesla due to no measured truth channel."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Speed-known lateral-only KS contract held."
+      ],
+      "reasoning": "Speed is clamped to truth, lateral is predicted \u2014 explicit KS contract statement."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Per-regime test RMSE (V3): Mach-E 0.00825 / 0.03259 / 0.05974; Lightning 0.00521 / 0.02559 / 0.04392."
+      ],
+      "reasoning": "Per-regime RMSE breakdown (straight/cornering/transient) is provided for V3."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Interleaved 4/1 train/test split; all RMSE numbers are held-out test RMSE."
+      ],
+      "reasoning": "Same split, same metric definition declared once for the entire ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Marginals \u2014 Mach-E: V1 -1.3e-5 (regression), V2 -2.4e-4 (regression), V3 +4.1e-5. Lightning: V1 +2.2e-4, V2 +5.1e-3, V3 +4.2e-5. Attribution-coherence \u2248 0.00 on both (well under 0.15)."
+      ],
+      "reasoning": "Agent reports both marginal drops and total drop, and explicitly computes coherence \u2248 0.00, well under the 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "V2 improves straight regime (0.00878\u21920.00828) but worsens steady and transient \u2014 `C_\u03b1` priors already over-encode understeer for steady cornering, and the transient residual is dominated by tyre-relaxation / actuator phase, which is ST-rung physics, not a KS tweak."
+      ],
+      "reasoning": "Mach-E net regression is flagged with explicit physical causes (over-encoded understeer priors and ST-rung physics dominating transient residual)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "held-out test RMSE",
+    "platform": "F-150 Lightning",
+    "baseline_value": "0.02037",
+    "final_value": "0.01499 rad/s",
+    "improvement": "-26%",
+    "top_contributor": "V2",
+    "baseline_numeric": 0.02037,
+    "final_numeric": 0.01499,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 26.0,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford platform with measured yaw-rate truth channel under an explicit speed-known lateral-only KS contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 constant \u03b4_offset",
+      "contribution_pct": 4.1,
+      "contribution_abs": 0.00022,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 understeer K_us (lin. bike)",
+      "contribution_pct": 94.8,
+      "contribution_abs": 0.0051,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 integer sample lag",
+      "contribution_pct": 0.8,
+      "contribution_abs": 4.2e-05,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

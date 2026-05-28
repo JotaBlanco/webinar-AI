@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleD-m2-agent-03",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "Re-ran agent's V1 (their declared best variant): use sim.csv's stock yaw_rate_pred_rads as KS base (= (v/L)*tan(delta) with each platform's canonical wheelbase per the report's hand-check), then subtract a per-segment yaw-gyro bias estimated as mean(ks_pred - meas) on samples with |delta_road|<0.01 rad, requiring >50 such samples per segment.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723478,
+  "agent_rmse": 0.01313163591906428,
+  "improvement_pct": 10.911687204277937,
+  "notes": "V1 declared best in REPORT.md table: 'V1 \u2014 KS w/ canonical L + per-segment yaw-gyro bias on straights ... only variant that helps'. Bias applied to 538/545 segments (others lacked >50 straight samples and used bias=0). Recipe is platform-agnostic (per-segment offset), so it generalises naturally from the agent's Mach-E-only scoring to the full Ford canonical set."
+}

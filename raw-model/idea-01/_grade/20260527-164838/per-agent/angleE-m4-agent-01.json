@@ -1,0 +1,114 @@
+{
+  "agent_id": "angleE-m4-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-E/module-4/agent-01/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`yaw_rate_meas_rads` is the measured truth channel (present on both Ford platforms, absent on Tesla).",
+        "`yaw_rate_resid_rads = pred \u2212 meas` is the only metric."
+      ],
+      "reasoning": "Agent explicitly names yaw_rate_meas_rads as the measured truth channel and uses the residual against it as the scored metric."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "KS runs with `clamp_v_to_measured=True`, `clamp_delta_to_measured=True`. Speed-state agreement is zero by construction and is not the metric. `v` and `\u03b4_road` are inputs; `yaw_rate_resid_rads = pred \u2212 meas` is the only metric."
+      ],
+      "reasoning": "Methodology section explicitly states which channels are clamped (v, delta) versus predicted (yaw_rate)."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| variant | overall | straight | steady | transient | marginal \u0394 overall | notes |"
+      ],
+      "reasoning": "Variant ladder table breaks RMSE out by straight/steady/transient regimes, not just an aggregate."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "## 2. Variant ladder (per-regime RMSE, rad/s)",
+        "Scheme: strict marginal, fixed order V0\u2192V1\u2192V2\u2192V3. Marginal_i = RMSE(V_{i-1}) \u2212 RMSE(V_i)."
+      ],
+      "reasoning": "Same regime set (straight/steady/transient) and same RMSE metric applied across every variant on the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Marginal drops: V1 +0.00143, V2 \u22120.00184, V3 \u22120.00011. Sum = \u22120.00051. Total V0\u2212V3 = \u22120.00051. **Mismatch 0.0%** (trivially within 15%; the check is by construction for overall RMSE)."
+      ],
+      "reasoning": "Marginal drops sum to exactly the total drop; mismatch is 0.0%, well under the 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V2 vs V1, all regimes.** Linear-ST with openpilot prior C_\u03b1 (286,551 / 355,912 N/rad) under-yaws relative to measured at the Mach-E's steering levels. Physical reason: the prior is generic, and tan(\u03b4) \u2192 \u03b4 approximation drops nonlinear high-\u03b4 contribution that KS retains; on transients the linear model also misses lag."
+      ],
+      "reasoning": "V2 and V3 regressions are explicitly flagged in a dedicated Regression flags section with physical causes (generic prior, linearisation dropping nonlinear high-\u03b4, missing lag)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw_rate_resid_rads",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01613",
+    "final_value": "0.01469",
+    "improvement": "-0.00143 rad/s (-8.9%)",
+    "top_contributor": "V1 \u2014 KS recalib + per-segment straight-line bias",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.01469,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 8.9,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured yaw_rate_meas_rads channel, with the clamped-vs-predicted contract explicitly declared."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 \u2014 KS recalib + per-segment straight-line bias",
+      "contribution_pct": 280.4,
+      "contribution_abs": 0.00143,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 \u2014 Linear ST, prior C_\u03b1 (low-v KS fallback)",
+      "contribution_pct": -360.8,
+      "contribution_abs": -0.00184,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 \u2014 Linear ST, fitted C_\u03b1",
+      "contribution_pct": -21.6,
+      "contribution_abs": -0.00011,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

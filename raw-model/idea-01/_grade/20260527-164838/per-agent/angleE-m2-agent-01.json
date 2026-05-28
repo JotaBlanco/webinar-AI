@@ -1,0 +1,112 @@
+{
+  "agent_id": "angleE-m2-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-E/module-2/agent-01/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`yaw_rate_meas_rads` is measured truth (rlog IMU, Ford-only). Residual under test: `yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas`."
+      ],
+      "reasoning": "Agent names the scored channel and identifies it explicitly as measured truth from rlog IMU."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Speed `v` and steering `\u03b4` are **clamped to measured** under the speed-known operating contract (`clamp_v_to_measured=True`, `clamp_delta_to_measured=True`). The lateral residual is the *only* metric."
+      ],
+      "reasoning": "Explicit statement of which channels are clamped to truth (v, \u03b4) vs the predicted yaw-rate residual."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| variant | overall | straight | steady | transient |"
+      ],
+      "reasoning": "Variant table breaks out RMSE per regime (straight, steady, transient) for every variant."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Regime split (fixed thresholds): straight 785 093 rows, steady 106 978, transient 21 555."
+      ],
+      "reasoning": "A fixed regime split with declared row counts is shared across all variants in the ladder table."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "**Sum of marginals vs. total V0 \u2192 V3:** \u22120.00144 + 0.00184 + 0.00010 = +0.00050 \u2248 total V0\u2192V3 (+0.00050). Within 15 %: yes (exact, by construction)."
+      ],
+      "reasoning": "Sum of marginal drops equals the total drop exactly; coherence ratio is 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V2, V3 regress past V0 on overall and on every regime.** Cause: the Linear ST understeer correction with openpilot-canonical C\u03b1 reduces predicted yaw rate at moderate v, but the actual residual budget in this dataset is dominated by (a) yaw-gyro DC offset in straight rows and (b) genuine transient dynamics the linear model also can't capture."
+      ],
+      "reasoning": "Regressions in V2 and V3 are explicitly flagged with physical causes."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw_rate_resid_rads = yaw_rate_pred \u2212 yaw_rate_meas",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01613",
+    "final_value": "0.01469",
+    "improvement": "\u22120.00144 rad/s (\u22128.9 %)",
+    "top_contributor": "V1 (KS recalib L + per-segment straight-row yaw-gyro bias)",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.01469,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 8.9,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform using measured yaw_rate_meas_rads truth channel under the explicitly stated speed-known clamped contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 (KS recalib L + per-segment straight-row yaw-gyro bias)",
+      "contribution_pct": 100.0,
+      "contribution_abs": -0.00144,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 (Linear ST, openpilot prior C\u03b1)",
+      "contribution_pct": -127.78,
+      "contribution_abs": 0.00184,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 (Linear ST, fit C\u03b1, L-BFGS-B in (5e4, 5e5) N/rad)",
+      "contribution_pct": -6.94,
+      "contribution_abs": 0.0001,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

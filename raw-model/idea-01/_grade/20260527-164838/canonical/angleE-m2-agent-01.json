@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleE-m2-agent-01",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Re-implemented V1 (KS recalibrated + per-segment yaw-gyro bias on straight rows) from tools/step4_run_st_upgrade.py; uses per-platform wheelbase L from code/parameters.py (no fitted coefficients to load \u2014 V1's only parameter is the per-segment bias, which is intrinsic and recomputed per canonical segment).",
+  "n_segments": 521,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.013131635300639025,
+  "improvement_pct": 10.911691399830032,
+  "notes": "V1 reconstructed verbatim from tools/step4_run_st_upgrade.py: ks_pred=(v/L)*tan(delta_road_rad); per-segment bias = mean(ks_pred - yaw_rate_meas) over straight rows (|delta|<0.01 rad, per step2 threshold); v1_pred = ks_pred - bias. Per-platform L from code/parameters.py (Mach-E=2.984 m, F-150=3.70 m). Agent only scored Mach-E in their REPORT (315 segs, 0.01469 rad/s); canonical pool applies the same V1 recipe to both Ford platforms (per-segment bias is intrinsic to the model definition). baseline_rmse_recomputed (1.474002e-02) matches canonical (1.474002e-02) to within 0.00e+00. 7 segments had no straight rows; bias set to 0 for those."
+}

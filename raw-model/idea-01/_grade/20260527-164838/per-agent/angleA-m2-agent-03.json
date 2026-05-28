@@ -1,0 +1,114 @@
+{
+  "agent_id": "angleA-m2-agent-03",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-2/agent-03/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Truth channels**: `yaw_rate_meas_rads`, `a_lat_meas_mps2` are measured (decoded from rlog IMU), not self-consistency.",
+        "**Primary metric**: pooled-sample RMSE on `yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads` (rad/s)."
+      ],
+      "reasoning": "Report names yaw_rate_meas_rads as the measured channel from rlog IMU and scores against it."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Speed-known contract**: `v_mps` and `delta_road_rad` are inputs to the KS integrator (clamped at every step). The model's *predictions* are `yaw_rate_pred_rads` and `a_y_pred_mps2`. Speed and steering agreement is zero by construction and is not the metric."
+      ],
+      "reasoning": "Explicitly states which channels are clamped (v_mps, delta_road_rad) vs predicted (yaw_rate_pred_rads, a_y_pred_mps2)."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| variant | all (rad/s) | straight | cornering steady | cornering transient | marginal \u0394 on `all` |"
+      ],
+      "reasoning": "Results table breaks down RMSE per regime (straight / cornering steady / cornering transient)."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Regime mask** (identical across every variant row):",
+        "- *straight*: `|\u03c8\u0307_meas| < 0.05 rad/s`"
+      ],
+      "reasoning": "Explicitly declares the regime mask as identical across every variant row, with one fixed metric definition."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Marginal drops sum: 0.00198 + 0.00030 + 0.00005 = 0.00233 rad/s \u2248 V0\u2212V4 = 0.00233 rad/s. Accounting closes to round-off."
+      ],
+      "reasoning": "Sum of marginal drops equals total V0-V4 drop to round-off; |\u03a3 marginal \u2212 total| / total \u2248 0 < 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "No variant worsened the metric. V3 nudged transient very slightly worse (0.08152 \u2192 0.08164, +0.015%) because the global K_us fit overcorrects on a few high-yaw-rate samples \u2014 well within noise."
+      ],
+      "reasoning": "Explicit 'no variant worsened the metric' statement plus a physical cause given for the minor V3 transient nudge."
+    }
+  ],
+  "headline": {
+    "primary_metric": "pooled-sample RMSE on `yaw_rate_resid_rads = yaw_rate_pred_rads \u2212 yaw_rate_meas_rads` (rad/s)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01613",
+    "final_value": "0.01380",
+    "improvement": "14.5% drop",
+    "top_contributor": "V1 (bias removal)",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.0138,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 14.5,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on a canonical platform (Mach-E) against a measured IMU-derived truth channel with the clamped-vs-predicted contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 (bias removal)",
+      "contribution_pct": 85.0,
+      "contribution_abs": -0.00198,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 (alignment)",
+      "contribution_pct": 12.9,
+      "contribution_abs": -0.0003,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 (understeer)",
+      "contribution_pct": 2.1,
+      "contribution_abs": -5e-05,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

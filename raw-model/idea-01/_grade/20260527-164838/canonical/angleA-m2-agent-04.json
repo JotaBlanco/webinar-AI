@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m2-agent-04",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Re-ran the agent's V4_ST_understeer_plus_gain (declared best in REPORT.md): linear single-track steady-state yaw with Mach-E K_us computed from M/L/l_f/l_r/C_f/C_r, low-pass-filtered delta_road (tau=80 ms), then per-segment straight-mask bias removal and clipped (0.7-1.5) scalar gain fit on cornering rows, replicated verbatim from out/analyze.py since the agent saved no fitted coefficients.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723478,
+  "agent_rmse": 0.00665440023817683,
+  "improvement_pct": 54.85763908597081,
+  "notes": "Baseline recomputed across the 545 canonical Ford segments matches the cached canonical V0 to within 1e-15. Per-segment bias and gain are fit in-sample on each segment as in the agent's original code (the agent acknowledges this in-sample caveat in REPORT.md). The agent's V4 was reported only on FORD_MUSTANG_MACH_E_MK1 (315 segments); we apply the same code path with Mach-E single-track constants to all 545 Ford segments including the 230 F-150 Lightning segments, so K_us is platform-specific to Mach-E but used across both Ford platforms — the agent's reconstruction summary calls out this caveat. yaw_rate_pred_rads from sim.csv is used as the V0 baseline as per the canonical spec."
+}

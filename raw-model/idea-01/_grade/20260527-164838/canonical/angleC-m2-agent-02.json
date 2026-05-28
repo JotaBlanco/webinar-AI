@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleC-m2-agent-02",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "Re-fit agent's V3 (bias+gain+integer-lag) on Mach-E pool per their ladder.py procedure to recover constants (bias=+0.000754 rad/s, k=1.0687, lag=1 samples), then applied to every canonical Ford segment per-segment.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723478,
+  "agent_rmse": 0.016350085307573467,
+  "improvement_pct": -10.923080954687139,
+  "notes": "Agent's favourite is V3 ('Mach-E lateral RMSE improves from 16.13 -> 15.53 mrad/s'); parameters were re-fit on Mach-E only (per-platform fit, as agent did), then applied to both Mach-E and F-150 canonical segments. 545 segments globbed, 521 contributed samples after the v_mps>2.0 filter (24 had no qualifying samples). baseline_rmse_recomputed matches canonical V0 to 1e-15. Agent is platform-specific (Mach-E only); pooling F-150 with the Mach-E-tuned gain k=1.069 makes the cross-Ford pooled RMSE WORSE than V0 (-10.9%), because F-150 has different effective understeer — agent themselves flag this in their report ('fits per-platform Mach-E pool, not per-segment')."
+}

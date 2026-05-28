@@ -1,0 +1,112 @@
+{
+  "agent_id": "angleE-m4-agent-05",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-E/module-4/agent-05/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`yaw_rate_meas_rads` is the measured truth channel."
+      ],
+      "reasoning": "Report explicitly names the measured yaw_rate channel as the scored truth channel."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`v_mps` and `delta_road_rad` are **clamped to measured**; speed-state agreement is zero by construction and is **not** the metric."
+      ],
+      "reasoning": "Methodology explicitly states which channels are clamped vs measured."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| variant | description | overall RMSE | straight | steady | transient | marginal \u0394 overall |"
+      ],
+      "reasoning": "Variant table includes per-regime (straight/steady/transient) RMSE columns."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Metric: `RMSE(yaw_rate_resid_rads)` overall and per regime (straight / steady / transient) using the skill's `triage.regime_mask`."
+      ],
+      "reasoning": "Single fixed metric and regime-mask declared up front and used across all variants in the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Sum of marginals = `+0.00143 \u2212 0.00184 \u2212 0.00011 = \u22120.00051 rad/s`, exactly equal to `RMSE(V0) \u2212 RMSE(V3)` (ratio 1.000, within the 15% tolerance)."
+      ],
+      "reasoning": "Marginal sum reconciles exactly with total drop, ratio 1.000 (well under 0.15 tolerance)."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V2 vs V1, transient regime:** +0.00555 rad/s. Physical cause expected: Linear ST is a *steady-state* model; transients excite yaw-rate dynamics (`I_z \u03c8\u0308`) that the model can't represent."
+      ],
+      "reasoning": "Regression Flags section explicitly enumerates regressions with physical causes."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE(yaw_rate_resid_rads)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01613",
+    "final_value": "0.01663",
+    "improvement": "\u22120.00051 rad/s",
+    "top_contributor": "V1",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.01663,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": -3.1,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Mach-E platform with measured yaw_rate_meas_rads as truth channel and contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1",
+      "contribution_pct": -280.4,
+      "contribution_abs": 0.00143,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2",
+      "contribution_pct": 360.8,
+      "contribution_abs": -0.00184,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3",
+      "contribution_pct": 21.6,
+      "contribution_abs": -0.00011,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

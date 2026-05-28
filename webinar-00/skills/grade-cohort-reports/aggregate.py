@@ -17,6 +17,7 @@ import json
 import math
 import re
 import statistics
+import subprocess
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -436,9 +437,14 @@ def render_cohort_md(cards: list[dict], rubric_yaml: str, manifest: dict, famili
     return "\n".join(out_lines), cohort_json
 
 
+SKILL_DIR = Path(__file__).resolve().parent
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--grade-dir", type=Path, required=True)
+    p.add_argument("--no-pdf", action="store_true",
+                   help="Skip cohort.pdf generation (default: PDF auto-generated via report.py)")
     args = p.parse_args()
 
     cards = load_raw(args.grade_dir)
@@ -488,6 +494,12 @@ def main():
     print(f"per-agent scorecards: {per_agent_dir}/")
     print(f"cohort summary:       {args.grade_dir}/cohort.md")
     print(f"cohort json:          {args.grade_dir}/cohort.json")
+
+    if not args.no_pdf:
+        rc = subprocess.call(["python3", str(SKILL_DIR / "report.py"),
+                              "--grade-dir", str(args.grade_dir)])
+        if rc != 0:
+            print(f"aggregate: WARN — report.py failed (exit {rc}); cohort.pdf not generated", file=sys.stderr)
 
 
 if __name__ == "__main__":

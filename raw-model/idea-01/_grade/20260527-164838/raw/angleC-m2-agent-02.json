@@ -1,0 +1,100 @@
+{
+  "agent_id": "angleC-m2-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/module-2/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Truth:** `yaw_rate_meas_rads` (measured, Ford IMU)."],
+      "reasoning": "Report explicitly names the scored channel and identifies it as measured from the Ford IMU."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Contract:** `v` and `δ` clamped to measured per rule 5; only ψ/ψ̇/a_y/x/y predicted."],
+      "reasoning": "Explicit clamped-vs-predicted statement appears in the header methodology."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| variant | all | straight | steady | transient | note |"],
+      "reasoning": "Variant table breaks RMSE out by straight/steady/transient regimes."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Strict marginal, V0→V3, 315 segments, every-5th-sample held-out test (interleaved per AGENTS.md §7); pred−meas convention; a_y re-derived as v·ψ̇ per §9:"],
+      "reasoning": "Caption above the variant table fixes the segment set, validation split, and metric definition for all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.083,
+      "threshold_met": true,
+      "evidence": ["Mach-E lateral RMSE improves from **16.13 → 15.53 mrad/s** (~3.7%, all-regime, interleaved held-out). All gain lives in V2 (a single per-platform gain k=1.069). V1 bias and V3 lag are essentially noise."],
+      "reasoning": "Marginal drops (V1: -0.01, V2: +0.56, V3: +0.05) sum to +0.60 vs total drop 0.60 mrad/s; |Σ-total|/total ≈ 0.08, under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["V2 worsens the **straight** regime (8.59 → 9.22): scaling pred by 1.069 amplifies KS's small-amplitude noise where there's nothing to correct."],
+      "reasoning": "Near-misses section flags V2's straight-regime regression with a physical cause (amplified small-amplitude noise where no correction is needed)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Mach-E lateral RMSE",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "16.13",
+    "final_value": "15.53",
+    "improvement": "~3.7%",
+    "top_contributor": "V2 gain",
+    "baseline_numeric": 16.13,
+    "final_numeric": 15.53,
+    "unit_normalized": "mrad/s",
+    "improvement_pct_numeric": 3.72,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform against measured IMU yaw-rate truth with v and δ clamped per the contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 bias",
+      "contribution_pct": -1.67,
+      "contribution_abs": -0.01,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 gain",
+      "contribution_pct": 93.33,
+      "contribution_abs": 0.56,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 lag",
+      "contribution_pct": 8.33,
+      "contribution_abs": 0.05,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

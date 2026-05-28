@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleD-m2-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-D/module-2/agent-01/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Truth channel:** `yaw_rate_meas_rads` is *measured* truth — decoded from the rlog IMU via the Ford party DBC (Mach-E is a first-class openpilot port; SKILL.md confirms Tesla has no decoded IMU yaw, Ford does)."],
+      "reasoning": "Report explicitly names yaw_rate_meas_rads as measured truth and cites the rlog IMU source via Ford DBC."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Operating contract:** speed-known, lateral-only (`clamp_v_to_measured=True`, `clamp_delta_to_measured=True`, per SKILL.md)."],
+      "reasoning": "Methodology explicitly states which channels are clamped to truth (v and delta) vs predicted (yaw rate)."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| Variant | overall RMSE [rad/s] | straight | steady | transient | attribution Δ vs prev |"],
+      "reasoning": "Variant table breaks RMSE out by straight/steady/transient regimes."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Sample:** 20 segments, deterministic stride over 315 available Mach-E `sim.csv` files; 57,987 rows total.", "**Residual under test:** `yaw_rate_pred − yaw_rate_meas` (rad/s)."],
+      "reasoning": "Single fixed sample and a single residual/metric definition declared in the header are applied to every variant in the table."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": ["**V1 is the only positive contributor on overall RMSE.** It contributes the whole 0.00199 rad/s overall improvement (−16.7% vs V0).", "| V1 KS recalibrated, canonical L, per-segment straight bias | **0.00993** | 0.00430 | 0.01683 | 0.03948 | **−0.00199 (−16.7%)** |"],
+      "reasoning": "Total drop V0->V1 = 0.00199; V1 is credited the full 0.00199 with later variants reported as regressions, so |Σ marginal drops − total drop|/total drop ≈ 0 (well below 0.15)."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| V2 Linear ST, prior C_α (openpilot-canonical)              | 0.01155     | 0.00350 | 0.02088 | 0.04681 | +0.00162 *(regression)* |", "**V2 over-shrinks gain.** Prior C_α makes K_us > 0 in a regime where the in-CSV KS prediction (no slip term) was already accurate; the ST gain at v=20 m/s is ~18% lower than KS, so steady and transient RMSE grow."],
+      "reasoning": "V2 and V4 are explicitly labeled as regressions in the variant table and each is given a physical cause (over-shrunk gain via stiff Cα prior; ridge fitting noise on over-corrected residuals)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "overall RMSE [rad/s]",
+    "platform": "FORD_MUSTANG_MACH_E_MK1 (Mach-E MK1)",
+    "baseline_value": "0.01192",
+    "final_value": "0.00993",
+    "improvement": "−0.00199 (−16.7%)",
+    "top_contributor": "V1 KS recalibrated, canonical L, per-segment straight bias",
+    "baseline_numeric": 0.01192,
+    "final_numeric": 0.00993,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 16.7,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads (decoded IMU), with the speed-known lateral-only contract explicitly declared."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 KS recalibrated, canonical L, per-segment straight bias",
+      "contribution_pct": 100.0,
+      "contribution_abs": 0.00199,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 Linear ST, prior C_α (openpilot-canonical)",
+      "contribution_pct": -81.4,
+      "contribution_abs": -0.00162,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 Linear ST, fit C_α (Cα_f≈653k, Cα_r≈668k, not pegged)",
+      "contribution_pct": 53.8,
+      "contribution_abs": 0.00107,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 Ridge residual learner LOO on V3 residuals",
+      "contribution_pct": -30.2,
+      "contribution_abs": -0.0006,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleD-m3-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-D/module-3/agent-01/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Truth channel:** `yaw_rate_meas_rads` is **measured truth** (decoded from the Ford party DBC IMU)."],
+      "reasoning": "Report names the scored channel as yaw_rate_meas_rads and identifies it as measured truth from the Ford party DBC IMU."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Operating contract:** `v` and `δ` are **clamped** to measured each step (`clamp_v_to_measured=True`, `clamp_delta_to_measured=True`). Lateral state (`ψ̇`, `a_y`) is free and is the scored quantity."],
+      "reasoning": "Explicit clamped-vs-predicted statement is provided: v and δ clamped, lateral state free and scored."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| Variant | Description | Overall | Straight | Steady | Transient | Marginal Δ vs prev |"],
+      "reasoning": "Variant table breaks out RMSE per regime: Straight, Steady, Transient in addition to Overall."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Accounting scheme:** strict marginal, fixed order V0 → V1 → V2 → V3 → V4. Marginal drop = `RMSE(V_{i-1}) − RMSE(V_i)`."],
+      "reasoning": "Same segments (30 of 315), same regime breakdown columns, and same RMSE metric definition apply across all variants in the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": ["**Sum-of-marginals check:** marginals sum to −0.00939; total V0→V4 = −0.00939. Within 15%? Yes (identity by definition for non-overlapping serial subtractions)."],
+      "reasoning": "Agent explicitly reconciles marginals (−0.00939) with total drop (−0.00939); |Σ − total|/|total| = 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**V2 regression cause:** the linear-ST understeer-gradient correction `(1 + K_us v²)` makes cornering yaw-rate predictions smaller, but the measured-vs-KS gap on this Mach-E mix is in the **opposite** direction — V2 under-predicts cornering more than V1."],
+      "reasoning": "Regression rows V2/V3/V4 are flagged in the table and each is given an explicit physical-cause explanation in the notes."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw-rate RMSE, rad/s",
+    "platform": "Ford Mustang Mach-E MK1 (`FORD_MUSTANG_MACH_E_MK1`), 30 of 315 available `sim.csv` segments, 86,964 rows total.",
+    "baseline_value": "0.01563",
+    "final_value": "0.01381",
+    "improvement": "−0.00182 (improvement)",
+    "top_contributor": "V1",
+    "baseline_numeric": 0.01563,
+    "final_numeric": 0.01381,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 11.64,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored yaw rate against the measured truth channel (yaw_rate_meas_rads from Ford DBC IMU) on the canonical Mach-E platform with operating contract explicitly stated."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 KS recalibrated + per-segment yaw-gyro bias",
+      "contribution_pct": 100.0,
+      "contribution_abs": -0.00182,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 Linear ST with prior C_α + per-segment bias",
+      "contribution_pct": -146.7,
+      "contribution_abs": 0.00267,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 Linear ST with fit C_α + per-segment bias",
+      "contribution_pct": -5.5,
+      "contribution_abs": 0.00010,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 V3 + Ridge residual learner, LOO out-of-fold",
+      "contribution_pct": -463.2,
+      "contribution_abs": 0.00843,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 2,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

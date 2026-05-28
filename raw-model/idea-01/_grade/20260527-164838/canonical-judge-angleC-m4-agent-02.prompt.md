@@ -77,7 +77,7 @@ leakage_note: |
     "data/sim/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv",
     "data/sim/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv"
   ],
-  "computed_at": "2026-05-27T16:48:41"
+  "computed_at": "2026-05-28T11:13:08"
 }
 ```
 

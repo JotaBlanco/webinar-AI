@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m2-agent-05",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "re-ran-script",
+  "reconstruction_summary": "Re-implemented agent's V4 model exactly per out/analyze.py: per-segment grid-search alpha in linspace(0.85,1.20,24) and k_scale in linspace(0,2,21) over pr=(v/(L+ks*K_us*v^2))*tan(alpha*delta_road); integer-lag alignment in [-10,10]; per-segment mean bias removal; K_us per platform from parameters.py.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.006670362292052224,
+  "improvement_pct": 54.74658862020273,
+  "notes": "Agent's V4 model has no saved coefficients; per-segment (alpha, k_scale, lag) are re-fit on each segment at score time, matching the agent's analyze.py procedure exactly. K_us is platform-specific (Mach-E vs F-150 Lightning) via parameters.py. Agent's V4 trims arrays by per-segment integer lag in [-10,10]; pooled v>2 sample count for agent = 1363238 vs canonical baseline = 1364925 (~|lag| samples lost per segment)."
+}

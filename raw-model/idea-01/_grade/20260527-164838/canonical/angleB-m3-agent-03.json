@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleB-m3-agent-03",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "re-ran-script",
+  "reconstruction_summary": "Re-ran agent's V4 (their declared favourite): Linear-ST with fit C_alpha (scale=0.315 on cornering rows) + per-segment yaw-rate bias from straights + Ridge(alpha=1.0) residual learner on [v, |a_y_pred|, |delta|, sign(ddelta/dt)] with LOSO across all 545 canonical Ford segments. Agent saved no coefficients to out/, so the training procedure from tools/lateral_ladder.py was re-executed on the canonical eval set.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723487,
+  "agent_rmse": 0.01762439277688968,
+  "improvement_pct": -19.568302549625884,
+  "notes": "Agent's V4 uses Mach-E physical parameters (L=2.984, m=2336, l_f=1.313, l_r=1.671, prior C_alpha 286.6/355.9 kN/rad); these were applied unchanged to F-150 Lightning segments because the agent shipped only the Mach-E procedure. C_alpha scale, per-segment bias, and Ridge residual weights are re-fit on the canonical eval set per the recipe (no coefficients were persisted in agent's out/). Per-segment delta gradient computed per-segment to avoid cross-segment artefacts."
+}

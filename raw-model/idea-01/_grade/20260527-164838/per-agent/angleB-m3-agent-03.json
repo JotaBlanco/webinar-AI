@@ -1,0 +1,118 @@
+{
+  "agent_id": "angleB-m3-agent-03",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/module-3/agent-03/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Truth = `yaw_rate_meas_rads`. Tesla excluded (no IMU truth)."
+      ],
+      "reasoning": "Report names the scored channel as the measured yaw rate and excludes platforms without measured truth."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Operating contract:** speed-known, lateral-only. `v` and `\u03b4` clamped to measured. Truth = `yaw_rate_meas_rads`."
+      ],
+      "reasoning": "Explicit clamped-vs-predicted statement appears in the methodology header."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | all | straight | steady | transient | \u0394 vs prev (all) |"
+      ],
+      "reasoning": "Variant ladder table breaks RMSE out by straight / steady / transient regimes."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Regime mask:** straight (`|\u03b4|<0.01`) 300 928, steady 39 728, transient 7 404."
+      ],
+      "reasoning": "A fixed regime mask is declared in the header and the same columns/metric apply across every variant row."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.003,
+      "threshold_met": true,
+      "evidence": [
+        "**Marginal-drop accounting** (greedy / sequential, one DoF per rung). Sum = -0.00298; V0\u2192V4 = -0.00299. Closes to 0.3% \u2014 well inside the 15% bound."
+      ],
+      "reasoning": "Marginal drops and the total drop are both present and reconcile to ~0.3%, comfortably under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V2 is a regression on `all`** (+0.00141). Linear ST with the openpilot prior `C_\u03b1` over-steers vs measured at the high-`|a_y|` end."
+      ],
+      "reasoning": "V2 is explicitly flagged as a regression with a physical cause (prior C_\u03b1 over-steering at high |a_y|)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE of `\u03c8\u0307_pred \u2212 \u03c8\u0307_meas` in rad/s",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01550",
+    "final_value": "0.01251",
+    "improvement": "-0.00299",
+    "top_contributor": "V4 \u2014 V3 + Ridge residual LOSO on [v, |a_y|, |\u03b4|, sign(\u03b4\u0307)]",
+    "baseline_numeric": 0.0155,
+    "final_numeric": 0.01251,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 19.29,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured yaw_rate_meas_rads with contract (v, \u03b4 clamped) explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 \u2014 KS + per-segment bias (estimated on straights)",
+      "contribution_pct": 40.47,
+      "contribution_abs": -0.00121,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 \u2014 Linear ST, prior C_\u03b1 + bias",
+      "contribution_pct": -47.16,
+      "contribution_abs": 0.00141,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 \u2014 Linear ST, fit C_\u03b1 + bias",
+      "contribution_pct": 11.37,
+      "contribution_abs": -0.00034,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 \u2014 V3 + Ridge residual LOSO on [v, |a_y|, |\u03b4|, sign(\u03b4\u0307)]",
+      "contribution_pct": 94.98,
+      "contribution_abs": -0.00284,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 5,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

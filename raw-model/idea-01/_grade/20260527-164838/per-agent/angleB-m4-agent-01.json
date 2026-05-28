@@ -1,0 +1,124 @@
+{
+  "agent_id": "angleB-m4-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/module-4/agent-01/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Ford Mustang Mach-E MK1 (the only platform with truth \u03c8\u0307 and a_y; Tesla has no IMU truth). `v` and `\u03b4` clamped to measured; residual under test is `yaw_rate_pred_rads \u2212 yaw_rate_meas_rads`."
+      ],
+      "reasoning": "The scored channel is the measured yaw rate (yaw_rate_meas_rads) on the Mach-E platform, which is identified as the only platform with measured truth \u03c8\u0307."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`v` and `\u03b4` clamped to measured; residual under test is `yaw_rate_pred_rads \u2212 yaw_rate_meas_rads`."
+      ],
+      "reasoning": "Explicit clamped-vs-predicted statement: v and \u03b4 are clamped to measured, yaw_rate is predicted and compared to measured."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| # | Variant | overall | straight | steady | transient | marginal \u0394 overall |"
+      ],
+      "reasoning": "The variant table breaks RMSE out by straight / steady / transient regimes alongside overall."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "## Variant ladder (same segments, same mask, RMSE rad/s)"
+      ],
+      "reasoning": "The variant table caption declares a fixed segment-set and mask, with RMSE rad/s as the unified metric across all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Marginal drops sum to total V0\u2192V4 (consistency 100%, lock-order strict-marginal)."
+      ],
+      "reasoning": "The marginal \u0394 column (-0.00159 + 0.00193 + 0.00302 + -0.00214 = 0.00122) reconciles exactly with the total V0\u2192V4 change (0.01214 \u2192 0.01336 = +0.00122); |\u03a3\u2212total|/|total| \u2248 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| V3 | + linear ST, fit C_\u03b1 | 0.01550 | 0.00569 | 0.04286 | 0.07162 | +0.00302 (regress, **C_\u03b1 pegged at lower bound 50 kN/rad** \u2014 linear-ST form is wrong, not just priors) |"
+      ],
+      "reasoning": "Regressions in V2, V3, V4 are explicitly flagged with physical reasons (e.g., C_\u03b1 pegged at lower bound; openpilot prior K_us shrinks \u03c8\u0307 wrong direction)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw-rate RMSE (rad/s)",
+    "platform": "Ford Mustang Mach-E MK1",
+    "baseline_value": "0.01214",
+    "final_value": "0.01055",
+    "improvement": "-13% overall RMSE (0.01214 \u2192 0.01055 rad/s)",
+    "top_contributor": "V1 per-segment IMU yaw-gyro bias removal",
+    "baseline_numeric": 0.01214,
+    "final_numeric": 0.01055,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 13.0,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Mach-E platform against measured yaw-rate truth channel with clamped (v,\u03b4) contract \u2014 matches rubric expectations."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V0 baseline KS",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V1 + per-seg IMU bias",
+      "contribution_pct": 130.3,
+      "contribution_abs": -0.00159,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 + linear ST, prior C_\u03b1",
+      "contribution_pct": -158.2,
+      "contribution_abs": 0.00193,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 + linear ST, fit C_\u03b1",
+      "contribution_pct": -247.5,
+      "contribution_abs": 0.00302,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4 + ridge residual, LOSO",
+      "contribution_pct": 175.4,
+      "contribution_abs": -0.00214,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

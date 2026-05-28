@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleB-m2-agent-01",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Re-implemented agent's analyse.py V0/V1/V2/V3 ladder verbatim (per-segment bias removal, integer-sample xcorr latency alignment on cornering samples, ST steady-state gain with K_us from PARAM_BY_PLATFORM); applied the agent's per-platform best variant they declared in the report (V2 for Mach-E 'Best variant for Mach-E: V2', V3 for Lightning 'Best variant for Lightning: V3').",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364590,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740477175800142,
+  "agent_rmse": 0.009496303505246374,
+  "improvement_pct": 35.57469440267692,
+  "notes": "Agent declares a per-platform best rather than a single favourite ('Best variant for Mach-E: V2', 'Best variant for Lightning: V3'); pooled RMSE here mixes V2 (Mach-E) and V3 (Lightning) predictions accordingly, which is the agent's actual shipped recommendation. Recomputed baseline differs from precomputed canonical by 4.6e-7 rad/s (within 1e-6 tolerance); the small sample-count delta (1364590 vs 1364925) is because agent's V2/V3 latency-shift introduces NaNs at segment edges (|lag| samples), and we intersect agent-finite and baseline-finite masks so the RMSEs are computed over identical samples. Bias and lag are estimated per-segment from the canonical Ford set itself, which is consistent with the agent's own scoring and within the accepted leakage_note in the canonical spec."
+}

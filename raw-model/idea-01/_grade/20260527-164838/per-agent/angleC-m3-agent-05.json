@@ -1,0 +1,112 @@
+{
+  "agent_id": "angleC-m3-agent-05",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/module-3/agent-05/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Measured truth: `yaw_rate_meas_rads` from Ford CAN."
+      ],
+      "reasoning": "Report names the scored channel and identifies it as a measured channel from the Ford CAN dataset."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`v_mps` and `delta_road_rad` are **clamped inputs**; lateral states are **predicted**."
+      ],
+      "reasoning": "Explicit clamped-vs-predicted statement in the methodology section."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | overall | straight | steady | transient |"
+      ],
+      "reasoning": "Variant tables break out RMSE by straight / steady / transient regimes for both platforms."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Per-platform fit (rule 8). Interleaved every-5th-sample train (rule 7); RMSE on held-out 4/5."
+      ],
+      "reasoning": "Same segment columns (overall/straight/steady/transient) and same held-out RMSE metric definition used across every variant on the ladder for both platforms."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Marginals (overall): bias 1.6e-6, gain 5.6e-4, lag 2.3e-4. Sum 7.9e-4 = total V0\u2192V3 drop (lossless)."
+      ],
+      "reasoning": "Sum of marginals equals total drop (lossless) on Mach-E; |sum \u2212 total|/total \u2248 0, well below 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Mach-E V2 worsens straight regime** 0.00876 \u2192 0.00947 (+8%). Cause: on near-straight segments \u03c8\u0307_pred is dominated by sensor/integrator noise; the 1.069 gain multiplies that noise."
+      ],
+      "reasoning": "Regressions section explicitly flags V2 straight-regime regression with a physical-cause explanation."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw-rate test RMSE (rad/s)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1 (primary, 315 segs / 913 626 samp) and FORD_F_150_LIGHTNING_MK1 (230 segs / 667 141 samp)",
+    "baseline_value": "0.01613",
+    "final_value": "0.01534",
+    "improvement": "-4.9%",
+    "top_contributor": "V2 +gain `k=1.069`",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.01534,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 4.9,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on canonical Ford platforms using measured yaw_rate_meas_rads from CAN, with contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 +bias `b=2.27e-4`",
+      "contribution_pct": 0.2,
+      "contribution_abs": 1.6e-06,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 +gain `k=1.069`",
+      "contribution_pct": 70.9,
+      "contribution_abs": 0.00056,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 +lag `\u03c4=0.08 s`",
+      "contribution_pct": 29.1,
+      "contribution_abs": 0.00023,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

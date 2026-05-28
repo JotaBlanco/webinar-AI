@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleB-m2-agent-05",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "re-ran-script",
+  "reconstruction_summary": "Reproduced V3 (per-segment bias + K_us understeer correction + first-order steering-lag tau via grid search) from out/analyse.py; predict = (v/L)*tan(delta_filt) - bias - K_us*pred*v^2, with parameters fit per-segment as in the agent's script.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.009376765177354841,
+  "improvement_pct": 36.3856724111989,
+  "notes": "V3 fits bias/K_us/tau per-segment from the same segment used for scoring (in-sample fit, as in the agent's own ladder). Lightning wheelbase L=3.70 applied for FORD_F_150_LIGHTNING_MK1 segments (agent only scored Mach-E in REPORT.md, L=2.984). Canonical sample filter is v>2 m/s; agent's own fit-time regime mask uses v>5 m/s, |delta|<0.01 for straight, |dyaw/dt|>0.5 for transient."
+}

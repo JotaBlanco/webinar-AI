@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleE-m3-agent-02",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "Reconstructed V1 (the agent's recommended favourite: 'Ship V1') as ks_yaw_rate = (v_mps/L)*tan(delta_road_rad) minus a per-segment bias fitted on straight-regime rows (|delta_road|<0.01), exactly per triage.v1_ks_recalibrated; L taken per-platform from code/parameters.py.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.013131635300639025,
+  "improvement_pct": 10.911691399830032,
+  "notes": "V1 = KS yaw-rate (v/L * tan(delta_road)) with per-sim.csv-segment bias removal (bias = mean(pred_KS - meas) over straight-regime rows where |delta_road|<0.01). L is platform-specific (Mach-E 2.984m, F-150 Lightning 3.70m). Bias is computed using all straight rows in the segment (pre-filter), to mirror the agent's procedure; RMSE is then pooled over rows with v_mps>2.0 across all 545 Ford segments."
+}

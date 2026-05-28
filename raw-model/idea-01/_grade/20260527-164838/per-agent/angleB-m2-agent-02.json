@@ -1,0 +1,119 @@
+{
+  "agent_id": "angleB-m2-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/module-2/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Truth channel:** `yaw_rate_meas_rads` \u2014 measured from the Ford CAN bus via `adapter_ford_rlog.py` (opendbc `ford_lincoln_base_pt`). Not self-consistency, not predicted."
+      ],
+      "reasoning": "Report names the scored channel and explicitly identifies it as measured from the Ford CAN bus."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Clamped (inputs):** `v` (`clamp_v_to_measured=True`) and `\u03b4` (`clamp_delta_to_measured=True`).\n**Predicted (under test):** `yaw_rate_pred_rads`; residual = `pred \u2212 meas`."
+      ],
+      "reasoning": "Explicit clamped-vs-predicted statement is in the methodology header."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | Change | RMSE all | straight | steady | transient | Marginal drop (all) |"
+      ],
+      "reasoning": "Variant table breaks RMSE out by straight, steady, and transient regimes."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Regime mask (identical across all variants):**"
+      ],
+      "reasoning": "Single regime-mask declaration is stated as identical across all variants on the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "**Accounting:** marginal/sequential. Sum of marginals = -0.00325 rad/s; total V0\u2192V4 = -0.00325 rad/s; exact."
+      ],
+      "reasoning": "Sum of marginals equals total drop exactly; |0|/0.00325 = 0 < 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| V2 | V1 + linear ST steady-state gain `v\u00b7\u03b4/(L\u00b7(1+K_us\u00b7v\u00b2))` using shipped C_\u03b1 | 0.01145 | 0.00364 | 0.01995 | 0.06432 | +0.00153 (regression) |",
+        "The shipped cornering-stiffness prior overstates understeer for this tyre/road combination. Until C_\u03b1 is refit, V2 is a regression and V3/V4 keep KS kinematics."
+      ],
+      "reasoning": "V2 is explicitly flagged as a regression with a physical cause (shipped C_\u03b1 prior overstates understeer)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Yaw-rate RMSE 0.01190 \u2192 0.00864 rad/s (-27.4%) across 80-segment Mach-E set, mask locked.",
+    "platform": "`FORD_MUSTANG_MACH_E_MK1`, 80 segments (first 80 alphabetically), pre-generated `sim.csv`.",
+    "baseline_value": "0.01190",
+    "final_value": "0.00864",
+    "improvement": "-27.4%",
+    "top_contributor": "steering-lag (V3, 0.0022 rad/s)",
+    "baseline_numeric": 0.0119,
+    "final_numeric": 0.00864,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 27.4,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mustang Mach-E platform against a measured CAN-bus yaw rate channel with explicit clamped-vs-predicted contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 per-segment mean-bias removal",
+      "contribution_pct": 60.6,
+      "contribution_abs": -0.00197,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 linear ST steady-state gain (shipped C_\u03b1)",
+      "contribution_pct": -47.1,
+      "contribution_abs": 0.00153,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 first-order steering lag (\u03c4 = 0.10 s)",
+      "contribution_pct": 68.0,
+      "contribution_abs": -0.00221,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 global scalar gain k=1.0277",
+      "contribution_pct": 18.5,
+      "contribution_abs": -0.0006,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

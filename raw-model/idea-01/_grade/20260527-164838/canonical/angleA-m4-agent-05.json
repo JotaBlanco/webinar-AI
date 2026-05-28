@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m4-agent-05",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Reconstructed agent's V1 (best shipped per REPORT.md) algebraically: yaw_rate = (v/L_canonical) * tan(delta) - per-segment straight-bias, with L = 2.984m for Mach-E and 3.70m for F-150 Lightning per the agent's PARAM_BY_PLATFORM.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.013131635300639025,
+  "improvement_pct": 10.911691399830032,
+  "notes": "Agent declared V1 as best shipped variant ('Best shipped variant is V1'). V1 was trained on only 40 Mach-E segments; here we apply the same algebraic prediction equation (canonical L + per-segment straight-bias subtraction) to all 545 Ford segments (315 Mach-E + 230 F-150 Lightning). Per-segment bias is re-derived per canonical segment from its own straight samples (|delta|<0.01), consistent with how the agent computes bias per __source__; segments with <=5 straight rows get bias=0. Sanity-check baseline_rmse_recomputed matches canonical V0 to <1e-12. 24 segments contributed zero qualifying samples after the v>2.0 filter; n_segments=545 reports the canonical glob count, n_samples_after_filter exactly matches the canonical baseline's 1,364,925."
+}

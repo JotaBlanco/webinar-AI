@@ -1,0 +1,115 @@
+{
+  "agent_id": "raw-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-01/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "The truth channel is missing.  The dataset's rlogs do *not* contain `sensorEvents` / `liveLocationKalman` / `carState` \u2014 the comma3 was passively logging the bus without controlsd/locationd. There is no IMU yaw-rate truth at all. I had to fabricate one from the rear wheel-speed differential `(v_RL \u2013 v_RR) / track_rear` with `track_rear = 1.580 m` (public Tesla M3 spec)."
+      ],
+      "reasoning": "Agent explicitly scored against a fabricated wheel-speed-differential proxy rather than a measured IMU/yaw-rate truth channel."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "The model under attack is the existing CommonRoad KS predictor: `\u03c8\u0307 = v \u00b7 tan(\u03b4) / L`, with `v` and `\u03b4` clamped to measurements (speed-known lateral-only mode)."
+      ],
+      "reasoning": "Methodology explicitly identifies which inputs are clamped to measurements vs predicted by the model."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Improvement is concentrated in the 5\u201320 m/s band (\u2248 12\u201320 % RMSE reduction); at highway speed (>30 m/s) the gain shrinks to ~2 %."
+      ],
+      "reasoning": "Only a narrative mention of speed-band differences; no per-regime (straight/cornering/transient) table or chart of the chosen metric is presented."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Primary metric: pooled yaw-rate RMSE (rad/s, reported in deg/s), on Tesla Model 3 segments, activity-masked (v \u2265 5 m/s **and** |\u03c8\u0307_truth| \u2265 2 deg/s; n \u2248 85 300 samples across 120 segments).",
+        "Scheme: Shapley value on RMSE reduction**, computed over the full 2\u00b3 = 8-subset power set of {C1, C2, C3}. Each subset's RMSE was evaluated independently"
+      ],
+      "reasoning": "A single activity-mask and RMSE definition is declared upfront and applied uniformly to every subset on the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.06,
+      "threshold_met": true,
+      "evidence": [
+        "**C1 (effective steer-ratio \u03b1)** | **+0.155** | **71.9 %** |",
+        "**C2 (understeer K\u1d64)** | **+0.056** | **25.9 %** |",
+        "**C3 (lag \u03c4)** | **+0.005** | **2.2 %** |",
+        "**2.763 deg/s \u2192 2.547 deg/s** (\u20130.215 deg/s, **\u20137.8 %**).",
+        "Cumulative (waterfall) accounting agrees to within 1 percentage-point"
+      ],
+      "reasoning": "Sum of Shapley credits (0.155+0.056+0.005=0.216) vs total drop 0.215 gives |0.216-0.215|/0.215 \u2248 0.005, well under 0.15; agent also states waterfall agreement within ~1pp."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "Report does not include regression rows nor an explicit 'no regressions observed' statement; not addressed."
+    }
+  ],
+  "headline": {
+    "primary_metric": "pooled yaw-rate RMSE (rad/s, reported in deg/s), on Tesla Model 3 segments, activity-masked (v \u2265 5 m/s **and** |\u03c8\u0307_truth| \u2265 2 deg/s; n \u2248 85 300 samples across 120 segments)",
+    "platform": "Tesla Model 3",
+    "baseline_value": "2.763 deg/s",
+    "final_value": "2.547 deg/s",
+    "improvement": "\u20130.215 deg/s, \u20137.8 %",
+    "top_contributor": "C1 (effective steer-ratio \u03b1)",
+    "baseline_numeric": 2.763,
+    "final_numeric": 2.547,
+    "unit_normalized": "deg/s",
+    "improvement_pct_numeric": 7.8,
+    "lower_is_better": true,
+    "comparable_to_canonical": false,
+    "comparable_to_canonical_reason": "Agent scored against a fabricated rear-wheel-speed-differential proxy rather than a measured IMU/locationd yaw-rate truth channel, so the headline is not directly comparable to a canonical setup."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "C1 (effective steer-ratio \u03b1)",
+      "contribution_pct": 71.9,
+      "contribution_abs": 0.155,
+      "scheme": "shapley"
+    },
+    {
+      "variant_name": "C2 (understeer K\u1d64)",
+      "contribution_pct": 25.9,
+      "contribution_abs": 0.056,
+      "scheme": "shapley"
+    },
+    {
+      "variant_name": "C3 (lag \u03c4)",
+      "contribution_pct": 2.2,
+      "contribution_abs": 0.005,
+      "scheme": "shapley"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 6,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

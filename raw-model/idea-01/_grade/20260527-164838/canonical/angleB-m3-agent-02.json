@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleB-m3-agent-02",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "Re-ran the agent's favourite V4 model: V3 single-track with fitted Caf/Car (from out/ladder.json) + per-segment straight-line bias removal + LOSO Ridge residual learner (alpha=1) on [v, |a_y|, |delta|, sign(ddelta/dt)] across all canonical Ford segments.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723487,
+  "agent_rmse": 0.020297765683683387,
+  "improvement_pct": -37.70513509722041,
+  "notes": "V4 = (ST with agent's fitted Caf=158261, Car=138285 N/rad on Mach-E) + per-canonical-segment straight-line (|delta|<0.01) bias removal + LOSO Ridge(alpha=1) residual learner on features [v, |a_y_meas|, |delta|, sign(d delta/dt)]. ST physical params (L, m, l_f, l_r) are Mach-E values used for both Ford platforms \u2014 agent's coefficients are Mach-E-specific so pooling across F-150 Lightning loses fidelity. LOSO solved in closed form via leave-one-group-out sufficient-statistics on (X^TX, X^Ty), matching sklearn Ridge(alpha=1.0, fit_intercept=True) up to numerical precision. baseline_rmse_recomputed matches canonical to 3.47e-18."
+}

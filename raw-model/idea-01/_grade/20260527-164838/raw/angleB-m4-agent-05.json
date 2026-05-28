@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleB-m4-agent-05",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/module-4/agent-05/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Scored on `FORD_MUSTANG_MACH_E_MK1` (Ford — measured truth; Tesla excluded).", "Sign sanity: `corr(δ, ψ̇_meas) = +0.9087` on cornering."],
+      "reasoning": "Report explicitly names the scored channel as the measured yaw rate on the Ford Mach-E dataset and excludes Tesla; truth channel is identified as measured."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Clamped inputs: `v`, `δ_road`. Predicted output: `yaw_rate_pred_rads`."],
+      "reasoning": "Report explicitly states which channels are clamped (v, δ_road) and which is predicted (yaw_rate_pred_rads)."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| variant | overall | straight | steady | transient | Δ overall |"],
+      "reasoning": "Variant table breaks out RMSE by straight / steady / transient regimes alongside overall."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["## Variant ladder (same segments, same regime mask, strict marginal accounting)"],
+      "reasoning": "Header of the variant table explicitly declares same segments and same regime mask across all rungs."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": ["Accounting: strict marginal V0→V4. Sum of marginals = total net drop +0.00467 to floating precision.", "| V1 per-seg bias | 0.01013 | 0.00498 | 0.02396 | 0.05411 | **-0.00176** |", "| V2 lin-ST prior Cα | 0.01656 | 0.01296 | 0.03110 | 0.06191 | **+0.00643** (regression) |"],
+      "reasoning": "Marginal column is present (V1 -0.00176, V2 +0.00643, V3 0, V4 0; sum = +0.00467) and reconciles exactly with the stated total net drop of +0.00467, so |Σ marginals − total| / |total| ≈ 0 << 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["V2 shipped as a regression rung with physical reason (wrong prior-K_us sign-of-effect for this fleet).", "| V2 lin-ST prior Cα | 0.01656 | 0.01296 | 0.03110 | 0.06191 | **+0.00643** (regression) |"],
+      "reasoning": "V2 regression is explicitly flagged in the table and accompanied by a physical cause (wrong prior-K_us sign-of-effect)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "overall RMSE 0.01190 → 0.01013 rad/s (-15%)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01190",
+    "final_value": "0.01656",
+    "improvement": "Net V0→V4 is a regression",
+    "top_contributor": "V1 per-seg bias",
+    "baseline_numeric": 0.01190,
+    "final_numeric": 0.01656,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": -39.16,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on the canonical Ford Mach-E platform against the measured yaw-rate truth channel with an explicit clamped/predicted contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 per-seg bias",
+      "contribution_pct": -37.69,
+      "contribution_abs": -0.00176,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 lin-ST prior Cα",
+      "contribution_pct": 137.69,
+      "contribution_abs": 0.00643,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 lin-ST fit Cα",
+      "contribution_pct": 0.0,
+      "contribution_abs": 0.0,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4 rate-lead τ",
+      "contribution_pct": 0.0,
+      "contribution_abs": 0.0,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 2,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}
