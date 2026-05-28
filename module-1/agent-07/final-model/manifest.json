@@ -1,0 +1,29 @@
+{
+  "agent_id": "agent-07",
+  "submission": "lateral-fidelity V1",
+  "predict_callable": "final-model/predict.py:predict",
+  "platform_support": [
+    "TESLA_MODEL_3",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "FORD_F_150_LIGHTNING_MK1"
+  ],
+  "returns": {
+    "yaw_rate_pred_rads": "required, rad/s",
+    "x_m": "not returned, grader integrates from yaw_rate + measured v",
+    "y_m": "not returned, grader integrates from yaw_rate + measured v"
+  },
+  "inputs_consumed": [
+    "v_mps",
+    "delta_road_rad",
+    "t_s (only if STEER_LAG_S is non-zero)"
+  ],
+  "model": "Steady-state understeer-corrected single-track: psi_dot = v * tan(delta) / (L + K_us * v^2); K_us = (m/L) * (l_r/Cf - l_f/Cr).",
+  "parameter_source": "openpilot-canonical ST parameters mirrored from code/parameters.py (m, L, l_f, l_r, C_alpha_f, C_alpha_r).",
+  "calibration": "none. Hooks STEER_BIAS_RAD and STEER_LAG_S provided for future per-platform empirical tuning, both initialised to 0.",
+  "methodology_summary": "V0 baseline is pure kinematic single-track (psi_dot = (v/L) tan delta). V0 over-predicts yaw rate at speed in turns because it ignores tyre slip. V1 replaces V0 with the steady-state cornering relation derived from the linear-bicycle lateral dynamics in the high-grip limit; the denominator L + K_us*v^2 grows with speed^2 and reduces predicted yaw exactly where V0 leaves residual. K_us is positive for all three openpilot platforms (mild understeer). Implementation keeps tan(delta) (rather than delta) for graceful behaviour at large rack angles, and zeros yaw below v=0.5 m/s. x_m/y_m are intentionally not returned so the grader integrates from this yaw using the same measured velocity it already has.",
+  "limitations_self_reported": [
+    "Harness blocked all python execution, so V1 was not scored against V0 on the truth pool. Direction of effect is known a priori from K_us > 0.",
+    "STEER_BIAS_RAD and STEER_LAG_S were not fit and remain at 0.",
+    "Symlinks data/ and code/ were not created because ln -s was also denied; predict.py is self-contained and does not depend on either."
+  ]
+}
