@@ -1,0 +1,118 @@
+{
+  "agent_id": "angleA-m2-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-2/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "The `yaw_rate_meas_rads` and `a_lat_meas_mps2` columns are **measured truth** decoded from rlog CAN, not predictions or self-consistency."
+      ],
+      "reasoning": "Report names the scored channel (yaw_rate_meas_rads) and identifies it as measured truth from rlog CAN."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Speed-known contract honoured.** `v_mps` and `delta_road_rad` are **clamped** inputs; the KS state's own `v`/`\u03b4` updates are overwritten each step. The **predicted** channel under test is `yaw_rate_pred_rads`"
+      ],
+      "reasoning": "Explicit clamped (v, \u03b4) vs predicted (yaw_rate_pred_rads) statement in methodology."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| variant       | RMSE_overall | straight | steady  | transient | marginal \u0394 overall | total drop vs V0 |"
+      ],
+      "reasoning": "Variant table breaks RMSE out by straight / steady / transient regimes."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Segment set:** First 120 Mach-E segments (sorted), 348 060 samples at 50 Hz (~116 min driving). Same segment-set and same regime mask across every row."
+      ],
+      "reasoning": "Header explicitly declares fixed segment-set and regime mask across all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "**Accounting:** sequential / chain decomposition \u2014 each row's marginal drop is the overall-RMSE reduction relative to the row above. Sum of signed marginal drops = V0_overall \u2212 V3_overall by construction."
+      ],
+      "reasoning": "Sequential decomposition: marginals (-0.00193, -0.00045, +0.00127) sum to -0.00111, matching V0-V3 = 0.01550-0.01440 = 0.00110; |\u03a3 - total| / total \u2248 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Regressed by 0.00127 rad/s overall.** Physical cause: the openpilot-shipped cornering-stiffness prior is too small (under-correction inversion); on these segments the ST prior over-corrects relative to KS+alignment."
+      ],
+      "reasoning": "V3 is explicitly flagged as a regression with a physical cause (wrong cornering-stiffness prior)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "overall yaw-rate RMSE",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01550 rad/s",
+    "final_value": "0.01313 rad/s",
+    "improvement": "15.3% reduction",
+    "top_contributor": "V1_seg_bias",
+    "baseline_numeric": 0.0155,
+    "final_numeric": 0.01313,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 15.3,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Mach-E platform against measured yaw_rate_meas_rads with clamped (v, \u03b4) contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V0_baseline",
+      "contribution_pct": 0.0,
+      "contribution_abs": 0.0,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V1_seg_bias",
+      "contribution_pct": 81.4,
+      "contribution_abs": -0.00193,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2_time_align",
+      "contribution_pct": 19.0,
+      "contribution_abs": -0.00045,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3_linear_ST",
+      "contribution_pct": -53.6,
+      "contribution_abs": 0.00127,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "agent_id": "raw-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Primary metric: **sample-weighted RMSE of yaw-rate prediction** (rad/s), aggregated across all 522 Ford segments with moving-vehicle samples", "the IMU yaw signal `Yaw_Data_FD1.VehYaw_W_Actl` is already filtered/processed by the chassis ABS module"],
+      "reasoning": "Agent scores against the Ford measured IMU yaw-rate channel, naming the specific CAN signal."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Stayed within the speed-known framing — `(v, δ)` clamped to measurements; I only refined how `ψ̇` is computed from them."],
+      "reasoning": "Agent explicitly states that v and δ are clamped to measurements while ψ̇ is predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No per-regime (straight/cornering/transient) error breakdown is provided; only aggregate and per-platform numbers."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Primary metric: **sample-weighted RMSE of yaw-rate prediction** (rad/s), aggregated across all 522 Ford segments with moving-vehicle samples (~1.39 M rows; Mach-E + F-150 Lightning). Stationary samples (v<1 m/s) and impossible IMU spikes (|a_lat|>20 m/s²) excluded."],
+      "reasoning": "Same segment definition and metric definition applied across all ladder variants, declared in the headline."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": ["| B0→B1  steering offset | +0.12 | 4.3% |", "| B1→B2  understeer factor K | +2.43 | 86.0% |", "| B2→B3  lag compensation | +0.27 | 9.6% |", "| **Total** | **+2.82 mrad/s** | **100%** |"],
+      "reasoning": "Marginal drops (0.12+2.43+0.27=2.82) reconcile exactly with stated total drop of 2.82 mrad/s; |0|/2.82 = 0 < 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No regression occurred (all three layers improved RMSE) but the report does not include an explicit 'no regressions observed' statement."
+    }
+  ],
+  "headline": {
+    "primary_metric": "sample-weighted RMSE of yaw-rate prediction",
+    "platform": "all 522 Ford segments with moving-vehicle samples (~1.39 M rows; Mach-E + F-150 Lightning)",
+    "baseline_value": "Baseline RMSE: 18.25 mrad/s",
+    "final_value": "Final RMSE (per-platform tuned ladder): 15.43 mrad/s",
+    "improvement": "−15.5% relative",
+    "top_contributor": "B2 understeer factor K",
+    "baseline_numeric": 18.25,
+    "final_numeric": 15.43,
+    "unit_normalized": "mrad/s",
+    "improvement_pct_numeric": 15.5,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on Ford platform using the measured IMU yaw-rate truth channel with clamped-vs-predicted contract explicitly acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "B0→B1 steering offset",
+      "contribution_pct": 4.3,
+      "contribution_abs": 0.12,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "B1→B2 understeer factor K",
+      "contribution_pct": 86.0,
+      "contribution_abs": 2.43,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "B2→B3 lag compensation",
+      "contribution_pct": 9.6,
+      "contribution_abs": 0.27,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 6,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

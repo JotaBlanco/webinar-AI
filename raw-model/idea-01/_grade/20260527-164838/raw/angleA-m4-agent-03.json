@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleA-m4-agent-03",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-4/agent-03/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Scored channel: `yaw_rate_resid_rads = yaw_rate_pred_rads − yaw_rate_meas_rads`. `yaw_rate_meas_rads` is the **measured** truth channel decoded from the rlog gyro; it is not predicted and is not clamped."],
+      "reasoning": "Report explicitly names the scored channel and identifies the truth source as the measured rlog gyro, neither predicted nor clamped."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Speed-known contract: `v` and `δ` are **clamped** to the measured values in the KS integrator. The **predicted** quantity under test is `yaw_rate_pred_rads` (V0) and its V1–V4 re-predictions."],
+      "reasoning": "Methodology section explicitly states which channels are clamped to truth and which are predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| Variant | Description | RMSE overall | Straight | Steady | Transient | Δ vs prev |"],
+      "reasoning": "Variant table breaks out RMSE per regime (straight, steady, transient) in addition to the overall aggregate."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Methodology: same segment set and same regime mask **held constant across every variant row**. Regimes: `straight` (`|δ_road|<0.01`), `steady` (`|δ_road|≥0.01 ∧ |δ̇|<0.05`), `transient` (`|δ_road|≥0.01 ∧ |δ̇|≥0.05`). All RMSE values in rad/s on `yaw_rate_resid_rads`."],
+      "reasoning": "Explicit declaration that the same segment set, regime mask, and metric are held constant across every variant row."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": ["**Attribution scheme:** strict marginal, fixed order V0→V1→V2→V3→V4. Total drop V0→V4 = 0.001230 rad/s; signed Σ of the Δ column = -0.001230; `|Σmarg − total|/total ≈ 0.000` (well under the 15% coherence threshold)."],
+      "reasoning": "Marginal column and total drop are present and reconcile exactly; coherence ratio ~0.000 is far below the 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**V2 regressed against V1** (overall +0.000819). This is the predicted Mach-E behaviour: the openpilot ST prior `C_α` values are **stiffer than this car's tyres actually behave**, so the steady-state ST gain over-corrects KS and worsens both cornering regimes... **Regression flagged with cause: stiff prior `C_α` mis-matches Mach-E lateral compliance.**"],
+      "reasoning": "V2 regression is explicitly flagged with a physical cause (stiff prior C_α mismatches Mach-E lateral compliance)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Overall yaw-rate RMSE",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "V0 = 0.016127 rad/s",
+    "final_value": "V4 = 0.014897 rad/s",
+    "improvement": "7.6% relative improvement",
+    "top_contributor": "V1",
+    "baseline_numeric": 0.016127,
+    "final_numeric": 0.014897,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 7.6,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on the canonical Ford Mustang Mach-E platform using a measured yaw-rate truth channel (rlog gyro), with the clamped-vs-predicted contract acknowledged."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 KS recalibrated + per-segment yaw-gyro bias",
+      "contribution_pct": 116.6,
+      "contribution_abs": 0.001434,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 Linear single-track with openpilot prior C_α",
+      "contribution_pct": -66.6,
+      "contribution_abs": -0.000819,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 Linear ST with C_α fit by differential evolution",
+      "contribution_pct": 33.1,
+      "contribution_abs": 0.000407,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4 Ridge residual learner (LOO-CV)",
+      "contribution_pct": 16.9,
+      "contribution_abs": 0.000208,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

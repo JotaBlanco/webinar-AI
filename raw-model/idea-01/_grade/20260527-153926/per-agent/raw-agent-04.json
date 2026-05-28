@@ -1,0 +1,122 @@
+{
+  "agent_id": "raw-agent-04",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-04/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Yaw-rate RMS residual** across all 545 Ford segments (Mach-E + F-150 Lightning), evaluated on held-out test split (50% of each segment)",
+        "with measured `v` and `\u03b4` clamped at every step"
+      ],
+      "reasoning": "Scores against measured yaw-rate residual (\u03c8\u0307_meas), a measured channel from the Ford segments, with v and \u03b4 identified as measured/clamped inputs."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "The KS prediction is `\u03c8\u0307 = (v / L) \u00b7 tan(\u03b4)` with measured `v` and `\u03b4` clamped at every step (speed-known lateral-only mode)."
+      ],
+      "reasoning": "Explicit statement that v and \u03b4 are clamped (measured) and \u03c8\u0307 is predicted; identifies speed-known lateral-only contract."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Per-platform on V4: Mach-E 0.700 \u00b0/s, F-150 0.656 \u00b0/s"
+      ],
+      "reasoning": "Only platform-level breakdown is provided; no straight/cornering/transient regime split of the error metric."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Yaw-rate RMS residual** across all 545 Ford segments (Mach-E + F-150 Lightning), evaluated on held-out test split (50% of each segment)",
+        "All parameters were fit on the first half of each segment in time; metrics reported on the second half."
+      ],
+      "reasoning": "Same segment set (545 Ford segments) and same metric (yaw-rate RMS residual on second-half test split) used consistently across V0\u2013V4."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "| V1 hygiene | 0.01804 | 0.01488 | 0.00316 | **51.5%** |",
+        "| V4 understeer + refit bias | 0.01437 | 0.01191 | 0.00246 | **40.1%** |",
+        "**Total improvement: 34% reduction in RMS yaw-rate residual.**"
+      ],
+      "reasoning": "Sequential drops sum to 0.00614 = total (0.01804 \u2212 0.01191); |\u03a3 marginal \u2212 total|/total \u2248 0, well below 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| V2 steering-bias | 0.01488 | 0.01477 | 0.00012 | 1.9% |"
+      ],
+      "reasoning": "No regressions occurred in the variant table, but the report contains no explicit 'no regressions observed' statement to satisfy the vacuous-case requirement."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Yaw-rate RMS residual",
+    "platform": "all 545 Ford segments (Mach-E + F-150 Lightning)",
+    "baseline_value": "0.01804 rad/s (1.034 \u00b0/s)",
+    "final_value": "0.01191 rad/s (0.682 \u00b0/s)",
+    "improvement": "34% reduction in RMS yaw-rate residual",
+    "top_contributor": "V1 hygiene",
+    "baseline_numeric": 1.034,
+    "final_numeric": 0.682,
+    "unit_normalized": "\u00b0/s",
+    "improvement_pct_numeric": 34.0,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford platform using measured yaw-rate as the truth channel, with v and \u03b4 explicitly clamped \u2014 matches the rubric's canonical setup."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 hygiene",
+      "contribution_pct": 51.5,
+      "contribution_abs": 0.00316,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 steering-bias",
+      "contribution_pct": 1.9,
+      "contribution_abs": 0.00012,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 transport-lag (\u03c4 = 60 ms)",
+      "contribution_pct": 6.5,
+      "contribution_abs": 0.0004,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 understeer + refit bias",
+      "contribution_pct": 40.1,
+      "contribution_abs": 0.00246,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 6,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

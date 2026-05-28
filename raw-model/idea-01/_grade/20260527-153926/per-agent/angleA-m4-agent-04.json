@@ -1,0 +1,118 @@
+{
+  "agent_id": "angleA-m4-agent-04",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-4/agent-04/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Lateral-truth channel is `yaw_rate_meas_rads`, the **measured** yaw rate decoded from the rlog IMU (not predicted, not the KS integrator state)."
+      ],
+      "reasoning": "Report explicitly names the scored channel and identifies it as a measured IMU-decoded signal."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "All Ford `sim.csv` rows were produced with `clamp_v_to_measured=True` and `clamp_delta_to_measured=True`, so `v_mps` and `delta_road_rad` are **clamped** inputs and `yaw_rate_pred_rads` is the resulting **predicted** lateral output."
+      ],
+      "reasoning": "Methodology explicitly states which channels are clamped to measured truth and which are predicted."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | Overall RMSE (rad/s) | Straight | Steady | Transient | Marginal \u0394 (rad/s) |"
+      ],
+      "reasoning": "Variant table breaks out RMSE by Straight/Steady/Transient regimes for each variant."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Same segment set and same regime mask are **held constant across every row** in the variant ladder."
+      ],
+      "reasoning": "Report explicitly states the segment set and regime mask are fixed across all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Total drop V0 \u2192 V4: **0.00210 rad/s** (17.3% reduction). Sum of marginal drops: 0.00210 rad/s. Coherence error `|\u03a3marg \u2212 total|/|total| = 0.00 < 0.15`."
+      ],
+      "reasoning": "Marginal drops sum to the total and the report explicitly computes coherence error as 0.00, well below 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V2 (regression, +0.00193).** Switched to the linear single-track steady-state yaw-rate gain `\u03c8\u0307 = v\u00b7\u03b4 / (L\u00b7(1 + K_us\u00b7v\u00b2))` with openpilot's prior cornering stiffnesses. **Worsened steady and transient cornering** (the regimes ST is supposed to help)."
+      ],
+      "reasoning": "V2 and V3 are explicitly labelled as regressions with physical causes (stiffer-than-needed prior, missing slip-angle dynamics term)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Overall RMSE (rad/s)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01214",
+    "final_value": "0.01005",
+    "improvement": "0.00210 rad/s (17.3% reduction)",
+    "top_contributor": "V4 \u2014 Ridge residual learner on V3, LOSO CV",
+    "baseline_numeric": 0.01214,
+    "final_numeric": 0.01005,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 17.3,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on the canonical Ford Mach-E platform with the measured IMU yaw-rate channel and an explicit clamped-input contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 \u2014 KS recalibrated (canonical L=2.984 m) + per-segment yaw-gyro bias on straights",
+      "contribution_pct": 75.7,
+      "contribution_abs": 0.00159,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 \u2014 Linear ST with openpilot prior C\u03b1 (Cf=286 551, Cr=355 912 N/rad)",
+      "contribution_pct": -91.9,
+      "contribution_abs": -0.00193,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 \u2014 Linear ST with fit C\u03b1 (Cf=Cr\u2248150 000 N/rad, interior optimum)",
+      "contribution_pct": -5.7,
+      "contribution_abs": -0.00012,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4 \u2014 Ridge residual learner on V3, LOSO CV",
+      "contribution_pct": 121.4,
+      "contribution_abs": 0.00255,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

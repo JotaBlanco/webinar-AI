@@ -1,0 +1,106 @@
+{
+  "agent_id": "raw-agent-10",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-10/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["RMSE of predicted yaw rate vs measured Yaw_Data_FD1 truth across **all 545 Ford segments**", "Truth = `VehYaw_W_Actl` from `Yaw_Data_FD1`."],
+      "reasoning": "Agent explicitly names the measured truth channel (Yaw_Data_FD1 / VehYaw_W_Actl) and cites its dataset source."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "Report does not explicitly state which channels are clamped to truth vs predicted by the model; no clamped-vs-predicted methodology statement is present."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "All RMSE numbers are aggregate over moving samples; no per-regime (straight/cornering/transient) breakdown table or chart is provided."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Total moving-only yaw-RMSE reduction V0→V4 = 0.00458 rad/s", "restricted to moving samples (v > 2 m/s, N = 1,364,925)"],
+      "reasoning": "Variant ladder uses a consistent segment-set (moving samples, v > 2 m/s) and the same yaw-rate RMSE metric across all V0–V4 entries."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.044,
+      "threshold_met": true,
+      "evidence": ["V0→V1 (δ-offset)         | +0.00018 | **3.9%** |", "V1→V2 (time-lag)         | +0.00000 | **0.0%** |", "V2→V3 (effective i_s)    | +0.00210 | **45.8%** |", "V3→V4 (understeer K_us)  | +0.00230 | **50.3%** |", "Total moving-only yaw-RMSE reduction V0→V4 = 0.00458 rad/s"],
+      "reasoning": "Sum of marginal drops = 0.00458, total drop = 0.00458, |Σ − total|/total ≈ 0 — well below 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No variant worsened the metric (all marginal drops are non-negative improvements), but the report does not include an explicit 'no regressions observed' statement."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE of predicted yaw rate vs measured Yaw_Data_FD1 truth across **all 545 Ford segments** (both Mach-E and F-150 Lightning), restricted to moving samples (v > 2 m/s, N = 1,364,925).",
+    "platform": "all 545 Ford segments (both Mach-E and F-150 Lightning)",
+    "baseline_value": "0.01481",
+    "final_value": "0.00985",
+    "improvement": "−45% vs raw baseline; −33% vs hygiene-clean baseline",
+    "top_contributor": "V3→V4 (understeer K_us)",
+    "baseline_numeric": 0.01481,
+    "final_numeric": 0.00985,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 33.5,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on the canonical Ford platform using the measured Yaw_Data_FD1 truth channel (VehYaw_W_Actl)."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V0→V1 (δ-offset)",
+      "contribution_pct": 3.9,
+      "contribution_abs": 0.00018,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V1→V2 (time-lag)",
+      "contribution_pct": 0.0,
+      "contribution_abs": 0.00000,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2→V3 (effective i_s)",
+      "contribution_pct": 45.8,
+      "contribution_abs": 0.00210,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3→V4 (understeer K_us)",
+      "contribution_pct": 50.3,
+      "contribution_abs": 0.00230,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 5,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

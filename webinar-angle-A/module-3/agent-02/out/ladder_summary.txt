@@ -1,0 +1,16 @@
+Mach-E lateral-fidelity variant ladder (315 segments, 913,626 rows)
+
+V0 baseline RMSE = 0.01613 rad/s   (yaw_rate_resid_rads as-is)
+V1 KS recal + per-seg yaw-gyro bias = 0.01469 rad/s   marginal -0.00143
+V2 Linear ST prior C_alpha           = 0.01551 rad/s   marginal +0.00082 (regression)
+V3 Linear ST fit C_alpha             = 0.01564 rad/s   marginal +0.00013 (regression)
+V4 Ridge residual learner (LOO)      = 0.01541 rad/s   marginal -0.00023
+
+Best variant: V1 (KS recalibrated + straight-line yaw-bias subtraction).
+Total V0->V4: -0.00072. Sum of marginals: -0.00071 (within 1.5%).
+
+C_alpha fit: pegged near upper bound (5e5/5e5 N/rad) under multi-start; default
+L-BFGS-B from prior init lands in a flat region around (1.5e5,1.5e5) -- both
+are worse than the prior in raw RMSE terms. The fit is degenerate.
+
+corr(delta_road, yaw_rate_meas) on cornering = 0.702 -- sign convention confirmed.

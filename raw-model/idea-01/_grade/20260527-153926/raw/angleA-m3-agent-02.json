@@ -1,0 +1,106 @@
+{
+  "agent_id": "angleA-m3-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-3/agent-02/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["`yaw_rate_meas_rads` is the **measured** truth channel decoded from Ford CAN gyro — not a prediction, not a clamped self-consistency state."],
+      "reasoning": "Agent explicitly names the measured channel and its CAN source."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Operating contract: under `clamp_v_to_measured=True` and `clamp_delta_to_measured=True`, `v_mps` and `delta_road_rad` are **inputs (clamped)** at every step; `yaw_rate_pred_rads` and `a_y_pred_mps2` are the **predicted** lateral channels."],
+      "reasoning": "Clamped-vs-predicted explicitly stated in methodology."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| Variant | Overall RMSE (rad/s) | Straight | Steady corner | Transient corner | Marginal drop (overall) |"],
+      "reasoning": "Variant table breaks RMSE into straight / steady / transient columns."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Regime mask (held constant, via `triage.regime_mask`):"],
+      "reasoning": "Fixed regime-mask declaration applied across all variants; metric definition shared."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0139,
+      "threshold_met": true,
+      "evidence": ["Total V0→V4 drop = 0.00072; sum of marginals = 0.00071 (≈1.5% rounding gap, within 15% bar)."],
+      "reasoning": "Agent reports |Σ marginals − total| / total ≈ 0.014, well under 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**V2 is a regression on this fleet — physical cause.** Linear ST with openpilot's prior `C_αf=286 551, C_αr=355 912 N/rad` makes steady and transient cornering RMSE worse"],
+      "reasoning": "Variant table marks V2 and V3 as regressions and discussion gives physical causes."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE(yaw_rate_pred − yaw_rate_meas)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.01613",
+    "final_value": "0.01469",
+    "improvement": "-0.00143",
+    "top_contributor": "V1 — KS recalibrated + per-segment straight-line yaw-gyro bias",
+    "baseline_numeric": 0.01613,
+    "final_numeric": 0.01469,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 8.93,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against the measured CAN yaw-rate channel with clamped inputs as the rubric expects."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 — KS recalibrated + per-segment straight-line yaw-gyro bias",
+      "contribution_pct": 198.6,
+      "contribution_abs": -0.00143,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 — Linear ST, prior C_α (openpilot carParams) + same per-seg bias",
+      "contribution_pct": -113.9,
+      "contribution_abs": 0.00082,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 — Linear ST, fit C_α (bounded 5e4–5e5 N/rad) + same per-seg bias",
+      "contribution_pct": -18.1,
+      "contribution_abs": 0.00013,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4 — Ridge residual learner on V3 residuals, leave-one-segment-out CV",
+      "contribution_pct": 31.9,
+      "contribution_abs": -0.00023,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 2,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

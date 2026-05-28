@@ -1,0 +1,118 @@
+{
+  "agent_id": "angleA-m4-agent-03",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-4/agent-03/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "`yaw_rate_meas_rads` is the **measured** truth channel decoded from the rlog gyro; it is not predicted and is not clamped."
+      ],
+      "reasoning": "The scored channel is explicitly identified as the measured yaw-rate from the rlog gyro, not a clamped or self-predicted channel."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Speed-known contract: `v` and `\u03b4` are **clamped** to the measured values in the KS integrator. The **predicted** quantity under test is `yaw_rate_pred_rads` (V0) and its V1\u2013V4 re-predictions."
+      ],
+      "reasoning": "Methodology section explicitly states which channels are clamped to truth (v, \u03b4) and which are predicted (yaw_rate)."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | Description | RMSE overall | Straight | Steady | Transient | \u0394 vs prev |"
+      ],
+      "reasoning": "Variant table includes per-regime RMSE columns for Straight, Steady, and Transient regimes alongside overall."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "Methodology: same segment set and same regime mask **held constant across every variant row**."
+      ],
+      "reasoning": "Explicit declaration that segment set and regime mask are fixed across all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Total drop V0\u2192V4 = 0.001230 rad/s; signed \u03a3 of the \u0394 column = -0.001230; `|\u03a3marg \u2212 total|/total \u2248 0.000` (well under the 15% coherence threshold)."
+      ],
+      "reasoning": "Marginal RMSE drops sum exactly to the total drop, ratio \u2248 0.000, well under 0.15 threshold."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Regression flagged with cause: stiff prior `C_\u03b1` mis-matches Mach-E lateral compliance.**"
+      ],
+      "reasoning": "V2 regression is explicitly flagged with a physical cause (stiff prior C_\u03b1 values mismatched to Mach-E tyre compliance)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw-rate RMSE",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "V0 = 0.016127 rad/s",
+    "final_value": "V4 = 0.014897 rad/s",
+    "improvement": "7.6% relative improvement",
+    "top_contributor": "V1",
+    "baseline_numeric": 0.016127,
+    "final_numeric": 0.014897,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 7.6,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform against measured rlog gyro yaw-rate with contract clearly declared (v, \u03b4 clamped; yaw_rate predicted)."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1",
+      "contribution_pct": 116.6,
+      "contribution_abs": -0.001434,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2",
+      "contribution_pct": -66.6,
+      "contribution_abs": 0.000819,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3",
+      "contribution_pct": 33.1,
+      "contribution_abs": -0.000407,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V4",
+      "contribution_pct": 16.9,
+      "contribution_abs": -0.000208,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

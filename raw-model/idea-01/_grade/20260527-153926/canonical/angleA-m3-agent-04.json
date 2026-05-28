@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m3-agent-04",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "Re-ran the agent's V4 model: V3 linear single-track (C\u03b1=1.5e5,1.5e5 from out/ladder_results.json) with per-segment straight-bias subtraction, plus a Ridge(alpha=1) residual correction trained on the agent's 60 Mach-E training segments.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.01472107590742334,
+  "improvement_pct": 0.12852753356337365,
+  "notes": "Agent's V4 is a Ridge residual learner trained with LOO across the agent's 60 Mach-E segments \u2014 no saved coefficients. Reconstruction fits ONE Ridge on those 60 segments (target = V3 signed residual with per-seg straight bias) and applies it to all 545 canonical Ford segments; V3 uses the agent's fit C\u03b1=(1.5e5,1.5e5) which the agent's own JSON reports were pegged at the initial guess. Per-segment straight-line bias is recomputed on each canonical segment to mirror the agent's pipeline, since bias is intrinsically per-segment. Pooling across Ford platforms (Mach-E + F-150) loses fidelity: the Ridge model was trained on Mach-E only, and V3 uses each platform's own params."
+}

@@ -1,0 +1,45 @@
+idea_id: idea-01-lateral-attribution
+description: |
+  Canonical evaluation spec for idea-01. Each agent's "favourite" yaw-rate model is
+  reconstructed from their report + scripts + outputs, then run against this fixed
+  dataset under fixed conditions. The resulting RMSE replaces the agent's
+  self-reported headline for cross-agent comparison.
+
+eval_set:
+  description: All Ford sim segments under data/sim/segments/FORD_*/...
+  segment_globs:
+    - data/sim/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv
+    - data/sim/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv
+  sample_filter: "v_mps > 2.0"
+  truth_channel: yaw_rate_meas_rads
+
+baseline:
+  name: V0 (unmodified KS model)
+  source: |
+    The sim.csv files ALREADY contain the V0 prediction in the column
+    `yaw_rate_pred_rads`. This is the output of `simulate_ks(clamp_v_to_measured=True)`
+    with the unmodified model — i.e. V0 by construction.
+  computed_once: true   # prepare_canonical.py computes this once across all canonical segments and caches it
+
+metric:
+  name: pooled-sample yaw-rate RMSE
+  unit: rad/s
+  formula: sqrt(mean((agent_pred - truth)**2)) over all qualifying samples
+  improvement_formula: (baseline_rmse - agent_rmse) / baseline_rmse * 100  # positive = better
+
+reconstruction_priority:
+  - Read fitted coefficients / parameters from agent's out/*.json or out/*.csv if present; combine with the prediction equation described in the REPORT
+  - Import and call agent's predict function from tools/*.py
+  - Re-run the agent's training script in their folder (slow; only if other options fail)
+
+failure_action: |
+  If reconstruction is infeasible — agent didn't save coefficients, code crashes,
+  model is described too vaguely to reproduce, or platform-restricted to non-Ford —
+  return status="failed" with a one-sentence reason. Do not fabricate numbers.
+
+leakage_note: |
+  Many agents trained on the same Ford segments we score against. We accept this
+  leakage: the "model" each agent shipped is their fitted parameter set, and we
+  measure how well that parameter set predicts the full Ford dataset. Linear-fit
+  generalisation is good and the cross-agent comparison stays valid because every
+  agent is scored on the same data with the same baseline.

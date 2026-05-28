@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m2-agent-02",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Reconstructed agent's headline V2 model (per-segment best-integer-lag alignment of yaw_rate_pred against yaw_rate_meas, then per-segment mean-bias removal) directly from out/analyze.py's best_lag/shift/bias-removal logic; no fitted coefficients were saved because the parameters (lag, bias) are recomputed per-segment from the segment data itself.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723478,
+  "agent_rmse": 0.012616466248322206,
+  "improvement_pct": 14.406727506401163,
+  "notes": "Agent declared V2 as headline best: 'V0 → V2 cuts overall yaw-rate RMSE from 0.01550 rad/s to 0.01313 rad/s — a 15.3% reduction'. V3 was reported as a regression and not their favourite. Baseline_rmse_recomputed matches the canonical V0 to within 1e-15. The agent reported on 120 Mach-E segments only; this canonical eval pools all 545 Ford segments (Mach-E + F-150 Lightning). Of 545 segments, 24 were skipped by the per-segment loop because they had fewer than 100 rows (agent's load_segment threshold); the remaining 521 segments contributed all 1,364,925 v_mps>2.0 samples, matching the canonical sample count exactly. V2 is parameter-free at training time — lag and bias are estimated per-segment from the segment itself — so by construction it generalises to F-150 without separate fitting."
+}

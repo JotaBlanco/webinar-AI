@@ -199,3 +199,128 @@ webinar-angle-A/
 - [ ] B4 — calibrate M1 difficulty: either harden the task or strip the CSV's self-documenting columns from M1's data view.
 - [ ] B5 — add baseline-methodology clause to the canonical task body.
 - [ ] Decide whether the M1 narrative should be "founder" or "credible-but-unverifiable".
+
+---
+
+# RUN-LOG iter 2 — 5×3 cohort, naked prompt, fresh substrate
+date: 2026-05-27
+iteration: 2
+challenge: tasks/lateral-fidelity-challenge.md (verbatim 3-line naked prompt from `webinar-00/domain-knowledge-challenges/idea-01-lateral-attribution.md` lines 52-54)
+launch_id: webinar-angle-A/20260527-134542
+
+## What changed from iter 1
+
+- **M1 dropped.** The empty-lamp condition is now represented by `raw-model/idea-01/` (10 agents on the naked prompt with no substrate). Iter-2 only re-runs M2, M3, M4 to study the substrate-accretion effect proper.
+- **5 agents per module, not 1.** Statistical baseline at each substrate level. 15 agents total; each in its own `module-N/agent-NN/` subfolder; AGENTS.md + skills + references + evals identical across the 5 agents of a module level.
+- **Renamed `modulo-N/` → `module-N/`** per Javier's preference.
+- **Substrate authored fresh** (not iter-1 carry-over). Cleaned canonical operating-contract material from `car-sim-real-CLAUDE.md` into per-module AGENTS.md; authored a fresh `lateral-fidelity-triage` skill with helper `triage.py`; authored a fresh `references/ks-vs-st.md` variant catalogue; authored a fresh `evals/lateral_fidelity_eval.py` scoring the six success metrics from `idea-01-lateral-attribution.md` (truth-channel, contract, regime-breakdown, methodology-consistent, attribution-coherent, regression-flagged). Substrate is identical across each module level's 5 agents.
+- **Naked prompt verbatim.** `tasks/lateral-fidelity-challenge.md` is exactly the 3-line brief from `idea-01-lateral-attribution.md` — no methodology hints, no metric named, no platform named.
+- **15-min wall-clock budget per agent.**
+- Used the `launch-isolated-module-agents` skill's orchestrator. Three skill scripts patched to support nested `module-N/agent-NN/`:
+  - `launch-all.py`: self-filter compares full resolved paths (was filtering by basename, which fails when basenames repeat like `agent-01` × 3 modules); template header stripped on first `---` marker; `--angle-root` / `--repo-root` plumbed from `orchestrate.py`.
+  - `pre-flight-check.py`: P7 uniqueness check switched from basename to full module_path + module_name.
+  - `orchestrate.py`: passes `--angle-root` / `--repo-root` to `launch-all.py` explicitly (inference was walking only one parent up).
+
+## Headline numbers — all RMSEs in rad/s, Ford Mach-E only (M2/M3/M4 agents that chose Ford; one M2 agent ran both Fords pooled)
+
+### M2 — ratchet (AGENTS.md only; no skill, no references, no eval)
+
+| agent | V0_baseline | V1 | V2 | V3 | V4 | best | best_var | overall_drop |
+|---|---:|---:|---:|---:|---:|---:|---|---:|
+| agent-01 (Mach-E + Lightning pooled) | 0.01804 | 0.01752 | 0.01751 | 0.01733 | 0.01568 | 0.01568 | V4 understeer | 13.1% |
+| agent-02 (Mach-E, 120 segs)          | 0.01550 | 0.01358 | 0.01313 | 0.01440 (ST regr) | —     | 0.01313 | V2 time-align | 15.3% |
+| agent-03 (Mach-E, 315 segs)          | 0.01613 | 0.01414 | 0.01384 | 0.01607 (ST isolated) | 0.01380 | 0.01380 | V4 combo | 14.5% |
+| agent-04 (Mach-E, 315 segs)          | 0.01613 | 0.01572 | 0.01395 | 0.01103 | 0.01077 | 0.01077 | V4 ST+gain | 33.2% |
+| agent-05 (Mach-E, 315 segs)          | 0.01613 | 0.01414 | 0.01111 | 0.01077 | 0.01035 | 0.01035 | V4 lag-align | 35.8% |
+
+Variant labels here are agent-chosen; with no shared catalogue every agent invented its own ladder.
+
+### M3 — crystallised skill (M2 + lateral-fidelity-triage SKILL + ks-vs-st reference)
+
+| agent | V0      | V1      | V2 (ST prior) | V3 (ST fit) | V4 (LOSO ML) | best | best_var | overall_drop | V2 regression? |
+|---|---:|---:|---:|---:|---:|---:|---|---:|:--:|
+| agent-01 (Mach-E, 80 segs)  | 0.01190 | 0.01013 | 0.01201 | 0.01180 | 0.01003 | 0.01003 | V4 | 15.7% | **yes** |
+| agent-02 (Mach-E, 315 segs) | 0.01613 | 0.01469 | 0.01551 | 0.01564 | 0.01541 | **0.01469 (V1)** | V1 | 8.9% | **yes** |
+| agent-03 (Mach-E, 315 segs) | 0.01613 | 0.01469 | 0.01551 | 0.01564 | 0.01541 | **0.01469 (V1)** | V1 | 8.9% | **yes** |
+| agent-04 (Mach-E, 60 segs)  | 0.01214 | 0.01055 | 0.01248 | 0.01260 | 0.01005 | 0.01005 | V4 | 17.3% | **yes** |
+| agent-05 (Mach-E, 80 segs)  | 0.01190 | 0.01013 | 0.01174 | 0.01142 | 0.00963 | 0.00963 | V4 | 19.0% | **yes** |
+
+### M4 — sensor + self-patch (M3 + lateral_fidelity_eval.py)
+
+| agent | V0      | V1      | V2 (ST prior) | V3 (ST fit) | V4 (LOSO ML) | best | best_var | overall_drop | V2 regression? |
+|---|---:|---:|---:|---:|---:|---:|---|---:|:--:|
+| agent-01 (Mach-E, 40 segs)  | 0.01394 | 0.01242 | 0.01490 | 0.01455 | 0.01120 | 0.01120 | V4 | 19.6% | **yes** |
+| agent-02 (Mach-E, 60 segs)  | 0.01214 | 0.01055 | 0.01248 | 0.01217 | 0.00961 | 0.00961 | V4 | 20.9% | **yes** |
+| agent-03 (Mach-E, 315 segs) | 0.01613 | 0.01469 | 0.01551 | 0.01511 | 0.01490 | 0.01490 | V4 | 7.6% | **yes** |
+| agent-04 (Mach-E, 60 segs)  | 0.01214 | 0.01055 | 0.01248 | 0.01260 | 0.01005 | 0.01005 | V4 | 17.3% | **yes** |
+| agent-05 (Mach-E, 40 segs)  | 0.02570 | 0.02463 | 0.02531 | 0.02505 | — (V4 regressed; honestly dropped) | 0.02463 | V1 | 4.2% | **yes** |
+
+## Key cross-cohort findings
+
+### Finding 1 — The V2 regression is universally reproduced once the catalogue is present
+
+Every single agent in M3 (5/5) and M4 (5/5) flagged V2 (Linear ST with openpilot prior `C_α`) as a regression with the same physical cause: **openpilot's `C_α` prior is stiffer than the Mach-E tyres actually want** → ST steady-state gain over- or under-corrects KS depending on regime → cornering RMSE worsens. This is **the workshop's clean headline finding**: the skill + reference do not maximise the metric, they make the agent **physically honest**. In M2 agents (no catalogue), some chose ST-like variants too but did not consistently flag regressions in the same way — three M2 agents reported V2-like rungs as wins without surfacing the prior-too-stiff diagnosis.
+
+### Finding 2 — The skill helper `triage.fit_c_alpha` silently fails on this loss surface
+
+**Four out of five M3 agents and three out of five M4 agents independently discovered** that `triage.fit_c_alpha`'s L-BFGS-B default returns its initial guess `(1.5e5, 1.5e5)` unchanged because the local gradient is sub-tolerance / non-smooth around `K_us·v² = −1`. Each agent worked around it differently (multistart grid; Nelder-Mead; differential evolution). The skill's `pegged` check only watches the upper bound, so the silent no-op was invisible to its own self-audit. **This is the iter-2 ratchet candidate**: patch `triage.fit_c_alpha` to (a) detect a no-op convergence at `x0` and warn, (b) fall back to DE or grid.
+
+### Finding 3 — V1 (per-segment yaw-gyro bias) carries most of the legitimate physics gain
+
+In the M3 cohort, two agents (agent-02, agent-03) concluded **V1 is the variant to ship** — V2/V3 are regressions, V4 is a small LOSO recovery that doesn't beat V1. Three other M3 agents shipped V4 but V4's marginal contribution is small in their tables too. In M4, the same pattern: V1 is the workhorse, V4 trims a bit more in cornering when LOSO-honest. The bias-correction step on straights nearly halves the straight-regime RMSE across runs.
+
+### Finding 4 — M4 eval drove discipline but did not fire a ratchet this round
+
+All M4 agents structured `REPORT.md` to pass the eval's six checks on the first try (one agent — module-4-agent-02 — noted that pipe characters in description columns silently broke the eval's column parser and worked around it; that's an eval-side ratchet candidate). No agent had to patch the SKILL.md to satisfy a failed eval. Compared with iter-1 where M4 hit one ratchet (R1: "only one markdown table"), iter-2's eval was *too easy to pass* on the first try.
+
+### Finding 5 — Substrate baselines disagree with a clear pattern
+
+- M2 agents picked different baselines (some pooled both Ford platforms, some Mach-E only, with different sample counts), so V0 RMSEs range 0.01550–0.01804.
+- M3 and M4 agents converged on Mach-E and converged tightly on V0 = 0.01613 / 0.01613 / 0.01613 (the 315-segment full-set baseline), with three agents in M3 hitting *identical* V0/V1/V2/V3 numbers (0.01613/0.01469/0.01551/0.01564) — implying the SKILL.md's "compute V0 from `yaw_rate_resid_rads` as-is, no preprocessing" line did its job. The catalogue made the methodology shared.
+
+This is exactly the iter-1 finding (B5) playing out: without the methodology line the headline is incomparable; with it, the headline is reproducible across agents.
+
+## Process notes — isolation discipline
+
+- **fs-diff (Layer 7).** 3 194 files snapshotted in `code/` and `data/` before launch; **diff against post-run is clean** for all 15 agents. No agent wrote anywhere under the shared dirs. This is the strongest evidence we have.
+- **Agent self-reports (Layer 1).** All 15 agents emitted `ISOLATION_REPORT:` blocks with empty `read_outside_module / attempted_blocked / shared_dir_writes` lists. Several agents explicitly noted *temptation*: agent-01 of M2 wanted to peek at `_shared` and `webinar-00`; agent-03 of M2 nearly imported `code/parameters.py` outside the symlink; multiple M3/M4 agents wanted to crib `C_α` ranges from sibling agents. All self-reported the temptation and stayed compliant.
+- **Hook log (Layer 3) — important finding.** During the run window (13:34–14:00), the hook log shows BYPASS entries only — and *none* of the 15 subagent session IDs appear in the log at all. Only parent-session IDs are recorded. **The repo-wide `PreToolUse` hook is not firing for subagent tool calls in this environment.** The Anthropic Agent tool's subagent processes appear to use a different tool-execution pathway than the main session, so the parent's `settings.json` hooks don't intercept subagent reads/bash/writes. Implication: **Layer 3 was effectively absent** for this run. We had:
+  - Layer 1 (prompt-soft) — honored, per self-reports.
+  - Layer 2 (settings.json `permissions.deny`) — would still apply at the subagent settings layer if subagents inherited them, but we have no evidence either way without a deliberate violation test.
+  - Layer 7 (fs-diff) — clean.
+  - Layer 3 (hook) — **inert for subagents**. Needs to be re-validated or replaced.
+- **Verifier V1 false-failure.** `post-run-verify.py` looks for the `ISOLATION_REPORT:` block in `REPORT.md`. It failed on all 15 modules because the parent (this session) stripped the trailer when persisting `REPORT.md` from the agent text. The trailers do exist in the agent responses captured in this run-log; they are clean. Iter-2 ratchet candidate for the skill: have the verifier accept the trailer from a separate sidecar file (`isolation-report.txt`) so it doesn't pollute `REPORT.md`'s shape — or, alternatively, have the parent persist both `REPORT.md` and the trailer block, separated.
+- **Time and tokens.** Agents took 130–270 s wall-clock each (the budget was 15 min; nobody used it all). Token usage 30k–55k per agent. All 15 ran in parallel — the bottleneck was the slowest agent, ~270 s end-to-end after launch.
+
+## Iter-3 punch list
+
+- [ ] **Patch `triage.fit_c_alpha`** to detect the no-op convergence at `x0` (when the result equals the initial guess to numerical tolerance) and either warn loudly or fall back to DE/grid. Four agents independently re-discovered this; the next cohort shouldn't have to.
+- [ ] **Tighten the eval's table parser** so a `|` inside a description cell doesn't silently drop a row. One M4 agent surfaced this; an eval ratchet.
+- [ ] **Layer-3 hook is inert for subagents in the Anthropic Agent tool.** Decide whether to (a) accept this and document the skill as "Layer 1 + Layer 7 only for subagents", (b) wire enforcement into a different mechanism (subagent-side settings.json, OS-level sandbox, `container-use`), or (c) deliberately probe with a planted out-of-scope read in the prompt to confirm Layer 2 (settings.json deny) does or doesn't intercept subagent reads. As-is, iter-2's hard-enforcement story is weaker than the skill's `README.md` claims.
+- [ ] **Skill: stripping the ISOLATION_REPORT trailer when persisting REPORT.md broke the verifier's V1 layer.** Either (a) have the parent assistant persist a sidecar `isolation-report.txt` alongside `REPORT.md`, or (b) widen the verifier's search to include the agent's transcript file at `~/.../tasks/<agent-id>.output`.
+- [ ] **Consider widening the cohort to F-150 Lightning** for one of the agents at each module level. Iter-2 had every M3/M4 agent default to Mach-E; the cross-platform comparison from iter-1 (Mach-E vs Lightning, different sign of `K_us`) is not reproduced.
+- [ ] **Workshop framing call (Javi):** at M3/M4, the headline is "the catalogue makes the agent honest, not optimistic". Three M3 agents (and two M4 agents) shipped V1 as the best variant precisely because the catalogue let them name V2/V3 as regressions. The accretion arc lands cleanly — M2's results are higher but messier; M3+ shrinks the headline and *names what's wrong*. That's a sharper story than "M4 wins on RMSE" and it replicated 5×3 in iter-2.
+
+## Files produced
+
+```
+webinar-angle-A/
+  RUN-LOG.md                        (this file — iter-1 + iter-2)
+  _task-canonical.md
+  .launch-config.json               (15 module entries)
+  _shared/iter2-substrate/          (canonical substrate authored fresh; agents cannot read this)
+    M2/AGENTS.md, M2/tasks/
+    M3/AGENTS.md, M3/skills/lateral-fidelity-triage/, M3/references/, M3/tasks/
+    M4/AGENTS.md, M4/skills/..., M4/references/, M4/evals/, M4/tasks/
+  _launch/20260527-134542/
+    snapshot.txt                    (3 194 files in code/ + data/ at launch time)
+    manifest.json
+    invocations.json
+    *.prompt.md                     (15 rendered prompts)
+  module-2/agent-{01..05}/
+    AGENTS.md, code → /webinar-AI/code, data → /webinar-AI/data
+    tasks/lateral-fidelity-challenge.md
+    out/, tools/, REPORT.md         (REPORT.md persisted by parent from agent text)
+  module-3/agent-{01..05}/          (same shape, M3 substrate)
+  module-4/agent-{01..05}/          (same shape, M4 substrate incl. evals/)
+```

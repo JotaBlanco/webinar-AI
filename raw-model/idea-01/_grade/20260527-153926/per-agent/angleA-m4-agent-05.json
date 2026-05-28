@@ -1,0 +1,112 @@
+{
+  "agent_id": "angleA-m4-agent-05",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/module-4/agent-05/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Truth channel:** `yaw_rate_meas_rads` \u2014 the IMU-**measured** yaw rate decoded from the rlog, not predicted, not clamped."
+      ],
+      "reasoning": "Report names the scored channel and explicitly identifies it as measured (IMU from rlog), not predicted/clamped."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Speed-known contract:** both `v_mps` and `delta_road_rad` are **clamped** to the measured signal at every integrator step. The lateral state is what the model **predicts** under that clamped input."
+      ],
+      "reasoning": "Explicit statement of which channels are clamped to truth vs predicted by the model."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| Variant | Description | RMSE overall (rad/s) | Straight | Steady | Transient | \u0394RMSE vs prev |"
+      ],
+      "reasoning": "Variant table breaks RMSE into Straight / Steady / Transient columns alongside overall."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**Methodology consistency:** the **same segment set** and **same regime mask** are held constant across every variant row. The only thing that changes between rows is the prediction model."
+      ],
+      "reasoning": "Explicitly declares fixed segment set and regime mask across the ladder."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "Accounting scheme: **strict marginal** in fixed order V0\u2192V1\u2192V2\u2192V3. The \u0394RMSE column is `RMSE(V_i) \u2212 RMSE(V_{i-1})` (negative = improvement, positive = regression). `|\u03a3marg \u2212 total|/total \u2248 0` \u2014 attribution coherent."
+      ],
+      "reasoning": "Marginals (-0.00107 + 0.00068 - 0.00025 = -0.00064) reconcile exactly with stated total drop of 0.00064; |\u03a3 \u2212 total|/total \u2248 0, well under 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "**V1 \u2192 V2 (+0.00068 rad/s, REGRESSION).** Swapping KS for linear-ST steady-state with openpilot prior `C_\u03b1` **worsens** overall RMSE... **Physical cause:** the openpilot Mach-E `C_\u03b1` prior is stiffer than the actual tyres want. ST with too-stiff tyres under-predicts yaw rate during cornering"
+      ],
+      "reasoning": "V2 regression is explicitly flagged with a physical cause (openpilot C_\u03b1 prior too stiff for Mach-E tyres)."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMSE overall (rad/s)",
+    "platform": "FORD_MUSTANG_MACH_E_MK1",
+    "baseline_value": "0.02570",
+    "final_value": "0.02463",
+    "improvement": "V0\u2192V3 total RMSE drop = **0.00064 rad/s** (2.5% reduction). Largest single improvement comes from **V1 alone** (0.00107 rad/s, 4.1%)",
+    "top_contributor": "V1",
+    "baseline_numeric": 0.0257,
+    "final_numeric": 0.02463,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 4.1,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford Mach-E platform using IMU-measured yaw rate as truth and acknowledged the speed-known clamped contract."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 KS recalibrated with canonical L; per-segment yaw-gyro bias subtracted on straights",
+      "contribution_pct": 167.2,
+      "contribution_abs": -0.00107,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V2 Linear ST with openpilot prior C_\u03b1",
+      "contribution_pct": -106.25,
+      "contribution_abs": 0.00068,
+      "scheme": "marginal"
+    },
+    {
+      "variant_name": "V3 Linear ST with fit C_\u03b1",
+      "contribution_pct": 39.06,
+      "contribution_abs": -0.00025,
+      "scheme": "marginal"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 4,
+    "named_data_gap_or_missing_truth_channel": false,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

@@ -54,22 +54,53 @@ def load_rubric(idea_id: str) -> tuple[str, dict, str]:
     return yaml_block, parsed, text
 
 
-def derive_agent_id(report_path: Path) -> str:
-    """raw-model/idea-01/agent-03/REPORT.md  -> agent-03
-       webinar-angle-A/modulo-1/report.md    -> webinar-angle-A_modulo-1
+def derive_agent_id_and_family(report_path: Path) -> tuple[str, str]:
+    """Return (agent_id, family). agent_id is globally unique across the cohort;
+    family is the comparison-group label.
+
+    Shapes recognised:
+      raw-model/idea-NN-*/agent-MM/REPORT.md
+          -> id="raw-agent-MM", family="raw"
+      webinar-angle-X/module-N/agent-MM/REPORT.md   (English "module")
+      webinar-angle-X/modulo-N/agent-MM/REPORT.md   (Spanish "modulo")
+          -> id="angleX-mN-agent-MM", family="angle-X/module-N"
+      webinar-angle-X/module-N/REPORT.md            (legacy, no per-agent subdir)
+          -> id="angleX-mN", family="angle-X/module-N"
     """
-    parts = report_path.parts
-    # Find the folder containing the report.
     parent = report_path.parent
     name = parent.name
-    if re.fullmatch(r"agent-\d+", name):
-        return name
-    # angle/module case
-    grandparent = parent.parent.name
-    if re.fullmatch(r"webinar-angle-[A-Z0-9]+", grandparent) and re.fullmatch(r"modulo-\d+", name):
-        return f"{grandparent}_{name}"
-    # fallback
-    return f"{parent.parent.name}_{name}"
+    grand = parent.parent.name if parent.parent else ""
+    great = parent.parent.parent.name if parent.parent and parent.parent.parent else ""
+
+    agent_match = re.fullmatch(r"agent-(\d+)", name)
+
+    # raw-model/idea-NN/agent-MM/REPORT.md
+    if agent_match and great == "raw-model":
+        return f"raw-agent-{agent_match.group(1)}", "raw"
+
+    # webinar-angle-X/module-N/agent-MM/REPORT.md
+    angle_match = re.fullmatch(r"webinar-angle-([A-Z0-9]+)", great)
+    module_match = re.fullmatch(r"(?:module|modulo)-(\d+)", grand)
+    if agent_match and angle_match and module_match:
+        a = angle_match.group(1)
+        m = module_match.group(1)
+        n = agent_match.group(1)
+        return f"angle{a}-m{m}-agent-{n}", f"angle-{a}/module-{m}"
+
+    # webinar-angle-X/module-N/REPORT.md (no per-agent subdir, legacy)
+    angle_match2 = re.fullmatch(r"webinar-angle-([A-Z0-9]+)", grand)
+    module_match2 = re.fullmatch(r"(?:module|modulo)-(\d+)", name)
+    if angle_match2 and module_match2:
+        a = angle_match2.group(1)
+        m = module_match2.group(1)
+        return f"angle{a}-m{m}", f"angle-{a}/module-{m}"
+
+    # Fallback.
+    return f"{grand}_{name}", "unknown"
+
+
+def derive_agent_id(report_path: Path) -> str:
+    return derive_agent_id_and_family(report_path)[0]
 
 
 def expand_reports(patterns: list[str]) -> list[Path]:
@@ -131,8 +162,12 @@ def main():
     body = parts[2] if len(parts) >= 3 else template
 
     invocations: list[dict] = []
+    families: dict[str, str] = {}
     for report in reports:
-        agent_id = derive_agent_id(report)
+        agent_id, family = derive_agent_id_and_family(report)
+        if agent_id in families:
+            sys.exit(f"prepare: duplicate agent_id '{agent_id}' from {report} — fix derive_agent_id_and_family")
+        families[agent_id] = family
         report_body = report.read_text()
         prompt = fill_template(body,
                                idea_id=args.idea_id,
@@ -147,12 +182,14 @@ def main():
             "description": f"grade {agent_id}",
             "run_in_background": True,
             "agent_id": agent_id,
+            "family": family,
             "report_path": str(report),
             "prompt": prompt,
         })
 
     inv_file = args.out_dir / "invocations.json"
     inv_file.write_text(json.dumps(invocations, indent=2))
+    (args.out_dir / "families.json").write_text(json.dumps(families, indent=2, sort_keys=True))
 
     # Persist optional manifest passthrough.
     if args.manifest is not None and args.manifest.is_file():

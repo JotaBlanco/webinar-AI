@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m4-agent-02",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "json-coeffs",
+  "reconstruction_summary": "V4 = linear-ST yaw rate (Mach-E vehicle params + agent's fitted Cf=427029, Cr=483737 from out/ladder_results.json) minus per-segment straight-sample bias minus a LOSO Ridge(alpha=1.0) residual learner on features [v, |a_y_pred|, |delta|, sign(d_delta)], reconstructed from tools/run_ladder.py.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723487,
+  "agent_rmse": 0.02011946498255211,
+  "improvement_pct": -36.49549840519037,
+  "notes": "Agent fit Cf/Cr and trained V4 ridge on 60 Mach-E segments only; we apply the same Mach-E parameter set and pipeline to all 545 canonical Ford segments (Mach-E + F-150) per the 'shipped parameter set' framing. Per-segment bias and LOSO ridge are recomputed across the full canonical set using the agent's recipe. Baseline_rmse_recomputed matches canonical to <1e-9."
+}

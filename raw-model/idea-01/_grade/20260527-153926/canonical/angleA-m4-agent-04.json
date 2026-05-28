@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m4-agent-04",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "re-ran-script",
+  "reconstruction_summary": "Re-ran the agent's V4 ridge residual learner (favourite) on all 545 canonical Ford segments: built per-platform V1->V3 (linear single-track with fit C\u03b1 + per-segment straight-line bias) using the agent's triage utilities, then trained Ridge(alpha=1.0) with leave-one-segment-out CV on features [v, |a_y|, |\u03b4|, sign(\u03b4\u0307)] against V3 residuals; V4 prediction = V3 prediction \u2212 LOSO residual correction.",
+  "n_segments": 545,
+  "n_samples_after_filter": 1364925,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723487,
+  "agent_rmse": 0.011013013325083853,
+  "improvement_pct": 25.284954443175145,
+  "notes": "Agent's REPORT.md labels V4 best ('LOSO Ridge ... 0.01005 is genuine out-of-fold'). Agent saved no V4 model coefficients, so V4 was retrained on the full canonical set (both Mach-E and Lightning) under the same recipe; V3's C\u03b1 was refit per platform ({'FORD_MUSTANG_MACH_E_MK1': {'Cf_fit': 150000.0, 'Cr_fit': 150000.0, 'n_segs': 315}, 'FORD_F_150_LIGHTNING_MK1': {'Cf_fit': 150000.0, 'Cr_fit': 150000.0, 'n_segs': 230}}). LOSO holds out each of the 545 segments. Sample filter v_mps>2.0 matches the agent's V_MIN_ST fallback threshold for linear ST."
+}

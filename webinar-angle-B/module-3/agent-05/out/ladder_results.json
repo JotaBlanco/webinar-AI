@@ -1,0 +1,51 @@
+Loaded 306 Mach-E segments
+Sign sanity corr(delta_road, yaw_rate_meas) on cornering = +0.922
+Fit C_af=400,000, C_ar=400,000 (prior 286,551/355,912) pegged=False
+{
+  "rows": [
+    {
+      "variant": "V0",
+      "name": "KS baseline (CSV as-is)",
+      "rmse_all": 0.013160432548178152,
+      "rmse_straight": 0.009117447938223618,
+      "rmse_steady": 0.024379136861361877,
+      "rmse_transient": 0.04362035253462962,
+      "marginal_drop": 0.0
+    },
+    {
+      "variant": "V1",
+      "name": "V0 + per-segment straight-line bias",
+      "rmse_all": 0.011048949357236909,
+      "rmse_straight": 0.005113384323413516,
+      "rmse_steady": 0.024007285685872386,
+      "rmse_transient": 0.044042884439097034,
+      "marginal_drop": 0.002111483190941243
+    },
+    {
+      "variant": "V2",
+      "name": "Linear ST, prior C_alpha",
+      "rmse_all": 0.012254817685025784,
+      "rmse_straight": 0.003484267099082618,
+      "rmse_steady": 0.028548257108061702,
+      "rmse_transient": 0.05213409823915614,
+      "marginal_drop": -0.0012058683277888747
+    },
+    {
+      "variant": "V3",
+      "name": "Linear ST, fit C_alpha (bounded)",
+      "rmse_all": 0.011664470262835704,
+      "rmse_straight": 0.003652851762813103,
+      "rmse_steady": 0.02662868596087007,
+      "rmse_transient": 0.04995803323700325,
+      "marginal_drop": 0.0005903474221900795
+    }
+  ],
+  "total_drop": 0.0014959622853424476,
+  "sum_marginals": 0.0014959622853424476,
+  "n_samples": 810208,
+  "sign_corr": 0.92227642371484,
+  "fit_Caf": 400000.0,
+  "fit_Car": 400000.0,
+  "pegged": false,
+  "n_segments": 306
+}

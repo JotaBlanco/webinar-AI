@@ -1,0 +1,14 @@
+{
+  "agent_id": "angleA-m2-agent-05",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "re-ran-script",
+  "reconstruction_summary": "Reproduced agent's V4 (their declared best: 'RMSE dropped from V0 = 0.01613 rad/s to V4 = 0.01035 rad/s'): per-segment grid search over (alpha, k_scale, lag) on bicycle model psi_dot = v/(L + k_scale*K_us*v^2)*tan(alpha*delta_road) with per-segment bias removal; platform L and K_us from agent's parameters.py (Mach-E and F-150 Lightning).",
+  "n_segments": 545,
+  "n_samples_after_filter": 1363248,
+  "baseline_rmse": 0.014740020892723483,
+  "baseline_rmse_recomputed": 0.014740020892723483,
+  "agent_rmse": 0.006672538247674018,
+  "improvement_pct": 54.73182639131833,
+  "notes": "Agent self-scored Mach-E only; canonical extends to F-150 Lightning. Model has no saved coefficients \u2014 V4 re-fits per-segment hyperparameters (alpha, k_scale, lag) plus a bias on each segment, so canonical leakage per the YAML note applies fully. Platform-specific (L, K_us) taken from agent's parameters.py: Mach-E K_us=5.62e-4, F-150 K_us=4.53e-4 (both understeer-tending). n_samples is 1363248 vs cached 1364925 because V4 trims |best_lag| samples per segment from the aligned arrays; baseline_rmse_recomputed (over full v>2 mask) matches the cached canonical V0 exactly."
+}

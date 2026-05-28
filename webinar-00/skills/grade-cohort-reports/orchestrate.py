@@ -24,6 +24,7 @@ from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent
 PREPARE = SKILL_DIR / "prepare.py"
+PREPARE_CANONICAL = SKILL_DIR / "prepare_canonical.py"
 AGGREGATE = SKILL_DIR / "aggregate.py"
 REPORT = SKILL_DIR / "report.py"
 
@@ -36,12 +37,14 @@ def main():
     rest = sys.argv[2:]
     if mode == "grade":
         sys.exit(subprocess.call(["python3", str(PREPARE)] + rest))
+    elif mode == "canonical-grade":
+        sys.exit(subprocess.call(["python3", str(PREPARE_CANONICAL)] + rest))
     elif mode == "aggregate":
         sys.exit(subprocess.call(["python3", str(AGGREGATE)] + rest))
     elif mode == "report":
         sys.exit(subprocess.call(["python3", str(REPORT)] + rest))
     else:
-        sys.exit(f"orchestrate: unknown mode '{mode}' (use 'grade', 'aggregate', or 'report')")
+        sys.exit(f"orchestrate: unknown mode '{mode}' (use 'grade', 'canonical-grade', 'aggregate', or 'report')")
 
 
 if __name__ == "__main__":

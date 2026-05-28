@@ -1,0 +1,106 @@
+{
+  "agent_id": "raw-agent-07",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/idea-01/agent-07/REPORT.md",
+  "items": [
+    {
+      "id": "truth-channel-correct",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Headline metric**: RMS yaw-rate residual (deg/s), aggregated across **545 Ford segments / 1,580,767 samples** at 50 Hz from both `FORD_MUSTANG_MACH_E_MK1` and `FORD_F_150_LIGHTNING_MK1`. (Tesla has no measured yaw-rate truth channel in the CSVs, so it's excluded.)"],
+      "reasoning": "Report explicitly scores against measured yaw-rate channel on Ford and excludes Tesla because it lacks a measured truth channel."
+    },
+    {
+      "id": "contract-acknowledged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No explicit statement of which channels are clamped to truth vs predicted by the model in the methodology section."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "The variant table is aggregate-only; no per-regime (straight/cornering/transient) breakdown is provided."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["**Headline metric**: RMS yaw-rate residual (deg/s), aggregated across **545 Ford segments / 1,580,767 samples** at 50 Hz from both `FORD_MUSTANG_MACH_E_MK1` and `FORD_F_150_LIGHTNING_MK1`.", "Each level's contribution = `RMS_prev − RMS_this`, expressed both in absolute deg/s and as % of the original baseline error."],
+      "reasoning": "Same Ford segment set and same RMS yaw-rate metric definition applied across every ladder variant."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": ["| **Total** | | **+0.2935** | **28.4 %** |", "By construction the deltas sum to the total."],
+      "reasoning": "Sequential marginal drops (0.1261+0.1116+0.0526+0.0032=0.2935) exactly equal the total drop (1.0336-0.7401=0.2935), so |sum-total|/total = 0."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No regressions occurred (all variants improved RMS) and the report does not explicitly state 'no regressions observed'; vacuous case not addressed."
+    }
+  ],
+  "headline": {
+    "primary_metric": "RMS yaw-rate residual (deg/s)",
+    "platform": "545 Ford segments / 1,580,767 samples at 50 Hz from both FORD_MUSTANG_MACH_E_MK1 and FORD_F_150_LIGHTNING_MK1",
+    "baseline_value": "1.0336",
+    "final_value": "0.7401",
+    "improvement": "28.4 % reduction",
+    "top_contributor": "V1 + per-seg δ-bias",
+    "baseline_numeric": 1.0336,
+    "final_numeric": 0.7401,
+    "unit_normalized": "deg/s",
+    "improvement_pct_numeric": 28.4,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored against a measured yaw-rate truth channel on the Ford platforms and explicitly excluded Tesla due to missing truth, matching the rubric's canonical setup."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 + per-seg δ-bias",
+      "contribution_pct": 42.96,
+      "contribution_abs": 0.1261,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 + per-platform `i_s` rescale",
+      "contribution_pct": 38.02,
+      "contribution_abs": 0.1116,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 + understeer `K_us`",
+      "contribution_pct": 17.92,
+      "contribution_abs": 0.0526,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 + per-platform yaw lag",
+      "contribution_pct": 1.09,
+      "contribution_abs": 0.0032,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 5,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}
