@@ -27,6 +27,7 @@ PREPARE = SKILL_DIR / "prepare.py"
 PREPARE_CANONICAL = SKILL_DIR / "prepare_canonical.py"
 AGGREGATE = SKILL_DIR / "aggregate.py"
 REPORT = SKILL_DIR / "report.py"
+REPORT_HTML = SKILL_DIR / "report_html.py"
 
 
 def main():
@@ -43,8 +44,10 @@ def main():
         sys.exit(subprocess.call(["python3", str(AGGREGATE)] + rest))
     elif mode == "report":
         sys.exit(subprocess.call(["python3", str(REPORT)] + rest))
+    elif mode == "report-html":
+        sys.exit(subprocess.call(["python3", str(REPORT_HTML)] + rest))
     else:
-        sys.exit(f"orchestrate: unknown mode '{mode}' (use 'grade', 'canonical-grade', 'aggregate', or 'report')")
+        sys.exit(f"orchestrate: unknown mode '{mode}' (use 'grade', 'canonical-grade', 'aggregate', 'report', or 'report-html')")
 
 
 if __name__ == "__main__":

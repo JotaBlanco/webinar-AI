@@ -3,8 +3,8 @@ name: grade-cohort-reports
 description: Grade a cohort of agent reports against the rubric in a `webinar-00/domain-knowledge-challenges/idea-NN-*.md` file. Designed for the case where multiple agents (across raw-model baselines, multiple angles, or multiple modules) solved the same idea and we want a consistent, evidence-quoting comparison of how well each did. Emits a per-agent scorecard JSON + a cohort summary markdown.
 when-to-load: When you want to grade 2+ reports against a canonical rubric. NOT for single-agent grading (use the rubric file directly), NOT for code review.
 inputs: An idea-id (filename stem under `webinar-00/domain-knowledge-challenges/`) and one or more report paths or globs.
-outputs: One JSON scorecard per agent + a cohort.md + a cohort.json under `_grade/<timestamp>/`.
-load-cost: ~280 tokens metadata, ~1100 tokens body.
+outputs: One JSON scorecard per agent + a cohort.md, cohort.json, cohort.pdf, and cohort.html under `_grade/<timestamp>/`. The HTML output uses the Quix brand styling via the `quix-toolkit-for-ai:quix-report-styling` skill.
+load-cost: ~280 tokens metadata, ~1200 tokens body.
 ---
 
 # grade-cohort-reports
@@ -27,7 +27,15 @@ Mirrors the [launch-isolated-module-agents](../launch-isolated-module-agents/SKI
 1. **`prepare.py`** — discovers reports (from explicit paths or globs), loads the rubric from the challenge file, materialises one judge prompt per report under `_grade/<timestamp>/judge-<agent_id>.prompt.md`, writes `invocations.json` with one Agent() call per report.
 2. **Parent assistant fires the N grading subagents** in a single message, `run_in_background: true`. Each judge returns a strict-JSON scorecard.
 3. **`aggregate.py`** — reads each subagent's JSON output, writes per-agent `<agent_id>.json` + `<agent_id>.md`, and a cohort `cohort.md` + `cohort.json` with pass-rate-per-item, convergence counts, and the headline spread table.
-4. **`orchestrate.py`** — one-call entry point. `orchestrate.py grade <idea-id> [report paths/globs...]` prepares + emits invocations. `orchestrate.py aggregate [--grade-dir DIR]` does the post-grading rollup.
+4. **`orchestrate.py`** — one-call entry point. `orchestrate.py grade <idea-id> [report paths/globs...]` prepares + emits invocations. `orchestrate.py aggregate [--grade-dir DIR]` does the post-grading rollup. `orchestrate.py report --grade-dir DIR` writes the PDF; `orchestrate.py report-html --grade-dir DIR [--theme light|dark] [--idea-id <id>]` writes the Quix-branded HTML.
+
+## Quix-branded HTML output (`report_html.py`)
+
+`report_html.py` uses the `quix-toolkit-for-ai:quix-report-styling` skill. It reads `template-light.html` (or `template-dark.html`) at runtime from the skill folder, scrapes the `<style>` block and the hero / footer logo SVGs, and composes the report body programmatically using the Quix CSS class names (`key-finding`, `card card-blue|purple|orange`, `metric metric-good|warn|bad`, `figure`, `figure-caption`, `critical`, `conclusion`, accent-rotated `h2`s).
+
+The matplotlib figures from `report.py` are reused as-is — saved to memory and embedded as base64 PNGs — so the HTML stays single-file with no external dependencies, matching the styling skill's contract. The cohort.html and cohort.pdf show the *exact same charts*; only the framing differs (PDF for review/print, HTML for sharing and embedding).
+
+The path to the Quix skill is hard-coded at the top of `report_html.py` (`QUIX_SKILL_DIR`) — change it there if the skill moves.
 
 ## Design decisions — read these before changing the skill
 
