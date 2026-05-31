@@ -4,7 +4,8 @@ V1 model: per-platform calibrated steady-state bicycle with v^2 understeer.
 
     yaw_pred = v * delta_road / (L_eff + K_us * v^2)
              + bias_static
-             + bias_steer * delta_road
+             + bias_steer  * delta_road
+             + bv_steer    * v * delta_road
 
 V0 baseline is the kinematic single-track psi_dot = (v/L) * tan(delta_road).
 We replace it with the small-angle/understeer-corrected form. Coefficients are
@@ -36,6 +37,7 @@ _FALLBACK = {
     "K_us": 0.0,
     "bias_static": 0.0,
     "bias_steer": 0.0,
+    "bv_steer": 0.0,
 }
 
 
@@ -46,9 +48,10 @@ def _predict_bicycle(sim_df: pd.DataFrame, coeffs: dict) -> np.ndarray:
     K_us  = float(coeffs.get("K_us", _FALLBACK["K_us"]))
     bs    = float(coeffs.get("bias_static", _FALLBACK["bias_static"]))
     bd    = float(coeffs.get("bias_steer", _FALLBACK["bias_steer"]))
+    bv    = float(coeffs.get("bv_steer", _FALLBACK["bv_steer"]))
     denom = L_eff + K_us * v * v
     denom = np.where(denom < 0.1, 0.1, denom)
-    return v * d / denom + bs + bd * d
+    return v * d / denom + bs + bd * d + bv * v * d
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
