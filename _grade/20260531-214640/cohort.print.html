@@ -1,0 +1,823 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cohort canonical evaluation — 10 agents</title>
+<style>
+        /* ============================================================
+           Quix Light Theme
+           White/light grey backgrounds, dark text, Quix brand accents
+           ============================================================ */
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            color: #646471;
+            background: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* --- Container --- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ============================================================
+           HERO SECTION
+           ============================================================ */
+        .hero {
+            background: #ffffff;
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            display: block;
+            height: 3px;
+            background: linear-gradient(90deg, #0064ff, #bd2eff, #ff7828);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .hero-logo {
+            height: 36px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            color: #0a0b24;
+            font-weight: 800;
+            font-size: 2.25rem;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero .subtitle {
+            color: #0064ff;
+            font-weight: 500;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ============================================================
+           SECTIONS (alternating backgrounds)
+           ============================================================ */
+        .section { padding: 3rem 0; }
+        .section-alt { background: #fafafa; }
+
+        /* ============================================================
+           SECTION HEADINGS
+           ============================================================ */
+        h2 {
+            color: #0a0b24;
+            font-weight: 700;
+            font-size: 1.5rem;
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #eeeef3;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(calc(-50% - 0.375rem));
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        h2.accent-blue::before { background: #0064ff; }
+        h2.accent-purple::before { background: #bd2eff; }
+        h2.accent-orange::before { background: #ff7828; }
+
+        h3 {
+            color: #222229;
+            font-weight: 600;
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* ============================================================
+           CARDS with gradient top borders
+           ============================================================ */
+        .card {
+            background: #ffffff;
+            border: 1px solid #eeeef3;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 12px rgba(10, 11, 36, 0.06);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            display: block;
+            height: 3px;
+            margin: -2rem -2rem 2rem;
+        }
+
+        .card-blue::before {
+            background: linear-gradient(90deg, #0064ff, rgba(0, 100, 255, 0.25));
+        }
+
+        .card-purple::before {
+            background: linear-gradient(90deg, #bd2eff, rgba(189, 46, 255, 0.25));
+        }
+
+        .card-orange::before {
+            background: linear-gradient(90deg, #ff7828, rgba(255, 120, 40, 0.25));
+        }
+
+        /* ============================================================
+           CALLOUT BOXES
+           ============================================================ */
+        .key-finding {
+            background: #f0f7ff;
+            border-left: 4px solid #0064ff;
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            color: #222229;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .critical {
+            background: #fff6f0;
+            border-left: 4px solid #ff7828;
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            color: #222229;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .conclusion {
+            background: #f0faf5;
+            border-left: 4px solid #00dd81;
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            color: #222229;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .key-finding p,
+        .critical p,
+        .conclusion p {
+            margin: 0;
+        }
+
+        .key-finding strong,
+        .critical strong,
+        .conclusion strong {
+            color: #0a0b24;
+        }
+
+        /* ============================================================
+           TABLES
+           ============================================================ */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e3e3f2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #222229;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid #e3e3f2;
+            color: #222229;
+            text-align: center;
+        }
+
+        tr:nth-child(even) { background: #f5f5fa; }
+        tr:hover { background: #eeeef3; }
+
+        td.val-bad { color: #ff4040; font-weight: 600; }
+        td.val-good { color: #00aa65; font-weight: 600; }
+        td.val-best { color: #00aa65; font-weight: 700; }
+        td.val-highlight { font-weight: 700; color: #0a0b24; }
+
+        /* ============================================================
+           METRIC PILLS
+           ============================================================ */
+        .metric {
+            display: inline-block;
+            background: #0a0b24;
+            color: #ffffff;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .metric-good { background: #00dd81; color: #0a0b24; }
+        .metric-warn { background: #ff7828; color: #ffffff; }
+        .metric-bad { background: #ff4040; color: #ffffff; }
+
+        /* ============================================================
+           DREAM TEAM / EXPERT BLOCKS
+           ============================================================ */
+        .dream-team {
+            background: #f5f5fa;
+            border: 1px solid #eeeef3;
+            border-left: 3px solid #0064ff;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .dream-team.dt-blue { border-left-color: #0064ff; }
+        .dream-team.dt-purple { border-left-color: #bd2eff; }
+        .dream-team.dt-orange { border-left-color: #ff7828; }
+        .dream-team.dt-green { border-left-color: #00dd81; }
+
+        .dream-team strong {
+            color: #0a0b24;
+            font-size: 1rem;
+        }
+
+        .dream-team blockquote {
+            border-left: 3px solid #e3e3f2;
+            color: #646471;
+            font-size: 0.9rem;
+            margin: 0.5rem 0 0 0;
+            padding-left: 1rem;
+            font-style: normal;
+        }
+
+        /* ============================================================
+           FIGURES
+           ============================================================ */
+        .figure {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .figure img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(10, 11, 36, 0.1);
+        }
+
+        .figure-caption {
+            color: #a2a2b0;
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+        }
+
+        /* ============================================================
+           LISTS & TEXT
+           ============================================================ */
+        p { margin: 0.75rem 0; }
+        .card > p:first-of-type { margin-top: 0; }
+
+        strong { color: #0a0b24; }
+
+        ol, ul {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li { margin-bottom: 0.5rem; }
+        li strong { color: #0a0b24; }
+
+        /* ============================================================
+           UTILITY CLASSES
+           ============================================================ */
+        .text-green { color: #00dd81; font-weight: 700; }
+        .text-red { color: #ff4040; font-weight: 700; }
+        .text-orange { color: #ff7828; font-weight: 700; }
+        .text-blue { color: #0064ff; font-weight: 700; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        .footer {
+            background: #0a0b24;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            margin-top: 3rem;
+        }
+
+        .footer svg {
+            margin-bottom: 0.75rem;
+        }
+
+        /* ============================================================
+           SCROLLBAR
+           ============================================================ */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #fafafa; }
+        ::-webkit-scrollbar-thumb { background: #d0d0da; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b0b0ba; }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.6rem; }
+            .hero { padding: 3rem 1rem 2rem; }
+            .container { padding: 0 1rem; }
+            .card { padding: 1.25rem; }
+            .card::before { margin: -1.25rem -1.25rem 1.25rem; }
+            h2 { font-size: 1.25rem; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 6px 8px; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+<style>
+/* iteration 2 — chart container tweaks */
+.chart-wrap { background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:1rem; margin: 1rem 0; }
+.chart-wrap svg { max-width: 100%; height: auto; }
+.metric.metric-good { color:#0a8a3a; background:#e6f5ec; }
+.metric.metric-bad  { color:#b03030; background:#fce8e8; }
+.summary-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin:1rem 0; }
+.summary-grid .stat { background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:0.8rem 1rem; }
+.summary-grid .stat .v { font-size:1.6rem; font-weight:700; color:#0a0b24; }
+.summary-grid .stat .l { font-size:0.85rem; color:#646471; text-transform:uppercase; letter-spacing:0.05em; }
+pre { font-family: 'JetBrains Mono', 'Menlo', monospace; }
+</style>
+
+</head>
+<body>
+
+<header class="hero">
+<div class="container">
+<svg class="hero-logo" viewBox="0 0 438.16 132" xmlns="http://www.w3.org/2000/svg" height="36"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#0a0b24" stroke-width="0"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#0a0b24" stroke-width="0"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#0a0b24" stroke-width="0"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24" stroke-width="0"/><polygon points="410.55 66.29 437.18 31.38 417.48 31.38 401.65 53.85 386.24 31.38 366.11 31.38 391.98 65.79 363.16 103.15 382.72 103.15 400.81 78.13 418.04 103.15 438.16 103.15 410.55 66.29" fill="#0a0b24" stroke-width="0"/><rect x="339.47" y="31.38" width="17.73" height="71.77" fill="#0a0b24" stroke-width="0"/><rect x="338.62" width="19.28" height="19.56" fill="#0a0b24" stroke-width="0"/><path d="M310.63,70.08c0,3.85-.84,7.32-2.53,10.41-1.59,3-3.8,5.35-6.61,7.04-2.72,1.69-5.91,2.53-9.57,2.53-4.03,0-7.18-1.13-9.43-3.38-2.16-2.25-3.24-5.58-3.24-9.99V31.38h-17.73v48.97c0,4.6.94,8.73,2.81,12.38,1.97,3.66,4.74,6.57,8.3,8.73,3.66,2.06,7.97,3.1,12.95,3.1,6.29,0,11.73-1.55,16.32-4.64,3.94-2.68,7-6.13,9.29-10.27v13.5h17.31V31.38h-17.87v38.7Z" fill="#0a0b24" stroke-width="0"/><path d="M233.22,43.85c-1.42-3.64-3.7-6.64-6.9-8.95-4.41-3.28-9.99-4.93-16.75-4.93s-12.34,1.55-17.31,4.64c-4.88,3.1-8.68,7.46-11.4,13.09-2.72,5.63-4.08,12.24-4.08,19.84s1.31,14.03,3.94,19.56c2.63,5.54,6.33,9.85,11.12,12.95,4.88,3,10.6,4.5,17.17,4.5s12.06-1.55,16.75-4.64c3.07-2.08,5.31-4.66,6.9-7.62v39.71h17.87V31.38h-17.31v12.47ZM228.01,84.15c-3.38,3.94-7.97,5.91-13.79,5.91s-10.55-1.97-13.93-5.91c-3.38-3.94-5.07-9.52-5.07-16.75s1.69-12.81,5.07-16.75c3.38-4.03,7.97-6.05,13.79-6.05s10.41,1.97,13.79,5.91c3.47,3.94,5.21,9.52,5.21,16.75s-1.69,12.85-5.07,16.89Z" fill="#0a0b24" stroke-width="0"/></g></svg>
+<h1>Cohort canonical evaluation — 10 agents</h1>
+<p class="subtitle">idea-01-lateral-attribution · 130 held-out segments · V0 yaw 0.01456 rad/s, CTE 147.44 m · generated 2026-05-31 21:46</p>
+</div>
+</header>
+
+<section class="section">
+<div class="container">
+<h2 class="accent-blue">Executive summary</h2>
+
+<div class="summary-grid">
+  <div class="stat"><div class="l">agents (ok / total)</div><div class="v">9 / 10</div></div>
+  <div class="stat"><div class="l">eval pool</div><div class="v">130 segs</div></div>
+  <div class="stat"><div class="l">V0 yaw RMSE</div><div class="v">0.01456</div></div>
+  <div class="stat"><div class="l">V0 CTE RMSE</div><div class="v">147.44 m</div></div>
+  <div class="stat"><div class="l">wall time</div><div class="v">3.26s</div></div>
+</div>
+
+<div class="key-finding">
+<p>Best yaw: <code>m1-agent-01</code> <span class="metric metric-good">+33.6%</span> · Best CTE: <code>m1-agent-02</code> <span class="metric metric-good">+34.6%</span><br><strong>Winning both KPIs ≥ +30%</strong> (1 agents): <code>m1-agent-02</code></p>
+</div>
+</div>
+</section>
+
+<section class="section section-alt">
+<div class="container">
+<h2 class="accent-purple">1. Headline scatter — yaw vs CTE improvement</h2>
+<div class="card card-purple">
+<p>Each agent is one point. <strong>Top-right is the goal</strong> — both KPIs improve over V0. The dashed diagonal is y = x: above it, an agent improved CTE more than yaw (good trajectory integration); below, the opposite. The V0 baseline sits at the origin.</p>
+<div class="chart-wrap"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="560" style="" viewBox="0 0 1000 560"><rect x="0" y="0" width="1000" height="560" style="fill: rgb(255, 255, 255); fill-opacity: 1;"/><defs id="defs-6cbe9d"><g class="clips"><clipPath id="clip6cbe9dxyplot" class="plotclip"><rect width="794" height="440"/></clipPath><clipPath class="axesclip" id="clip6cbe9dx"><rect x="60" y="0" width="794" height="560"/></clipPath><clipPath class="axesclip" id="clip6cbe9dy"><rect x="0" y="60" width="1000" height="440"/></clipPath><clipPath class="axesclip" id="clip6cbe9dxy"><rect x="60" y="60" width="794" height="440"/></clipPath></g><g class="gradients"/><g class="patterns"/></defs><g class="bglayer"><rect class="bg" x="60" y="60" width="794" height="440" style="fill: rgb(250, 250, 250); fill-opacity: 1; stroke-width: 0;"/></g><g class="layer-below"><g class="imagelayer"/><g class="shapelayer"/></g><g class="cartesianlayer"><g class="subplot xy"><g class="layer-subplot"><g class="shapelayer"/><g class="imagelayer"/></g><g class="minor-gridlayer"><g class="x"/><g class="y"/></g><g class="gridlayer"><g class="x"><path class="xgrid crisp" transform="translate(237.96,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(326.94,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(415.92,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(504.89,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(593.87,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(682.85,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(771.83,0)" d="M0,60v440" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="y"><path class="ygrid crisp" transform="translate(0,478)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,389.25)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,344.87)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,300.49)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,256.11)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,211.74)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,167.36)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,122.97999999999999)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,78.6)" d="M60,0h794" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g></g><g class="zerolinelayer"><path class="xzl zl crisp" transform="translate(148.98000000000002,0)" d="M0,60v440" style="stroke: rgb(153, 153, 153); stroke-opacity: 1; stroke-width: 1px;"/><path class="yzl zl crisp" transform="translate(0,433.62)" d="M60,0h794" style="stroke: rgb(153, 153, 153); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="layer-between"><g class="shapelayer"/><g class="imagelayer"/></g><path class="xlines-below"/><path class="ylines-below"/><g class="overlines-below"/><g class="xaxislayer-below"/><g class="yaxislayer-below"/><g class="overaxes-below"/><g class="overplot"><g class="xy" transform="translate(60,60)" clip-path="url(#clip6cbe9dxyplot)"><g class="scatterlayer mlayer"><g class="trace scatter trace023bde" style="stroke-miterlimit: 2; opacity: 1;"><g class="fills"/><g class="errorbars"/><g class="lines"><path class="js-line" d="M0,418L794,22" style="vector-effect: none; fill: none; stroke: rgb(204, 204, 204); stroke-opacity: 1; stroke-dasharray: 3px, 3px; stroke-width: 1.5px; opacity: 1;"/></g><g class="points"/><g class="text"/></g><g class="trace scatter tracee9f25e" style="stroke-miterlimit: 2; opacity: 1;"><g class="fills"/><g class="errorbars"/><g class="lines"/><g class="points"><path class="point" transform="translate(88.98,373.62)" d="M0,3.39l3.39,3.39l3.39,-3.39l-3.39,-3.39l3.39,-3.39l-3.39,-3.39l-3.39,3.39l-3.39,-3.39l-3.39,3.39l3.39,3.39l-3.39,3.39l3.39,3.39Z" style="opacity: 1; stroke-width: 2px; fill: rgb(153, 153, 153); fill-opacity: 1; stroke: rgb(68, 68, 68); stroke-opacity: 1;"/></g><g class="text"><g class="textpoint" transform="translate(8.5,16.75)"><text x="88.98" y="373.62" text-anchor="start" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 11px; fill: rgb(102, 102, 102); fill-opacity: 1; white-space: pre;">V0</text></g></g></g><g class="trace scatter traced1b41b" style="stroke-miterlimit: 2; opacity: 1;"><g class="fills"/><g class="errorbars"/><g class="lines"/><g class="points"><path class="point" transform="translate(687.8,166.83)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(664.26,66.38)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(633.75,159.42)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(616.69,166.95)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(615.24,180)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(624.38,144.2)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(683.03,135.5)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(461.05,169.69)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(654.39,227.43)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/></g><g class="text"><g class="textpoint" transform="translate(0,-12.25)"><text x="687.8" y="166.83" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-01</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="664.26" y="66.38" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-02</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="633.75" y="159.42" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-03</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="616.69" y="166.95" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-04</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="615.24" y="180" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-05</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="624.38" y="144.2" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-06</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="683.03" y="135.5" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-07</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="461.05" y="169.69" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-08</text></g><g class="textpoint" transform="translate(0,-12.25)"><text x="654.39" y="227.43" text-anchor="middle" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 10px; fill: rgb(68, 68, 68); fill-opacity: 1; white-space: pre;">agent-10</text></g></g></g></g></g></g><g class="zerolinelayer-above"/><path class="xlines-above crisp" d="M0,0" style="fill: none;"/><path class="ylines-above crisp" d="M0,0" style="fill: none;"/><g class="overlines-above"/><g class="xaxislayer-above"><g class="xtick"><text text-anchor="middle" x="0" y="514" transform="translate(60,0)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">−5</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(148.98000000000002,0)">0</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(237.96,0)">5</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(326.94,0)">10</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(415.92,0)">15</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(504.89,0)">20</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(593.87,0)">25</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(682.85,0)">30</text></g><g class="xtick"><text text-anchor="middle" x="0" y="514" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(771.83,0)">35</text></g></g><g class="yaxislayer-above"><g class="ytick"><text text-anchor="end" x="59" y="4.55" transform="translate(0,478)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">−5</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,433.62)">0</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,389.25)">5</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,344.87)">10</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,300.49)">15</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,256.11)">20</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,211.74)">25</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,167.36)">30</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,122.97999999999999)">35</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,78.6)">40</text></g></g><g class="overaxes-above"/></g></g><g class="polarlayer"/><g class="smithlayer"/><g class="ternarylayer"/><g class="geolayer"/><g class="funnelarealayer"/><g class="pielayer"/><g class="iciclelayer"/><g class="treemaplayer"/><g class="sunburstlayer"/><g class="glimages"/><defs id="topdefs-6cbe9d"><g class="clips"/><clipPath id="legend6cbe9d"><rect width="116" height="70" x="1" y="1"/></clipPath></defs><g class="layer-above"><g class="imagelayer"/><g class="shapelayer"/></g><g class="infolayer"><g class="legend" pointer-events="all" transform="translate(869.88,60)"><rect class="bg" shape-rendering="crispEdges" style="stroke: rgb(229, 229, 229); stroke-opacity: 1; fill: rgb(255, 255, 255); fill-opacity: 0.85; stroke-width: 1px;" width="117" height="71" x="0.5" y="0.5"/><g class="scrollbox" transform="" clip-path="url(#legend6cbe9d)"><g class="groups"><g class="traces" transform="translate(1,15.950000000000001)" style="opacity: 1;"><text class="legendtext" text-anchor="start" x="40" y="5.07" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">y = x</text><g class="layers" style="opacity: 1;"><g class="legendfill"/><g class="legendlines"><path class="js-line" d="M5,0h30" style="fill: none; stroke: rgb(204, 204, 204); stroke-opacity: 1; stroke-dasharray: 3px, 3px; stroke-width: 1.5px;"/></g><g class="legendsymbols"><g class="legendpoints"/></g></g><rect class="legendtoggle" x="0" y="-9.950000000000001" width="110.546875" height="19.900000000000002" style="fill: rgb(0, 0, 0); fill-opacity: 0;"/></g><g class="traces" transform="translate(1,35.85)" style="opacity: 1;"><text class="legendtext" text-anchor="start" x="40" y="5.07" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">V0 baseline</text><g class="layers" style="opacity: 1;"><g class="legendfill"/><g class="legendlines"/><g class="legendsymbols"><g class="legendpoints"><path class="scatterpts" transform="translate(20,0)" d="M0,3.39l3.39,3.39l3.39,-3.39l-3.39,-3.39l3.39,-3.39l-3.39,-3.39l-3.39,3.39l-3.39,-3.39l-3.39,3.39l3.39,3.39l-3.39,3.39l3.39,3.39Z" style="opacity: 1; stroke-width: 2px; fill: rgb(153, 153, 153); fill-opacity: 1; stroke: rgb(68, 68, 68); stroke-opacity: 1;"/></g></g></g><rect class="legendtoggle" x="0" y="-9.950000000000001" width="110.546875" height="19.900000000000002" style="fill: rgb(0, 0, 0); fill-opacity: 0;"/></g><g class="traces" transform="translate(1,55.75000000000001)" style="opacity: 1;"><text class="legendtext" text-anchor="start" x="40" y="5.07" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">module-1</text><g class="layers" style="opacity: 1;"><g class="legendfill"/><g class="legendlines"/><g class="legendsymbols"><g class="legendpoints"><path class="scatterpts" transform="translate(20,0)" d="M7,0A7,7 0 1,1 0,-7A7,7 0 0,1 7,0Z" style="opacity: 0.88; stroke-width: 1.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/></g></g></g><rect class="legendtoggle" x="0" y="-9.950000000000001" width="110.546875" height="19.900000000000002" style="fill: rgb(0, 0, 0); fill-opacity: 0;"/></g></g></g><rect class="scrollbar" rx="20" ry="3" width="0" height="0" style="fill: rgb(128, 139, 164); fill-opacity: 1;" x="0" y="0"/></g><g class="g-gtitle"><text class="gtitle" x="40" y="30" text-anchor="start" dy="0em" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 18px; fill: rgb(10, 11, 36); fill-opacity: 1; white-space: pre;">Canonical performance — yaw vs CTE improvement (each agent = one point)</text></g><g class="g-xtitle"><text class="xtitle" x="457" y="542.7" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">Yaw-rate RMSE Δ% vs V0  (higher = better instantaneous fidelity)</text></g><g class="g-ytitle"><text class="ytitle" transform="rotate(-90,22.49375,280)" x="22.49375" y="280" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">CTE RMSE Δ% vs V0  (higher = better cumulative trajectory)</text></g></g></svg></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="container">
+<h2 class="accent-orange">2. Module-level aggregation</h2>
+<div class="card card-orange">
+<p>Performance grouped by which module shipped the agent. Mean Δ% over only the agents that reconstructed successfully; failures shown separately.</p>
+<div class="chart-wrap"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="420" style="" viewBox="0 0 1000 420"><rect x="0" y="0" width="1000" height="420" style="fill: rgb(255, 255, 255); fill-opacity: 1;"/><defs id="defs-8d258c"><g class="clips"><clipPath id="clip8d258cxyplot" class="plotclip"><rect width="910" height="300"/></clipPath><clipPath class="axesclip" id="clip8d258cx"><rect x="60" y="0" width="910" height="420"/></clipPath><clipPath class="axesclip" id="clip8d258cy"><rect x="0" y="60" width="1000" height="300"/></clipPath><clipPath class="axesclip" id="clip8d258cxy"><rect x="60" y="60" width="910" height="300"/></clipPath></g><g class="gradients"/><g class="patterns"/></defs><g class="bglayer"><rect class="bg" x="60" y="60" width="910" height="300" style="fill: rgb(250, 250, 250); fill-opacity: 1; stroke-width: 0;"/></g><g class="layer-below"><g class="imagelayer"/><g class="shapelayer"/></g><g class="cartesianlayer"><g class="subplot xy"><g class="layer-subplot"><g class="shapelayer"/><g class="imagelayer"/></g><g class="minor-gridlayer"><g class="x"/><g class="y"/></g><g class="gridlayer"><g class="x"><path class="xgrid crisp" transform="translate(515,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="y"><path class="ygrid crisp" transform="translate(0,317.85)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,275.71000000000004)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,233.56)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,191.42)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,149.26999999999998)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,107.13)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,64.98)" d="M60,0h910" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g></g><g class="zerolinelayer"><path class="yzl zl crisp" transform="translate(0,360)" d="M60,0h910" style="stroke: rgb(153, 153, 153); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="layer-between"><g class="shapelayer"/><g class="imagelayer"/></g><path class="xlines-below"/><path class="ylines-below"/><g class="overlines-below"/><g class="xaxislayer-below"/><g class="yaxislayer-below"/><g class="overaxes-below"/><g class="overplot"><g class="xy" transform="translate(60,60)" clip-path="url(#clip8d258cxyplot)"><g class="barlayer mlayer"><g class="trace bars" style="opacity: 1;"><g class="points"><g class="point"><path d="M91,300V45.29H455V300Z" style="vector-effect: none; opacity: 0.85; stroke-width: 0.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(229, 236, 246); stroke-opacity: 1;"/></g></g><g class="errorbar"><path class="yerror" d="M269,15h8m-4,0V75.58m-4,0h8" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g></g><g class="trace bars" style="opacity: 1;"><g class="points"><g class="point"><path d="M455,300V94.63H819V300Z" style="vector-effect: none; opacity: 0.85; stroke-width: 0.5px; fill: rgb(255, 102, 0); fill-opacity: 1; stroke: rgb(229, 236, 246); stroke-opacity: 1;"/></g></g><g class="errorbar"><path class="yerror" d="M633,56.27h8m-4,0V133m-4,0h8" style="vector-effect: none; stroke-width: 2px; stroke: rgb(255, 102, 0); stroke-opacity: 1;"/></g></g></g></g></g><g class="zerolinelayer-above"/><path class="xlines-above crisp" d="M0,0" style="fill: none;"/><path class="ylines-above crisp" d="M0,0" style="fill: none;"/><g class="overlines-above"/><g class="xaxislayer-above"><g class="xtick"><text text-anchor="middle" x="0" y="374" transform="translate(515,0)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">module-1</text></g></g><g class="yaxislayer-above"><g class="ytick"><text text-anchor="end" x="59" y="4.55" transform="translate(0,360)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">0</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,317.85)">5</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,275.71000000000004)">10</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,233.56)">15</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,191.42)">20</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,149.26999999999998)">25</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,107.13)">30</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,64.98)">35</text></g></g><g class="overaxes-above"/></g></g><g class="polarlayer"/><g class="smithlayer"/><g class="ternarylayer"/><g class="geolayer"/><g class="funnelarealayer"/><g class="pielayer"/><g class="iciclelayer"/><g class="treemaplayer"/><g class="sunburstlayer"/><g class="glimages"/><defs id="topdefs-8d258c"><g class="clips"/><clipPath id="legend8d258c"><rect width="280" height="30" x="1" y="1"/></clipPath></defs><g class="layer-above"><g class="imagelayer"/><g class="shapelayer"/></g><g class="infolayer"><g class="legend" pointer-events="all" transform="translate(374,23.99999999999997)"><rect class="bg" shape-rendering="crispEdges" style="stroke: rgb(229, 229, 229); stroke-opacity: 1; fill: rgb(255, 255, 255); fill-opacity: 0.85; stroke-width: 1px;" width="281" height="31" x="0.5" y="0.5"/><g class="scrollbox" transform="" clip-path="url(#legend8d258c)"><g class="groups"><g class="traces" transform="translate(1,15.950000000000001)" style="opacity: 1;"><text class="legendtext" text-anchor="start" x="40" y="5.07" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">yaw Δ% (mean)</text><g class="layers" style="opacity: 1;"><g class="legendfill"/><g class="legendlines"/><g class="legendsymbols"><g class="legendpoints"><path class="legendundefined" d="M6,6H-6V-6H6Z" transform="translate(20,0)" style="stroke-width: 0.5px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(229, 236, 246); stroke-opacity: 1;"/></g></g></g><rect class="legendtoggle" x="0" y="-9.950000000000001" width="136.859375" height="19.900000000000002" style="fill: rgb(0, 0, 0); fill-opacity: 0;"/></g><g class="traces" transform="translate(140.359375,15.950000000000001)" style="opacity: 1;"><text class="legendtext" text-anchor="start" x="40" y="5.07" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">CTE Δ% (mean)</text><g class="layers" style="opacity: 1;"><g class="legendfill"/><g class="legendlines"/><g class="legendsymbols"><g class="legendpoints"><path class="legendundefined" d="M6,6H-6V-6H6Z" transform="translate(20,0)" style="stroke-width: 0.5px; fill: rgb(255, 102, 0); fill-opacity: 1; stroke: rgb(229, 236, 246); stroke-opacity: 1;"/></g></g></g><rect class="legendtoggle" x="0" y="-9.950000000000001" width="138.109375" height="19.900000000000002" style="fill: rgb(0, 0, 0); fill-opacity: 0;"/></g></g></g><rect class="scrollbar" rx="20" ry="3" width="0" height="0" style="fill: rgb(128, 139, 164); fill-opacity: 1;" x="0" y="0"/></g><g class="g-gtitle"><text class="gtitle" x="40" y="30" text-anchor="start" dy="0em" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 18px; fill: rgb(10, 11, 36); fill-opacity: 1; white-space: pre;">Module-level performance (mean Δ% vs V0, ±σ as error bars)</text></g><g class="g-xtitle"/><g class="g-ytitle"><text class="ytitle" transform="rotate(-90,22.7125,210)" x="22.7125" y="210" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">improvement % vs V0</text></g></g></svg></div>
+<div class='table-wrap'><table><thead><tr>
+<th>family</th><th>n ok / total</th><th>yaw Δ% (mean ± σ)</th><th>CTE Δ% (mean ± σ)</th><th>failures</th>
+</tr></thead><tbody>
+<tr><td><code>module-1</code></td><td>9/10</td><td class='metric-good'>+30.2% ± 3.6%</td><td class='metric-good'>+24.4% ± 4.6%</td><td>1</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</section>
+
+<section class="section section-alt">
+<div class="container">
+<h2 class="accent-blue">3. Per-platform breakdown</h2>
+<div class="card card-blue">
+<p>Same cohort, but split by the vehicle platform the agent was evaluated on. Agents that win one platform but lose another have a platform-specific calibration; agents whose dots cluster together generalise.</p>
+<div class="chart-wrap"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="420" style="" viewBox="0 0 1000 420"><rect x="0" y="0" width="1000" height="420" style="fill: rgb(255, 255, 255); fill-opacity: 1;"/><defs id="defs-4910bf"><g class="clips"><clipPath id="clip4910bfxyplot" class="plotclip"><rect width="371.68" height="300"/></clipPath><clipPath id="clip4910bfx2y2plot" class="plotclip"><rect width="371.67999999999995" height="300"/></clipPath><clipPath class="axesclip" id="clip4910bfx"><rect x="60" y="0" width="371.68" height="420"/></clipPath><clipPath class="axesclip" id="clip4910bfy"><rect x="0" y="60" width="1000" height="300"/></clipPath><clipPath class="axesclip" id="clip4910bfxy"><rect x="60" y="60" width="371.68" height="300"/></clipPath><clipPath class="axesclip" id="clip4910bfy2"><rect x="0" y="60" width="1000" height="300"/></clipPath><clipPath class="axesclip" id="clip4910bfxy2"><rect x="60" y="60" width="371.68" height="300"/></clipPath><clipPath class="axesclip" id="clip4910bfx2"><rect x="496.32000000000005" y="0" width="371.67999999999995" height="420"/></clipPath><clipPath class="axesclip" id="clip4910bfx2y"><rect x="496.32000000000005" y="60" width="371.67999999999995" height="300"/></clipPath><clipPath class="axesclip" id="clip4910bfx2y2"><rect x="496.32000000000005" y="60" width="371.67999999999995" height="300"/></clipPath></g><g class="gradients"/><g class="patterns"/></defs><g class="bglayer"><rect class="bg" x="60" y="60" width="371.68" height="300" style="fill: rgb(250, 250, 250); fill-opacity: 1; stroke-width: 0;"/><rect class="bg" x="496.32000000000005" y="60" width="371.67999999999995" height="300" style="fill: rgb(250, 250, 250); fill-opacity: 1; stroke-width: 0;"/></g><g class="layer-below"><g class="imagelayer"/><g class="shapelayer"/></g><g class="cartesianlayer"><g class="subplot xy"><g class="layer-subplot"><g class="shapelayer"/><g class="imagelayer"/></g><g class="minor-gridlayer"><g class="x"/><g class="y"/></g><g class="gridlayer"><g class="x"><path class="xgrid crisp" transform="translate(172.34,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(296.59000000000003,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(420.84,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="y"><path class="ygrid crisp" transform="translate(0,356.46)" d="M60,0h371.68" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,303.78)" d="M60,0h371.68" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,251.1)" d="M60,0h371.68" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,198.42)" d="M60,0h371.68" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,145.74)" d="M60,0h371.68" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,93.06)" d="M60,0h371.68" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g></g><g class="zerolinelayer"/><g class="layer-between"><g class="shapelayer"/><g class="imagelayer"/></g><path class="xlines-below"/><path class="ylines-below"/><g class="overlines-below"/><g class="xaxislayer-below"/><g class="yaxislayer-below"/><g class="overaxes-below"/><g class="overplot"><g class="xy" transform="translate(60,60)" clip-path="url(#clip4910bfxyplot)"><g class="scatterlayer mlayer"><g class="trace scatter trace87e0ac" style="stroke-miterlimit: 2; opacity: 1;"><g class="fills"/><g class="errorbars"/><g class="lines"/><g class="points"><path class="point" transform="translate(346.22,178.5)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(260.97,271.33)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(263.87,229.58)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(222.52,21.88)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(213.81,144.88)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(226.95,109.69)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(316.82,50.71)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(25.46,278.13)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(336.9,137.41)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/></g><g class="text"/></g></g></g></g><g class="zerolinelayer-above"/><path class="xlines-above crisp" d="M0,0" style="fill: none;"/><path class="ylines-above crisp" d="M0,0" style="fill: none;"/><g class="overlines-above"/><g class="xaxislayer-above"><g class="xtick"><text text-anchor="middle" x="0" y="374" transform="translate(172.34,0)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">5</text></g><g class="xtick"><text text-anchor="middle" x="0" y="374" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(296.59000000000003,0)">10</text></g><g class="xtick"><text text-anchor="middle" x="0" y="374" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(420.84,0)">15</text></g></g><g class="yaxislayer-above"><g class="ytick"><text text-anchor="end" x="59" y="4.55" transform="translate(0,356.46)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">51</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,303.78)">52</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,251.1)">53</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,198.42)">54</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,145.74)">55</text></g><g class="ytick"><text text-anchor="end" x="59" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,93.06)">56</text></g></g><g class="overaxes-above"/></g><g class="subplot x2y2"><g class="layer-subplot"><g class="shapelayer"/><g class="imagelayer"/></g><g class="minor-gridlayer"><g class="x2"/><g class="y2"/></g><g class="gridlayer"><g class="x2"><path class="x2grid crisp" transform="translate(607.7700000000001,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="x2grid crisp" transform="translate(720.6200000000001,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="x2grid crisp" transform="translate(833.47,0)" d="M0,60v300" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="y2"><path class="y2grid crisp" transform="translate(0,324.8)" d="M496.32000000000005,0h371.67999999999995" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="y2grid crisp" transform="translate(0,272.06)" d="M496.32000000000005,0h371.67999999999995" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="y2grid crisp" transform="translate(0,219.33)" d="M496.32000000000005,0h371.67999999999995" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="y2grid crisp" transform="translate(0,166.6)" d="M496.32000000000005,0h371.67999999999995" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="y2grid crisp" transform="translate(0,113.87)" d="M496.32000000000005,0h371.67999999999995" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="y2grid crisp" transform="translate(0,61.14)" d="M496.32000000000005,0h371.67999999999995" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g></g><g class="zerolinelayer"/><g class="layer-between"><g class="shapelayer"/><g class="imagelayer"/></g><path class="xlines-below"/><path class="ylines-below"/><g class="overlines-below"/><g class="xaxislayer-below"/><g class="yaxislayer-below"/><g class="overaxes-below"/><g class="overplot"><g class="x2y2" transform="translate(496.32000000000005,60)" clip-path="url(#clip4910bfx2y2plot)"><g class="scatterlayer mlayer"><g class="trace scatter trace8d0cd3" style="stroke-miterlimit: 2; opacity: 1;"><g class="fills"/><g class="errorbars"/><g class="lines"/><g class="points"><path class="point" transform="translate(325.93,183.73)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(346.22,21.88)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(259.27,169.7)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(253.03,191.53)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(257.58,205.56)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(269.64,152.45)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(341.91,142.07)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(25.46,182.99)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/><path class="point" transform="translate(245.62,278.13)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/></g><g class="text"/></g></g></g></g><g class="zerolinelayer-above"/><path class="xlines-above crisp" d="M0,0" style="fill: none;"/><path class="ylines-above crisp" d="M0,0" style="fill: none;"/><g class="overlines-above"/><g class="xaxislayer-above"><g class="x2tick"><text text-anchor="middle" x="0" y="374" transform="translate(607.7700000000001,0)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">40</text></g><g class="x2tick"><text text-anchor="middle" x="0" y="374" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(720.6200000000001,0)">45</text></g><g class="x2tick"><text text-anchor="middle" x="0" y="374" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(833.47,0)">50</text></g></g><g class="yaxislayer-above"><g class="y2tick"><text text-anchor="end" x="495.32000000000005" y="4.55" transform="translate(0,324.8)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">5</text></g><g class="y2tick"><text text-anchor="end" x="495.32000000000005" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,272.06)">10</text></g><g class="y2tick"><text text-anchor="end" x="495.32000000000005" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,219.33)">15</text></g><g class="y2tick"><text text-anchor="end" x="495.32000000000005" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,166.6)">20</text></g><g class="y2tick"><text text-anchor="end" x="495.32000000000005" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,113.87)">25</text></g><g class="y2tick"><text text-anchor="end" x="495.32000000000005" y="4.55" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,61.14)">30</text></g></g><g class="overaxes-above"/></g></g><g class="polarlayer"/><g class="smithlayer"/><g class="ternarylayer"/><g class="geolayer"/><g class="funnelarealayer"/><g class="pielayer"/><g class="iciclelayer"/><g class="treemaplayer"/><g class="sunburstlayer"/><g class="glimages"/><defs id="topdefs-4910bf"><g class="clips"/><clipPath id="legend4910bf"><rect width="102" height="30" x="1" y="1"/></clipPath></defs><g class="layer-above"><g class="imagelayer"/><g class="shapelayer"/></g><g class="infolayer"><g class="legend" pointer-events="all" transform="translate(884.16,60)"><rect class="bg" shape-rendering="crispEdges" style="stroke: rgb(229, 229, 229); stroke-opacity: 1; fill: rgb(255, 255, 255); fill-opacity: 0.85; stroke-width: 1px;" width="103" height="31" x="0.5" y="0.5"/><g class="scrollbox" transform="" clip-path="url(#legend4910bf)"><g class="groups" transform=""><g class="traces" transform="translate(1,15.950000000000001)" style="opacity: 1;"><text class="legendtext" text-anchor="start" x="40" y="5.07" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">module-1</text><g class="layers" style="opacity: 1;"><g class="legendfill"/><g class="legendlines"/><g class="legendsymbols"><g class="legendpoints"><path class="scatterpts" transform="translate(20,0)" d="M5.5,0A5.5,5.5 0 1,1 0,-5.5A5.5,5.5 0 0,1 5.5,0Z" style="opacity: 0.85; stroke-width: 1px; fill: rgb(51, 102, 255); fill-opacity: 1; stroke: rgb(255, 255, 255); stroke-opacity: 1;"/></g></g></g><rect class="legendtoggle" x="0" y="-9.950000000000001" width="96.84375" height="19.900000000000002" style="fill: rgb(0, 0, 0); fill-opacity: 0;"/></g></g></g><rect class="scrollbar" rx="20" ry="3" width="0" height="0" style="fill: rgb(128, 139, 164); fill-opacity: 1;" x="0" y="0"/></g><g class="g-gtitle"><text class="gtitle" x="40" y="30" text-anchor="start" dy="0em" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 18px; fill: rgb(10, 11, 36); fill-opacity: 1; white-space: pre;">Per-platform performance (each subplot = one platform)</text></g><g class="g-xtitle"><text class="xtitle" x="245.84" y="402.7" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">yaw Δ%</text></g><g class="g-x2title"><text class="x2title" x="682.1600000000001" y="402.7" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">yaw Δ%</text></g><g class="g-ytitle"><text class="ytitle" transform="rotate(-90,22.65,210)" x="22.65" y="210" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">CTE Δ%</text></g><g class="g-y2title"/><g class="annotation" data-index="0" style="opacity: 1;"><g class="annotation-text-g" transform="rotate(0,245.84,48.99999999999999)"><g class="cursor-pointer" transform="translate(132,38)"><rect class="bg" x="0.5" y="0.5" width="227" height="21" style="stroke-width: 1px; stroke: rgb(0, 0, 0); stroke-opacity: 0; fill: rgb(0, 0, 0); fill-opacity: 0;"/><text class="annotation-text" text-anchor="middle" x="114.109375" y="17" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">FORD_F_150_LIGHTNING_MK1</text></g></g></g><g class="annotation" data-index="1" style="opacity: 1;"><g class="annotation-text-g" transform="rotate(0,682.16,48.99999999999999)"><g class="cursor-pointer" transform="translate(560,38)"><rect class="bg" x="0.5" y="0.5" width="244" height="21" style="stroke-width: 1px; stroke: rgb(0, 0, 0); stroke-opacity: 0; fill: rgb(0, 0, 0); fill-opacity: 0;"/><text class="annotation-text" text-anchor="middle" x="122.6484375" y="17" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">FORD_MUSTANG_MACH_E_MK1</text></g></g></g></g></svg></div>
+<div class='table-wrap'><table><thead><tr>
+<th>platform</th><th>agents</th><th>yaw Δ% (mean ± σ)</th><th>CTE Δ% (mean ± σ)</th>
+</tr></thead><tbody>
+<tr><td><code>FORD_F_150_LIGHTNING_MK1</code></td><td>9</td><td class=''>+10.4% ± 3.7%</td><td class='metric-good'>+53.6% ± 1.6%</td></tr>
+<tr><td><code>FORD_MUSTANG_MACH_E_MK1</code></td><td>9</td><td class='metric-good'>+46.5% ± 4.0%</td><td class=''>+14.0% ± 6.1%</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="container">
+<h2 class="accent-purple">4. Per-segment yaw RMSE distribution</h2>
+<div class="card card-purple">
+<p>Each box summarises one agent's per-segment yaw RMSE — pooled RMSE can hide that an agent does great on most segments but pathologically badly on a few. The y-axis is logarithmic to compress outliers.</p>
+<div class="chart-wrap"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1100" height="520" style="" viewBox="0 0 1100 520"><rect x="0" y="0" width="1100" height="520" style="fill: rgb(255, 255, 255); fill-opacity: 1;"/><defs id="defs-ea791f"><g class="clips"><clipPath id="clipea791fxyplot" class="plotclip"><rect width="1003" height="378"/></clipPath><clipPath class="axesclip" id="clipea791fx"><rect x="67" y="0" width="1003" height="520"/></clipPath><clipPath class="axesclip" id="clipea791fy"><rect x="0" y="60" width="1100" height="378"/></clipPath><clipPath class="axesclip" id="clipea791fxy"><rect x="67" y="60" width="1003" height="378"/></clipPath></g><g class="gradients"/><g class="patterns"/></defs><g class="bglayer"><rect class="bg" x="67" y="60" width="1003" height="378" style="fill: rgb(250, 250, 250); fill-opacity: 1; stroke-width: 0;"/></g><g class="layer-below"><g class="imagelayer"/><g class="shapelayer"/></g><g class="cartesianlayer"><g class="subplot xy"><g class="layer-subplot"><g class="shapelayer"/><g class="imagelayer"/></g><g class="minor-gridlayer"><g class="x"/><g class="y"/></g><g class="gridlayer"><g class="x"><path class="xgrid crisp" transform="translate(122.72,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(234.17,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(345.61,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(457.06,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(568.5,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(679.94,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(791.39,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(902.83,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="xgrid crisp" transform="translate(1014.28,0)" d="M0,60v378" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g><g class="y"><path class="ygrid crisp" transform="translate(0,425.14)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,400.9)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,383.7)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,370.36)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,359.46)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,350.25)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,342.26)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,335.22)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,328.92)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,287.49)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,263.25)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,246.05)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,232.71)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,221.81)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,212.59)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,204.61)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,197.57)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,191.27)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,149.82999999999998)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,125.59)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,108.4)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,95.06)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,84.16)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,74.94)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/><path class="ygrid crisp" transform="translate(0,66.96)" d="M67,0h1003" style="stroke: rgb(234, 234, 234); stroke-opacity: 1; stroke-width: 1px;"/></g></g><g class="zerolinelayer"/><g class="layer-between"><g class="shapelayer"/><g class="imagelayer"/></g><path class="xlines-below"/><path class="ylines-below"/><g class="overlines-below"/><g class="xaxislayer-below"/><g class="yaxislayer-below"/><g class="overaxes-below"/><g class="overplot"><g class="xy" transform="translate(67,60)" clip-path="url(#clipea791fxyplot)"><g class="boxlayer mlayer"><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M28.42,299.73H83.03M28.42,314.98H83.03V282H28.42ZM55.72,314.98V356.55M55.72,282V253.67M42.07,356.55H69.37M42.07,253.67H69.37" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(59.97,250.7)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(50.5,246.48)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(62.07,219.31)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/><path class="point" transform="translate(48.79,20.85)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M28.42,259.94H83.03m0,0L55.72,3969L28.42,259.94L55.72,154.68Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M139.86,297.32H194.47M139.86,310.53H194.47V276.33H139.86ZM167.17,310.53V353.13M167.17,276.33V246.43M153.51,353.13H180.82M153.51,246.43H180.82" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(171.42,221.79)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/><path class="point" transform="translate(161.95,20.6)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M139.86,258.42H194.47m0,0L167.17,3969L139.86,258.42L167.17,154.23Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M251.31,295.51H305.92M251.31,311.8H305.92V282.1H251.31ZM278.61,311.8V359.1M278.61,282.1V255.46M264.96,359.1H292.26M264.96,255.46H292.26" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(282.86,254.15)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(273.39,249.11)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(284.96,237.4)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(271.68,20.46)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M251.31,259.97H305.92m0,0L278.61,3969L251.31,259.97L278.61,154.37Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M362.75,293.82H417.36M362.75,313.64H417.36V281.42H362.75ZM390.06,313.64V352.89M390.06,281.42V254.73M376.4,352.89H403.71M376.4,254.73H403.71" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(394.31,252.12)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(384.83,248.96)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(396.41,248.03)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(383.13,242.66)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(388.04,242.61)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(394.36,20.45)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M362.75,258.84H417.36m0,0L390.06,3969L362.75,258.84L390.06,154.18Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M474.2,290.77H528.8M474.2,307.06H528.8V277.91H474.2ZM501.5,307.06V349.31M501.5,277.91V253.32M487.85,349.31H515.15M487.85,253.32H515.15" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(505.75,246.41)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(496.28,245.72)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(507.85,238.14)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(494.57,20.36)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M474.2,256.92H528.8m0,0L501.5,3969L474.2,256.92L501.5,153.8Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M585.64,291.18H640.25M585.64,306.82H640.25V276.77H585.64ZM612.94,306.82V354.25M612.94,276.77V251.82M599.29,354.25H626.6M599.29,251.82H626.6" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(617.19,248.82)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(607.72,245.11)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(619.3,19.04)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M585.64,256.02H640.25m0,0L612.94,3969L585.64,256.02L612.94,152.55Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M697.08,290.11H751.69M697.08,305.61H751.69V275.8H697.08ZM724.39,305.61V350.83M724.39,275.8V250.24M710.74,350.83H738.04M710.74,250.24H738.04" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(728.64,246.69)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(719.17,240.7)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(730.74,18.9)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M697.08,256.21H751.69m0,0L724.39,3969L697.08,256.21L724.39,152.47Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M808.53,288.96H863.14M808.53,307.38H863.14V277.38H808.53ZM835.83,307.38V355.07M835.83,277.38V251.91M822.18,355.07H849.49M822.18,251.91H849.49" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(840.08,248.11)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(830.61,245.2)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(842.18,242.21)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(828.91,238.82)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(833.82,20.9)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M808.53,256.58H863.14m0,0L835.83,3969L808.53,256.58L835.83,154.19Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g><g class="trace boxes" style="opacity: 0.65;"><path class="box" d="M919.97,279.47H974.58M919.97,297.35H974.58V262.89H919.97ZM947.28,297.35V341.85M947.28,262.89V233.41M933.63,341.85H960.93M933.63,233.41H960.93" style="vector-effect: none; stroke-width: 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1; fill: rgb(51, 102, 255); fill-opacity: 1;"/><g class="points"><path class="point" transform="translate(951.53,228.36)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(942.06,223.18)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(953.63,222.27)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 1px; fill: rgb(0, 0, 0); fill-opacity: 0; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/><path class="point" transform="translate(940.35,20.87)" d="M3,0A3,3 0 1,1 0,-3A3,3 0 0,1 3,0Z" style="opacity: 1; stroke-width: 0px; fill: rgb(51, 102, 255); fill-opacity: 1;"/></g><path class="mean" d="M919.97,249.26H974.58m0,0L947.28,3969L919.97,249.26L947.28,152.85Z" style="fill: none; vector-effect: non-scaling-stroke; stroke-width: 2; stroke-dasharray: 4px, 2px; stroke: rgb(51, 102, 255); stroke-opacity: 1;"/></g></g></g></g><g class="zerolinelayer-above"/><path class="xlines-above crisp" d="M0,0" style="fill: none;"/><path class="ylines-above crisp" d="M0,0" style="fill: none;"/><g class="overlines-above"/><g class="xaxislayer-above"><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(122.72,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-01</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(234.17,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-10</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(345.61,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-07</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(457.06,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-02</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(568.5,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-03</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(679.94,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-05</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(791.39,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-04</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(902.83,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-06</text></g><g class="xtick"><text text-anchor="end" x="0" y="452" transform="translate(1014.28,0) rotate(-45,0,445.5)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">m1-agent-08</text></g></g><g class="yaxislayer-above"><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" transform="translate(0,425.14)" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">2</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,400.9)">3</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,383.7)">4</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,370.36)">5</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,359.46)">6</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,350.25)">7</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,342.26)">8</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,335.22)">9</text></g><g class="ytick"><text text-anchor="end" x="62.75" y="2.3833333333333333" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,328.92)">0.01</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,287.49)">2</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,263.25)">3</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,246.05)">4</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,232.71)">5</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,221.81)">6</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,212.59)">7</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,204.61)">8</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,197.57)">9</text></g><g class="ytick"><text text-anchor="end" x="62.75" y="2.3833333333333333" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 13px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,191.27)">0.1</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,149.82999999999998)">2</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,125.59)">3</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,108.4)">4</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,95.06)">5</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,84.16)">6</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,74.94)">7</text></g><g class="ytick"><text text-anchor="end" x="66" y="3.4124999999999996" style="font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 9.75px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;" transform="translate(0,66.96)">8</text></g></g><g class="overaxes-above"/></g></g><g class="polarlayer"/><g class="smithlayer"/><g class="ternarylayer"/><g class="geolayer"/><g class="funnelarealayer"/><g class="pielayer"/><g class="iciclelayer"/><g class="treemaplayer"/><g class="sunburstlayer"/><g class="glimages"/><defs id="topdefs-ea791f"><g class="clips"/></defs><g class="layer-above"><g class="imagelayer"/><g class="shapelayer"/></g><g class="infolayer"><g class="g-gtitle"><text class="gtitle" x="44" y="30" text-anchor="start" dy="0em" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 18px; fill: rgb(10, 11, 36); fill-opacity: 1; white-space: pre;">Per-segment yaw RMSE distribution (each box = one agent's per-segment spread)</text></g><g class="g-xtitle"/><g class="g-ytitle"><text class="ytitle" transform="rotate(-90,17.696875,249)" x="17.696875" y="249" text-anchor="middle" style="opacity: 1; font-family: Geist, system-ui, -apple-system, sans-serif; font-size: 16px; fill: rgb(34, 34, 34); fill-opacity: 1; white-space: pre;">yaw RMSE (rad/s)  — log axis</text></g></g></svg></div>
+</div>
+</div>
+</section>
+
+<section class="section section-alt">
+<div class="container">
+<h2 class="accent-orange">5. Per-agent canonical scorecard</h2>
+<div class="card card-orange">
+<p>The full table. Failed reconstructions are surfaced with their reason — no fake zeros.</p>
+<div class='table-wrap'><table><thead><tr>
+<th>agent</th>
+<th>family</th>
+<th>status</th>
+<th>yaw V0</th>
+<th>yaw final</th>
+<th>yaw Δ%</th>
+<th>CTE V0</th>
+<th>CTE final</th>
+<th>CTE Δ%</th>
+<th>n seg ok/total</th>
+<th>wall</th>
+</tr></thead><tbody>
+<tr><td><code>m1-agent-01</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.009662</td><td><span class='metric metric-good'>+33.6%</span></td><td>147.44</td><td>113.09</td><td><span class='metric metric-good'>+23.3%</span></td><td>130/130</td><td>1.02s</td></tr>
+<tr><td><code>m1-agent-02</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.009855</td><td><span class='metric metric-good'>+32.3%</span></td><td>147.44</td><td>96.40</td><td><span class='metric metric-good'>+34.6%</span></td><td>130/130</td><td>1.02s</td></tr>
+<tr><td><code>m1-agent-03</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.010105</td><td><span class='metric metric-good'>+30.6%</span></td><td>147.44</td><td>111.86</td><td><span class='metric metric-good'>+24.1%</span></td><td>130/130</td><td>1.28s</td></tr>
+<tr><td><code>m1-agent-04</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.010244</td><td><span class='metric metric-good'>+29.7%</span></td><td>147.44</td><td>113.11</td><td><span class='metric metric-good'>+23.3%</span></td><td>130/130</td><td>1.01s</td></tr>
+<tr><td><code>m1-agent-05</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.010256</td><td><span class='metric metric-good'>+29.6%</span></td><td>147.44</td><td>115.28</td><td><span class='metric metric-good'>+21.8%</span></td><td>130/130</td><td>1.39s</td></tr>
+<tr><td><code>m1-agent-06</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.010181</td><td><span class='metric metric-good'>+30.1%</span></td><td>147.44</td><td>109.33</td><td><span class='metric metric-good'>+25.8%</span></td><td>130/130</td><td>1.02s</td></tr>
+<tr><td><code>m1-agent-07</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.009701</td><td><span class='metric metric-good'>+33.4%</span></td><td>147.44</td><td>107.88</td><td><span class='metric metric-good'>+26.8%</span></td><td>130/130</td><td>1.67s</td></tr>
+<tr><td><code>m1-agent-08</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.011518</td><td><span class='metric metric-good'>+20.9%</span></td><td>147.44</td><td>113.56</td><td><span class='metric metric-good'>+23.0%</span></td><td>130/130</td><td>1.55s</td></tr>
+<tr><td><code>m1-agent-09</code></td><td><code>module-1</code></td><td><span class='metric metric-bad'>missing_manifest_json</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0/0</td><td>—</td></tr>
+<tr><td><code>m1-agent-10</code></td><td><code>module-1</code></td><td>ok</td><td>0.014563</td><td>0.009936</td><td><span class='metric metric-good'>+31.8%</span></td><td>147.44</td><td>123.15</td><td><span class='metric '>+16.5%</span></td><td>130/130</td><td>2.03s</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</section>
+
+
+
+<section class="section">
+<div class="container">
+<h2 class="accent-blue">6. Calibration cards — fitted coefficients</h2>
+<div class="card card-blue">
+<p>Where the cohort converges on similar physics, and where it forks. Each tile is one agent's <code>coeffs.json</code> as shipped.</p>
+<div class='grid-2'>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-02</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;L&quot;: 2.4760851016953556,
+    &quot;K_us&quot;: 0.0026722138032651867,
+    &quot;bias_rad&quot;: 0.0002686192499419401
+  },
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;L&quot;: 3.809760457416018,
+    &quot;K_us&quot;: 0.0038412171248315657,
+    &quot;bias_rad&quot;: 0.001307379955568698
+  },
+  &quot;HYUNDAI_IONIQ_5&quot;: {
+    &quot;L&quot;: 3.096229822470566,
+    &quot;K_us&quot;: 0.003695564361835472,
+    &quot;bias_rad&quot;: -0.0002960976826300522
+  },
+  &quot;TESLA_MODEL_3&quot;: {
+    &quot;L&quot;: 2.875,
+    &quot;K_us&quot;: 0.0,
+    &quot;bias_rad&quot;: 0.0
+  }
+}</pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-03</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;L&quot;: 3.7,
+    &quot;a&quot;: 0.97434,
+    &quot;b&quot;: -0.001229,
+    &quot;K&quot;: 0.003837
+  },
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;L&quot;: 2.984,
+    &quot;a&quot;: 1.199892,
+    &quot;b&quot;: 3.4e-05,
+    &quot;K&quot;: 0.002874
+  },
+  &quot;HYUNDAI_IONIQ_5&quot;: {
+    &quot;L&quot;: 3.0,
+    &quot;a&quot;: 0.970713,
+    &quot;b&quot;: 0.000507,
+    &quot;K&quot;: 0.003386
+  },
+  &quot;TESLA_MODEL_3&quot;: {
+    &quot;L&quot;: 2.875,
+    &quot;a&quot;: 1.01741,
+    &quot;b&quot;: 5e-06,
+    &quot;K&quot;: 6.7e-05
+  }
+}</pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-04</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;a&quot;: -0.004329037631466362,
+    &quot;b&quot;: 0.9177897626357783,
+    &quot;c&quot;: -0.00044178131403551616
+  },
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;a&quot;: 0.0002206757945255914,
+    &quot;b&quot;: 1.1513559927303039,
+    &quot;c&quot;: -0.0005583363495612761
+  },
+  &quot;HYUNDAI_IONIQ_5&quot;: {
+    &quot;a&quot;: 0.0020222989265629857,
+    &quot;b&quot;: 0.9120045284217976,
+    &quot;c&quot;: -0.00048449411444108955
+  },
+  &quot;TESLA_MODEL_3&quot;: {
+    &quot;a&quot;: 0.0002206757945255914,
+    &quot;b&quot;: 1.1513559927303039,
+    &quot;c&quot;: -0.0005583363495612761
+  },
+  &quot;_default&quot;: {
+    &quot;a&quot;: 0.0,
+    &quot;b&quot;: 1.0,
+    &quot;c&quot;: 0.0
+  }
+}</pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-05</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;model&quot;: &quot;V2b: yaw = (v/L) * tan(k*(delta - b)) / (1 + Ku*v^2); trajectory from yaw integration&quot;,
+  &quot;platforms&quot;: {
+    &quot;TESLA_MODEL_3&quot;: {
+      &quot;L&quot;: 2.875,
+      &quot;b&quot;: 0.0011,
+      &quot;Ku&quot;: 0.000861,
+      &quot;k&quot;: 0.95419,
+      &quot;fit_source&quot;: &quot;wheel-speed-derived yaw proxy (FL+RL vs FR+RR over track=1.580m)&quot;
+    },
+    &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+      &quot;L&quot;: 2.984,
+      &quot;b&quot;: -3.46e-05,
+      &quot;Ku&quot;: 0.000742,
+      &quot;k&quot;: 1.14486,
+      &quot;fit_source&quot;: &quot;yaw_rate_meas_rads&quot;
+    },
+    &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+      &quot;L&quot;: 3.7,
+      &quot;b&quot;: 0.001203,
+      &quot;Ku&quot;: 0.000787,
+      &quot;k&quot;: 0.92218,
+      &quot;fit_source&quot;: &quot;yaw_rate_meas_rads&quot;
+    },
+    &quot;HYUNDAI_IONIQ_5&quot;: {
+      &quot;L&quot;: 3.0,
+      &quot;b&quot;: -0.000525,
+      &quot;Ku&quot;: 0.000958,
+      &quot;k&quot;: 0.94102,
+      &quot;fit_source&quot;: &quot;yaw_rate_meas_rads&quot;
+    }
+  },
+  &quot;default&quot;: {
+    &quot;L&quot;: 3.0,
+    &quot;b&quot;: 0.0,
+    &quot;Ku&quot;: 0.001,
+    &quot;k&quot;: 1.0
+  }
+}</pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-06</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;L&quot;: 2.984,
+    &quot;best&quot;: &quot;M2_understeer&quot;,
+    &quot;m1&quot;: {
+      &quot;a&quot;: 1.0870612234849137
+    },
+    &quot;m2&quot;: {
+      &quot;L_eff&quot;: 2.4763030468069056,
+      &quot;K_us&quot;: 0.0024395167795073017
+    },
+    &quot;m3&quot;: {
+      &quot;a&quot;: 0.9751496691433119,
+      &quot;b&quot;: 0.23839497273290036,
+      &quot;c&quot;: 0.0004082870644824788
+    },
+    &quot;val_rmse&quot;: {
+      &quot;V0&quot;: 0.0267999381028469,
+      &quot;M1&quot;: 0.027439581036525294,
+      &quot;M2&quot;: 0.026420879339395156,
+      &quot;M3&quot;: 0.031903168689021696
+    },
+    &quot;train_rmse&quot;: {
+      &quot;V0&quot;: 0.012685628695945105,
+      &quot;M1&quot;: 0.011389013310887795,
+      &quot;M2&quot;: 0.008745921115146504,
+      &quot;M3&quot;: 0.010386863485176999
+    }
+  },
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;L&quot;: 3.7,
+    &quot;best&quot;: &quot;M2_understeer&quot;,
+    &quot;m1&quot;: {
+      &quot;a&quot;: 0.8569324797501493
+    },
+    &quot;m2&quot;: {
+      &quot;L_eff&quot;: 3.882198880475702,
+      &quot;K_us&quot;: 0.003439279945738158
+    },
+    &quot;m3&quot;: {
+      &quot;a&quot;: 0.8772240685582882,
+      &quot;b&quot;: -0.031353830652592465,
+      &quot;c&quot;: -0.0036354381262862774
+    },
+    &quot;val_rmse&quot;: {
+      &quot;V0&quot;: 0.01591104278075153,
+      &quot;M1&quot;: 0.011141896721881754,
+      &quot;M2&quot;: 0.0073696198273352906,
+      &quot;M3&quot;: 0.0104650790814036
+    },
+    &quot;train_rmse&quot;: {
+      &quot;V0&quot;: 0.02018452928972004,
+   </pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-07</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;TESLA_MODEL_3&quot;: {
+    &quot;L&quot;: 2.875,
+    &quot;K&quot;: 5.976739689434123e-05,
+    &quot;gain&quot;: 1.016627098141411,
+    &quot;tau&quot;: 0.0002453976193050897,
+    &quot;K_us_only&quot;: 5.976415408617292e-05,
+    &quot;gain_us_only&quot;: 1.016626972603616,
+    &quot;variant&quot;: &quot;V0_KS&quot;
+  },
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;L&quot;: 2.984,
+    &quot;K&quot;: 0.0030813193405498413,
+    &quot;gain&quot;: 1.203625810479946,
+    &quot;tau&quot;: 0.07613854815855436,
+    &quot;K_us_only&quot;: 0.003102861140280794,
+    &quot;gain_us_only&quot;: 1.2081544371095503,
+    &quot;variant&quot;: &quot;V2_ust_lag&quot;
+  },
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;L&quot;: 3.7,
+    &quot;K&quot;: 0.0036205053672292075,
+    &quot;gain&quot;: 0.9682946246028614,
+    &quot;tau&quot;: 0.06656923952903109,
+    &quot;K_us_only&quot;: 0.0036226603427926504,
+    &quot;gain_us_only&quot;: 0.9715000932503463,
+    &quot;variant&quot;: &quot;V2_ust_lag&quot;
+  },
+  &quot;HYUNDAI_IONIQ_5&quot;: {
+    &quot;L&quot;: 3.0,
+    &quot;K&quot;: 0.0036584318819639816,
+    &quot;gain&quot;: 0.9713926728919929,
+    &quot;tau&quot;: 0.06316742896949837,
+    &quot;K_us_only&quot;: 0.0036420764870417712,
+    &quot;gain_us_only&quot;: 0.9733017895355937,
+    &quot;variant&quot;: &quot;V2_ust_lag&quot;
+  }
+}</pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-08</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;HYUNDAI_IONIQ_5&quot;: {
+    &quot;L&quot;: 3.0,
+    &quot;K&quot;: 0.0033895612010179177,
+    &quot;s&quot;: 0.9668278221152291,
+    &quot;off&quot;: 0.0005045046778856075,
+    &quot;lag&quot;: 3,
+    &quot;rmse&quot;: 0.00888482422851739
+  },
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;L&quot;: 2.984,
+    &quot;K&quot;: 0.002625595512351926,
+    &quot;s&quot;: 1.1771921499482927,
+    &quot;off&quot;: 3.9923690213217876e-05,
+    &quot;lag&quot;: 4,
+    &quot;rmse&quot;: 0.01315660341959157
+  },
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;L&quot;: 3.7,
+    &quot;K&quot;: 0.0035388455508032707,
+    &quot;s&quot;: 0.9569361755429138,
+    &quot;off&quot;: -0.0011908292677060655,
+    &quot;lag&quot;: 3,
+    &quot;rmse&quot;: 0.011832340064259452
+  },
+  &quot;TESLA_MODEL_3&quot;: {
+    &quot;L&quot;: 2.875,
+    &quot;K&quot;: 0.0033895612010179177,
+    &quot;s&quot;: 1.0,
+    &quot;off&quot;: 0.0,
+    &quot;lag&quot;: 3,
+    &quot;rmse&quot;: null
+  }
+}</pre></div>
+<div class='card card-purple'><h3 style='margin:0 0 0.5rem 0;'><code>m1-agent-10</code></h3><pre style='font-size:0.8rem;background:#f5f5f5;padding:0.6rem;border-radius:6px;overflow:auto;'>{
+  &quot;FORD_MUSTANG_MACH_E_MK1&quot;: {
+    &quot;L_eff&quot;: 2.5297190644305063,
+    &quot;K_us&quot;: 0.0015446536838391765,
+    &quot;d0&quot;: -4.756112262525493e-05,
+    &quot;tau_yaw&quot;: 0.02,
+    &quot;tau_steer&quot;: 0.05
+  },
+  &quot;FORD_F_150_LIGHTNING_MK1&quot;: {
+    &quot;L_eff&quot;: 3.834827559665228,
+    &quot;K_us&quot;: 0.0031524889056087045,
+    &quot;d0&quot;: 0.00115199881391885,
+    &quot;tau_yaw&quot;: 0.0,
+    &quot;tau_steer&quot;: 0.05
+  },
+  &quot;HYUNDAI_IONIQ_5&quot;: {
+    &quot;L_eff&quot;: 3.1485752690608293,
+    &quot;K_us&quot;: 0.0021732037046845788,
+    &quot;d0&quot;: -0.0005619614330402095,
+    &quot;tau_yaw&quot;: 0.0,
+    &quot;tau_steer&quot;: 0.05
+  },
+  &quot;TESLA_MODEL_3&quot;: {
+    &quot;_note&quot;: &quot;no truth available \u2014 passthrough yaw_rate_pred_rads (V0 KS)&quot;,
+    &quot;passthrough&quot;: true
+  }
+}</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section section-alt">
+<div class="container">
+<h2 class="accent-orange">6b. Operating-contract audit</h2>
+<div class="card card-orange">
+<p>The grader strips <code>sim_df</code> to an allowlist before calling each agent's <code>predict()</code>, so an agent cannot read truth at inference time. This section reports source-level intent — which agents <em>would have</em> read truth columns if the grader hadn't intervened. A clean audit is its own quality signal.</p>
+<div class='conclusion'><p><strong>Clean cohort:</strong> no agent referenced truth-derived column names inside their predict() body.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="container">
+<h2 class="accent-purple">7. Reconstruction quality (substrate signal)</h2>
+<div class="card card-purple">
+<p>How many agents shipped the right artefacts to be canonically gradable. Failures here are a substrate or contract problem, not a model problem.</p>
+<div class='table-wrap'><table><thead><tr><th>format check</th><th>pass</th><th>fail</th></tr></thead><tbody><tr><td><code>agent_folder_exists</code></td><td class='metric-good'>10</td><td>0</td></tr><tr><td><code>has_manifest_json</code></td><td class=''>9</td><td>1</td></tr><tr><td><code>manifest_parsable</code></td><td class=''>9</td><td>1</td></tr><tr><td><code>manifest_declares_predict_callable</code></td><td class=''>9</td><td>1</td></tr><tr><td><code>manifest_declares_platform_support</code></td><td class=''>9</td><td>1</td></tr><tr><td><code>has_predict_py</code></td><td class=''>9</td><td>1</td></tr><tr><td><code>has_coeffs_json</code></td><td class=''>8</td><td>2</td></tr><tr><td><code>has_report</code></td><td class='metric-bad'>0</td><td>10</td></tr></tbody></table></div><div class='critical'><strong>Failure reasons across the cohort:</strong><ul><li><code>missing_manifest_json</code> — 1 agent(s)</li></ul></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="container">
+<h2 class="accent-orange">8. Worst-of-cohort</h2>
+<div class='grid-2'><div class='card card-blue'><h3>Lowest yaw Δ%</h3><ul><li><code>m1-agent-08</code> (+20.9%)</li><li><code>m1-agent-05</code> (+29.6%)</li><li><code>m1-agent-04</code> (+29.7%)</li></ul></div><div class='card card-orange'><h3>Lowest CTE Δ%</h3><ul><li><code>m1-agent-10</code> (+16.5%)</li><li><code>m1-agent-05</code> (+21.8%)</li><li><code>m1-agent-08</code> (+23.0%)</li></ul></div></div>
+</div>
+</section>
+
+<footer class="footer">
+<p>Generated by <code>grade-cohort-reports</code> at 2026-05-31 21:46 · idea <code>idea-01-lateral-attribution</code></p>
+</footer>
+
+</body>
+</html>
