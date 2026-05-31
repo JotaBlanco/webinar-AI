@@ -121,6 +121,28 @@ def render(cohort: dict) -> str:
             )
     out.append("")
 
+    if cohort.get("self_reported_loaded"):
+        out.append("## Self-awareness diagnostic — claimed vs canonical Δ%")
+        out.append("")
+        out.append("Gap = claimed − canonical. Positive gap = over-claim; negative gap = under-claim.")
+        out.append("")
+        out.append("| agent | family | claimed yaw | canonical yaw | yaw gap | claimed CTE | canonical CTE | CTE gap | notes |")
+        out.append("|---|---|---|---|---|---|---|---|---|")
+        for row in sorted(cohort["per_agent"], key=lambda r: (r["family"], r["agent_id"])):
+            if row["status"] != "ok":
+                continue
+            cy = row.get("claimed_yaw_pct"); cc = row.get("claimed_cte_pct")
+            yg = row.get("yaw_gap"); cg = row.get("cte_gap")
+            note = ""
+            if cy is None and cc is None:
+                note = "no quantitative claim"
+            out.append(
+                f"| `{row['agent_id']}` | `{row['family']}` | "
+                f"{fmt_pct(cy)} | {fmt_pct(row['yaw_pct'])} | {fmt_pct(yg)} | "
+                f"{fmt_pct(cc)} | {fmt_pct(row['cte_pct'])} | {fmt_pct(cg)} | {note} |"
+            )
+        out.append("")
+
     if cohort.get("per_segment"):
         out.append("## Per-segment yaw-RMSE distribution (spread within each agent)")
         out.append("")

@@ -117,7 +117,40 @@ def cmd_grade(rest: list[str]) -> int:
     if rc != 0:
         return rc
     rc = _run(REPORT_PDF, "--grade-dir", str(out_dir), use_venv=True)
-    return rc
+    if rc != 0:
+        return rc
+
+    # If self-reported is requested, leave a clear instruction to the operator.
+    if sr_invocations and sr_invocations.is_file():
+        print()
+        print("=" * 70)
+        print("SELF-REPORTED EXTRACTION READY")
+        print("=" * 70)
+        print(f"Invocations written to: {sr_invocations}")
+        print(f"Next: parent fires each Agent() call in parallel, then runs:")
+        print(f"      python3 orchestrate.py finalize --grade-dir {out_dir}")
+
+    return 0
+
+
+def cmd_finalize(rest: list[str]) -> int:
+    """Re-aggregate + re-render after self-reported subagents have finished."""
+    p = argparse.ArgumentParser(prog="orchestrate.py finalize")
+    p.add_argument("--grade-dir", type=Path, required=True)
+    args = p.parse_args(rest)
+    rc = _run(AGGREGATE, "--grade-dir", str(args.grade_dir))
+    if rc != 0:
+        return rc
+    rc = _run(REPORT, "--grade-dir", str(args.grade_dir))
+    if rc != 0:
+        return rc
+    if not VENV_PY.is_file():
+        print("orchestrate finalize: skill venv missing, skipping HTML/PDF.")
+        return 0
+    rc = _run(REPORT_HTML, "--grade-dir", str(args.grade_dir), use_venv=True)
+    if rc != 0:
+        return rc
+    return _run(REPORT_PDF, "--grade-dir", str(args.grade_dir), use_venv=True)
 
 
 def main():
@@ -128,6 +161,8 @@ def main():
     rest = sys.argv[2:]
     if mode == "grade":
         sys.exit(cmd_grade(rest))
+    elif mode == "finalize":
+        sys.exit(cmd_finalize(rest))
     elif mode == "baseline":
         sys.exit(_run(BASELINE, *rest))
     elif mode == "eval":

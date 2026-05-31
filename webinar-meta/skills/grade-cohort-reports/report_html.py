@@ -227,24 +227,49 @@ def render(cohort: dict, *, interactive: bool) -> str:
     run = cohort.get("run", {})
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    # Build the four figures.
+    # Build the figures.
     fig_scatter = chart.scatter_yaw_vs_cte(cohort)
     fig_family = chart.bars_per_family(cohort)
     fig_platform = chart.scatter_per_platform(cohort)
     fig_box = chart.boxplot_per_segment(cohort)
+    has_sr = bool(cohort.get("self_reported_loaded"))
+    fig_cal_yaw = chart.calibration_scatter(cohort, kpi="yaw") if has_sr else None
+    fig_cal_cte = chart.calibration_scatter(cohort, kpi="cte") if has_sr else None
 
     if interactive:
         scatter_html = chart.to_interactive_html(fig_scatter, div_id="scatter-main")
         family_html  = chart.to_interactive_html(fig_family,  div_id="bars-family")
         platform_html = chart.to_interactive_html(fig_platform, div_id="scatter-platform")
         box_html = chart.to_interactive_html(fig_box, div_id="box-segments")
+        cal_yaw_html = chart.to_interactive_html(fig_cal_yaw, div_id="cal-yaw") if fig_cal_yaw else ""
+        cal_cte_html = chart.to_interactive_html(fig_cal_cte, div_id="cal-cte") if fig_cal_cte else ""
         plotly_cdn = '<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>'
     else:
         scatter_html = chart.to_static_svg(fig_scatter, width=1000, height=560)
         family_html  = chart.to_static_svg(fig_family, width=1000, height=420)
         platform_html = chart.to_static_svg(fig_platform, width=1000, height=420)
         box_html = chart.to_static_svg(fig_box, width=1100, height=520)
+        cal_yaw_html = chart.to_static_svg(fig_cal_yaw, width=1000, height=480) if fig_cal_yaw else ""
+        cal_cte_html = chart.to_static_svg(fig_cal_cte, width=1000, height=480) if fig_cal_cte else ""
         plotly_cdn = ""
+
+    # Self-awareness section appears between sections 5 (scorecard) and 6 (calibration cards).
+    self_awareness_section = ""
+    if has_sr:
+        self_awareness_section = f"""
+<section class="section">
+<div class="container">
+<h2 class="accent-blue">5b. Self-awareness diagnostic — claimed vs canonical</h2>
+<div class="card card-blue">
+<p>What each agent <em>claimed</em> their model achieves, plotted against what their model <em>actually</em> achieves on the held-out pool. The dashed line is perfect calibration (claim = reality). Points above the line: agent under-claimed. Points below: agent over-claimed. The horizontal distance to the line is the gap, in percentage points.</p>
+<div class="grid-2">
+<div class="chart-wrap">{cal_yaw_html}</div>
+<div class="chart-wrap">{cal_cte_html}</div>
+</div>
+</div>
+</div>
+</section>
+"""
 
     headline = callout_headline(cohort)
     title = f"Cohort canonical evaluation — {cohort['n_agents_total']} agents"
@@ -351,6 +376,8 @@ pre {{ font-family: 'JetBrains Mono', 'Menlo', monospace; }}
 </div>
 </div>
 </section>
+
+{self_awareness_section}
 
 <section class="section">
 <div class="container">
