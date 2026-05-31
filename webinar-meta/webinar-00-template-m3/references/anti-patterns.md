@@ -94,7 +94,7 @@ def predict(sim_df, platform):
     return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
 ```
 
-Recipe drawn from `m3-agent-09`'s shipped model (CTE +51.8% over V0 on the canonical eval). Note three things: (1) `delta0` comes from input channels only; (2) it's *platform-gated* (Lightning uses a global δ₀, Mach-E uses per-segment); (3) Tesla passes through V0 because it has no truth channel to fit against.
+Recipe drawn from `m3-agent-09`'s shipped model (CTE +51.8% over V0 on the canonical eval). Note three things: (1) `delta0` comes from input channels only; (2) it's *platform-gated* (Lightning uses a global δ₀, Mach-E uses per-segment); (3) Tesla passes through V0 because it has no truth channel to fit against. The `PLATFORM_PARAMS` numbers above are an existing fit — to find your own, wrap this shape in a `predict_factory(platform, coeffs)` and call `fit-model` with `objective="cte"` (the bias-spread check determines which platforms get `use_per_segment_delta0=True`).
 
 You should improve on this if you can.
 

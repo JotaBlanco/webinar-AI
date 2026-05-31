@@ -15,15 +15,27 @@ This is a map, not a ladder. Each option is annotated with one of:
 
 The well-explored corner is "linear bicycle steady-state with understeer + small first-order yaw lag, fit per platform". It's a real local optimum, but the residual it leaves still amounts to ~0.005-0.01 rad/s yaw error and ~80-120 m of cross-track drift on the harder platform. That residual has structure. Several things that might capture it haven't been tried.
 
-## Physics-based options
+## Physics-based options — a ladder, not a flat list
 
-- **Kinematic single-track with steady-state understeer** *[explored]*. `yr_ss = v · δ / (L + K_us · v²)`. Typical `K_us ~ 0.001-0.005`, F-150 higher. Add steering scale `g` and offset `δ₀` for ~10-20% more. Big initial jump, then diminishing returns.
+**Two parallel strategies exist for improving on V0:**
+- **Refine coefficients on your current rung** — fit better understeer, add per-segment δ₀, polynomial steering scale, longer τ. *Prior cohorts' winning recipes have lived here.* The dataset has rewarded this path.
+- **Climb a rung — upgrade the model structure itself.** A more expressive structural model can capture residual sources the lower rung physically cannot. *No prior agent has shipped a working version above rung 0 on this dataset.* That is not evidence the higher rungs don't work — only that no one has tried hard enough yet. Both strategies are legitimate ambition.
 
-- **Linear single-track (dynamic, with slip angles)** *[unexplored on this data]*. Computes front/rear slip angles `α_f, α_r` from yaw rate and steering, lateral force `F = C_α · α`, yaw-rate equation of motion (no closed-form steady-state assumption). The closed-form `(1+K_us·v²)` term is the *steady-state limit* of this model; gain comes from the transient response, not from steady-state numbers. Needs `C_α` per platform — the openpilot priors are known to be off, fit from data.
+The four rungs of structural complexity:
 
-- **Nonlinear tyre model (Pacejka, Fiala, brush)** *[unexplored on this data]*. Saturating lateral force at high slip. May help in high-curvature, high-`a_lat` segments where the linear tyre overshoots. Most segments don't push tyres into saturation, so gain may be modest — but the transient regime carries the largest remaining residual.
+- **Rung 0 — Kinematic single-track with steady-state understeer** *[explored, V0 lives here]*. `yr_ss = v · δ / (L + K_us · v²)`. Typical `K_us ~ 0.001-0.005`, F-150 higher. Add steering scale `g` and offset `δ₀` for ~10-20% more. Big initial jump, then diminishing returns. Residual it leaves: per-segment offset (addressable on this rung with the δ₀ trick) and transient under-fit (NOT addressable on this rung — you've reached the rung's ceiling). *Cost to refine on this rung: minutes with `fit-model` (supply a 5-line `predict_factory` that builds rung-0 from `{g, delta0, K_us, L_eff, tau}`). Cost to climb: see rung 1.*
 
-- **Multi-body / weight-transfer extensions** *[unexplored, probably overkill]*. Couples longitudinal and lateral. Probably not worth it given `v` is clamped.
+- **Rung 1 — Linear single-track dynamic with slip angles** *[unexplored on this data]*. Computes front/rear slip angles `α_f, α_r` from yaw rate and steering, lateral force `F = C_α · α`, integrates the yaw-rate equation of motion (no closed-form steady-state assumption). The closed-form `(1 + K_us·v²)` term is the *steady-state limit* of this model; the gain on this rung comes from the **transient response**, not from steady-state numbers. Residual it addresses: transient-regime under-fit (where rung 0's first-order lag is a band-aid). Needs `C_α_front` and `C_α_rear` per platform (the openpilot priors in `code/parameters.py` are known to be off — fit them from data). *Cost to climb: ~50-100 lines, 2 extra fitted params per platform. Worth it if your residual is transient-regime-dominated — check the regime breakdown from `scoring-model` first.*
+
+- **Rung 2 — Nonlinear tyre (Pacejka, Fiala, brush)** *[unexplored on this data]*. Replaces rung 1's linear `F = C_α · α` with a saturating force curve. Residual it addresses: high-`a_lat` segments where the linear tyre overshoots (tyre operating beyond linear range). Most segments don't push tyres into saturation, so gain may be modest unless your residual is concentrated in those segments. *Cost to climb: 30-60 extra lines on top of rung 1, plus 2-3 more fitted params per platform. Risk: fitting Pacejka well needs more variation in `a_lat` than this dataset may provide.*
+
+- **Rung 3 — Multi-body / weight-transfer** *[unexplored, probably overkill]*. Couples longitudinal and lateral; load transfer modifies effective `C_α` per axle dynamically. *Cost to climb: significant. Probably not worth it on this dataset because `v` is clamped (longitudinal dynamics partly removed) — but listed for completeness.*
+
+**Deciding whether to climb vs refine.** The diagnostic is your residual's *shape*, not its *magnitude*. Use `scoring-model`'s per-regime split:
+- Residual concentrated in `straight` regime → bias source; refine on your current rung (δ₀, K_us).
+- Residual concentrated in `steady` regime → coefficient mismatch; refine on your current rung (g, polynomial g, K_us per platform).
+- Residual concentrated in `transient` regime → **rung-0 first-order lag is a band-aid for an ODE you're not solving**. This is the canonical "climb the ladder" signal.
+- Residual distributed roughly evenly → mixed; refine cheaply first, climb only if refinement plateaus far from V0.
 
 You should improve on this if you can.
 

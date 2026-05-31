@@ -9,15 +9,21 @@ load-cost: ~400 words.
 
 Modelling tasks reward divergence then convergence. The trap is silent re-convergence on the same approach, dressed in new variable names. Two cheap practices keep that from happening.
 
-## Before you commit to an approach — name three
+## Before you commit to an approach — name five, with at least three different model structures
 
-When you've finished diagnosis and are about to start fitting, write down **at least three genuinely different approaches** that might close the residual you're seeing. One line each, with a one-line argument *for* it:
+When you've finished diagnosis and are about to start fitting, write down **at least five genuinely different approaches** that might close the residual you're seeing. One line each, with a one-line argument *for* it.
 
-> 1. Polynomial steering scale on Mach-E — residual concentrates in high-curvature segments; nonlinear g may absorb it.
-> 2. Per-segment δ₀ from straight-driving rows — per-segment yaw-bias spread is wide; offset is segment-specific.
-> 3. First-order yaw lag with longer τ — high-frequency oscillations in transient regime suggest the lag is under-fitted.
+**Hard rule: at least three of the five must be different *model structures*, not five flavours of the same model.** "Polynomial g on Mach-E", "polynomial g on Lightning", and "polynomial g with bounds" are *one* approach in three costumes — they all stay on rung 0 of the structure ladder (see `approach-menu.md`). Climbing to rung 1 (dynamic single-track) or rung 2 (nonlinear tyre) is a *different structure*.
 
-"Genuinely different" is the key word. Three flavours of polynomial g do not count. The point is to force a *choice* — and to make the not-chosen options visible so they can be tried later.
+Example list that satisfies the rule:
+
+> 1. *(rung 0, coefficient)* Polynomial steering scale on Mach-E — residual concentrates in high-curvature segments.
+> 2. *(rung 0, coefficient)* Per-segment δ₀ from straight-driving rows — per-segment yaw-bias spread is wide.
+> 3. *(rung 1, structure)* Linear dynamic single-track with slip angles — transient regime carries the largest residual; the first-order lag is a band-aid.
+> 4. *(rung 2, structure)* Pacejka tyre on top of rung 1 — high-`a_lat` segments suggest tyre saturation; only worth it after rung 1.
+> 5. *(orthogonal)* Multi-seed fold averaging — current dev-score swings with seed, suggesting noise in the fit.
+
+"Genuinely different" is the key word. **Three flavours of polynomial g do not count as three approaches** — they're one approach in three costumes. The point is to force a *choice across the strategy space* — refine vs climb vs orthogonal — and to make the not-chosen options visible so they can be tried later.
 
 Then pick one, try it, score it, log it (see below). If the chosen approach doesn't beat dev by a meaningful margin (~2% on at least one KPI), come back to the list and try the next.
 

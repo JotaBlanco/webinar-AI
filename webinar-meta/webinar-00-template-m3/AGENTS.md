@@ -1,6 +1,6 @@
 # AGENTS.md — Module 3 (lateral fidelity, skills + references)
 
-You are working on the lateral-fidelity challenge. The two KPIs to minimise are in your task prompt. You have a starter toolkit of seven skills under `skills/` and five short reference documents under `references/`, plus an experiment log template `EXPERIMENTS.md` at the root. They are short on purpose — short enough to read, short enough to change.
+You are working on the lateral-fidelity challenge. The two KPIs to minimise are in your task prompt. You have a starter toolkit of eight skills under `skills/` and five short reference documents under `references/`, plus an experiment log template `EXPERIMENTS.md` at the root. They are short on purpose — short enough to read, short enough to change.
 
 ## Working directory layout
 
@@ -14,7 +14,8 @@ You are working on the lateral-fidelity challenge. The two KPIs to minimise are 
 
 ## Skills inventory
 
-- `score-model/` — score a `predict()` function: pooled yaw + CTE, per-segment tables, per-platform residual stats, distribution stats. Use as your inner-loop oracle.
+- `score-model/` — schema-aware scorer for any `predict()` function across all platforms: pooled yaw + CTE, per-segment tables, per-platform signed-bias warnings, distribution stats. Use as your inner-loop oracle.
+- `fit-model/` — model-agnostic per-platform coefficient fitter against yaw / CTE / yaw+CTE objectives. You supply a `predict_factory(platform, coeffs)`; the skill runs scipy and returns fitted coeffs. Use when bias-warnings light up or you want a CTE-aware fit.
 - `compare-models/` — diff two `predict()` functions per-segment. Default-sorts by delta; surfaces top regressions and top improvements.
 - `inspect-residuals/` — plot yaw residual against any input feature (steering, speed, time, anything else you compute) with per-platform binned mean and ±1σ band. Use when scoring-model shows a bias and you want to find which input dimension explains it.
 - `visualise-segment/` — render a multi-panel PNG of one segment with truth and one or more predictions overlaid.
@@ -46,6 +47,6 @@ The references work the same way — if one says something you find misleading, 
 
 ## On exploration
 
-Before committing to your first approach, read `references/exploration-discipline.md` and **name at least three genuinely different approaches** you might try. Pick one. Try it. Score it. Append an entry to `EXPERIMENTS.md`. Only then consider the next.
+Before committing to your first approach, read `references/exploration-discipline.md` and **name at least five genuinely different approaches** you might try — and at least **three of those five must be different model structures**, not five flavours of the same model. (See `references/approach-menu.md` § "Physics-based options — a ladder" for what "different structure" means here.) Pick one. Try it. Score it. Append an entry to `EXPERIMENTS.md`. Only then consider the next.
 
-The single biggest failure pattern in past cohorts isn't running out of time — it's silent re-convergence on the same idea wearing a different variable name. The log is what catches that.
+The single biggest failure pattern in past cohorts isn't running out of time — it's silent re-convergence on the same idea wearing a different variable name. The log is what catches that. The structure-diversity rule is what forces you to consider climbing a rung instead of refining coefficients on your current one.

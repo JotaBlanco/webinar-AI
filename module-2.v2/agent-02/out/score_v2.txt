@@ -1,0 +1,71 @@
+Fitting per-platform affine (yaw = k*v0 + b):
+  FORD_F_150_LIGHTNING_MK1: k = 0.863941, b = -4.208338e-03  (n=430,990)
+  FORD_MUSTANG_MACH_E_MK1: k = 1.080503, b = +2.012167e-04  (n=615,175)
+  HYUNDAI_IONIQ_5: k = 0.859095, b = +2.880404e-03  (n=2,042,270)
+  TESLA_MODEL_3: k=1, b=0 (Tesla forced)
+
+Coeffs: {'FORD_F_150_LIGHTNING_MK1': {'k': 0.8639406345407249, 'b': -0.004208338096955132}, 'FORD_MUSTANG_MACH_E_MK1': {'k': 1.080503201782821, 'b': 0.00020121672381972244}, 'HYUNDAI_IONIQ_5': {'k': 0.859094833316036, 'b': 0.002880403755933745}, 'TESLA_MODEL_3': {'k': 1.0, 'b': 0.0}}
+
+## score-model summary
+- n_segments: 1996 (failed: 0), n_samples: 5,193,632
+- **yaw_rate_rmse**: 0.009232 rad/s
+- **cte_rmse**: 131.4483 m
+
+### 🚨 signed-bias check — read this BEFORE you ship
+CTE is a double-integral of yaw error and is dominated by *systematic* bias, not RMS noise. If a row below is flagged, fit that calibration — don't tune yaw RMSE harder.
+
+| platform | yaw_bias (rad/s) | yaw bias_frac | cte_drift (m) | flag |
+|---|---|---|---|---|
+| `FORD_F_150_LIGHTNING_MK1` | +0.00000 | 0.00 | -3.970 | ok |
+| `FORD_MUSTANG_MACH_E_MK1` | +0.00000 | 0.00 | +1.822 | ok |
+| `HYUNDAI_IONIQ_5` | -0.00000 | 0.00 | -16.605 | cte_drift 🚨 |
+| `TESLA_MODEL_3` | +0.00000 | nan | +0.000 | ok |
+
+Thresholds: yaw_bias |·| > 0.002 rad/s, cte_drift |·| > 5.0 m. '⚠️' = above threshold; '🚨' = above 3× threshold.
+
+### per platform
+| platform | truth_col | yaw_rmse | yaw_std | cte_rmse | n_seg |
+|---|---|---|---|---|---|
+| `FORD_F_150_LIGHTNING_MK1` | `yaw_rate_meas_rads` | 0.01057 | 0.01057 | 112.708 | 175 |
+| `FORD_MUSTANG_MACH_E_MK1` | `yaw_rate_meas_rads` | 0.01248 | 0.01248 | 158.068 | 240 |
+| `HYUNDAI_IONIQ_5` | `yaw_rate_meas_rads` | 0.01209 | 0.01209 | 191.366 | 800 |
+| `TESLA_MODEL_3` | `psi_dot_rads` | 0.00000 | 0.00000 | 0.000 | 781 |
+
+**Schema notes:**
+- `TESLA_MODEL_3`: Tesla sim has no independent truth channel — psi_dot_rads IS the V0 KS output. Any deviation from V0 will *increase* RMSE on this platform. Treat near-zero Tesla RMSE as a sanity check, not a signal to optimise.
+
+### per regime (yaw only)
+- `straight`: rmse=0.00740, bias=+0.00012, n=4,318,457
+- `steady`: rmse=0.01314, bias=-0.00071, n=707,241
+- `transient`: rmse=0.02233, bias=+0.00002, n=167,934
+
+### per-segment distribution
+- **yaw_rate_rmse**: min=0, p25=0, median=0.004919, mean=0.0060204, p75=0.010084, max=0.1102, std=0.0069926
+- **cte_rmse**: min=0, p25=0, median=9.6365, mean=47.618, p75=51.031, max=801.93, std=90.809
+
+### top 5 worst segments by CTE
+| route/idx | platform | dist_m | cte_rmse | cte_signed | yaw_rmse |
+|---|---|---|---|---|---|
+| `00000075--3c2d477ea6/15` | `HYUNDAI_IONIQ_5` | 2338 | 801.93 | -576.78 | 0.02847 |
+| `00000000--584110c481/7` | `HYUNDAI_IONIQ_5` | 2074 | 800.91 | -562.32 | 0.03237 |
+| `0000003d--30681533ad/24` | `HYUNDAI_IONIQ_5` | 1935 | 667.65 | -495.55 | 0.02859 |
+| `00000014--08a4954f57/177` | `HYUNDAI_IONIQ_5` | 1936 | 631.58 | +403.11 | 0.02307 |
+| `00000075--3c2d477ea6/11` | `HYUNDAI_IONIQ_5` | 2297 | 623.78 | -437.98 | 0.02489 |
+
+### top 5 worst segments by yaw
+| route/idx | platform | n_samp | yaw_rmse | yaw_bias |
+|---|---|---|---|---|
+| `000000cc--3d3da09ecd` `7` | `HYUNDAI_IONIQ_5` | 2548 | 0.11020 | -0.03248 |
+| `00000000--baace6bb62` `1` | `FORD_MUSTANG_MACH_E_MK1` | 1720 | 0.06064 | +0.01419 |
+| `00000002--d3d578ad38` `0` | `FORD_MUSTANG_MACH_E_MK1` | 2665 | 0.03819 | -0.01589 |
+| `00000011--8d0ad83de4` `18` | `FORD_MUSTANG_MACH_E_MK1` | 2899 | 0.03579 | -0.00018 |
+| `0000003c--363d21e5fb` `16` | `FORD_MUSTANG_MACH_E_MK1` | 2900 | 0.03568 | -0.01432 |
+
+### top 5 routes by CTE
+| route | platform | n_seg | dist_m | yaw_rmse | cte_rmse | cte_signed |
+|---|---|---|---|---|---|---|
+| `00000075--3c2d477ea6` | `HYUNDAI_IONIQ_5` | 2 | 4635 | 0.02674 | 719.180 | -507.993 |
+| `00000203--33080ebba2` | `HYUNDAI_IONIQ_5` | 1 | 1920 | 0.02861 | 600.531 | -397.715 |
+| `0000003d--30681533ad` | `HYUNDAI_IONIQ_5` | 2 | 2419 | 0.02055 | 597.101 | -395.901 |
+| `0000002e--2ba1c47ed0` | `HYUNDAI_IONIQ_5` | 1 | 1784 | 0.02462 | 557.355 | -410.662 |
+| `00000019--235b189965` | `HYUNDAI_IONIQ_5` | 2 | 3899 | 0.02199 | 539.392 | -350.914 |

@@ -1,6 +1,6 @@
 ---
 title: webinar-00-template-m2 — Module 2 starter substrate (skills toolkit)
-summary: Module-2 template for the lateral-fidelity webinar. Ships with seven small, modifiable skills plus a shared math library. The agent gets a richly diagnostic scoring oracle, a residual-vs-feature plotter, route-grouped train/dev split with a leakage validator, and a deliverable-contract preflight. Module-3+ domain references are deliberately absent — those land in their own templates.
+summary: Module-2 template for the lateral-fidelity webinar. Ships with eight small, modifiable skills plus a shared math library. The agent gets a schema-aware scoring oracle (with a top-of-summary signed-bias check), a model-agnostic fitter that minimises yaw / CTE / blended objectives via scipy, a residual-vs-feature plotter, route-grouped train/dev split with a leakage validator, and a deliverable-contract preflight. Module-3+ domain references are deliberately absent — those land in their own templates.
 tags: [template, webinar, m2, skills, lateral-fidelity]
 updated: 2026-05-31
 ---
@@ -15,9 +15,11 @@ This README is for the human setting up the template. The agent reads [AGENTS.md
 
 Informed by the m1+m2+m3 cohort grade at `_grade/20260531-003104/`:
 
-1. **Diagnostic surface, not polished oracle.** `scoring-model` returns per-segment tables, per-platform signed bias, bias-vs-noise decomposition, per-route pooling, worst-N outliers, distributions, plus a `format_summary` dashboard — not a single pooled number.
-2. **Skills as clay, not library.** SKILL.md prose pushes hard on "edit the body if the output isn't useful". Skills are short on purpose.
-3. **No domain-knowledge references in M2.** Anti-patterns / approach menus / KPI-tradeoff docs are held for Module 3+ on purpose.
+1. **Diagnostic surface, not polished oracle.** `scoring-model` returns per-segment tables, per-platform signed bias, bias-vs-noise decomposition, per-route pooling, worst-N outliers, distributions, plus a `format_summary` dashboard — not a single pooled number. The summary opens with a **signed-bias check** because the M2-cohort under-performed on CTE specifically: CTE is bias-dominated and agents kept tuning yaw-RMSE noise.
+2. **Schema-aware skills.** `scoring-model` and `fitting-model` share a single `PLATFORM_SCHEMA` that maps each platform to its truth column and V0 baseline column, so platforms whose sim.csv uses a non-default schema (e.g. Tesla's `psi_dot_rads`) score and fit cleanly. Earlier versions silently dropped any platform missing `yaw_rate_meas_rads`.
+3. **Observation AND fit, not just observation.** `fitting-model` is model-agnostic — the agent supplies a `predict_factory(platform, coeffs)`; the skill drives scipy.optimize against a chosen objective (yaw, CTE, or yaw+CTE). The M2-cohort lost CTE by fitting yaw-RMSE only because there was no fit-side skill; this is the fix.
+4. **Skills as clay, not library.** SKILL.md prose pushes hard on "edit the body if the output isn't useful". Skills are short on purpose.
+5. **No domain-knowledge references in M2.** Anti-patterns / approach menus / KPI-tradeoff docs are held for Module 3+ on purpose.
 
 ## How to drive Module 2 with this template
 
