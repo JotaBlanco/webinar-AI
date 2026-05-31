@@ -1,28 +1,85 @@
 {
-  "_comment": "Repo-root settings for webinar-AI. Wires the launch-isolated-module-agents skill's hook and deny rules. Active for the parent session AND every subagent it spawns, regardless of which angle is being run. The hook auto-enforces a static policy (cross-angle metadata + design KBs blocked; intra-angle stays soft + post-verified).",
+  "_comment": "Repo-root settings for webinar-AI. Active for the parent session AND every subagent it spawns. Hard outer ring: subagents can run python3 and common shell tools, but cannot Read prior-cohort folders, substrate (webinar-meta), val data (F1), or other module folders. Inter-agent isolation within a single module (e.g. module-2/agent-06 reading module-2/agent-07) is NOT enforced here — settings.json cannot differentiate between subagents. Use prompt-level rules + post-run audit for that.",
+
+  "_what_subagents_can_do": [
+    "Run python3 / shell tools (cat, ls, mkdir, cp, ln, grep, find, etc.)",
+    "Read their own module-NN/agent-NN/ folder (incl. copied skills and _shared)",
+    "Read webinar-AI/data/ and webinar-AI/code/ (via symlinks)",
+    "Read webinar-AI/module-2/** (cohort scope — intra-cohort isolation is soft)"
+  ],
+  "_what_subagents_cannot_do": [
+    "Read F1/** (includes val-data and design KBs)",
+    "Read webinar-AI/webinar-meta/** (template, grading skill, best-practices, idea files)",
+    "Read webinar-AI/webinar-angle-*/** (prior angle cohorts)",
+    "Read webinar-AI/deprecated/** and raw-model/** (prior runs)",
+    "Read webinar-AI/module-1/** (different cohort)"
+  ],
+  "_parent_impact": "Parent assistant is also bound by these denies on the Read tool. The grading skill (prepare_canonical.py etc.) uses python open() instead of the Read tool, so grading workflows still function. To temporarily inspect a denied path via the Read tool, edit this file.",
 
   "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(pip3:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(ln:*)",
+      "Bash(ls:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(test:*)",
+      "Bash(stat:*)",
+      "Bash(file:*)",
+      "Bash(which:*)",
+      "Bash(env:*)"
+    ],
     "deny": [
-      "Read(/Users/javiquix/Desktop/quixdev/F1/KB001/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/F1/KB002/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/F1/KB003/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-00/webinar-00-template/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-00/domain-knowledge-challenges/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/_shared/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/_observations/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-A/RUN-LOG.md)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/_shared/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-B/_observations/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/_shared/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/_launch/**)",
-      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C/process-log.md)",
+      "Read(/Users/javiquix/Desktop/quixdev/F1/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-meta/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-00/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-*/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/deprecated/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/**)",
+      "Read(/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/**)",
 
       "Bash(cat:/Users/javiquix/Desktop/quixdev/F1/**)",
       "Bash(head:/Users/javiquix/Desktop/quixdev/F1/**)",
       "Bash(tail:/Users/javiquix/Desktop/quixdev/F1/**)",
       "Bash(less:/Users/javiquix/Desktop/quixdev/F1/**)",
       "Bash(grep:/Users/javiquix/Desktop/quixdev/F1/**)",
-      "Bash(find:/Users/javiquix/Desktop/quixdev/F1/**)"
+      "Bash(find:/Users/javiquix/Desktop/quixdev/F1/**)",
+
+      "Bash(cat:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-meta/**)",
+      "Bash(head:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-meta/**)",
+      "Bash(tail:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-meta/**)",
+      "Bash(grep:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-meta/**)",
+      "Bash(find:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-meta/**)",
+
+      "Bash(cat:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-*/**)",
+      "Bash(grep:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-*/**)",
+      "Bash(find:/Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-*/**)",
+
+      "Bash(cat:/Users/javiquix/Desktop/quixdev/webinar-AI/deprecated/**)",
+      "Bash(grep:/Users/javiquix/Desktop/quixdev/webinar-AI/deprecated/**)",
+      "Bash(find:/Users/javiquix/Desktop/quixdev/webinar-AI/deprecated/**)",
+
+      "Bash(cat:/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/**)",
+      "Bash(grep:/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/**)",
+      "Bash(find:/Users/javiquix/Desktop/quixdev/webinar-AI/raw-model/**)",
+
+      "Bash(cat:/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/**)",
+      "Bash(grep:/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/**)",
+      "Bash(find:/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/**)"
     ]
   },
   "hooks": {

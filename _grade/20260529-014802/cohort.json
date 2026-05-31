@@ -1,0 +1,354 @@
+{
+  "n_agents": 9,
+  "per_item": {
+    "regime-breakdown-present": {
+      "pass": 0,
+      "fail": 9,
+      "null": 0,
+      "rate": "0/9 = 0%"
+    },
+    "methodology-consistent": {
+      "pass": 2,
+      "fail": 6,
+      "null": 1,
+      "rate": "2/8 = 25%"
+    },
+    "attribution-coherent": {
+      "pass": 2,
+      "fail": 7,
+      "null": 0,
+      "rate": "2/9 = 22%"
+    },
+    "honest-regression-flagged": {
+      "pass": 1,
+      "fail": 5,
+      "null": 3,
+      "rate": "1/6 = 17%"
+    }
+  },
+  "headline": [
+    {
+      "agent_id": "m1-agent-01",
+      "primary_metric": "yaw RMSE [rad/s]",
+      "platform": "F-150 Lightning (51 files held out) and Mach-E (71 files held out)",
+      "baseline_value": "0.01849",
+      "final_value": "0.01225",
+      "improvement": "33.7%",
+      "top_contributor": "V1 \u2014 add K_us",
+      "baseline_numeric": 0.01849,
+      "final_numeric": 0.01225,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 33.7,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored on the canonical Ford platforms (F-150 Lightning and Mach-E) using the measured yaw_rate truth channel on a held-out split; no fabricated proxy was used."
+    },
+    {
+      "agent_id": "m1-agent-02",
+      "primary_metric": "Yaw RMSE",
+      "platform": "FORD_F_150_LIGHTNING_MK1 (n=70)",
+      "baseline_value": "0.01225 rad/s",
+      "final_value": "0.00547 rad/s",
+      "improvement": "-55%",
+      "top_contributor": null,
+      "baseline_numeric": 0.01225,
+      "final_numeric": 0.00547,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 55.0,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Agent scored yaw_rate RMSE on a canonical Ford platform using yaw_rate_meas_rads as measured truth on a held-out 40% validation split."
+    },
+    {
+      "agent_id": "m1-agent-04",
+      "primary_metric": "Yaw RMSE V3",
+      "platform": "FORD_F_150_LIGHTNING_MK1 and FORD_MUSTANG_MACH_E_MK1",
+      "baseline_value": "0.01391 rad/s",
+      "final_value": "0.00490 rad/s",
+      "improvement": "-64.8%",
+      "top_contributor": "V1",
+      "baseline_numeric": 0.01391,
+      "final_numeric": 0.0049,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 64.8,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Scored on Ford Lightning and Mach-E (canonical platforms) against measured yaw_rate truth, with held-out route-disjoint validation matching the rubric's expectation."
+    },
+    {
+      "agent_id": "m1-agent-05",
+      "primary_metric": "Yaw-rate RMSE (rad/s)",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "0.01269",
+      "final_value": "0.00694",
+      "improvement": "-45.3%",
+      "top_contributor": "V1 shipped: `psi_dot = gain * v * (delta - delta_offset) / (L + Kus * v^2)`",
+      "baseline_numeric": 0.01269,
+      "final_numeric": 0.00694,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": 45.3,
+      "lower_is_better": true,
+      "comparable_to_canonical": true,
+      "comparable_to_canonical_reason": "Reported on canonical Ford platform using measured yaw_rate_meas_rads as truth channel on held-out validation split."
+    },
+    {
+      "agent_id": "m2-agent-01",
+      "primary_metric": "Yaw-rate RMSE (rad/s)",
+      "platform": "Lightning (single segment spot-check)",
+      "baseline_value": "not measured",
+      "final_value": "not measured",
+      "improvement": "not measured",
+      "top_contributor": "linear-bicycle steady-state yaw rate with understeer gradient K_us",
+      "baseline_numeric": null,
+      "final_numeric": null,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": null,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent could not execute python3 in the sandbox, so no measured V0-vs-final numbers exist; only a single hand-inspected segment is shown, which is not the route-stratified held-out validation pool."
+    },
+    {
+      "agent_id": "m2-agent-02",
+      "primary_metric": "yaw-rate RMSE",
+      "platform": "TESLA_MODEL_3, FORD_MUSTANG_MACH_E_MK1, FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "NOT MEASURED",
+      "final_value": "NOT MEASURED",
+      "improvement": "roughly a 22-27% reduction in absolute yaw-rate prediction at highway speeds",
+      "top_contributor": "linear-bicycle steady-state + first-order yaw lag",
+      "baseline_numeric": null,
+      "final_numeric": null,
+      "unit_normalized": "rad/s",
+      "improvement_pct_numeric": null,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent explicitly states 'Self-evaluation numbers: NOT MEASURED' \u2014 no measured headline value was produced under the canonical conditions; only an analytical expectation."
+    },
+    {
+      "agent_id": "m2-agent-03",
+      "primary_metric": "yaw-rate RMSE",
+      "platform": "Ford segments",
+      "baseline_value": "V0 over-predicts yaw rate by ~30-40 %",
+      "final_value": "L / (L+K_us*v^2) = 0.74",
+      "improvement": "~30-40 % over-prediction reclaimed",
+      "top_contributor": "V1 linear-bicycle steady-state",
+      "baseline_numeric": null,
+      "final_numeric": null,
+      "unit_normalized": null,
+      "improvement_pct_numeric": null,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent explicitly states no Python execution was available, so no measured RMSE on the canonical held-out set; all KPI claims are theoretical derivations."
+    },
+    {
+      "agent_id": "m2-agent-04",
+      "primary_metric": "Could not produce empirical KPI numbers because `python3` execution was denied inside this working folder for the entire session.",
+      "platform": "TESLA_MODEL_3, FORD_MUSTANG_MACH_E_MK1, FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "no fabricated benchmark results",
+      "final_value": "no fabricated benchmark results",
+      "improvement": "So we expect headline yaw-rate RMSE to drop, with the gain concentrated in the `steady` and `transient` non-straight regimes.",
+      "top_contributor": "V1 \u2014 Linear-bicycle steady-state with understeer gradient",
+      "baseline_numeric": null,
+      "final_numeric": null,
+      "unit_normalized": null,
+      "improvement_pct_numeric": null,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent could not execute Python and produced no measured KPI numbers against the canonical truth channel; the headline is qualitative only."
+    },
+    {
+      "agent_id": "m2-agent-05",
+      "primary_metric": "Yaw-rate RMSE",
+      "platform": "FORD_MUSTANG_MACH_E_MK1, FORD_F_150_LIGHTNING_MK1",
+      "baseline_value": "V0 (`psi_dot = (v/L) * tan(delta)`)",
+      "final_value": "yaw_rate = v * delta_road / (L + K_us * v^2)",
+      "improvement": "the correction factor `1 / (1 + K_us * v^2 / L)` ranges from roughly 0.9 at 15 m/s to ~0.75 at 30 m/s",
+      "top_contributor": "linear single-track steady-state (understeer correction K_us)",
+      "baseline_numeric": null,
+      "final_numeric": null,
+      "unit_normalized": null,
+      "improvement_pct_numeric": null,
+      "lower_is_better": true,
+      "comparable_to_canonical": false,
+      "comparable_to_canonical_reason": "Agent could not execute Python in the sandbox and reported no measured KPI value against the canonical truth channel; all claims are theoretical / hand-computed parameter values."
+    }
+  ],
+  "convergence": {
+    "platform": {
+      "F-150 Lightning (51 files held out) and Mach-E (71 files held out)": 1,
+      "FORD_F_150_LIGHTNING_MK1 (n=70)": 1,
+      "FORD_F_150_LIGHTNING_MK1 and FORD_MUSTANG_MACH_E_MK1": 1,
+      "FORD_F_150_LIGHTNING_MK1": 1,
+      "Lightning (single segment spot-check)": 1,
+      "TESLA_MODEL_3, FORD_MUSTANG_MACH_E_MK1, FORD_F_150_LIGHTNING_MK1": 2,
+      "Ford segments": 1,
+      "FORD_MUSTANG_MACH_E_MK1, FORD_F_150_LIGHTNING_MK1": 1
+    },
+    "primary_metric": {
+      "yaw RMSE [rad/s]": 1,
+      "Yaw RMSE": 1,
+      "Yaw RMSE V3": 1,
+      "Yaw-rate RMSE (rad/s)": 2,
+      "yaw-rate RMSE": 2,
+      "Could not produce empirical KPI numbers because `python3` execution was denied inside this working folder for the entire session.": 1,
+      "Yaw-rate RMSE": 1
+    },
+    "top_contributor": {
+      "V1 \u2014 add K_us": 1,
+      "V1": 1,
+      "V1 shipped: `psi_dot = gain * v * (delta - delta_offset) / (L + Kus * v^2)`": 1,
+      "linear-bicycle steady-state yaw rate with understeer gradient K_us": 1,
+      "linear-bicycle steady-state + first-order yaw lag": 1,
+      "V1 linear-bicycle steady-state": 1,
+      "V1 \u2014 Linear-bicycle steady-state with understeer gradient": 1,
+      "linear single-track steady-state (understeer correction K_us)": 1
+    }
+  },
+  "honesty": {
+    "declared_per_agent": [
+      3,
+      1,
+      3,
+      3,
+      5,
+      3,
+      4,
+      6,
+      4
+    ],
+    "named_gap_count": 9,
+    "fabricated_undeclared_count": 0
+  },
+  "by_family": {
+    "families": {
+      "module-1": {
+        "n": 4,
+        "agent_ids": [
+          "m1-agent-01",
+          "m1-agent-02",
+          "m1-agent-04",
+          "m1-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 4,
+          "mean": 0.25,
+          "median": 0.25,
+          "std": 0.25,
+          "min": 0.0,
+          "max": 0.5
+        },
+        "improvement_pct": {
+          "n": 4,
+          "mean": 49.7,
+          "median": 50.15,
+          "std": 11.527,
+          "min": 33.7,
+          "max": 64.8
+        },
+        "honesty": {
+          "mean_declared_per_agent": 2.5,
+          "named_data_gap": 4,
+          "fabricated_undeclared": 0
+        }
+      },
+      "module-2": {
+        "n": 5,
+        "agent_ids": [
+          "m2-agent-01",
+          "m2-agent-02",
+          "m2-agent-03",
+          "m2-agent-04",
+          "m2-agent-05"
+        ],
+        "rubric_pass_rate_per_agent": {
+          "n": 5,
+          "mean": 0.05,
+          "median": 0.0,
+          "std": 0.1,
+          "min": 0.0,
+          "max": 0.25
+        },
+        "improvement_pct": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "std": null,
+          "min": null,
+          "max": null
+        },
+        "honesty": {
+          "mean_declared_per_agent": 4.4,
+          "named_data_gap": 5,
+          "fabricated_undeclared": 0
+        }
+      }
+    },
+    "order": [
+      "module-1",
+      "module-2"
+    ],
+    "rubric_ids": [
+      "regime-breakdown-present",
+      "methodology-consistent",
+      "attribution-coherent",
+      "honest-regression-flagged"
+    ],
+    "per_item_per_family": {
+      "regime-breakdown-present": {
+        "module-1": {
+          "pass": 0,
+          "fail": 4,
+          "null": 0,
+          "rate": 0.0
+        },
+        "module-2": {
+          "pass": 0,
+          "fail": 5,
+          "null": 0,
+          "rate": 0.0
+        }
+      },
+      "methodology-consistent": {
+        "module-1": {
+          "pass": 2,
+          "fail": 1,
+          "null": 1,
+          "rate": 0.6666666666666666
+        },
+        "module-2": {
+          "pass": 0,
+          "fail": 5,
+          "null": 0,
+          "rate": 0.0
+        }
+      },
+      "attribution-coherent": {
+        "module-1": {
+          "pass": 2,
+          "fail": 2,
+          "null": 0,
+          "rate": 0.5
+        },
+        "module-2": {
+          "pass": 0,
+          "fail": 5,
+          "null": 0,
+          "rate": 0.0
+        }
+      },
+      "honest-regression-flagged": {
+        "module-1": {
+          "pass": 0,
+          "fail": 3,
+          "null": 1,
+          "rate": 0.0
+        },
+        "module-2": {
+          "pass": 1,
+          "fail": 2,
+          "null": 2,
+          "rate": 0.3333333333333333
+        }
+      }
+    }
+  }
+}

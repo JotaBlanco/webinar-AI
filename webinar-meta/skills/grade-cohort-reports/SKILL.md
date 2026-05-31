@@ -1,98 +1,141 @@
 ---
 name: grade-cohort-reports
-description: Grade a cohort of agent reports against the rubric in a `webinar-00/domain-knowledge-challenges/idea-NN-*.md` file. Designed for the case where multiple agents (across raw-model baselines, multiple angles, or multiple modules) solved the same idea and we want a consistent, evidence-quoting comparison of how well each did. Emits a per-agent scorecard JSON + a cohort summary markdown.
-when-to-load: When you want to grade 2+ reports against a canonical rubric. NOT for single-agent grading (use the rubric file directly), NOT for code review.
-inputs: An idea-id (filename stem under `webinar-00/domain-knowledge-challenges/`) and one or more report paths or globs.
-outputs: One JSON scorecard per agent + a cohort.md + a cohort.json under `_grade/<timestamp>/`.
-load-cost: ~280 tokens metadata, ~1100 tokens body.
+description: Canonical-evaluation grading for a cohort of agent submissions. Each agent's final-model is run programmatically (no LLM) against a fixed held-out validation pool; the cohort is summarised into a comparable scorecard. Outputs cohort.{json,md,html,pdf} with interactive scatter, per-family bars, per-platform faceted scatter, per-segment boxplots, calibration cards, and a substrate-quality section.
+when-to-load: When 2+ agents have shipped a `final-model/{manifest.json, predict.py}` against the same idea, and you want apples-to-apples KPIs across the cohort. NOT for single-agent grading; NOT for code review.
+inputs: An idea-id (filename stem under webinar-meta/domain-knowledge-challenges/) + one or more globs to each agent's final-model folder.
+outputs: cohort.json + cohort.md (per agent + per family + per platform + per segment + reconstruction quality). HTML + PDF in iter 2.
+load-cost: ~200 tokens metadata, ~700 tokens body.
 ---
 
-# grade-cohort-reports
+# grade-cohort-reports — canonical-only edition
 
 ## Why this skill exists
 
-We have N runs of the same idea — sometimes a 5-agent raw-model baseline (`raw-model/idea-01/agent-*/REPORT.md`), sometimes the four module reports of a single angle, sometimes a cross-angle comparison. We want to answer:
+We run N agents against the same idea (e.g. lateral-fidelity yaw-rate prediction). Each agent ships a `final-model/` folder. We need ONE comparable number per KPI per agent so we can rank, plot, and learn from the cohort.
 
-1. **How did each agent score against the canonical rubric?** (per-item, with evidence)
-2. **Where did the cohort converge or diverge?** (platform pick, primary metric, top contributor)
-3. **Which rubric items have a high trap-trip rate?** (the rubric items the cohort consistently misses — these point at the substrate gap that matters)
-4. **What's the spread of headline numbers across the cohort?** (range, not a winner — different agents pick different metrics; the spread *is* the signal)
+**Agents' self-reported headlines are not comparable.** They each picked different train/test splits, different segment subsets, different metric definitions. The only honest comparison is to re-run every agent's predict function against the same held-out validation pool under identical conditions. That's what this skill does.
 
-The rubric is **not** something we write — it already exists in [webinar-00/domain-knowledge-challenges/](../../domain-knowledge-challenges/), authored by the domain expert when the idea was framed. The skill reuses that rubric block verbatim.
+## Architecture
 
-## Architecture — judge-as-subagent
+```
+orchestrate.py grade --idea-id <id> --agent-folders <glob>
+                              │
+                              ▼
+                       baseline.py          (cache hit if hash matches)
+                              │              caches under baselines/<idea>.baseline.json
+                              ▼
+                       canonical_eval.py    (spawns N parallel subprocesses)
+                              │              one per agent — worker.py
+                              ▼
+                       <out-dir>/canonical/<agent_id>.json
+                              │
+                              ▼
+                       aggregate.py         → cohort.json   (every stat the renderers need)
+                              │
+                              ▼
+                       report.py            → cohort.md
+                                              (iter 2: + cohort.html + cohort.pdf + scatter SVG)
+```
 
-Mirrors the [launch-isolated-module-agents](../launch-isolated-module-agents/SKILL.md) pattern:
+**No LLM is called in the default path.** The contract is: agents ship a `final-model/{manifest.json, predict.py, optional coeffs.json}`; `worker.py` imports `predict.py` in an isolated subprocess and runs it on each val segment.
 
-1. **`prepare.py`** — discovers reports (from explicit paths or globs), loads the rubric from the challenge file, materialises one judge prompt per report under `_grade/<timestamp>/judge-<agent_id>.prompt.md`, writes `invocations.json` with one Agent() call per report.
-2. **Parent assistant fires the N grading subagents** in a single message, `run_in_background: true`. Each judge returns a strict-JSON scorecard.
-3. **`aggregate.py`** — reads each subagent's JSON output, writes per-agent `<agent_id>.json` + `<agent_id>.md`, and a cohort `cohort.md` + `cohort.json` with pass-rate-per-item, convergence counts, and the headline spread table.
-4. **`orchestrate.py`** — one-call entry point. `orchestrate.py grade <idea-id> [report paths/globs...]` prepares + emits invocations. `orchestrate.py aggregate [--grade-dir DIR]` does the post-grading rollup.
+## Files
 
-## Design decisions — read these before changing the skill
+| file | responsibility |
+|---|---|
+| `orchestrate.py`        | Single CLI entry. Default: `grade <idea> <folders>` runs the whole pipeline. |
+| `baseline.py`           | Compute & cache V0 baseline. Hash-keyed on val pool + metric definition. |
+| `baselines/<idea>.baseline.json` | Cached V0 RMSEs. Reused across runs; rebuilt if inputs change. |
+| `canonical_eval.py`     | Discover agents, dispatch N workers in a thread pool, write per-agent JSONs. |
+| `worker.py`             | Per-agent subprocess body. Imports agent's predict, streams val segments, accumulates yaw + CTE. |
+| `traj_metrics.py`       | CTE integration + pooling helper (shared with baseline.py). |
+| `aggregate.py`          | Reads per-agent JSONs → emits `cohort.json` with every stat the renderer needs. |
+| `report.py`             | Renders `cohort.md`. |
+| `chart.py`              | Plotly figures (headline scatter, family bars, per-platform faceted scatter, per-segment boxplot). Exports both interactive HTML divs and static SVG. |
+| `report_html.py`        | Renders `cohort.html` (interactive plotly via CDN) and `cohort.print.html` (static SVG, no JS). Uses CSS from quix-report-styling light theme. |
+| `report_pdf.py`         | Renders `cohort.pdf` from `cohort.print.html` via weasyprint. |
+| `.venv/`                | Skill-local virtualenv with plotly + kaleido + weasyprint + pandas + numpy. The orchestrator auto-uses it for HTML/PDF renderers; canonical eval itself runs on system python. |
 
-### Judge granularity: one call per report, not per (report × rubric item)
-
-The rubric items in `idea-NN-*.md` are largely orthogonal, and a single judge call sees the whole report once — much cheaper than `N × items` calls. The judge returns a list of scorecards, one per rubric item, each with its own evidence quote. If items start contaminating each other (e.g., the judge halos a borderline pass because the report was strong overall), split into per-item calls then.
-
-### Generous-on-paraphrase + quote-required
-
-The judge credits paraphrases (an agent saying "I scored against `yaw_rate_meas_rads`, the measured channel from Ford CAN" satisfies a rubric item asking for "scores against a measured channel"). But **every credited item must include a verbatim quote** from the report — the quote IS the audit trail. No quote → automatic FAIL. This is the cheapest defence against the judge softly drifting toward "looks good to me."
-
-### No oracle for headline numbers
-
-Agents pick different metrics (yaw-rate RMSE in rad/s vs mrad/s vs deg/s; pooled vs train/test; Ford-only vs Tesla-fabricated). There is no single "correct" headline. The aggregator emits a table of `(agent_id, primary_metric, baseline, final, improvement)` as the agent stated them — no normalisation, no ranking. The **variance** across the cohort is the signal.
-
-### Canonical eval = held-out val-data (since 2026-05-28)
-
-The canonical-eval pipeline (`prepare_canonical.py` + per-agent judges) scores every agent's reconstructed model against a route-stratified validation hold-out that no agent has seen. The val-data root is declared in the idea's `.canonical.yaml` as `eval_data_root:` (absolute path, outside the repo). Segment globs in the YAML are resolved against that root.
-
-Implication for cohort interpretation: agents whose "headline" comes from per-segment overfitting (e.g. fitting a bias on each segment they were given) will score canonically lower than they self-reported, because the val segments are unseen. Agents whose model is a parameterised function generalising across segments will score similarly to their self-report. The gap between self-reported and canonical &Delta;% is now a generalisation diagnostic, not a "different evaluation surface" artefact.
-
-### Honesty flags are tracked separately
-
-"Did the agent declare a limitation" is more important than "is their number good." A 7.8 % improvement with an honest "I had no truth channel and synthesised one from wheel-speed differentials" is qualitatively different from a 34 % improvement that silently glosses over a data-cleaning trick. The aggregator surfaces `declared_limitations: count` and `named_data_gap: bool` as first-class fields.
-
-### Cross-angle cohorts
-
-A cohort can span the raw-model baseline AND any number of angle modules that targeted the same idea. The skill takes report paths or globs — it doesn't assume folder layout. For metadata (e.g., which substrate components were present in each agent's harness), pass an optional `--manifest <file.json>` mapping report paths to substrate descriptors; the aggregator surfaces these as columns next to the scores.
-
-## Schema — the judge's strict-JSON output
+## Per-agent JSON schema (`canonical/<agent_id>.json`)
 
 ```json
 {
-  "agent_id": "<short id parsed from report path>",
-  "report_path": "<absolute path>",
-  "items": [
-    {
-      "id": "<rubric item id, e.g. truth-channel-correct>",
-      "type": "binary|numeric",
-      "result": true | false | null,
-      "value": <number or null>,
-      "threshold_met": true | false | null,
-      "evidence": ["<verbatim quote from report>", ...],
-      "reasoning": "<one sentence>"
-    }
-  ],
-  "headline": {
-    "primary_metric": "<verbatim>",
-    "platform": "<verbatim>",
-    "baseline_value": "<verbatim>",
-    "final_value": "<verbatim>",
-    "improvement": "<verbatim>",
-    "top_contributor": "<verbatim or null>"
+  "agent_id": "m1-agent-01",
+  "agent_folder": "...",
+  "format_checks": {
+    "agent_folder_exists": true,
+    "has_manifest_json": true,
+    "manifest_parsable": true,
+    "manifest_declares_predict_callable": true,
+    "manifest_declares_platform_support": true,
+    "has_predict_py": true,
+    "has_coeffs_json": true,
+    "has_report": true
   },
-  "honesty_flags": {
-    "declared_limitations": <int>,
-    "named_data_gap_or_missing_truth_channel": true | false,
-    "fabricated_truth_or_proxy_undeclared": true | false
-  }
+  "manifest": { ... },
+  "execution": {
+    "status": "ok" | "failed",
+    "reason": null | "missing_manifest_json" | "import_failed" | "no_segments_succeeded" | ...,
+    "n_segments_attempted": 130,
+    "n_segments_succeeded": 122,
+    "n_segments_skipped_unsupported_platform": 8,
+    "n_segments_runtime_error": 0,
+    "first_runtime_error": null,
+    "wall_time_seconds": 2.1
+  },
+  "yaw_rate":  { "baseline_rmse", "agent_rmse", "improvement_pct", "n_samples" },
+  "cte":       { "baseline_rmse_meters", "agent_rmse_meters", "improvement_pct", ... },
+  "per_platform": { "FORD_F_150_LIGHTNING_MK1": { yaw, cte, n_segments_ok, ... }, ... },
+  "per_segment":  [ { segment, platform, yaw_rmse, cte_rmse_m }, ... ],
+  "coefficients": { ... }
 }
+```
+
+**Failed agents emit `yaw_rate: null` and `cte: null`** — no fake zeros, no fabricated numbers. The aggregator surfaces them as a separate cohort-failure section, not as zero performers.
+
+## Required agent contract
+
+Every agent must ship under their `final-model/` folder:
+
+- `manifest.json` with `predict_callable: "predict.py:predict"` and `platform_support: ["FORD_..."]`
+- `predict.py` defining `def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame` returning `yaw_rate_pred_rads`
+
+Anything else is optional. `coeffs.json` is conventional; `REPORT.md` is informational only (not used by the canonical pass).
+
+## Failure semantics
+
+| Failure | Reason in JSON | What happens |
+|---|---|---|
+| Agent missed the deliverable | `missing_predict_py`, `missing_manifest_json` | No metrics emitted; reported in reconstruction-quality section |
+| Manifest malformed | `manifest_json_invalid` | Same as above |
+| predict.py raises on import | `import_failed` + traceback first line | Same; first_runtime_error captured |
+| predict crashes per-segment | n_segments_runtime_error > 0 | Partial credit if other segments worked; first error captured |
+| All segments failed | `no_segments_succeeded` | No metrics; failure surfaced |
+| Worker subprocess timed out | `subprocess_timeout` | No metrics |
+
+## Iteration roadmap
+
+- **iter 1 (shipped):** canonical pipeline + cohort.md, all stats in cohort.json.
+- **iter 2 (shipped):** cohort.html (interactive plotly) + cohort.pdf (weasyprint) via quix-report-styling light theme; scatter, family bars, per-platform faceted scatter, boxplots, calibration cards.
+- **iter 3:** `--with-self-reported` diagnostic mode — extract each agent's claimed yaw/CTE Δ% from their REPORT.md, compare to canonical, surface the gap as a self-awareness signal.
+
+## Outputs per run (under `_grade/<ts>/`)
+
+```
+cohort.json            machine-readable; everything the renderer needs
+cohort.md              human-readable markdown
+cohort.html            interactive — open in a browser; plotly hovers / zoom
+cohort.print.html      print-friendly (static SVG, no JS); intermediate for PDF
+cohort.pdf             PDF via weasyprint — same content as cohort.html
+canonical/<agent>.json one per agent, full scorecard including per-segment data
+canonical/baseline.json the V0 baseline used this run
+canonical/agent-folders.json   the agent→folder/family map
+canonical/run-summary.json     wall-time, n_ok, concurrency, baseline cache key
 ```
 
 ## What this skill does NOT do
 
-- Does not invent rubric items. If the challenge file's `success-metrics` block is thin, the cohort report will be thin — that's a signal to enrich the rubric, not to extend the skill.
-- Does not score code quality, prose, or "did the agent follow the prompt structure." Off-topic for what the workshop measures.
-- Does not normalise headline numbers across agents (see "No oracle" above).
-- Does not call the Claude API directly — it relies on the parent assistant firing Agent() subagents as judges, consistent with the rest of this repo.
+- Does not call an LLM on the default path (canonical mode is pure Python).
+- Does not score code quality, prose, or rubric hygiene. (Iter 3 adds a small self-reporting diagnostic, not a rubric pass.)
+- Does not normalise units across agents — it controls for them by running everyone's model under one fixed setup.
+- Does not modify any file under `eval_data_root` (read-only by contract) or agent folders.

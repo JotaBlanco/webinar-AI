@@ -1,0 +1,30 @@
+{
+  "agent_id": "m1-agent-02",
+  "status": "ok",
+  "reason": null,
+  "reconstruction_method": "imported-function",
+  "reconstruction_summary": "Imported the agent's final V3 model (linear-tire understeer + per-platform steering scale/offset + 1st-order yaw lag) via predict.predict(sim_df, platform), with per-platform coefficients loaded from coeffs.json.",
+  "n_segments": 130,
+  "yaw_rate": {
+    "n_samples_after_filter": 318760,
+    "baseline_rmse": 0.0145625552519141,
+    "baseline_rmse_recomputed": 0.014562555251914147,
+    "agent_rmse": 0.009811451362125311,
+    "improvement_pct": 32.62548232504941
+  },
+  "cte": {
+    "n_segments_used": 122,
+    "n_segments_skipped_short": 8,
+    "n_distance_bins": 117650,
+    "baseline_rmse_meters": 147.44039440278007,
+    "baseline_rmse_recomputed": 147.44039440278007,
+    "agent_rmse_meters": 111.34509588005125,
+    "improvement_pct": 24.48128185558369
+  },
+  "notes": "Recomputed V0 baselines match the precomputed cache exactly (yaw to ~1e-17, CTE bit-exact). Agent's final V3 (V1+V2+V3 stack: understeer + per-platform steer scale/offset + 50 ms yaw lag) wins on BOTH KPIs across the held-out Ford val pool: -33% yaw RMSE and -24% CTE. Agent's headline (per-platform held-out, 60/40 split on train pool) was -32% to -55% yaw and -15% to -52% CTE; pooled val-pool gains are at the lower end of that range, consistent with route-level holdout being stricter than segment-level holdout. No per-segment fitting in predict(), so generalisation is genuine.",
+  "baseline_rmse": 0.0145625552519141,
+  "baseline_rmse_recomputed": 0.014562555251914147,
+  "agent_rmse": 0.009811451362125311,
+  "improvement_pct": 32.62548232504941,
+  "n_samples_after_filter": 318760
+}

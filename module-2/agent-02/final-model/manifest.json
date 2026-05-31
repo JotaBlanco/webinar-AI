@@ -1,0 +1,13 @@
+{
+  "model_name": "V5_understeer_scale_bias_lag",
+  "version": "1.0",
+  "platform_support": [
+    "FORD_MUSTANG_MACH_E_MK1",
+    "FORD_F_150_LIGHTNING_MK1",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "description": "Steady-state understeer bicycle (psi_dot = v*delta_eff / (L + K_us*v^2)) with per-platform steering scale/bias and a first-order lag tau. Coefficients fit per-platform via Nelder-Mead on all available Ford segments.",
+  "trained_platforms": ["FORD_MUSTANG_MACH_E_MK1", "FORD_F_150_LIGHTNING_MK1"],
+  "tesla_handling": "Tesla data has no yaw_rate_meas_rads truth; predict() returns yaw rate using Mach-E coefficients with Tesla wheelbase as a benign default."
+}

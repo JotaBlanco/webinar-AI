@@ -1,0 +1,26 @@
+{
+  "name": "example",
+  "description": "Placeholder MCP server config — delete or rename once you wire a real server. Shows the shape: stdio transport, a command to launch the server, env vars scoping its access, and a tool surface the agent will see.",
+  "transport": "stdio",
+  "command": "uv",
+  "args": ["run", "python", "-m", "webinar_template.mcp.example_server"],
+  "env": {
+    "EXAMPLE_DATA_ROOT": "./data",
+    "EXAMPLE_READONLY": "1"
+  },
+  "tools": [
+    {
+      "name": "list_files",
+      "description": "List files in the configured data root. Read-only."
+    },
+    {
+      "name": "read_summary",
+      "description": "Return a structured summary of a named data file (schema + descriptive stats). For sample-level access use slice_window."
+    },
+    {
+      "name": "slice_window",
+      "description": "Return raw samples for a named file + range. Use sparingly — large windows blow up context."
+    }
+  ],
+  "_notes": "This spec is a placeholder. The server implementation does not exist. Replace with a real server before relying on it. The pattern (list / summary / slice) generalises across telemetry, drawings, schematics, lab measurements — start there and adapt."
+}
