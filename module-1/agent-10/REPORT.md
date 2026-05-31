@@ -32,3 +32,11 @@ I almost reached for `module-2`/`webinar-meta` to look for the canonical CTE for
 ## Most surprising thing learned
 
 The KS baseline was already pretty good on the lightweight EVs but *catastrophic* on the F-150 Lightning — V0 wheelbase L=3.70 is geometrically right, but the fitted `L_eff` is 3.83 and `K_us` is the largest of the three, suggesting the rear-biased truck loads up the rear tyres enough that the kinematic geometry alone is 35% off on yaw. Single linear regression on `(yaw, yaw·v², v)` recovered the truck-specific compliance without a single ST-rung parameter.
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

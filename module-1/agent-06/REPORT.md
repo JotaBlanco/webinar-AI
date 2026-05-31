@@ -37,3 +37,11 @@ The KS model is platform-asymmetric in a sharper way than I expected. Mach-E V0 
 - `final-model/manifest.json`
 - `final-model/coeffs.json`
 - `out/fit.py`, `out/score.py`, `out/score.json`, `out/explore.py`, `out/check_tesla.py`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

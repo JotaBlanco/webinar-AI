@@ -61,3 +61,11 @@ A single 3-parameter steady-state correction on top of KS captures 22-43% of the
 - `out/eval_results.json`
 - `out/tesla_fit.json`
 - `scripts/{explore,scan_schemas,baseline_eval,fit_understeer,fit_tesla,eval_v2b,test_simonly}.py`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

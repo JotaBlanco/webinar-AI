@@ -48,3 +48,11 @@ Also surprising: Tesla `sim/segments/` truth column **is** the V0 model — ther
 - `out/score_local.py`
 - `out/local_scores.csv`
 - `out/coeffs.json`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

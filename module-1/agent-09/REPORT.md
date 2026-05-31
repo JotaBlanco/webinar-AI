@@ -69,3 +69,11 @@ The Tesla sim CSV has **no** measured yaw-rate channel — the column you'd thin
 - Trained only on 80-segment subset with stride-4 — full-data fit might shift coeffs by a few %, unlikely to move the headline more than ±5%.
 - Linear bicycle with constant K ignores load transfer, regen blending, and the wheel-rate signal the workshop README highlights for Tesla. A residual-fit on `(v, |delta|, a_long, jerk)` would likely squeeze another 10–20%.
 - Tesla ships as V0 passthrough. If the grader has a hidden Tesla truth source I missed, that's all of Tesla's grade lost.
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

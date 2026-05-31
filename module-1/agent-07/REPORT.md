@@ -51,3 +51,11 @@ The CSV "truth" `x_m, y_m, psi_rad` are NOT measured ground truth — they are t
 - `final-model/coeffs.json`
 - `out/fit.py` (training)
 - `out/score.py`, `out/score_v0.py`, `out/summary.json`, `out/score.json`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

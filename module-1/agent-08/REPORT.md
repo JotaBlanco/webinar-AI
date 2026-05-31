@@ -42,3 +42,11 @@ The Ford Mustang Mach-E's `delta_road_rad` channel needs a **1.18× scale factor
 - `final-model/manifest.json`
 - `final-model/coeffs.json`
 - `out/baseline.py`, `out/explore_v3.py`, `out/calibrate.py`, `out/score.py`, `out/local_scores.json`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

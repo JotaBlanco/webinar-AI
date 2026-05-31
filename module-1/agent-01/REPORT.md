@@ -44,3 +44,11 @@ Speed-known yaw-rate model `psi_dot = v * (a*delta_lagged + b) / (L + K*v^2)` wi
 - `final-model/coefs.json`
 - `final-model/manifest.json`
 - `out/fit_v1.py`, `out/explore.py`, `out/local_score_v2.py`, `out/score_summary.json`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

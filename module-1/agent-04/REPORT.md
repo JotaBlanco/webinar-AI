@@ -40,3 +40,11 @@ Inside the Tesla sim segments, `psi_dot_rads` is **not** measured yaw rate — i
 
 - Mach-E yaw-RMSE improvement is only ~6-15%; its residual is dominated by noise/lag that my linear correction does not capture. A short FIR or 100ms-shift on the yaw-rate channel might help; ran out of time.
 - I cannot vouch for XTE numbers at grading time. If the grader's truth is integrated KS (matches what's in the segments) my submission will be *worse* than baseline on XTE; if it's real GPS my submission will be better. I made the bet that the grader uses real GPS — please confirm if not.
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```

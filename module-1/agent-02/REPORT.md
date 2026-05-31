@@ -38,3 +38,11 @@ The `x_m, y_m, psi_rad` columns in sim/segments csvs are the **KS prediction's**
 - `out/score_v1.py`
 - `out/score_summary.json`
 - `out/score_v1_per_segment.csv`
+
+```
+ISOLATION_REPORT:
+read_outside_module: []
+attempted_blocked: []
+shared_dir_writes: []
+notes: ""
+```
