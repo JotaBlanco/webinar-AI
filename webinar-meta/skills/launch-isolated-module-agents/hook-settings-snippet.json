@@ -1,9 +1,8 @@
 {
-  "_comment": "Paste the `hooks` block into <angle-root>/.claude/settings.json (merge with the permissions block from settings-deny-snippet.json). Replace ABSOLUTE PATH PLACEHOLDERS.",
+  "_comment": "Paste the `hooks` block into <REPO_ROOT>/.claude/settings.json (merge with the permissions block from settings-deny-snippet.json). Replace ABSOLUTE PATH PLACEHOLDERS.",
 
   "_replace_placeholders": {
-    "<HOOK_SCRIPT>": "Absolute path to webinar-00/skills/launch-isolated-module-agents/hook-blocker.py",
-    "<ANGLE_ROOT>": "Absolute path to the current angle folder (e.g. /Users/javiquix/Desktop/quixdev/webinar-AI/webinar-angle-C)",
+    "<HOOK_SCRIPT>": "Absolute path to webinar-meta/skills/launch-isolated-module-agents/hook-blocker.py",
     "<REPO_ROOT>": "Absolute path to webinar-AI repo root"
   },
 
@@ -14,12 +13,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 <HOOK_SCRIPT> --angle-root <ANGLE_ROOT> --repo-root <REPO_ROOT>"
+            "command": "python3 <HOOK_SCRIPT> --repo-root <REPO_ROOT>"
           }
         ]
       }
     ]
   },
 
-  "_what_this_does": "On every Read/Bash/Edit/Write tool call (from the parent session AND from any subagent it spawns), the hook reads the tool input, resolves any file paths to canonical absolute paths, checks them against the allow-list (modulo-*, code/, data/, _launch/ within the angle), and exits 2 (block) with a stderr message if any path is outside. Every blocked attempt is appended to <ANGLE_ROOT>/_launch/blocked-attempts.log with a timestamp and the calling tool. The log is the source-of-truth view #3 for post-run-verify."
+  "_what_this_does": "On every Read/Bash/Edit/Write tool call (from the parent session AND from any subagent it spawns IF the harness propagates hooks), the hook reads the tool input, resolves any file paths to canonical absolute paths, checks them against the static DENY_PATTERNS_REL in hook-blocker.py (webinar-meta/webinar-00-template-*/**, webinar-meta/domain-knowledge-challenges/**, webinar-angle-*/_shared|_launch|_observations/**, RUN-LOG.md, process-log.md), and exits 2 (block) with a stderr message if any path matches. Every blocked attempt is appended to <REPO_ROOT>/.claude/blocked-attempts.log with a timestamp and the calling tool. The log is the source-of-truth view #3 for post-run-verify.",
+
+  "_bypass_for_human_session": "The hook respects a bypass marker file at <REPO_ROOT>/.claude/main-session-unlock — if that file exists, the hook exits 0 immediately and logs a BYPASS line. Use to let the human-driven main session do free reads while still keeping the hook armed for subagents. CAVEAT: if subagents inherit the same cwd, they'll see the same file and also bypass. The bypass file design assumes the file is only used during interactive human work and removed before launching isolated subagents.",
+
+  "_extra_deny_option": "Add --extra-deny /abs/path to the command line to deny additional path prefixes. NOTE: hook-blocker.py canonicalizes paths via symlinks before matching. If you add --extra-deny <KB003> and <REPO_ROOT>/data symlinks into KB003, EVERY legitimate data/ read from agents will be blocked. Don't do that — leave KB003 out of --extra-deny and trust the file-system layout (sim-only/ has no truth columns anyway)."
 }

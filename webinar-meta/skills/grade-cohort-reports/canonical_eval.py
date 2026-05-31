@@ -201,6 +201,8 @@ def main():
             "platform_lookup": platform_lookup,
             "sample_filter": eval_set.get("sample_filter", "True"),
             "truth_channel": eval_set.get("truth_channel", "yaw_rate_meas_rads"),
+            "input_dir_name": eval_set.get("input_dir_name", "sim/segments"),
+            "truth_dir_name": eval_set.get("truth_dir_name", "sim/segments"),
             "grid_step_m":   float(cte_cfg.get("grid_step_m", 1.0)),
             "min_segment_distance_m": float(cte_cfg.get("min_segment_distance_m", 20.0)),
             "timeout_s":     args.timeout_per_agent,

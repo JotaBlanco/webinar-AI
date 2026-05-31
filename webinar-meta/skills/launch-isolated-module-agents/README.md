@@ -21,11 +21,11 @@ Confirm `<repo-root>/.claude/settings.json` exists and wires the hook + deny rul
 The parent assistant runs **one script** and then fires Agent calls:
 
 ```bash
-python3 webinar-00/skills/launch-isolated-module-agents/orchestrate.py <angle-root>
+python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <angle-root>
 # → emits pre-flight result, snapshot, prompts, and a tagged invocations block
 # → assistant fires N Agent() calls (one per module) in ONE message, in background
 # → (wait for callbacks)
-python3 webinar-00/skills/launch-isolated-module-agents/orchestrate.py <angle-root> --verify
+python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <angle-root> --verify
 # → triple audit (self-report + filesystem diff + hook log)
 ```
 

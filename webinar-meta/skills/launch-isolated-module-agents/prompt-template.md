@@ -19,6 +19,23 @@ You are allowed to read files **only** from:
 - `{{module_path}}/code/` (resolves to the shared `{{shared_code_path}}` via symlink — treat as read-only)
 - `{{module_path}}/data/` (resolves to the shared `{{shared_data_path}}` via symlink — treat as read-only)
 
+### Data layout under `data/`
+
+```
+data/
+├── raw/        — raw rlog source; adapter code in code/ knows how to decode
+├── sim-only/   — input-only mirror; what the canonical grader hands your predict()
+│                 8 columns: t_s, delta_wheel_deg, delta_road_rad, v_mps,
+│                            a_long_mps2, accel_pedal_pct, brake_pressed,
+│                            yaw_rate_pred_rads
+└── sim-full/   — full schema including truth (yaw_rate_meas_rads etc.);
+                  for training and local scoring only
+```
+
+**Operating contract**: your `predict(sim_df, platform)` will be called with a sim_df sourced from `sim-only/` at grading time. The truth column literally won't be there. If your predict reads truth columns, you'll get `KeyError`s at grading time. The local `score-model/` skill enforces the same contract during your dev cycle — so what works locally will work at grading.
+
+Train against `data/sim-full/` (truth available), test against `data/sim-only/` (mirror of grading conditions).
+
 You are **forbidden** from reading any of:
 {{forbidden_reads_list}}
 

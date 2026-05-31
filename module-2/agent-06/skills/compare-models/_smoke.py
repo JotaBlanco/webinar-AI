@@ -15,7 +15,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from compare import compare  # noqa: E402
+from compare import compare, format_summary, top_regressions, top_improvements  # noqa: E402
 
 
 def fn_a(sim_df, platform):
@@ -34,9 +34,9 @@ def _pick_segments(n: int = 20) -> list[Path]:
     # Look in the working dir first (where the agent runs); fall back to the
     # repo's top-level data tree if we're invoked from elsewhere.
     candidates = []
-    candidates.extend(sorted(Path.cwd().glob("data/sim/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv")))
+    candidates.extend(sorted(Path.cwd().glob("data/sim-full/FORD_MUSTANG_MACH_E_MK1/**/sim.csv")))
     if not candidates:
-        repo_data = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim/segments/FORD_MUSTANG_MACH_E_MK1")
+        repo_data = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim-full/FORD_MUSTANG_MACH_E_MK1")
         candidates = sorted(repo_data.glob("**/sim.csv"))
     if not candidates:
         raise RuntimeError(
@@ -77,11 +77,13 @@ def main() -> int:
         f"expected median yaw_rate_delta > 0 (scaled worse); got {median_delta}"
     )
 
-    # Show the table so a human can sanity-check.
-    pd.set_option("display.width", 200)
-    pd.set_option("display.max_columns", 20)
-    print("\nHead of compare() result:")
-    print(df.head().to_string(index=False))
+    # Exercise the ranked-view helpers.
+    tr = top_regressions(df, "yaw_rate_delta", n=3)
+    ti = top_improvements(df, "yaw_rate_delta", n=3)
+    assert len(tr) <= 3 and len(ti) <= 3, "ranked views returned too many rows"
+
+    print()
+    print(format_summary(df, "v0", "v0_scaled", top_n=3))
 
     print("\nSmoke test PASSED.")
     return 0

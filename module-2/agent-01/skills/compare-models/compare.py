@@ -27,7 +27,7 @@ PredictFn = Callable[[pd.DataFrame, str], pd.DataFrame]
 # ---------- helpers ----------
 
 def _infer_platform(segment_path: Path) -> str:
-    """Pull the platform token out of a path like data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv."""
+    """Pull the platform token out of a path like data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv."""
     parts = segment_path.resolve().parts
     try:
         i = parts.index("segments")
@@ -39,7 +39,7 @@ def _infer_platform(segment_path: Path) -> str:
 
 def _default_segment_paths() -> list[Path]:
     """All FORD_* sim.csv files under the working dir's data/ tree."""
-    root = Path.cwd() / "data" / "sim" / "segments"
+    root = Path.cwd() / "data" / "sim-full"
     if not root.exists():
         return []
     return sorted(root.glob("FORD_*/**/sim.csv"))
@@ -234,5 +234,105 @@ def compare(
     return df
 
 
-# Silence the noqa on the helpers we import only for re-use by callers.
-__all__ = ["compare", "integrate_trajectory"]
+# ---------- ranked views & summary helpers ----------
+
+def top_regressions(df: pd.DataFrame, metric: str = "cte_delta", n: int = 10) -> pd.DataFrame:
+    """Segments where B is *worse* than A on the given delta metric.
+
+    `metric` should be a `*_delta` column (B - A; positive = B worse). Returns
+    the top-`n` rows by largest positive delta. NaN deltas are dropped.
+    """
+    if metric not in df.columns:
+        raise KeyError(f"{metric!r} not in DataFrame; have: {list(df.columns)}")
+    return df.dropna(subset=[metric]).nlargest(n, metric).reset_index(drop=True)
+
+
+def top_improvements(df: pd.DataFrame, metric: str = "cte_delta", n: int = 10) -> pd.DataFrame:
+    """Segments where B is *better* than A. Top-`n` rows by most negative delta."""
+    if metric not in df.columns:
+        raise KeyError(f"{metric!r} not in DataFrame; have: {list(df.columns)}")
+    return df.dropna(subset=[metric]).nsmallest(n, metric).reset_index(drop=True)
+
+
+def per_platform_summary(df: pd.DataFrame, name_a: str = "A", name_b: str = "B") -> pd.DataFrame:
+    """Per-platform pooled view: mean yaw and CTE for A and B + mean delta."""
+    if df.empty:
+        return pd.DataFrame()
+    yaw_a = f"yaw_rate_rmse_{name_a}"
+    yaw_b = f"yaw_rate_rmse_{name_b}"
+    cte_a = f"cte_rmse_{name_a}"
+    cte_b = f"cte_rmse_{name_b}"
+    rows = []
+    for plat, sub in df.groupby("platform"):
+        rows.append({
+            "platform":            plat,
+            "n_segments":          int(len(sub)),
+            f"yaw_mean_{name_a}":  float(sub[yaw_a].mean(skipna=True)),
+            f"yaw_mean_{name_b}":  float(sub[yaw_b].mean(skipna=True)),
+            "yaw_delta_mean":      float(sub["yaw_rate_delta"].mean(skipna=True)),
+            "yaw_b_wins_frac":     float((sub["yaw_rate_delta"] < 0).mean()),
+            f"cte_mean_{name_a}":  float(sub[cte_a].mean(skipna=True)),
+            f"cte_mean_{name_b}":  float(sub[cte_b].mean(skipna=True)),
+            "cte_delta_mean":      float(sub["cte_delta"].mean(skipna=True)),
+            "cte_b_wins_frac":     float((sub["cte_delta"] < 0).mean(skipna=True)),
+        })
+    return pd.DataFrame(rows)
+
+
+def format_summary(df: pd.DataFrame, name_a: str = "A", name_b: str = "B", top_n: int = 5) -> str:
+    """Render a markdown dashboard — overall win/loss counts, per-platform
+    summary, top regressions, top improvements. Print this to your console."""
+    if df.empty:
+        return "compare-models: no segments compared."
+
+    n = len(df)
+    yaw_b_wins = int((df["yaw_rate_delta"] < 0).sum())
+    cte_b_wins = int((df["cte_delta"] < 0).sum())
+    cte_valid  = int(df["cte_delta"].notna().sum())
+
+    L = []
+    L.append(f"## compare-models — `{name_a}` vs `{name_b}`")
+    L.append(f"- segments compared: {n}")
+    L.append(f"- **yaw**: `{name_b}` wins {yaw_b_wins}/{n} segments (mean delta = {df['yaw_rate_delta'].mean():+.5f} rad/s)")
+    L.append(f"- **CTE**: `{name_b}` wins {cte_b_wins}/{cte_valid} segments (mean delta = {df['cte_delta'].mean(skipna=True):+.3f} m)")
+    L.append("")
+    L.append("### per platform")
+    pp = per_platform_summary(df, name_a, name_b)
+    if not pp.empty:
+        yaw_a = f"yaw_mean_{name_a}"
+        yaw_b = f"yaw_mean_{name_b}"
+        cte_a = f"cte_mean_{name_a}"
+        cte_b = f"cte_mean_{name_b}"
+        L.append(f"| platform | n | yaw {name_a} | yaw {name_b} | yaw Δ | B wins yaw | cte {name_a} | cte {name_b} | cte Δ | B wins cte |")
+        L.append("|---|---|---|---|---|---|---|---|---|---|")
+        for _, r in pp.iterrows():
+            L.append(f"| `{r['platform']}` | {r['n_segments']} | {r[yaw_a]:.5f} | {r[yaw_b]:.5f} | {r['yaw_delta_mean']:+.5f} | {r['yaw_b_wins_frac']:.0%} | {r[cte_a]:.2f} | {r[cte_b]:.2f} | {r['cte_delta_mean']:+.2f} | {r['cte_b_wins_frac']:.0%} |")
+    L.append("")
+    L.append(f"### top {top_n} CTE regressions (B worse than A)")
+    tr = top_regressions(df, "cte_delta", top_n)
+    L.append("| segment | platform | cte_delta | yaw_delta |")
+    L.append("|---|---|---|---|")
+    for _, r in tr.iterrows():
+        seg = Path(r["segment_path"]).parent.name
+        route = Path(r["segment_path"]).parents[1].name
+        L.append(f"| `{route}/{seg}` | `{r['platform']}` | {r['cte_delta']:+.2f} | {r['yaw_rate_delta']:+.5f} |")
+    L.append("")
+    L.append(f"### top {top_n} CTE improvements (B better than A)")
+    ti = top_improvements(df, "cte_delta", top_n)
+    L.append("| segment | platform | cte_delta | yaw_delta |")
+    L.append("|---|---|---|---|")
+    for _, r in ti.iterrows():
+        seg = Path(r["segment_path"]).parent.name
+        route = Path(r["segment_path"]).parents[1].name
+        L.append(f"| `{route}/{seg}` | `{r['platform']}` | {r['cte_delta']:+.2f} | {r['yaw_rate_delta']:+.5f} |")
+    return "\n".join(L)
+
+
+__all__ = [
+    "compare",
+    "top_regressions",
+    "top_improvements",
+    "per_platform_summary",
+    "format_summary",
+    "integrate_trajectory",
+]

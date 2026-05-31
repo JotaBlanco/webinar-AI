@@ -10,7 +10,7 @@ ALLOWED reads (no logging, exit 0):
                                                  isolation is the prompt's job, not ours)
   - <repo-root>/code/**                         (shared runtime code)
   - <repo-root>/data/**                         (shared runtime data)
-  - <repo-root>/webinar-00/skills/launch-isolated-module-agents/**
+  - <repo-root>/webinar-meta/skills/launch-isolated-module-agents/**
                                                 (this skill — orchestrator etc.)
   - any path outside <repo-root>                (we're not a general-purpose firewall;
                                                  system tools, system python, /tmp, etc.
@@ -22,8 +22,8 @@ DENIED reads (exit 2, log line written):
   - <repo-root>/webinar-angle-*/_observations/**
   - <repo-root>/webinar-angle-*/process-log.md
   - <repo-root>/webinar-angle-*/RUN-LOG.md
-  - <repo-root>/webinar-AI/webinar-00/webinar-00-template/**
-  - <repo-root>/webinar-AI/webinar-00/domain-knowledge-challenges/**
+  - <repo-root>/webinar-AI/webinar-meta/webinar-00-template-*/**
+  - <repo-root>/webinar-AI/webinar-meta/domain-knowledge-challenges/**
   - any path matching <repo-root>/<extra-denies-glob>/** (from --extra-deny arg)
 
 Bypass (for the human-driven main session only — never set these in env/files
@@ -139,10 +139,10 @@ DENY_PATTERNS_REL = [
     "webinar-angle-*/process-log.md",
     "webinar-angle-*/RUN-LOG.md",
     "webinar-angle-*/.launch-config.json",
-    "webinar-00/webinar-00-template/*",
-    "webinar-00/webinar-00-template/**",
-    "webinar-00/domain-knowledge-challenges/*",
-    "webinar-00/domain-knowledge-challenges/**",
+    "webinar-meta/webinar-00-template-*/*",
+    "webinar-meta/webinar-00-template-*/**",
+    "webinar-meta/domain-knowledge-challenges/*",
+    "webinar-meta/domain-knowledge-challenges/**",
 ]
 
 
@@ -252,7 +252,7 @@ def main():
         f"  tool: {tool_name}\n"
         f"  blocked: {[str(p) for _, p in blocked]}\n"
         f"  policy: webinar-angle-*/_shared, _launch, _observations, process-log.md, RUN-LOG.md, "
-        f"webinar-00/webinar-00-template, webinar-00/domain-knowledge-challenges, plus --extra-deny.\n"
+        f"webinar-meta/webinar-00-template-*, webinar-meta/domain-knowledge-challenges, plus --extra-deny.\n"
         f"  logged to: {log_file}\n"
         f"If this read is genuinely needed, declare a limitation in REPORT.md and proceed without.",
         file=sys.stderr,

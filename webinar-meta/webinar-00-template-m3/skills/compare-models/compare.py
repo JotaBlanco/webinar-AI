@@ -27,7 +27,7 @@ PredictFn = Callable[[pd.DataFrame, str], pd.DataFrame]
 # ---------- helpers ----------
 
 def _infer_platform(segment_path: Path) -> str:
-    """Pull the platform token out of a path like data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv."""
+    """Pull the platform token out of a path like data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv."""
     parts = segment_path.resolve().parts
     try:
         i = parts.index("segments")
@@ -39,7 +39,7 @@ def _infer_platform(segment_path: Path) -> str:
 
 def _default_segment_paths() -> list[Path]:
     """All FORD_* sim.csv files under the working dir's data/ tree."""
-    root = Path.cwd() / "data" / "sim" / "segments"
+    root = Path.cwd() / "data" / "sim-full"
     if not root.exists():
         return []
     return sorted(root.glob("FORD_*/**/sim.csv"))

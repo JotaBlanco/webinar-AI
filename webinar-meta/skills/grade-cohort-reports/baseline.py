@@ -131,6 +131,8 @@ def cache_key(parsed: dict) -> str:
         "segment_globs": sorted(eval_set.get("segment_globs", []) or []),
         "sample_filter": eval_set.get("sample_filter", "True"),
         "truth_channel": eval_set.get("truth_channel", "yaw_rate_meas_rads"),
+        "input_dir_name":  eval_set.get("input_dir_name", "sim/segments"),
+        "truth_dir_name":  eval_set.get("truth_dir_name", "sim/segments"),
         "grid_step_m": float(cte_cfg.get("grid_step_m", 1.0)),
         "min_segment_distance_m": float(cte_cfg.get("min_segment_distance_m", 20.0)),
     }
@@ -138,14 +140,37 @@ def cache_key(parsed: dict) -> str:
     return hashlib.sha256(blob).hexdigest()[:16]
 
 
+def _truth_path_for(input_path: Path, input_dir_name: str, truth_dir_name: str) -> Path:
+    """Translate <root>/<input_dir_name>/<rest>.csv -> <root>/<truth_dir_name>/<rest>.csv.
+
+    Defence-in-depth: the input CSV (sim-only) contains only allowed columns;
+    truth lives in a parallel tree the grader reads separately. Agents can't
+    see truth columns in the file the predict() call receives.
+    """
+    s = str(input_path)
+    needle = "/" + input_dir_name.strip("/") + "/"
+    replacement = "/" + truth_dir_name.strip("/") + "/"
+    if needle not in s:
+        raise ValueError(f"_truth_path_for: input_dir_name {input_dir_name!r} not found in {s!r}")
+    return Path(s.replace(needle, replacement, 1))
+
+
 def compute_baseline(parsed: dict) -> dict:
-    """Stream the val pool, compute both V0 RMSEs. Pure function of inputs."""
+    """Stream the val pool, compute both V0 RMSEs. Pure function of inputs.
+
+    Reads V0 prediction (`yaw_rate_pred_rads`) from the sim-only input file;
+    reads truth (`yaw_rate_meas_rads`) from the parallel sim/ file (via
+    truth_dir_name swap). Inputs and truth are in separate files — the agent's
+    predict() will never receive the truth column, by file-system construction.
+    """
     eval_set = parsed.get("eval_set", {}) or {}
     globs = eval_set.get("segment_globs", []) or []
     if not globs:
         sys.exit("baseline: eval_set.segment_globs missing")
     sample_filter_expr = eval_set.get("sample_filter", "True")
     truth_col = eval_set.get("truth_channel", "yaw_rate_meas_rads")
+    input_dir_name = eval_set.get("input_dir_name", "sim/segments")
+    truth_dir_name = eval_set.get("truth_dir_name", "sim/segments")
     eval_root_str = parsed.get("eval_data_root", "").strip()
     eval_root = Path(eval_root_str) if eval_root_str else REPO_ROOT
     if not eval_root.is_dir():
@@ -159,18 +184,24 @@ def compute_baseline(parsed: dict) -> dict:
     if not seg_paths:
         sys.exit(f"baseline: no segments matched globs under {eval_root}")
 
-    # KPI 1: pooled yaw-rate RMSE.
+    # KPI 1: pooled yaw-rate RMSE. Read V0 prediction from input (sim-only)
+    # and truth from the parallel sim/ file.
     sum_sq = 0.0
     n = 0
     fcode = compile(f"({sample_filter_expr})", "<filter>", "eval")
     for p in seg_paths:
-        with p.open(newline="") as fh:
-            reader = csv.DictReader(fh)
-            for row in reader:
+        truth_path = _truth_path_for(p, input_dir_name, truth_dir_name)
+        # Read both files row-aligned. Both have a `t_s` first column so we can
+        # zip; we trust them to have identical row count (same simulator output,
+        # same segment).
+        with p.open(newline="") as fh_in, truth_path.open(newline="") as fh_tr:
+            reader_in = csv.DictReader(fh_in)
+            reader_tr = csv.DictReader(fh_tr)
+            for row_in, row_tr in zip(reader_in, reader_tr):
                 try:
-                    v_mps = float(row["v_mps"])
-                    pred = float(row["yaw_rate_pred_rads"])
-                    truth = float(row[truth_col])
+                    v_mps = float(row_in["v_mps"])
+                    pred = float(row_in["yaw_rate_pred_rads"])
+                    truth = float(row_tr[truth_col])
                 except (KeyError, ValueError):
                     continue
                 if not eval(fcode, {"v_mps": v_mps, "math": math}):
@@ -182,7 +213,8 @@ def compute_baseline(parsed: dict) -> dict:
         sys.exit("baseline: zero yaw-rate samples after filter")
     yaw_rmse = math.sqrt(sum_sq / n)
 
-    # KPI 2: distance-resampled CTE RMSE.
+    # KPI 2: distance-resampled CTE RMSE. The cte helper takes single-file paths
+    # currently; we feed it the sim/ paths (truth + pred both present there).
     cte_cfg = parsed.get("cte_metric", {}) or {}
     grid_step_m = float(cte_cfg.get("grid_step_m", 1.0))
     min_dist_m = float(cte_cfg.get("min_segment_distance_m", 20.0))
@@ -190,8 +222,9 @@ def compute_baseline(parsed: dict) -> dict:
     sys.path.insert(0, str(SKILL_DIR))
     from traj_metrics import cte_baseline_from_segments  # noqa: E402
 
+    truth_seg_paths = [_truth_path_for(p, input_dir_name, truth_dir_name) for p in seg_paths]
     cte = cte_baseline_from_segments(
-        segment_paths=seg_paths,
+        segment_paths=truth_seg_paths,
         truth_channel=truth_col,
         pred_channel="yaw_rate_pred_rads",
         grid_step_m=grid_step_m,
@@ -209,6 +242,9 @@ def compute_baseline(parsed: dict) -> dict:
         "cte": cte,
         "n_segments": len(seg_paths),
         "segment_paths": [str(p) for p in seg_paths],
+        "truth_segment_paths": [str(p) for p in truth_seg_paths],
+        "input_dir_name": input_dir_name,
+        "truth_dir_name": truth_dir_name,
         "eval_data_root": str(eval_root),
         "globs": globs,
     }

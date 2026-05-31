@@ -189,6 +189,21 @@ def derive_platform(seg_path: Path, lookup: dict[str, str]) -> str | None:
     return None
 
 
+def truth_path_for(input_path: Path, input_dir_name: str, truth_dir_name: str) -> Path:
+    """Translate <root>/<input_dir_name>/<rest>.csv -> <root>/<truth_dir_name>/<rest>.csv.
+
+    Defence-in-depth: the input CSV (sim-only) contains only allowlist columns.
+    Truth lives in a parallel sim/ tree the worker reads separately, so the
+    DataFrame passed to predict() literally cannot contain truth columns.
+    """
+    s = str(input_path)
+    needle = "/" + input_dir_name.strip("/") + "/"
+    replacement = "/" + truth_dir_name.strip("/") + "/"
+    if needle not in s:
+        raise ValueError(f"truth_path_for: input_dir_name {input_dir_name!r} not found in {s!r}")
+    return Path(s.replace(needle, replacement, 1))
+
+
 def load_predict(agent_folder: Path, manifest: dict):
     """Resolve `predict_callable` (e.g. 'predict.py:predict' or
     'final-model/predict.py:predict') against agent_folder and import it."""
@@ -252,6 +267,8 @@ def run_agent(cfg: dict) -> dict:
     platform_lookup = cfg["platform_lookup"]
     sample_filter_expr = cfg["sample_filter"]
     truth_col = cfg["truth_channel"]
+    input_dir_name = cfg.get("input_dir_name", "sim/segments")
+    truth_dir_name = cfg.get("truth_dir_name", "sim/segments")
     grid_step_m = cfg["grid_step_m"]
     min_dist_m = cfg["min_segment_distance_m"]
     timeout_s = cfg.get("timeout_s", 120)
@@ -370,12 +387,17 @@ def run_agent(cfg: dict) -> dict:
 
         try:
             with redirect_stdout(sink), redirect_stderr(sink):
-                sim_df_full = pd.read_csv(seg_path)
-                # Strip to allowlist BEFORE handing to the agent (operating-contract
-                # enforcement: no inference-time access to truth or truth-derived signals).
-                sim_df, stripped = strip_to_allowlist(sim_df_full, ALLOWED_INPUT_COLUMNS)
+                # Read INPUT from sim-only (no truth columns by file-system construction).
+                sim_df = pd.read_csv(seg_path)
+                # Redundant allowlist strip — defence in depth, no-op if input
+                # file is already sim-only, but catches any future drift.
+                sim_df, stripped = strip_to_allowlist(sim_df, ALLOWED_INPUT_COLUMNS)
                 if base["contract"]["stripped_columns_per_segment"] is None:
                     base["contract"]["stripped_columns_per_segment"] = stripped
+                # Read TRUTH from a parallel sim/ file. Only the worker reads it;
+                # never handed to predict().
+                truth_path = truth_path_for(seg_path, input_dir_name, truth_dir_name)
+                truth_df = pd.read_csv(truth_path)
                 pred_df = predict(sim_df, platform)
         except Exception as e:
             n_runtime += 1
@@ -391,13 +413,12 @@ def run_agent(cfg: dict) -> dict:
                 first_err = f"{seg_path.name}: pred_df missing yaw_rate_pred_rads column"
             continue
 
-        # Yaw RMSE — pooled with sample filter. Note: truth comes from
-        # sim_df_full (not the stripped sim_df the agent saw), since we need
-        # it to score against.
+        # Yaw RMSE — pooled with sample filter. Truth comes from truth_df
+        # (parallel sim/ file); v_mps from the agent-facing sim_df.
         try:
             yr_agent = pred_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
-            yr_truth = sim_df_full[truth_col].to_numpy(dtype=float)
-            v_mps = sim_df_full["v_mps"].to_numpy(dtype=float)
+            yr_truth = truth_df[truth_col].to_numpy(dtype=float)
+            v_mps = sim_df["v_mps"].to_numpy(dtype=float)
         except (KeyError, ValueError) as e:
             n_runtime += 1
             p_acc["n_segments_runtime_error"] += 1
@@ -423,7 +444,7 @@ def run_agent(cfg: dict) -> dict:
 
         # CTE per segment — unfiltered (needs full continuous series).
         try:
-            t = sim_df_full["t_s"].to_numpy(dtype=float)
+            t = sim_df["t_s"].to_numpy(dtype=float)
             seg_cte_sum_sq, seg_cte_n_bins, _total = cte_rmse_segment(
                 t, v_mps, yr_truth, yr_agent,
                 grid_step_m=grid_step_m, min_distance_m=min_dist_m,

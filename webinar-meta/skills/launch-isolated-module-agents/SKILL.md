@@ -63,6 +63,21 @@ The honest framing: *"hard outer ring, soft inner ring, detective audit on both.
 
 `<repo-root>/.claude/settings.json` exists and wires the hook + deny rules. Already in place for `webinar-AI/`. Single global file; no per-session restart needed; the hook activates for every Claude Code session rooted anywhere under the repo.
 
+### The shared `data/` topology (as of 2026-05-31)
+
+`<repo-root>/data/` is three symlinks (not a real tree):
+
+```
+data/
+├── raw/        → KB_PARENT/KB003/data/raw                  (raw rlogs)
+├── sim-only/   → KB_PARENT/KB003/data/sim-only/segments    (input-only mirror — operating-contract surface)
+└── sim-full/   → KB_PARENT/KB003/data/sim/segments         (full schema including truth — training/scoring only)
+```
+
+`sim-only/` is what the canonical grader hands to each agent's `predict()`; truth columns aren't in those CSVs. `sim-full/` is for training and local scoring. The agent prompt template documents this for each agent.
+
+**Caveat for the `KB_PARENT/KB003/**` declarative deny rule**: the data/ symlinks resolve into KB003. Depending on whether `permissions.deny` matches the literal path argument (safe) or the post-symlink-resolution path (would break legitimate `data/` reads), the KB003 deny may need to be removed. See `_note_on_KB003_symlink_collision` in `settings-deny-snippet.json` for the smoke test. The symlink-aware hook (layer 3) is still the catch-all for direct KB003 reads via absolute path.
+
 ### Setup — done once per angle
 
 Write `<angle-root>/.launch-config.json` (5-30 lines). Schema:
@@ -91,14 +106,14 @@ Write `<angle-root>/.launch-config.json` (5-30 lines). Schema:
 
 ```bash
 # 1) Pre-flight + snapshot + render prompts + emit invocations.
-python3 webinar-00/skills/launch-isolated-module-agents/orchestrate.py <angle-root>
+python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <angle-root>
 ```
 
 Output between the lines `BEGIN_INVOCATIONS` and `END_INVOCATIONS` is a JSON array. The parent assistant parses it and fires one Agent() call per entry, all in a *single message*, `run_in_background: true`. (A python script can't call Agent — only an assistant can.)
 
 ```bash
 # 2) After all agents return (you'll be notified per agent), verify isolation.
-python3 webinar-00/skills/launch-isolated-module-agents/orchestrate.py <angle-root> --verify
+python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <angle-root> --verify
 ```
 
 The verify run prints per-module pass/fail across V1 self-report, V2 filesystem diff, V3 hook log. Any FAIL is workshop-relevant data — capture in the angle's run log.

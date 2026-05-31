@@ -3,7 +3,7 @@
 A "route" is one recorded drive — identified by the (platform, device, route) tuple
 parsed from the path schema:
 
-    data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv
+    data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv
 
 Adjacent samples within a single route are highly correlated, so per-segment random
 splitting leaks information across the partition. This module assigns whole routes
@@ -35,7 +35,7 @@ def _parse_route_key(path: Path) -> tuple[str, str, str]:
 
 def _default_glob() -> list[Path]:
     """Default segment glob, resolved against the current working directory."""
-    root = Path.cwd() / "data" / "sim" / "segments"
+    root = Path.cwd() / "data" / "sim-full"
     return sorted(root.glob("FORD_*/**/sim.csv"))
 
 
@@ -80,7 +80,7 @@ def split(
 
     Args:
         segment_paths: iterable of sim.csv paths. If None, globs all
-            `data/sim/segments/FORD_*/**/sim.csv` under the current working dir.
+            `data/sim-full/FORD_*/**/sim.csv` under the current working dir.
         dev_fraction: target fraction of segments in dev. Greedy fill — stops
             on first crossing, so actual fraction may exceed the target slightly.
         seed: RNG seed for the route-group shuffle. Same seed + same inputs ->

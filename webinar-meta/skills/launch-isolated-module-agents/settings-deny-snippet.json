@@ -17,7 +17,7 @@
       "Read(<KB_PARENT>/KB003/**)",
       "Read(<REPO_ROOT>/webinar-angle-A/**)",
       "Read(<REPO_ROOT>/webinar-angle-B/**)",
-      "Read(<REPO_ROOT>/webinar-00/**)",
+      "Read(<REPO_ROOT>/webinar-meta/**)",
       "Read(<REPO_ROOT>/<ANGLE_NAME>/_shared/**)",
       "Read(<REPO_ROOT>/<ANGLE_NAME>/_launch/**)",
       "Read(<REPO_ROOT>/<ANGLE_NAME>/process-log.md)",
@@ -33,11 +33,13 @@
       "Bash(find:<KB_PARENT>/**)",
       "Bash(cat:<REPO_ROOT>/webinar-angle-A/**)",
       "Bash(cat:<REPO_ROOT>/webinar-angle-B/**)",
-      "Bash(cat:<REPO_ROOT>/webinar-00/**)"
+      "Bash(cat:<REPO_ROOT>/webinar-meta/**)"
     ]
   },
 
   "_note_on_intra_angle": "We deliberately do NOT deny <REPO_ROOT>/<ANGLE_NAME>/modulo-* — each agent is supposed to read its own module. Per-agent path differentiation cannot be expressed in settings.json; the hook (method #3) cannot reliably do it either. Intra-angle isolation is prompt-soft + post-run-verified, by design and by limitation.",
 
-  "_note_on_pattern_syntax": "Claude Code accepts `Read(/abs/path/**)` (glob) and `Bash(cmd:/abs/path/**)` (command+pattern). Patterns with spaces or special chars must be in valid glob form. Test by trying to read a denied path from inside the session and confirming the tool call is rejected before subagents launch."
+  "_note_on_pattern_syntax": "Claude Code accepts `Read(/abs/path/**)` (glob) and `Bash(cmd:/abs/path/**)` (command+pattern). Patterns with spaces or special chars must be in valid glob form. Test by trying to read a denied path from inside the session and confirming the tool call is rejected before subagents launch.",
+
+  "_note_on_KB003_symlink_collision": "<REPO_ROOT>/data/{raw,sim-only,sim-full} are now symlinks INTO KB_PARENT/KB003. The Read(<KB_PARENT>/KB003/**) deny rule above is intended to catch DIRECT absolute-path reads of KB003, NOT to block legitimate reads agents make through their data/ symlink. Behaviour depends on whether Claude Code's permissions.deny matches the literal path argument (safe) or the canonicalised path after symlink resolution (would block legitimate data/ reads). SMOKE TEST before relying on this: from inside a sub-agent session, try `Read(<REPO_ROOT>/data/sim-only/<a-real-platform>/...)` and confirm it succeeds. If it fails, remove the Read(<KB_PARENT>/KB003/**) line — the hook (layer 3) is still the catch-all for direct KB003 reads via absolute path."
 }

@@ -1,23 +1,36 @@
 # data
 
-Raw and processed data the agent reads as input. The agent almost never reads files here directly — it goes through `tools/` (or an MCP server in `.mcp/`) so that token cost stays attributable and large files don't blow up the context window.
+Sim data tree for the lateral-fidelity task. Read-only. Symlinked into this template from the project's top-level `data/` directory — `git status` should not show changes here.
 
-## Convention
+## Expected layout
 
 ```
 data/
-├── raw/         # untouched source data — telemetry dumps, scans, lab measurements
-├── processed/   # cleaned / resampled / joined versions — derived from raw/, reproducible
-└── fixtures/    # small, version-controlled subset used for demos and evals
+├── raw/         (raw rlogs — adapter source)
+├── sim-only/    (input-only mirror — what your predict() sees at scoring time)
+│   └── <PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/
+│       └── sim.csv     ← 8 columns: t_s, delta_*, v_mps, a_long_mps2,
+│                          accel_pedal_pct, brake_pressed, yaw_rate_pred_rads
+└── sim-full/    (full schema including truth — for scoring & training)
+    └── <PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/
+        └── sim.csv     ← above + yaw_rate_meas_rads, a_lat_meas_mps2,
+                          residuals, simulator state
 ```
 
-## Rules of thumb
+## The operating contract
 
-- **`raw/` is read-only**, even for the team. Never edit raw data in place; produce `processed/` outputs from it.
-- **`processed/` should be reproducible** — a `code/` script or a `tools/` invocation should regenerate it from `raw/`. Don't commit anything in `processed/` whose lineage you can't reproduce.
-- **`fixtures/` is for the workshop and tests** — small enough to live in git, large enough to be representative. The hello-world `example.csv` is the prototype.
-- **Big data lives elsewhere** — if `raw/` would push the repo above ~100 MB, store it outside the repo and put a `raw/README.md` here pointing to the canonical location (e.g. a sibling KB folder or an S3 path).
+`sim-only/` is the **agent-facing view of the input** — what the canonical grader hands to your `predict()`. The truth channel (`yaw_rate_meas_rads`) and its kinematic shadow (`a_lat_meas_mps2`) literally don't exist in these files. If your predict tries to read them, you get a `KeyError`.
 
-## Template state
+`sim-full/` is for **scoring & training tooling only** — the local `score-model/` skill reads truth from here, strips inputs to the allowlist, then calls your predict. Same dual-file pattern as the canonical grader. Your local RMSE will match the canonical RMSE.
 
-- `example.csv` lives at the data/ root (not under `fixtures/`) for the hello-world smoke test. Move it (or delete it) once your first real data fixture is in place.
+Every skill in `skills/` that touches data assumes the `<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv` shape. Platform is the 3rd-from-rightmost directory; route is the 2nd-from-rightmost.
+
+## Setup
+
+If this directory is empty when you clone the template, create the symlinks:
+
+```bash
+ln -s /path/to/project/data/raw data/raw
+ln -s /path/to/project/data/sim-only data/sim-only       # input-only mirror
+ln -s /path/to/project/data/sim/segments data/sim-full   # full schema with truth
+```

@@ -34,7 +34,7 @@ def main() -> None:
 
     if n_total == 0:
         raise SystemExit(
-            "Smoke test found zero segments — check that data/sim/segments/FORD_* "
+            "Smoke test found zero segments — check that data/sim-full/FORD_* "
             "exists under the current working directory."
         )
 

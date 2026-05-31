@@ -32,15 +32,24 @@ def md5_of(p: Path) -> str:
 
 
 def snapshot(roots: list[Path], out: Path) -> int:
-    """Walk roots, write `<md5>\\t<abs-path>` per file. Returns file count."""
+    """Walk roots, write `<md5>\\t<abs-path>` per file. Returns file count.
+
+    Uses os.walk(followlinks=True) because <repo>/data/ is now a tree of
+    symlinks into KB003 (sim-only, sim-full, raw). Path.rglob in Python 3.13
+    does NOT follow symlinks by default, which would silently produce an
+    empty snapshot — audit-quiet but useless.
+    """
+    import os
     n = 0
     with open(out, "w") as f:
         for root in roots:
             if not root.is_dir():
                 continue
-            for sub in sorted(root.rglob("*")):
-                if not sub.is_file():
-                    continue
+            walked: list[Path] = []
+            for dirpath, _dirnames, filenames in os.walk(root, followlinks=True):
+                for fn in filenames:
+                    walked.append(Path(dirpath) / fn)
+            for sub in sorted(walked):
                 try:
                     h = md5_of(sub)
                 except (PermissionError, OSError):
@@ -123,7 +132,7 @@ def main():
 
     candidates = [
         # Other angles (skip self).
-        repo / "webinar-00",
+        repo / "webinar-meta",
         repo / "webinar-angle-A",
         repo / "webinar-angle-B",
         repo / "webinar-angle-C",
