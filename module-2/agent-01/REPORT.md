@@ -51,8 +51,7 @@ The Mustang Mach-E needed a **`gain` of 1.21** â€” twenty per cent above unity â
 - `out/score_v0.py`, `out/score_final.py`
 - `out/score_summary.json`
 
-## ISOLATION_REPORT
-
+ISOLATION_REPORT:
 ```
 read_outside_module: []
 attempted_blocked: []

@@ -49,8 +49,7 @@ I deliberately did not write `final-model/REPORT.md`. The orchestrator will crea
 - `out/{baseline_score,fit_understeer,score_final}.py`
 - `out/coeffs.json`
 
-## ISOLATION_REPORT
-
+ISOLATION_REPORT:
 ```
 read_outside_module: []
 attempted_blocked: []

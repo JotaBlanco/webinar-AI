@@ -11,7 +11,7 @@ from pathlib import Path
 from visualise import plot
 
 SEGMENT_ROOT = Path(
-    "/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim-full/FORD_MUSTANG_MACH_E_MK1"
+    "/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim/segments/FORD_MUSTANG_MACH_E_MK1"
 )
 OUT_PATH = Path("/tmp/visualise_segment_smoke.png")
 

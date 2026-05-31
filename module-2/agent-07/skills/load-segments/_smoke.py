@@ -11,24 +11,24 @@ import sys
 from pathlib import Path
 
 # The skill resolves paths relative to CWD. Set CWD to the webinar-AI repo root
-# so `data/sim-full/...` resolves. We locate the repo by walking up from
+# so `data/sim/segments/...` resolves. We locate the repo by walking up from
 # this file until we find a `data/` directory.
 HERE = Path(__file__).resolve().parent
 
 # Make `load.py` importable as a sibling module.
 sys.path.insert(0, str(HERE))
 
-# Walk up to find a directory containing data/sim-full.
+# Walk up to find a directory containing data/sim/segments.
 _cur = HERE
 _repo_root = None
 for _ in range(8):
-    if (_cur / "data" / "sim-full").is_dir():
+    if (_cur / "data" / "sim" / "segments").is_dir():
         _repo_root = _cur
         break
     _cur = _cur.parent
 
 if _repo_root is None:
-    print("smoke FAILED: could not find a data/sim-full directory above this skill")
+    print("smoke FAILED: could not find a data/sim/segments directory above this skill")
     sys.exit(1)
 
 os.chdir(_repo_root)

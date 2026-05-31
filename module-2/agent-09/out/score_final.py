@@ -137,11 +137,17 @@ def main():
         "failed": failed,
     }
 
-    # Combined pooled (sum-of-squares pooling)
+    # Combined pooled — reconstruct sum-of-squares from per-segment rmse + per-segment n_samples for yaw,
+    # and per-segment cte_rmse * cte_rmse * approx-n-bins (estimate n_bins from distance_m / grid_step_m=1.0).
     fh_n_samples = result["n_samples"]
-    fh_n_bins = sum(int(r["cte_n_bins"]) for _, r in result["per_segment"].iterrows())
-    fh_yaw_sum_sq = sum(float(r["yaw_sum_sq"]) for _, r in result["per_segment"].iterrows())
-    fh_cte_sum_sq = sum(float(r["cte_sum_sq"]) for _, r in result["per_segment"].iterrows())
+    fh_yaw_sum_sq = sum(float(r["yaw_rate_rmse"] ** 2 * r["n_samples"]) for _, r in result["per_segment"].iterrows())
+    # CTE bin count ≈ distance_m / 1.0 (grid_step_m default).
+    fh_cte_sum_sq = 0.0
+    fh_n_bins = 0
+    for _, r in result["per_segment"].iterrows():
+        n_bins = max(int(r["distance_m"]), 1)
+        fh_n_bins += n_bins
+        fh_cte_sum_sq += float(r["cte_rmse"] ** 2 * n_bins)
 
     pooled_yaw = math.sqrt((fh_yaw_sum_sq + yaw_sum_sq) / (fh_n_samples + yaw_n))
     pooled_cte = math.sqrt((fh_cte_sum_sq + cte_sum_sq) / (fh_n_bins + cte_n_bins))

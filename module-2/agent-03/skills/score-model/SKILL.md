@@ -52,7 +52,7 @@ mache_bias  = result["per_platform"]["FORD_MUSTANG_MACH_E_MK1"]["yaw_residual_me
 
 ## What it does not do
 
-- It does not load raw data for you — pass paths in (or let it default to all `data/sim-full/FORD_*/**/sim.csv`).
+- It does not load raw data for you — pass paths in (or let it default to all `data/sim/segments/FORD_*/**/sim.csv`).
 - It does not pick a methodology — knobs (`grid_step_m`, `min_distance_m`, `sample_filter_v_mps`, `top_n`) are explicit arguments.
 - It does not tell you what to do next. It returns numbers; you decide.
 

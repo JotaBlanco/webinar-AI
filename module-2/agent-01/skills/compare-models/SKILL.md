@@ -5,7 +5,7 @@ when-to-invoke: You have two predictors with the same `predict(sim_df, platform)
 when-NOT-to-invoke: You only want absolute scoring of one model (use scoring-model); you only want to look at a single segment (use visualising-segment).
 inputs:
   - predict_fn_a, predict_fn_b: callables. Required column `yaw_rate_pred_rads` (optional `x_m`, `y_m`).
-  - segment_paths: optional list of `sim.csv` paths. Default — all `data/sim-full/FORD_*/**/sim.csv` under cwd.
+  - segment_paths: optional list of `sim.csv` paths. Default — all `data/sim/segments/FORD_*/**/sim.csv` under cwd.
   - name_a, name_b: column labels (default "A"/"B").
   - grid_step_m, min_distance_m, sample_filter_v_mps: same defaults as scoring-model.
 outputs:

@@ -1,26 +1,25 @@
 # AGENTS.md — Module 3 (lateral fidelity, skills + references)
 
-You are working on the lateral-fidelity challenge. You have a starter toolkit of six skills under `skills/` and three reference documents under `references/`. Use them, modify them, or replace them as your work demands. They are starting points, not law.
+You are working on the lateral-fidelity challenge. The two KPIs to minimise are in your task prompt. You have a starter toolkit of seven skills under `skills/` and three short reference documents under `references/`. They are short on purpose — short enough to read, short enough to change.
 
 ## Working directory layout
 
-- `skills/` — toolkit. Inspect each `SKILL.md` to decide whether to load its body.
-- `references/` — short domain-knowledge documents about anti-patterns, the option space, and how to read the two KPIs. Read metadata first; load bodies when relevant.
-- `_shared/` — internal helpers used by the skills (trajectory integration, CTE math). Treat as library code.
+- `skills/` — toolkit. Inspect each `SKILL.md` metadata first; load the body only when relevant.
+- `references/` — short domain-knowledge documents (anti-patterns, option-space map, KPI tradeoff). Read frontmatter first; load bodies when relevant.
+- `_shared/` — local helpers used by the skills (trajectory integration, CTE math). Plain Python; modify freely.
 - `data/` — symlinked sim data (read-only).
 - `code/` — symlinked baseline model code, including `ks_model.py` (read-only).
-- `final-model/` — where you ship your final model. Required by the deliverable contract in your task brief.
+- `final-model/` — where you ship your final model. The deliverable contract is enforced by `skills/pre-flight-final-model/`.
 
 ## Skills inventory
 
-Inspect SKILL.md metadata first — never load all bodies eagerly.
-
-- `score-model/` — score any `predict()` function against your data. Returns yaw-rate RMSE, CTE RMSE, plus per-platform and per-regime breakdowns.
-- `compare-models/` — diff two `predict()` functions per-segment to see where one beats the other.
+- `score-model/` — score a `predict()` function: pooled yaw + CTE, per-segment tables, per-platform residual stats, distribution stats. Use as your inner-loop oracle.
+- `compare-models/` — diff two `predict()` functions per-segment. Default-sorts by delta; surfaces top regressions and top improvements.
+- `inspect-residuals/` — plot yaw residual against any input feature (steering, speed, time, anything else you compute) with per-platform binned mean and ±1σ band. Use when scoring-model shows a bias and you want to find which input dimension explains it.
 - `visualise-segment/` — render a multi-panel PNG of one segment with truth and one or more predictions overlaid.
-- `make-train-dev-split/` — split your data into train and dev sets for honest iteration while you build.
+- `make-train-dev-split/` — produce a route-grouped train/dev split. Ships with a validator that flags route leakage.
 - `load-segments/` — load segment `sim.csv`s into pandas DataFrames with consistent dtype hygiene.
-- `pre-flight-final-model/` — sanity-check that your `final-model/` bundle is shaped the way the deliverable contract requires.
+- `pre-flight-final-model/` — verify that your `final-model/` bundle matches the deliverable contract.
 
 ## References inventory
 
@@ -32,10 +31,12 @@ Read the frontmatter (description + when-to-load) before loading the body. Recom
 
 The references are knowledge, not prescription. They describe the landscape; you choose the route.
 
-## Your real measure of progress
+## Working with skills and references
 
-The two primary KPIs defined in your task brief. The skills compute them; nothing else is the score.
+The skills are deliberately small. Treat them as **clay, not library**. The expected workflow when a skill's output isn't useful:
 
-## Permission
+1. Look at the output. Is the signal you need *in there* somewhere?
+2. If yes — extract it inline; you don't have to change the skill.
+3. If no — the skill is wrong. Open the body, add the column or table you need, save, re-run.
 
-You may modify, extend, or delete any skill or reference. If something is wrong or in your way, fix it or ship without it. The only obligation is to lower the canonical KPIs.
+The references work the same way — if one says something you find misleading, edit it. If a reference is in your way, delete it. The only obligation is to lower the canonical KPIs.

@@ -26,7 +26,7 @@ _CRITICAL_FLOAT_COLS = (
 _REQUIRED_NONNA_COLS = ("t_s", "v_mps")
 
 # Base directory where segments live, relative to the working directory.
-_SEGMENTS_ROOT = Path("data") / "sim-full"
+_SEGMENTS_ROOT = Path("data") / "sim" / "segments"
 
 
 def _parse_path_attrs(sim_csv: Path) -> dict:
@@ -126,7 +126,7 @@ def load(
         Platform directory name (e.g. "FORD_MUSTANG_MACH_E_MK1"). Used when `paths` and
         `glob` are both None.
     glob
-        Explicit glob string under `data/sim-full/`. Takes precedence over `platform`.
+        Explicit glob string under `data/sim/segments/`. Takes precedence over `platform`.
     columns
         If given, only these columns are read. If some are missing in some files, the
         skill warns once and reads every column for those files.

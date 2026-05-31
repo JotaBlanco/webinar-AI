@@ -47,7 +47,7 @@ ALLOWED_INPUT_COLUMNS = frozenset({
 
 
 # ---------------------------------------------------------------------------
-# Path helpers — data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv
+# Path helpers — data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv
 # ---------------------------------------------------------------------------
 
 def _platform_from_path(p: Path) -> str:
@@ -63,7 +63,7 @@ def _idx_from_path(p: Path) -> str:
 
 
 def _default_segment_paths() -> list[Path]:
-    root = Path.cwd() / "data" / "sim-full"
+    root = Path.cwd() / "data" / "sim" / "segments"
     if not root.exists():
         return []
     return sorted(root.glob("FORD_*/**/sim.csv"))
@@ -103,7 +103,7 @@ def score(
         predict_fn: callable(sim_df, platform) -> DataFrame aligned with sim_df.index,
             must contain ``yaw_rate_pred_rads``.
         segment_paths: list of sim.csv paths. If None, glob all
-            ``data/sim-full/FORD_*/**/sim.csv`` under cwd.
+            ``data/sim/segments/FORD_*/**/sim.csv`` under cwd.
         platform_filter: if set, keep only that platform.
         grid_step_m, min_distance_m: CTE bin spacing and minimum segment length.
         sample_filter_v_mps: yaw-rate RMSE pools rows where ``v_mps`` exceeds this.

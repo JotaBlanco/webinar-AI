@@ -1,0 +1,14 @@
+{
+  "name": "ks-understeer-lag-v2",
+  "version": "2.0.0",
+  "description": "Per-platform kinematic-bicycle with linearised understeer term (K*v^2), steering bias, and first-order steering lag. Coeffs fitted by linear LS against sim/ truth.",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "fallback_for_unknown_platform": "V0 kinematic-bicycle (v * tan(delta) / L_nominal)",
+  "training_data": "data/sim/segments (all sim.csv with yaw_rate_meas_rads, v_mps>3)"
+}

@@ -15,9 +15,9 @@ load-cost: ~110 tokens metadata, ~150 tokens body.
 `load(...)` resolves a set of `sim.csv` files and returns them as a list of DataFrames, sorted by path for determinism. Resolution order:
 
 1. If `paths` is given, use exactly those.
-2. Else if `glob` is given, resolve `data/sim-full/<glob>` relative to the working directory.
-3. Else if `platform` is given, glob `data/sim-full/<platform>/**/sim.csv`.
-4. Else, glob `data/sim-full/FORD_*/**/sim.csv`.
+2. Else if `glob` is given, resolve `data/sim/segments/<glob>` relative to the working directory.
+3. Else if `platform` is given, glob `data/sim/segments/<platform>/**/sim.csv`.
+4. Else, glob `data/sim/segments/FORD_*/**/sim.csv`.
 
 Each DataFrame has:
 

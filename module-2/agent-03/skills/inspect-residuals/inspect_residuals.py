@@ -38,7 +38,7 @@ def _route_from_path(p: Path) -> str:
 
 
 def _default_segment_paths() -> list[Path]:
-    root = Path.cwd() / "data" / "sim-full"
+    root = Path.cwd() / "data" / "sim" / "segments"
     if not root.exists():
         return []
     return sorted(root.glob("FORD_*/**/sim.csv"))
