@@ -170,6 +170,25 @@ def render(cohort: dict) -> str:
             out.append("```")
             out.append("")
 
+    la = cohort.get("leak_audit") or {}
+    if la.get("n_agents_attempted_leak", 0):
+        out.append("## ⚠️ Operating-contract audit — agents whose predict() referenced truth columns")
+        out.append("")
+        out.append(f"**{la['n_agents_attempted_leak']} of {cohort['n_agents_total']} agents** had references to truth-derived column names inside their `predict()` body. The grader's allowlist stripped these columns before calling `predict()`, so the leak cannot fire at scoring time — but the source-level intent is captured here.")
+        out.append("")
+        out.append("Columns attempted (count of agents whose predict body references each):")
+        out.append("")
+        for col, n in sorted(la.get("columns_attempted_count", {}).items(), key=lambda kv: -kv[1]):
+            out.append(f"- `{col}` — {n} agent(s)")
+        out.append("")
+        out.append("| agent | family | columns referenced inside predict() | canonical yaw Δ% | canonical CTE Δ% |")
+        out.append("|---|---|---|---|---|")
+        leak_rows = [row for row in cohort["per_agent"] if row.get("attempted_leak")]
+        for row in sorted(leak_rows, key=lambda r: (r["family"], r["agent_id"])):
+            cols = ", ".join(f"`{c}`" for c in row.get("leak_columns", []))
+            out.append(f"| `{row['agent_id']}` | `{row['family']}` | {cols} | {fmt_pct(row['yaw_pct'])} | {fmt_pct(row['cte_pct'])} |")
+        out.append("")
+
     r = cohort["reconstruction"]
     out.append("## Reconstruction quality (substrate signal)")
     out.append("")

@@ -1,7 +1,7 @@
 """Smoke test for score-model.
 
 Runs a trivial V0 passthrough on ~5 segments and asserts the returned dict
-has the expected shape with non-degenerate KPI values.
+has every expected key with non-degenerate values. Prints the dashboard.
 
 Run standalone: ``python3 _smoke.py``
 """
@@ -10,11 +10,9 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from pprint import pprint
 
-# Make score.py importable when running this file directly.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from score import score  # noqa: E402
+from score import score, format_summary  # noqa: E402
 
 
 def v0(sim_df, platform):
@@ -28,20 +26,30 @@ def main() -> int:
     assert seg_paths, f"no sim.csv files found under {seg_root}"
     print(f"[smoke] scoring {len(seg_paths)} segments...")
 
-    result = score(v0, segment_paths=seg_paths)
+    result = score(v0, segment_paths=seg_paths, top_n=3)
 
-    # Shape assertions.
-    for key in ("yaw_rate_rmse", "cte_rmse", "n_segments", "n_samples", "per_platform", "per_regime", "failed_segments"):
+    expected = (
+        "yaw_rate_rmse", "cte_rmse", "n_segments", "n_samples", "failed_segments",
+        "per_platform", "per_regime", "per_segment", "per_route",
+        "worst_segments_by_cte", "worst_segments_by_yaw",
+        "yaw_rmse_distribution", "cte_rmse_distribution",
+    )
+    for key in expected:
         assert key in result, f"missing key: {key}"
 
     assert result["n_segments"] > 0, "no segments scored"
-    assert result["yaw_rate_rmse"] > 0, f"yaw_rate_rmse should be > 0, got {result['yaw_rate_rmse']}"
-    assert result["cte_rmse"] > 0, f"cte_rmse should be > 0, got {result['cte_rmse']}"
-    assert len(result["per_platform"]) >= 1, "per_platform should have at least one entry"
-    assert "straight" in result["per_regime"], "per_regime should have a 'straight' key"
+    assert result["yaw_rate_rmse"] > 0
+    assert result["cte_rmse"] > 0
+    assert len(result["per_platform"]) >= 1
+    assert "straight" in result["per_regime"]
+    assert len(result["per_segment"]) == result["n_segments"]
+    assert "yaw_residual_mean" in result["per_segment"].columns
+    assert "cte_signed_mean" in result["per_segment"].columns
+    assert len(result["worst_segments_by_cte"]) <= 3
 
     print("[smoke] PASS")
-    pprint(result)
+    print()
+    print(format_summary(result, top_n=3))
     return 0
 
 

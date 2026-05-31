@@ -19,6 +19,31 @@ from traj_metrics import cte_rmse_segment, integrate_trajectory  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
+# Operating contract — must match the canonical grader's allowlist.
+#
+# Your predict(sim_df, platform) function will be called by the canonical
+# grader with a sim_df that has been stripped to ONLY these columns. The
+# truth channel (yaw_rate_meas_rads), its kinematic shadow (a_lat_meas_mps2),
+# residuals, and simulator state are NOT visible at scoring time.
+#
+# This local score-model enforces the same allowlist so your local RMSE
+# reflects what the canonical grader will see. If you accidentally read a
+# stripped column, your predict will fail here too — caught in dev, not in
+# grading.
+# ---------------------------------------------------------------------------
+ALLOWED_INPUT_COLUMNS = frozenset({
+    "t_s",
+    "delta_wheel_deg",
+    "delta_road_rad",
+    "v_mps",
+    "a_long_mps2",
+    "accel_pedal_pct",
+    "brake_pressed",
+    "yaw_rate_pred_rads",   # V0 baseline reference — the column your predict REPLACES
+})
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -134,9 +159,13 @@ def score(
             failed += 1
             continue
 
+        # Strip to operating-contract allowlist before handing to the agent's predict.
+        # See ALLOWED_INPUT_COLUMNS above — this mirrors what the canonical grader does.
+        sim_df_agent = sim_df[[c for c in sim_df.columns if c in ALLOWED_INPUT_COLUMNS]]
+
         # Run the model.
         try:
-            pred_df = predict_fn(sim_df, platform)
+            pred_df = predict_fn(sim_df_agent, platform)
         except Exception:
             failed += 1
             continue

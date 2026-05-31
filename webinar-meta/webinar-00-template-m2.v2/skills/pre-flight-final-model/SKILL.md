@@ -1,10 +1,11 @@
 ---
-name: pre-flight-final-model
+name: pre-flighting-final-model
 description: Sanity-check that a `final-model/` deliverable bundle is shaped the way the task brief requires. Verifies required files exist (`predict.py`, `manifest.json`, `REPORT.md`), `predict.py` imports cleanly with siblings on sys.path, the configured `predict_callable` resolves, its signature accepts `(sim_df, platform)`, and a real-segment dry-run returns a DataFrame with `yaw_rate_pred_rads`, the original index, and no NaN. Returns a structured pass/fail report — never raises on individual check failures.
 when-to-invoke: You think your `final-model/` is done and want to catch dumb mistakes (missing files, broken imports, wrong return shape) before declaring the deliverable shipped. Run it last, after you have written `predict.py`, `manifest.json`, and `REPORT.md`.
+when-NOT-to-invoke: You want to score model quality (use scoring-model). You want to validate intermediate states of `predict.py` during iteration — this is for the final bundle, not the inner loop.
 inputs: final_model_dir (str or Path) — directory holding the bundle to check.
 outputs: dict with keys `passes` (bool), `checks` (list of `{name, status, detail}`), `errors` (list of str).
-load-cost: ~140 tokens metadata, ~170 tokens body.
+load-cost: ~150 tokens metadata, ~170 tokens body.
 ---
 
 # pre-flight-final-model
@@ -46,4 +47,6 @@ if not result["passes"]:
 
 `python3 _smoke.py` from this directory. Builds a valid bundle in a temp dir and asserts `passes=True`, then breaks it and asserts `passes=False`.
 
-This is a starting point. Modify, extend, or replace as your task demands.
+## Extending this skill
+
+This skill effectively *is* the deliverable contract for the lateral-fidelity task. If you change what a valid `final-model/` looks like (different files, different manifest schema, different predict signature), this is the single place to update.

@@ -1,7 +1,8 @@
 ---
-name: load-segments
+name: loading-segments
 description: Load `sim.csv` segment files into a list of pandas DataFrames with consistent dtype hygiene and parsed path metadata (platform / device / route / idx) attached as `df.attrs`. Resolves segments by explicit paths, an explicit glob, a platform name, or defaults to all FORD platforms. Saves ~30 lines of glob/parse/coerce boilerplate per script.
-when-to-invoke: You need raw segment DataFrames in memory and want consistent column dtypes plus per-segment provenance. Use before any per-segment analysis (plotting, scoring, feature extraction). Not for splitting into train/dev — use make-train-dev-split for that.
+when-to-invoke: You need raw segment DataFrames in memory and want consistent column dtypes plus per-segment provenance. Use before any per-segment analysis (plotting, custom scoring, feature extraction).
+when-NOT-to-invoke: You only need path lists (use making-train-dev-split or globbing yourself). You only need pooled metrics — scoring-model handles its own loading.
 inputs: paths (list[Path] or None), platform (str or None), glob (str or None), columns (list[str] or None).
 outputs: list[pandas.DataFrame] sorted by segment_path. Each df has df.attrs populated with segment_path, platform, device, route, idx.
 load-cost: ~110 tokens metadata, ~150 tokens body.
@@ -49,4 +50,6 @@ print(dfs[0].head())
 
 `python3 _smoke.py` from inside this skill directory. Loads Mach-E segments and asserts shape, dtypes, and attrs.
 
-This is a starting point. Modify, extend, or replace as your task demands.
+## Extending this skill
+
+If you regularly need a derived column (e.g. `a_lat_meas = v_mps * yaw_rate_meas_rads`), compute it inside `load()` and add it to the dtype-coerce list. Centralising lets the rest of your code stop recomputing it.

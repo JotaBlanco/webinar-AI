@@ -14,6 +14,7 @@ You are working on the lateral-fidelity challenge. The two KPIs to minimise are 
 
 - `score-model/` — score a `predict()` function: pooled yaw + CTE, per-segment tables, per-platform residual stats, distribution stats. Use as your inner-loop oracle.
 - `compare-models/` — diff two `predict()` functions per-segment. Default-sorts by delta; surfaces top regressions and top improvements.
+- `inspect-residuals/` — plot yaw residual against any input feature (steering, speed, time, anything else you compute) with per-platform binned mean and ±1σ band. Use when scoring-model shows a bias and you want to find which input dimension explains it.
 - `visualise-segment/` — render a multi-panel PNG of one segment with truth and one or more predictions overlaid.
 - `make-train-dev-split/` — produce a route-grouped train/dev split. Ships with a validator that flags route leakage.
 - `load-segments/` — load segment `sim.csv`s into pandas DataFrames with consistent dtype hygiene.

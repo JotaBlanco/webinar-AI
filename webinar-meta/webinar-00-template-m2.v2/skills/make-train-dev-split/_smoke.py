@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from split import _parse_route_key, split  # noqa: E402
+from validate_split import format_findings, validate_split  # noqa: E402
 
 
 def main() -> None:
@@ -73,7 +74,23 @@ def main() -> None:
     print(f"n_routes_train     = {len(train_routes)}")
     print(f"n_routes_dev       = {len(dev_routes)}")
     print(f"reseed_changes_dev = {different}")
-    print("OK")
+
+    # 6. validate_split should pass with no hard violations.
+    findings = validate_split(train, dev, target_dev_fraction=dev_fraction)
+    assert not findings["hard_violations"], findings["hard_violations"]
+    print()
+    print(format_findings(findings))
+
+    # 7. validate_split should raise when fed a deliberately bad split.
+    bad_train = list(train) + [dev[0]]  # duplicate path across sides
+    try:
+        validate_split(bad_train, dev, target_dev_fraction=dev_fraction)
+    except ValueError as e:
+        print(f"\n(expected) validate_split raised on bad input: {e!s}".splitlines()[0])
+    else:
+        raise AssertionError("validate_split did not raise on a known-bad split")
+
+    print("\nOK")
 
 
 if __name__ == "__main__":

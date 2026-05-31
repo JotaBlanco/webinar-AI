@@ -42,6 +42,144 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 
+# --- Operating contract --------------------------------------------------------
+# Columns the agent's predict() is allowed to see. Everything else is stripped
+# from sim_df at the boundary before predict() is called. This enforces the
+# operating contract: no inference-time access to truth or truth-derived signals.
+#
+# Reasoning per column:
+#   t_s, delta_wheel_deg, delta_road_rad, v_mps, a_long_mps2 — physical sensor
+#       channels available in production from CAN bus / EPS / wheel-speeds / IMU
+#       longitudinal axis. Legitimate inputs.
+#   accel_pedal_pct, brake_pressed — driver inputs.
+#   yaw_rate_pred_rads — V0 baseline prediction. The column the agent is
+#       REPLACING — they can read it as a reference. Not truth.
+#
+# Stripped (each is either truth, truth-derived, or simulator internal state):
+#   yaw_rate_meas_rads      — the TRUTH channel the eval scores against
+#   a_lat_meas_mps2         — kinematically = v * yaw_rate; effectively truth
+#                             through the sim's construction. (In a real car
+#                             this would be a separate IMU axis, but in THIS
+#                             dataset it was computed from the truth yaw rate.)
+#   yaw_rate_resid_rads     — V0_pred - truth; a direct truth leak
+#   a_y_resid_mps2          — same as above for lateral acc
+#   x_m, y_m, psi_rad       — simulator's integrated state (depends on truth path)
+#   v_state_mps, delta_state_rad — simulator internal state
+#   a_y_pred_mps2           — V0 lateral acc prediction (not a leak, but unused;
+#                             stripping for cleanliness — add it back if needed)
+ALLOWED_INPUT_COLUMNS = frozenset({
+    "t_s",
+    "delta_wheel_deg",
+    "delta_road_rad",
+    "v_mps",
+    "a_long_mps2",
+    "accel_pedal_pct",
+    "brake_pressed",
+    "yaw_rate_pred_rads",
+})
+
+# Columns whose appearance in predict.py source is a strong signal of a leak
+# attempt. Reported as `column_leak_detected` for auditing; the agent still
+# gets scored (the allowlist strip means the leak can't actually fire).
+TRUTH_OR_DERIVED_COLUMN_NAMES = (
+    "yaw_rate_meas_rads",
+    "a_lat_meas_mps2",
+    "yaw_rate_resid_rads",
+    "a_y_resid_mps2",
+)
+
+
+def strip_to_allowlist(df, allowed: frozenset[str]) -> tuple["pandas.DataFrame", list[str]]:
+    """Return (df_with_only_allowed_columns, stripped_column_names)."""
+    stripped = [c for c in df.columns if c not in allowed]
+    return df[[c for c in df.columns if c in allowed]], stripped
+
+
+def static_scan_for_leak(predict_path: Path, predict_fn_name: str = "predict") -> dict:
+    """Read predict.py source and look for references to truth/derived column names.
+
+    Uses AST to locate the predict() function's source byte range (handles
+    multi-line signatures, type hints, decorators, anything). Buckets hits:
+      - inside the predict() function body (likely inference-time leak)
+      - inside any helper called from predict() (transitive — also a leak)
+      - elsewhere in the file (docstring / __main__ / training notes — not a leak)
+    """
+    import ast
+    try:
+        source = predict_path.read_text(errors="replace")
+    except Exception:
+        return {"scan_ok": False, "hits_in_predict_body": {}, "hits_in_helpers": {}, "hits_elsewhere": {}}
+
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return {"scan_ok": False, "hits_in_predict_body": {}, "hits_in_helpers": {}, "hits_elsewhere": {}}
+
+    src_lines = source.splitlines(keepends=True)
+    line_offsets = [0]
+    for ln in src_lines:
+        line_offsets.append(line_offsets[-1] + len(ln))
+
+    def node_range(node: ast.AST) -> tuple[int, int]:
+        s = line_offsets[node.lineno - 1] + node.col_offset
+        if hasattr(node, "end_lineno") and node.end_lineno is not None:
+            e = line_offsets[node.end_lineno - 1] + (node.end_col_offset or 0)
+        else:
+            e = len(source)
+        return s, e
+
+    # Find the predict() function definition + any other top-level function defs.
+    predict_fn = None
+    all_fns: dict[str, ast.FunctionDef] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            all_fns[node.name] = node
+            if node.name == predict_fn_name and predict_fn is None:
+                predict_fn = node
+
+    helper_names: set[str] = set()
+    if predict_fn is not None:
+        # Any Name node referenced INSIDE predict_fn that maps to a defined helper.
+        for sub in ast.walk(predict_fn):
+            if isinstance(sub, ast.Name) and sub.id in all_fns and sub.id != predict_fn_name:
+                helper_names.add(sub.id)
+
+    # Compute byte ranges.
+    predict_range = node_range(predict_fn) if predict_fn else None
+    helper_ranges = [node_range(all_fns[h]) for h in helper_names]
+
+    def in_ranges(idx: int, ranges: list[tuple[int, int]]) -> bool:
+        return any(s <= idx < e for s, e in ranges)
+
+    hits_body: dict[str, int] = {}
+    hits_helpers: dict[str, int] = {}
+    hits_rest: dict[str, int] = {}
+    for col in TRUTH_OR_DERIVED_COLUMN_NAMES:
+        pat = re.compile(r'["\']' + re.escape(col) + r'["\']')
+        n_body = n_helpers = n_rest = 0
+        for m in pat.finditer(source):
+            idx = m.start()
+            if predict_range and predict_range[0] <= idx < predict_range[1]:
+                n_body += 1
+            elif in_ranges(idx, helper_ranges):
+                n_helpers += 1
+            else:
+                n_rest += 1
+        if n_body:
+            hits_body[col] = n_body
+        if n_helpers:
+            hits_helpers[col] = n_helpers
+        if n_rest:
+            hits_rest[col] = n_rest
+    return {
+        "scan_ok": True,
+        "hits_in_predict_body": hits_body,
+        "hits_in_helpers": hits_helpers,
+        "hits_elsewhere": hits_rest,
+        "helpers_called_from_predict": sorted(helper_names),
+    }
+
+
 def derive_platform(seg_path: Path, lookup: dict[str, str]) -> str | None:
     """Find which platform a sim.csv belongs to by looking for a known token in the path."""
     s = str(seg_path)
@@ -141,7 +279,19 @@ def run_agent(cfg: dict) -> dict:
         "per_platform":     {},
         "per_segment":      [],
         "coefficients":     None,
+        # Contract-enforcement diagnostics (always populated).
+        "contract": {
+            "allowed_input_columns": sorted(ALLOWED_INPUT_COLUMNS),
+            "stripped_columns_per_segment": None,   # filled on first segment
+            "leak_scan": None,                       # filled below
+        },
     }
+
+    # Static-scan the agent's predict.py source for truth column references —
+    # purely diagnostic, doesn't block scoring.
+    predict_path = agent_folder / "predict.py"
+    if predict_path.is_file():
+        base["contract"]["leak_scan"] = static_scan_for_leak(predict_path)
 
     # Bail on missing pieces.
     if not checks["agent_folder_exists"]:
@@ -220,7 +370,12 @@ def run_agent(cfg: dict) -> dict:
 
         try:
             with redirect_stdout(sink), redirect_stderr(sink):
-                sim_df = pd.read_csv(seg_path)
+                sim_df_full = pd.read_csv(seg_path)
+                # Strip to allowlist BEFORE handing to the agent (operating-contract
+                # enforcement: no inference-time access to truth or truth-derived signals).
+                sim_df, stripped = strip_to_allowlist(sim_df_full, ALLOWED_INPUT_COLUMNS)
+                if base["contract"]["stripped_columns_per_segment"] is None:
+                    base["contract"]["stripped_columns_per_segment"] = stripped
                 pred_df = predict(sim_df, platform)
         except Exception as e:
             n_runtime += 1
@@ -236,11 +391,13 @@ def run_agent(cfg: dict) -> dict:
                 first_err = f"{seg_path.name}: pred_df missing yaw_rate_pred_rads column"
             continue
 
-        # Yaw RMSE — pooled with sample filter.
+        # Yaw RMSE — pooled with sample filter. Note: truth comes from
+        # sim_df_full (not the stripped sim_df the agent saw), since we need
+        # it to score against.
         try:
             yr_agent = pred_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
-            yr_truth = sim_df[truth_col].to_numpy(dtype=float)
-            v_mps = sim_df["v_mps"].to_numpy(dtype=float)
+            yr_truth = sim_df_full[truth_col].to_numpy(dtype=float)
+            v_mps = sim_df_full["v_mps"].to_numpy(dtype=float)
         except (KeyError, ValueError) as e:
             n_runtime += 1
             p_acc["n_segments_runtime_error"] += 1
@@ -266,7 +423,7 @@ def run_agent(cfg: dict) -> dict:
 
         # CTE per segment — unfiltered (needs full continuous series).
         try:
-            t = sim_df["t_s"].to_numpy(dtype=float)
+            t = sim_df_full["t_s"].to_numpy(dtype=float)
             seg_cte_sum_sq, seg_cte_n_bins, _total = cte_rmse_segment(
                 t, v_mps, yr_truth, yr_agent,
                 grid_step_m=grid_step_m, min_distance_m=min_dist_m,

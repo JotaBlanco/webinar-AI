@@ -1,64 +1,64 @@
 ---
-title: webinar-00-template — reusable substrate template
-summary: Folder-structure template for spinning up a domain-specific webinar demo repo that can drive four of the five AI-axis workshop angles (01 accretion, 02 empathy, 04 author, 05 experiment). Lean / flat / Python-flavoured. Replace the hello-world skill + sample task with your own domain content. Angle 03 (six-component harness-as-product) is not supported and would need a different layout.
-tags: [template, webinar, substrate, ai-axis, harness]
-updated: 2026-05-20
+title: webinar-00-template-m2.v2 — Module 2 starter substrate (skills toolkit)
+summary: Module-2 template for the lateral-fidelity webinar. Ships with six small, modifiable skills plus a shared math library. The agent gets a richly diagnostic scoring oracle, route-grouped train/dev split with a leakage validator, and a deliverable-contract preflight. Module-3+ domain references are deliberately absent — those land in their own templates.
+tags: [template, webinar, m2, skills, lateral-fidelity]
+updated: 2026-05-31
 ---
 
-# webinar-00-template
+# webinar-00-template-m2.v2
 
-Template for a single-project demo repo. Each real webinar gets its own copy (`webinar-01`, `webinar-02`, …) with domain content swapped in.
+Successor to `webinar-00-template-m2`. Same purpose — drive Module 2 of the lateral-fidelity webinar — but with skills redesigned to **widen exploration** rather than funnel every agent to the same answer.
 
-## How to adapt the template
+The lessons that drove v2 (see the diagnosis on the m1+m2+m3 cohort grade `_grade/20260531-003104/`):
 
-1. **Copy** this folder to `webinar-NN-<short-name>` (e.g. `webinar-02-thermal-bridge`).
-2. **Verify the wiring** with the included hello-world skill — open the repo in Claude Code, ask the question in [`tasks/hello.md`](tasks/hello.md), confirm the agent loads the skill, reads `data/example.csv`, returns a sensible answer, and that `evals/hello_world_eval.py` passes on its output.
-3. **Replace the hello-world skill + sample data + sample task** with your domain content. See "What to fill in" below.
-4. **Pick a workshop angle late** — see [`_stage/`](_stage/) for one folder per supported angle, each with a README explaining how to drive the substrate for that narrative.
+1. **Diagnostic surface, not polished oracle.** v1's `score-model` returned a pooled CTE number and let agents climb the yaw hill. v2's returns per-segment tables, per-platform signed bias, bias-vs-noise decomposition, per-route pooling, worst-N outliers, distributions, plus a `format_summary` dashboard.
+2. **Skills as clay, not library.** v1 agents (0/10) modified any skill. v2 SKILL.md prose pushes harder on "edit the body if the output isn't useful".
+3. **No domain-knowledge references in M2.** Anti-patterns / approach menus / KPI-tradeoff docs are held for Module 3+ on purpose.
 
 ## Layout
 
-| Folder | Holds | Who reads / writes |
+| Path | Holds |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | The always-on substrate — folder layout, skills inventory, modify-the-skill framing. ~30 lines. |
+| [`skills/`](skills/) | Six skill folders, each with `SKILL.md`, body code, and `_smoke.py`. |
+| [`_shared/`](_shared/) | Local trajectory-math library (`traj_metrics.py`). The agent's own copy — not linked to the canonical grader. |
+| [`code/`](code/) | Symlinked baseline model code, including `ks_model.py` (read-only). |
+| [`data/`](data/) | Symlinked sim data tree (read-only). |
+| [`_stage/`](_stage/) | Angle-specific tooling per supported workshop angle. |
+
+## Skills inventory (all use gerund-form names per Anthropic's routing guidance)
+
+| Skill | Type | Role |
 |---|---|---|
-| [`AGENTS.md`](AGENTS.md) | The harness substrate — units, conventions, known traps, skills inventory. Every line traceable to a past mistake. | Agent reads every turn; team writes |
-| [`skills/`](skills/) | `SKILL.md` folders — procedural recipes the agent loads metadata-first. One subfolder per skill. | Agent reads on demand; domain expert writes |
-| [`tasks/`](tasks/) | The questions of the day. One markdown per question. | Agent reads; team writes |
-| [`data/`](data/) | Raw observations, traces, drawings, measurements — anything the agent reads as input. Convention: `raw/`, `processed/`, `fixtures/`. | Agent reads (usually via tools or MCP) |
-| [`code/`](code/) | The project's own implementation — model, calculator, analyzer. The thing that already exists in the engineering team. | Agent reads; tools import from here |
-| [`tools/`](tools/) | Thin wrappers exposing `code/` (or `data/`) to the agent via direct call or MCP. | Agent calls |
-| [`references/`](references/) | Domain docs, schemas, glossaries, standards. Loaded on demand via a reference-style skill. | Agent reads on demand |
-| [`evals/`](evals/) | Computational sensors — deterministic checks that score a skill's output. Used by angles 01 and 04. | Agent or CI calls |
-| [`.mcp/`](.mcp/) | MCP server configs. One JSON per server. | Claude Code reads at session start |
-| [`_stage/`](_stage/) | Angle-specific tooling. One subfolder per supported workshop angle. | Workshop driver runs |
+| `loading-segments` | pure infra | Load `sim.csv` files with consistent dtypes and parsed path metadata. |
+| `making-train-dev-split` | infra + validator | Route-grouped train/dev split. Ships with `validate_split.py` that raises on leakage / collisions. |
+| `scoring-model` | inner-loop oracle | Headline KPIs + per-segment table + per-platform signed bias + bias fraction + per-route + worst-N + distributions + dashboard. |
+| `comparing-models` | A/B diagnostic | Per-segment diff; `top_regressions` / `top_improvements` / `per_platform_summary` / `format_summary`. |
+| `inspecting-residuals` | diagnostic plotter | Yaw residual vs any input feature, per-platform binned mean ±1σ. Use to discover which input dimension explains a bias surfaced by scoring-model. |
+| `visualising-segment` | one-shot plotter | 3-panel PNG (bird's-eye / yaw vs time / residual). |
+| `pre-flighting-final-model` | deliverable validator | Verifies the `final-model/` bundle matches the contract — predicts on one real segment end-to-end. |
 
-## What to fill in (in order)
+## How to drive Module 2 with this template
 
-1. **`AGENTS.md`** — replace the TODOs with your project's purpose, build/run commands, units glossary, known traps. Every line should be traceable to a past failure once the project is live.
-2. **`tasks/`** — the question(s) of the day. Make at least one *concrete* (named artifact, named magnitude, falsifiable). See [`tasks/hello.md`](tasks/hello.md) for the shape.
-3. **`skills/<your-first-skill>/SKILL.md`** — author the first real skill via the walk-then-crystallise loop (NC-18). Use [`skills/hello-world/SKILL.md`](skills/hello-world/SKILL.md) as the shape reference.
-4. **`code/`** — drop in your domain code (any language). The README explains how `tools/` wrappers expose it to the agent.
-5. **`tools/`** — write one wrapper per primitive operation the agent needs to call. Either directly (Claude Code Bash/Python tool) or via an MCP server defined in `.mcp/`.
-6. **`data/fixtures/`** — small, version-controlled subset of `data/raw/` used for demos and evals.
-7. **`evals/`** — one `<skill-name>_eval.py` per skill that needs a sensor. See [`evals/hello_world_eval.py`](evals/hello_world_eval.py) for the contract.
-8. **`references/`** — any domain doc the agent should load on demand. Often a "schema" or "glossary" reference skill points here.
+1. Symlink `data/sim/` and `code/ks_model.py` into the working directory.
+2. Open the repo in Claude Code. AGENTS.md loads.
+3. The agent's task prompt names the two KPIs to minimise.
+4. The agent inspects skill metadata first (cheap), loads bodies on demand.
+5. Iterate: fit, `scoring-model`, read the per-platform signed bias, modify the model. Use `comparing-models` for A/B. Run `pre-flighting-final-model` before declaring done.
 
-## Pick a workshop angle
+## What's *not* here (held for later modules)
 
-Five angles were considered in [`../KB002/ai-axis/ai-axis-ideas/`](../KB002/ai-axis/ai-axis-ideas/). This template supports four of them via [`_stage/`](_stage/):
-
-| Angle | One-liner | Substrate state at M1 |
-|---|---|---|
-| 01 accretion | Substrate grows live, one layer per module | empty AGENTS.md, empty `skills/` |
-| 02 empathy | Context-window inspector is the centrepiece | bloated AGENTS.md, 2 pre-authored skills |
-| 04 author | Domain expert authors a skill live | normal AGENTS.md, empty `skills/` |
-| 05 experiment | Same question, 4 scaffolds, controlled comparison | normal end-state + 4 scaffolds |
-
-Angle 03 (harness-as-product, six BettaTech components) diverges enough that it would need a different scaffold; it is not supported here.
+- No `references/` directory with domain knowledge (per-segment derivations, anti-patterns, KPI tradeoffs). These live in Module 3+.
+- No `tasks/` directory. The KPI brief lives in the agent's run-time prompt, not in the template.
+- No `evals/` directory. Skill-level evals appear in later modules.
+- No `tools/` or `.mcp/`. Empty in M2; if the project gains MCP servers later, add them then.
 
 ## Dependencies
 
 - Python 3.11+
 - `uv` for env management (`uv sync` after first clone)
-- Claude Code (the CLI / IDE extension) for the on-stage agent harness
+- Claude Code
 
-The Python flavouring is a convention, not a hard requirement — `code/` and `tools/` can be any language. The hello-world demo + the inspector stub + the example eval are Python; replace with whatever your project uses.
+## Pick a workshop angle
+
+This template is angle-agnostic substrate. Angle-specific tooling is wired in [`_stage/`](_stage/). v2 still supports the same four angles as v1 — `_stage/` contents have not been re-validated against the v2 skill set yet, so the reset scripts may need touch-up before driving an angle live.

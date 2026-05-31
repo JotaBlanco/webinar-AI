@@ -198,6 +198,42 @@ def per_segment_distribution(cards_ok: list[dict]) -> dict:
     return out
 
 
+def leak_audit(cards_all: list[dict]) -> dict:
+    """Surface contract-enforcement signals: which agents referenced truth columns
+    in their predict() body (or in a helper function called from predict).
+    Doesn't affect scoring (the allowlist makes the leak inert), but a key
+    audit/diagnostic signal."""
+    per_agent: dict[str, dict] = {}
+    n_attempted = 0
+    n_via_helper = 0
+    columns_attempted = Counter()
+    for c in cards_all:
+        scan = ((c.get("contract") or {}).get("leak_scan") or {})
+        body_hits = scan.get("hits_in_predict_body") or {}
+        helper_hits = scan.get("hits_in_helpers") or {}
+        rest_hits = scan.get("hits_elsewhere") or {}
+        merged = set(body_hits) | set(helper_hits)
+        if merged:
+            n_attempted += 1
+            if not body_hits:
+                n_via_helper += 1
+            for col in merged:
+                columns_attempted[col] += 1
+        per_agent[c["agent_id"]] = {
+            "scan_ok":              scan.get("scan_ok", False),
+            "hits_in_predict_body": body_hits,
+            "hits_in_helpers":      helper_hits,
+            "hits_elsewhere":       rest_hits,
+            "stripped_columns_per_segment": (c.get("contract") or {}).get("stripped_columns_per_segment"),
+        }
+    return {
+        "n_agents_attempted_leak":           n_attempted,
+        "n_agents_leak_via_helper_only":     n_via_helper,
+        "columns_attempted_count":           dict(columns_attempted),
+        "per_agent":                         per_agent,
+    }
+
+
 def reconstruction_quality(cards_all: list[dict]) -> dict:
     """Tally format check results across the cohort — substrate signal."""
     counters: dict[str, Counter] = defaultdict(Counter)
@@ -227,6 +263,18 @@ def coefficient_summary(cards_ok: list[dict]) -> dict:
     return out
 
 
+def _leak_attempt_for(card: dict) -> dict:
+    scan = ((card.get("contract") or {}).get("leak_scan") or {})
+    body = scan.get("hits_in_predict_body") or {}
+    helpers = scan.get("hits_in_helpers") or {}
+    merged = {**body, **{k: helpers[k] + body.get(k, 0) for k in helpers}}
+    return {
+        "attempted_leak":          bool(merged),
+        "leak_columns":            sorted(merged.keys()),
+        "leak_via_helper":         bool(helpers and not body),
+    }
+
+
 def per_agent_table(cards_all: list[dict], families: dict[str, str], self_reported: dict[str, dict]) -> list[dict]:
     """Wide per-agent row used by the renderer."""
     rows = []
@@ -252,6 +300,7 @@ def per_agent_table(cards_all: list[dict], families: dict[str, str], self_report
             "n_seg_total":        exec_.get("n_segments_attempted"),
             "wall_seconds":       exec_.get("wall_time_seconds"),
             "platforms_supported": (c.get("manifest") or {}).get("platform_support", []) if c.get("manifest") else [],
+            **_leak_attempt_for(c),
         }
         sr = self_reported.get(aid)
         if sr:
@@ -298,6 +347,7 @@ def main():
         "per_agent_platform_breakdown": per_agent_platform_breakdown(cards_ok, baseline),
         "per_segment":     per_segment_distribution(cards_ok),
         "reconstruction":  reconstruction_quality(cards),
+        "leak_audit":      leak_audit(cards),
         "coefficients":    coefficient_summary(cards_ok),
         "per_agent":       per_agent_table(cards, families, self_reported),
         "self_reported_loaded": bool(self_reported),

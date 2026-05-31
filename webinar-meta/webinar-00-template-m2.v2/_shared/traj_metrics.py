@@ -125,6 +125,79 @@ def cte_rmse_segment(
     return float(err_sq.sum()), int(n_bins), total
 
 
+def cte_diagnostics_segment(
+    t: np.ndarray,
+    v: np.ndarray,
+    yr_truth: np.ndarray,
+    yr_pred: np.ndarray,
+    grid_step_m: float = 1.0,
+    min_distance_m: float = 20.0,
+) -> dict:
+    """Per-segment CTE diagnostics — squared sum, signed mean, end drift.
+
+    Same integration and grid as ``cte_rmse_segment``, but also returns the
+    *signed* cross-track displacement (positive = pred to the left of truth's
+    local heading) so callers can distinguish bias from noise.
+
+    Returns dict with keys:
+        sum_sq_m2:        sum of squared cross-track errors over the grid
+        sum_signed_m:     sum of signed cross-track errors (for signed mean)
+        sum_abs_m:        sum of absolute cross-track errors (for MAE)
+        n_bins:           number of distance bins included
+        total_distance_m: travelled distance along truth (meters)
+        end_drift_m:      Euclidean distance between truth_end and pred_end
+        skipped_short:    True if the segment was shorter than min_distance_m
+    """
+    out = {
+        "sum_sq_m2": 0.0,
+        "sum_signed_m": 0.0,
+        "sum_abs_m": 0.0,
+        "n_bins": 0,
+        "total_distance_m": 0.0,
+        "end_drift_m": 0.0,
+        "skipped_short": False,
+    }
+    if len(v) < 2:
+        return out
+    dt = np.diff(t)
+    if np.any(dt <= 0):
+        return out
+
+    s_t, x_t, y_t, psi_t = integrate_trajectory(dt, v, yr_truth)
+    _,   x_p, y_p, _     = integrate_trajectory(dt, v, yr_pred)
+
+    total = float(s_t[-1])
+    out["total_distance_m"] = total
+    out["end_drift_m"] = float(math.hypot(x_t[-1] - x_p[-1], y_t[-1] - y_p[-1]))
+    if total < min_distance_m:
+        out["skipped_short"] = True
+        return out
+
+    n_bins = int(math.floor(total / grid_step_m))
+    if n_bins <= 0:
+        out["skipped_short"] = True
+        return out
+    grid = np.arange(1, n_bins + 1, dtype=float) * grid_step_m
+
+    x_t_g   = np.interp(grid, s_t, x_t)
+    y_t_g   = np.interp(grid, s_t, y_t)
+    x_p_g   = np.interp(grid, s_t, x_p)
+    y_p_g   = np.interp(grid, s_t, y_p)
+    psi_t_g = np.interp(grid, s_t, psi_t)
+
+    dx = x_p_g - x_t_g
+    dy = y_p_g - y_t_g
+    # Signed cross-track: project displacement onto left-normal of truth heading.
+    cte_signed = -dx * np.sin(psi_t_g) + dy * np.cos(psi_t_g)
+    err_sq = dx * dx + dy * dy
+
+    out["sum_sq_m2"]    = float(err_sq.sum())
+    out["sum_signed_m"] = float(cte_signed.sum())
+    out["sum_abs_m"]    = float(np.abs(cte_signed).sum())
+    out["n_bins"]       = int(n_bins)
+    return out
+
+
 def cte_baseline_from_segments(
     segment_paths: list,
     truth_channel: str = "yaw_rate_meas_rads",

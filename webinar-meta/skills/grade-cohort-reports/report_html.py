@@ -187,6 +187,44 @@ def calibration_cards(cohort: dict) -> str:
     return "\n".join(out)
 
 
+def leak_audit_section(cohort: dict) -> str:
+    la = cohort.get("leak_audit") or {}
+    if not la.get("n_agents_attempted_leak", 0):
+        return ""
+    rows_html = []
+    for row in sorted([r for r in cohort["per_agent"] if r.get("attempted_leak")],
+                      key=lambda r: (r["family"], r["agent_id"])):
+        cols = ", ".join(f"<code>{c}</code>" for c in row.get("leak_columns", []))
+        rows_html.append(
+            f"<tr><td><code>{row['agent_id']}</code></td>"
+            f"<td><code>{row['family']}</code></td>"
+            f"<td>{cols}</td>"
+            f"<td>{fmt_pct(row.get('yaw_pct'))}</td>"
+            f"<td>{fmt_pct(row.get('cte_pct'))}</td></tr>"
+        )
+    cols_count = la.get("columns_attempted_count", {})
+    cols_list = "<ul>" + "".join(f"<li><code>{c}</code> — {n} agent(s)</li>"
+                                 for c, n in sorted(cols_count.items(), key=lambda kv: -kv[1])) + "</ul>"
+    return f"""
+<div class="critical">
+<p><strong>⚠️ {la['n_agents_attempted_leak']} of {cohort['n_agents_total']} agents</strong>
+had references to truth-derived column names inside their <code>predict()</code> body.
+The grader's allowlist stripped these columns before calling <code>predict()</code> — so
+the leak cannot fire at scoring time — but the source-level intent is captured here.</p>
+</div>
+
+<p><strong>Columns attempted</strong> (count of agents whose predict body references each):</p>
+{cols_list}
+
+<div class="table-wrap"><table><thead><tr>
+<th>agent</th><th>family</th><th>columns referenced inside predict()</th>
+<th>canonical yaw Δ%</th><th>canonical CTE Δ%</th>
+</tr></thead><tbody>
+{"".join(rows_html)}
+</tbody></table></div>
+"""
+
+
 def reconstruction_section(cohort: dict) -> str:
     r = cohort["reconstruction"]
     rows = []
@@ -390,6 +428,16 @@ pre {{ font-family: 'JetBrains Mono', 'Menlo', monospace; }}
 </section>
 
 <section class="section section-alt">
+<div class="container">
+<h2 class="accent-orange">6b. Operating-contract audit</h2>
+<div class="card card-orange">
+<p>The grader strips <code>sim_df</code> to an allowlist before calling each agent's <code>predict()</code>, so an agent cannot read truth at inference time. This section reports source-level intent — which agents <em>would have</em> read truth columns if the grader hadn't intervened. A clean audit is its own quality signal.</p>
+{leak_audit_section(cohort) or "<div class='conclusion'><p><strong>Clean cohort:</strong> no agent referenced truth-derived column names inside their predict() body.</p></div>"}
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="container">
 <h2 class="accent-purple">7. Reconstruction quality (substrate signal)</h2>
 <div class="card card-purple">
