@@ -36,4 +36,44 @@ If your yaw improvement is much larger than your CTE improvement (e.g. yaw -45% 
 
 The fix is rarely "smooth the trajectory" or "reduce noise" — those tackle the wrong axis. The fix is to find the bias source in the *time-domain* yaw-rate plot and remove it physically.
 
+## Worked example — the per-platform bias-spread diagnostic
+
+Paste this into your dev loop after running `scoring-model`:
+
+```python
+from skills.score_model.score import score
+
+result = score(my_model)
+for platform, sub in result["per_segment"].groupby("platform"):
+    bias_std = sub["yaw_residual_mean"].std()
+    print(f"{platform}: std(per-segment yaw bias) = {bias_std:.5f} rad/s")
+    if bias_std > 0.002:
+        print(f"  → per-segment δ₀ correction is worth trying on this platform")
+    else:
+        print(f"  → tight already; per-segment correction would add noise")
+```
+
+Run this *before* deciding whether to enable per-segment δ₀ for each platform. The threshold (~0.002) is empirical from prior cohorts: above it, the per-segment trick reliably closes the CTE gap; below it, the trick adds noise without signal.
+
+## The two-step diagnostic when global re-fit doesn't close the gap
+
+A common pattern: you re-fit your global parameters per platform, yaw RMSE drops further, but CTE barely moves. This means the bias is **per-segment**, not global. Two steps to confirm and act:
+
+1. **Diagnose**: from `scoring-model`'s output, look at `per_segment["yaw_residual_mean"]`. Compute `std(yaw_residual_mean)` per platform. If `std > ~0.002 rad/s` on a platform, you have per-segment bias that no global parameter can absorb.
+2. **Act**: apply gated per-segment δ₀ on that platform (see `anti-patterns.md` § "Legal cousin"). Do NOT apply it on platforms where `std(yaw_residual_mean)` is already tight — the correction adds noise.
+
+This is the single most common "I beat V0 on yaw but CTE is stuck" failure pattern in past cohorts. The bias being chased is per-segment offset, not global.
+
 You should improve on this if you can.
+
+---
+
+## Failure-mode index — check before you commit
+
+| You'll see this if... | What it points to |
+|---|---|
+| your yaw delta is much bigger than your CTE delta on a platform | residual systematic bias — see "two-step diagnostic" above |
+| your CTE got worse while yaw got better | over-fit yaw at the cost of trajectory drift; reduce regularisation or chase the bias source |
+| you "smoothed the trajectory" and CTE didn't move | wrong axis — smoothing fights noise, not bias |
+| you're reporting only pooled CTE without per-segment breakdown | use `scoring-model`'s `per_segment` table — pooled CTE hides the few segments dominating the residual |
+| `per_segment["yaw_residual_mean"]` shows a wide spread but you only re-fit globals | bias is per-segment; the global re-fit can't reach it |

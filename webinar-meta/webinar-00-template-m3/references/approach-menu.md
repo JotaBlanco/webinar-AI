@@ -53,24 +53,76 @@ You should improve on this if you can.
 
 - **Per-platform fits** *[explored, essential]*. Two Fords, two parameter sets. The pooled fit averages over them and wins less. Don't pool.
 
-- **Polynomial steering scale** `g(δ) = g₀ + g₁·δ + g₂·δ²` *[unexplored]*. Mach-E shows steering nonlinearity the linear `g` can't capture — its CTE gap is the hardest to close. Polynomial may absorb the curvature. Risk: overfit.
+- **Polynomial steering scale** `g(δ) = g₀ + g₁·δ + g₂·δ²` *[explored, partial]*. Mach-E shows steering nonlinearity the linear `g` can't capture. **The catch**: polynomial g closes *yaw* residual but rarely closes *CTE* alone — three prior agents shipped polynomial g and got nothing on Mach-E CTE. **Combine with per-segment δ₀** (see `anti-patterns.md` § "Legal cousin") to convert the yaw win into a CTE win. Fit-stability warning: `g₀` and `L_eff` trade off (scale-invariant in the linear regime), so the optimiser degenerates if you fit both unconstrained — constrain `L_eff` to wheelbase ± 20% (Mach-E ~2.85m, Lightning ~3.7m) or hold `L_eff` fixed at the carParams value.
 
 - **Speed-dependent understeer** `K_us(v) = K₀ + K₁·v + …` *[unexplored]*. The standard `K_us·v²` term assumes constant `K_us`. If understeer varies with speed (or `a_lat`), a richer parameterisation may help. Small effect; unexplored.
 
 - **Per-regime models** *[unexplored]*. Different model in straight vs cornering vs transient. Cost: more params, regime-boundary discontinuities. Most useful if you suspect one regime dominates the residual.
 
-- **`a_lat_meas_mps2` as a model input** *[unexplored, multiple agents wished they'd tried]*. The measured lateral accel is informative about what the tyres are actually doing. Adding it as a feature or constraint may close gaps the steering signal alone can't.
+- **`a_lat_meas_mps2` as a model input** *[explored, two distinct uses]*. (a) **As a straight-line *detector*** — rows with `|a_lat_meas| < 0.3 and v > 5` identify when the vehicle is not turning, which is the gating rule for the per-segment δ₀ recipe in `anti-patterns.md`. This is the highest-leverage use of `a_lat_meas` on this dataset. (b) **As an alternative yaw-rate estimate** for sensor fusion (`yr_alt = a_lat / v`) — promising on paper, no agent has shipped a working version that beats per-segment δ₀.
 
 You should improve on this if you can.
 
 ## Things that have not produced gains
 
-- **Per-segment bias trick alone** *[explored, insufficient]*. Looks like a win on yaw RMSE, loses on CTE. See `anti-patterns.md`. Stack other corrections on top if you use it.
+- **Per-segment bias removal using truth at inference** *[illegal]*. Truth isn't there at scoring time — submission fails. See `anti-patterns.md`. (Note: the *legal* input-derived per-segment δ₀ in the same doc IS a winning move when platform-gated.)
 - **Aggressive trajectory smoothing** *[explored, wrong axis]*. Lowers noise without addressing the bias source that drives CTE.
 - **Tesla coefficients by analogy** *[explored, useless]*. No truth channel; V0 passthrough is the honest fallback.
 
 You should improve on this if you can.
 
+## Worked example — polynomial g combined with per-segment δ₀
+
+The combo that converts a yaw-only win into a CTE win on Mach-E:
+
+```python
+def _g_eff(delta_in, g0, g2):
+    """Quadratic-in-|δ| steering scale. Symmetric in sign."""
+    return g0 + g2 * delta_in * delta_in
+
+def predict_mache(sim_df, p):
+    # 1. Per-segment δ₀ from input channels (see anti-patterns.md "Legal cousin")
+    delta0 = _per_segment_delta0(sim_df, fallback=p["delta0_fallback"])
+    delta_in = sim_df["delta_road_rad"].to_numpy() - delta0
+    # 2. Polynomial g — quadratic only (linear term traded off against L_eff)
+    g_eff = _g_eff(delta_in, p["g0"], p["g2"])
+    delta = delta_in * g_eff
+    v = sim_df["v_mps"].to_numpy()
+    yr_ss = v * delta / (p["L_eff"] + p["K_us"] * v * v)
+    # ... first-order lag as before
+```
+
+Why this works and the linear-g alone doesn't: polynomial g closes the steering-nonlinearity gap that produces high-curvature yaw error; per-segment δ₀ closes the segment-by-segment offset that integrates into trajectory drift. Each addresses a different residual source. Shipping just polynomial g leaves the offset uncorrected — CTE barely moves.
+
+## Platform-gating heuristic — before applying any per-segment trick
+
+Before turning on a per-segment correction (δ₀, K_us-tweak, anything that varies between segments) for a platform, **run this diagnostic on your dev set**:
+
+```
+for each segment:
+    seg_bias = median(yr_pred - yr_meas_truth)   # signed
+collect bias values across segments per platform
+report std(seg_bias) per platform
+```
+
+- If `std > ~0.002 rad/s` on a platform, per-segment correction is worth it for that platform (Mach-E currently qualifies — std ~0.005–0.007).
+- If `std < 0.002 rad/s`, the per-segment correction adds noise without adding signal (Lightning currently fails this test — std ~0.001).
+
+Gate by platform. The same trick can help one and hurt the other on the same dataset.
+
 ## On choosing
 
-Look at your own residual first. If the bulk of your error is in the transient regime, dynamic ST or a higher-order steering filter is plausible. If it's in steady cornering, the closed-form understeer is already close to optimal — gains will come from per-platform refinement, polynomial steering, or `a_lat` fusion. If it's noise-dominated, a Kalman filter or robust loss may help. The annotations above tell you which paths are worn smooth and which still have ground to cover.
+Look at your own residual first. If the bulk of your error is in the transient regime, dynamic ST or a higher-order steering filter is plausible. If it's in steady cornering, the closed-form understeer is already close to optimal — gains will come from per-platform refinement, polynomial steering combined with per-segment δ₀, or constrained joint fits. If it's noise-dominated, a Kalman filter or robust loss may help. The annotations above tell you which paths are worn smooth and which still have ground to cover.
+
+---
+
+## Failure-mode index — check before you commit
+
+| You'll see this if... | What it points to |
+|---|---|
+| you tried polynomial g and only yaw improved, not CTE | combine polynomial g with per-segment δ₀ to convert yaw into CTE |
+| your joint fit of `g` and `L_eff` keeps degenerating | g × L is scale-invariant — constrain one (see polynomial-g section) |
+| you applied the same per-segment correction to both platforms and one got worse | platform-gate it — see the diagnostic above |
+| you spent most of your budget on Tesla | Tesla has no truth — V0 passthrough is the honest fallback |
+| you tried a Kalman / EKF and your code complexity exploded with no CTE gain | the heavy lift wasn't justified by this dataset's residual structure — fall back to simpler |
+| you skipped the residual-shape check and went straight to a tyre model | look at your residual first — dynamic / nonlinear tyre is unjustified unless the transient regime dominates |

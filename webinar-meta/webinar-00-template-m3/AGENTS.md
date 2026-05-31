@@ -1,11 +1,12 @@
 # AGENTS.md — Module 3 (lateral fidelity, skills + references)
 
-You are working on the lateral-fidelity challenge. The two KPIs to minimise are in your task prompt. You have a starter toolkit of seven skills under `skills/` and three short reference documents under `references/`. They are short on purpose — short enough to read, short enough to change.
+You are working on the lateral-fidelity challenge. The two KPIs to minimise are in your task prompt. You have a starter toolkit of seven skills under `skills/` and five short reference documents under `references/`, plus an experiment log template `EXPERIMENTS.md` at the root. They are short on purpose — short enough to read, short enough to change.
 
 ## Working directory layout
 
 - `skills/` — toolkit. Inspect each `SKILL.md` metadata first; load the body only when relevant.
-- `references/` — short domain-knowledge documents (anti-patterns, option-space map, KPI tradeoff). Read frontmatter first; load bodies when relevant.
+- `references/` — short domain-knowledge documents (anti-patterns, option-space map, KPI tradeoff, exploration discipline, ceiling moves). Read frontmatter first; load bodies when relevant.
+- `EXPERIMENTS.md` — append-only log of approaches you've tried. Maintain it as you go.
 - `_shared/` — local helpers used by the skills (trajectory integration, CTE math). Plain Python; modify freely.
 - `data/` — symlinked sim data (read-only).
 - `code/` — symlinked baseline model code, including `ks_model.py` (read-only).
@@ -25,11 +26,13 @@ You are working on the lateral-fidelity challenge. The two KPIs to minimise are 
 
 Read the frontmatter (description + when-to-load) before loading the body. Recommended order on a fresh task:
 
-- `references/anti-patterns.md` — common ways prior work has gone wrong. Load first to know what blind spots to look for.
-- `references/approach-menu.md` — a map of the option space for improving on V0. Annotated by what's been explored and what hasn't.
-- `references/two-kpi-tradeoff.md` — how yaw-rate RMSE and CTE RMSE relate; load after you have a working model and want to interpret your numbers.
+- `references/exploration-discipline.md` — protocol for naming alternatives before committing and logging what you try. Load at the start.
+- `references/anti-patterns.md` — common ways prior work has gone wrong, plus the legal per-segment-bias recipe with worked example. Load first to know what blind spots to look for.
+- `references/approach-menu.md` — a map of the option space for improving on V0. Annotated by what's been explored, what's lightly tried, and what's unexplored. Includes a platform-gating diagnostic.
+- `references/two-kpi-tradeoff.md` — how yaw-rate RMSE and CTE RMSE relate. Load after you have a working model and want to interpret your numbers; the worked example shows the per-platform bias-spread diagnostic.
+- `references/ceiling-moves.md` — four unexplored moves above the current best-known ceiling. Load only after you've already beaten V0 by ≥+30% on both KPIs — loading earlier wastes the doc.
 
-The references are knowledge, not prescription. They describe the landscape; you choose the route.
+The references are knowledge, not prescription. They describe the landscape; you choose the route. Each ends with a "failure-mode index" — a checklist of "you'll see this if…" patterns to verify before committing.
 
 ## Working with skills and references
 
@@ -40,3 +43,9 @@ The skills are deliberately small. Treat them as **clay, not library**. The expe
 3. If no — the skill is wrong. Open the body, add the column or table you need, save, re-run.
 
 The references work the same way — if one says something you find misleading, edit it. If a reference is in your way, delete it. The only obligation is to lower the canonical KPIs.
+
+## On exploration
+
+Before committing to your first approach, read `references/exploration-discipline.md` and **name at least three genuinely different approaches** you might try. Pick one. Try it. Score it. Append an entry to `EXPERIMENTS.md`. Only then consider the next.
+
+The single biggest failure pattern in past cohorts isn't running out of time — it's silent re-convergence on the same idea wearing a different variable name. The log is what catches that.
