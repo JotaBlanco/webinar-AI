@@ -1,0 +1,1172 @@
+{
+  "agent_id": "module-2.v2_agent-10",
+  "agent_folder": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-2.v2/agent-10/final-model",
+  "format_checks": {
+    "agent_folder_exists": true,
+    "has_manifest_json": true,
+    "manifest_parsable": true,
+    "manifest_declares_predict_callable": true,
+    "manifest_declares_platform_support": true,
+    "has_predict_py": true,
+    "has_coeffs_json": true,
+    "has_report": false
+  },
+  "manifest": {
+    "name": "agent-10-understeer-affine",
+    "version": "1.0",
+    "description": "Per-platform understeer correction: yr_corr = yr_v0/(1 + k*v^2) + g*delta_road + b, fitted against pooled CTE RMSE.",
+    "predict_callable": "predict.py:predict",
+    "platform_support": [
+      "FORD_F_150_LIGHTNING_MK1",
+      "FORD_MUSTANG_MACH_E_MK1",
+      "HYUNDAI_IONIQ_5",
+      "TESLA_MODEL_3"
+    ],
+    "inputs_required": [
+      "v_mps",
+      "delta_road_rad",
+      "yaw_rate_pred_rads"
+    ],
+    "outputs": [
+      "yaw_rate_pred_rads"
+    ]
+  },
+  "execution": {
+    "status": "ok",
+    "reason": null,
+    "n_segments_attempted": 534,
+    "n_segments_succeeded": 130,
+    "n_segments_skipped_unsupported_platform": 404,
+    "n_segments_runtime_error": 0,
+    "first_runtime_error": null,
+    "wall_time_seconds": 0.69
+  },
+  "yaw_rate": {
+    "baseline_rmse": 0.016273561137607036,
+    "agent_rmse": 0.010643135837337832,
+    "improvement_pct": 34.59860600061097,
+    "n_samples": 318760
+  },
+  "cte": {
+    "baseline_rmse_meters": 254.2605409293065,
+    "agent_rmse_meters": 112.90407744518473,
+    "improvement_pct": 55.59512418540159,
+    "n_distance_bins": 117650,
+    "n_segments_used": 122,
+    "n_segments_short": 8
+  },
+  "per_platform": {
+    "FORD_F_150_LIGHTNING_MK1": {
+      "n_segments": 55,
+      "n_segments_ok": 55,
+      "n_segments_runtime_error": 0,
+      "yaw_rate": {
+        "agent_rmse": 0.013112771853370573,
+        "n_samples": 123651
+      },
+      "cte": {
+        "agent_rmse_meters": 67.18614470606663,
+        "n_distance_bins": 37663,
+        "n_segments_used": 48
+      }
+    },
+    "FORD_MUSTANG_MACH_E_MK1": {
+      "n_segments": 75,
+      "n_segments_ok": 75,
+      "n_segments_runtime_error": 0,
+      "yaw_rate": {
+        "agent_rmse": 0.008723245465289875,
+        "n_samples": 195109
+      },
+      "cte": {
+        "agent_rmse_meters": 128.93455781522246,
+        "n_distance_bins": 79987,
+        "n_segments_used": 74
+      }
+    }
+  },
+  "per_segment": [
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/42/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.6076300653536986,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 36,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/53/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.009952070351506075,
+      "cte_rmse_m": 83.07295844215592,
+      "n_yaw_samples": 2748,
+      "n_cte_bins": 606
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/56/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.00791938691857895,
+      "cte_rmse_m": 12.924706979506396,
+      "n_yaw_samples": 2647,
+      "n_cte_bins": 644
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/58/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0038621121390900203,
+      "cte_rmse_m": 3.8262652546890625,
+      "n_yaw_samples": 1837,
+      "n_cte_bins": 372
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/12/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006778834660064735,
+      "cte_rmse_m": 9.950744738319786,
+      "n_yaw_samples": 2171,
+      "n_cte_bins": 470
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/24/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.003570910283959012,
+      "cte_rmse_m": 23.1981265422003,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 617
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/28/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/9/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0035484056369897224,
+      "cte_rmse_m": 0.4016421748976321,
+      "n_yaw_samples": 858,
+      "n_cte_bins": 90
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000046--9812a7c627/8/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.00759847279936897,
+      "cte_rmse_m": 9.583696798929306,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 515
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000070--972d29d2d0/11/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004996832207707151,
+      "cte_rmse_m": 27.33643968765793,
+      "n_yaw_samples": 2455,
+      "n_cte_bins": 482
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/000000ca--94c80b8ae7/11/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006862767037188119,
+      "cte_rmse_m": 51.342587324806665,
+      "n_yaw_samples": 2650,
+      "n_cte_bins": 623
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000003--25e4b9455f/3/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.002394450684400089,
+      "cte_rmse_m": 2.2364021664868803,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1209
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000004--fa32c24557/12/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0027635638132029474,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 227,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000004--fa32c24557/22/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.014663346539187761,
+      "cte_rmse_m": 72.07050800690104,
+      "n_yaw_samples": 2623,
+      "n_cte_bins": 782
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000008--805450550d/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004070147011509686,
+      "cte_rmse_m": 14.747468883431328,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1196
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000000f--bbbb407e6f/23/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000000f--bbbb407e6f/32/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0027779677626206638,
+      "cte_rmse_m": 2.501301519413603,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1221
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000018--7cd862e1d6/17/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004888281281600004,
+      "cte_rmse_m": 41.23894680779546,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1443
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000018--7cd862e1d6/21/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005826460778115393,
+      "cte_rmse_m": 3.478622787065308,
+      "n_yaw_samples": 2772,
+      "n_cte_bins": 844
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000018--7cd862e1d6/27/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.003312192191342026,
+      "cte_rmse_m": 1.9346143547531103,
+      "n_yaw_samples": 2211,
+      "n_cte_bins": 839
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000001a--aa6cdda7f6/13/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.003993560227630474,
+      "cte_rmse_m": 23.720956575823894,
+      "n_yaw_samples": 2488,
+      "n_cte_bins": 920
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000001a--aa6cdda7f6/23/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007971798864111566,
+      "cte_rmse_m": 20.129400479378464,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1316
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000001a--aa6cdda7f6/34/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005100821755774346,
+      "cte_rmse_m": 40.09001040099968,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1217
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000023--bf3e56a594/3/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0042500562706787835,
+      "cte_rmse_m": 22.85143708595056,
+      "n_yaw_samples": 2330,
+      "n_cte_bins": 790
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000002d--b34ccbd48a/6/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005033014268881084,
+      "cte_rmse_m": 9.071721738079402,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1124
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/0/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.015154256377787783,
+      "cte_rmse_m": 130.15070197165826,
+      "n_yaw_samples": 2030,
+      "n_cte_bins": 289
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/10/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007254520248111447,
+      "cte_rmse_m": 21.895886376350727,
+      "n_yaw_samples": 2842,
+      "n_cte_bins": 413
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/7/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007279211233159902,
+      "cte_rmse_m": 5.2515673420802464,
+      "n_yaw_samples": 1639,
+      "n_cte_bins": 336
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/8/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.008074030038984038,
+      "cte_rmse_m": 38.093594886414984,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 655
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/9/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006497662003979174,
+      "cte_rmse_m": 27.955924103566186,
+      "n_yaw_samples": 2792,
+      "n_cte_bins": 482
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/0/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.011002436133468034,
+      "cte_rmse_m": 54.56012434567115,
+      "n_yaw_samples": 2844,
+      "n_cte_bins": 479
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.008730996131874004,
+      "cte_rmse_m": 27.475658443500667,
+      "n_yaw_samples": 2715,
+      "n_cte_bins": 561
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/11/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0072171995807815805,
+      "cte_rmse_m": 111.14743886467555,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1511
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/12/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007762082185923332,
+      "cte_rmse_m": 47.60758583310108,
+      "n_yaw_samples": 2728,
+      "n_cte_bins": 1064
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/4/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.010361999381869049,
+      "cte_rmse_m": 152.3769404458543,
+      "n_yaw_samples": 2763,
+      "n_cte_bins": 963
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/6/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.009411030946198858,
+      "cte_rmse_m": 132.73119586468871,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1094
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/9/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006752505944194339,
+      "cte_rmse_m": 132.13746535866105,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1527
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000002--4679c2eed3/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.013748590092210519,
+      "cte_rmse_m": 9.19936956721919,
+      "n_yaw_samples": 2562,
+      "n_cte_bins": 464
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000002--4679c2eed3/6/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.00827536446526352,
+      "cte_rmse_m": 34.86011903267571,
+      "n_yaw_samples": 1899,
+      "n_cte_bins": 436
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000002--7f2db42420/4/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.017852000896535866,
+      "cte_rmse_m": 30.5428124022722,
+      "n_yaw_samples": 2566,
+      "n_cte_bins": 508
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000007--75718ec57b/2/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.008122069599301179,
+      "cte_rmse_m": 38.49421145758451,
+      "n_yaw_samples": 2748,
+      "n_cte_bins": 561
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/0000000a--736400223b/5/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005723696460864716,
+      "cte_rmse_m": 50.431123037700736,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1031
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/0000000a--736400223b/7/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004714098530430307,
+      "cte_rmse_m": 12.144046410207263,
+      "n_yaw_samples": 1847,
+      "n_cte_bins": 389
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/3b1f3f2a42d70b76/00000000--50f6e13002/3/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.010567570349837489,
+      "cte_rmse_m": 33.9531466286008,
+      "n_yaw_samples": 2081,
+      "n_cte_bins": 470
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/3b1f3f2a42d70b76/00000001--0f1d18d568/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.01217056978346846,
+      "cte_rmse_m": 78.40771268213756,
+      "n_yaw_samples": 2897,
+      "n_cte_bins": 868
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/3b1f3f2a42d70b76/00000001--0f1d18d568/2/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006413189572484525,
+      "cte_rmse_m": 152.96821429971052,
+      "n_yaw_samples": 2902,
+      "n_cte_bins": 1731
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/18/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0060587899351481475,
+      "cte_rmse_m": 4.181632202609745,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 566
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/22/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.012925702365982528,
+      "cte_rmse_m": 0.1290396995744819,
+      "n_yaw_samples": 767,
+      "n_cte_bins": 64
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/32/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/33/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/57/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.008619047257495413,
+      "cte_rmse_m": 19.89520837913047,
+      "n_yaw_samples": 2783,
+      "n_cte_bins": 569
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/58/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005542341670882898,
+      "cte_rmse_m": 28.222272272824814,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 970
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/7/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/0000006a--9ddc7690f2/53/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0037585036961484807,
+      "cte_rmse_m": 9.740585619412176,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1272
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/0000006a--9ddc7690f2/61/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005381463484466883,
+      "cte_rmse_m": 55.151758791174935,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1070
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/08ec7b9afc6b766e/00000000--40c362baa3/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.016193934010121706,
+      "cte_rmse_m": 53.72220855846165,
+      "n_yaw_samples": 2690,
+      "n_cte_bins": 365
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/08ec7b9afc6b766e/00000000--40c362baa3/10/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.011323906522274862,
+      "cte_rmse_m": 210.63590339134655,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1404
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000052--6dc60bf161/14/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.015129727124952147,
+      "cte_rmse_m": 182.62634740024302,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1148
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000052--6dc60bf161/6/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.013029407311044596,
+      "cte_rmse_m": 242.96773862409975,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1545
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000052--6dc60bf161/8/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008161115238049256,
+      "cte_rmse_m": 90.24565147285605,
+      "n_yaw_samples": 2587,
+      "n_cte_bins": 1003
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/0000005a--449dc75417/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00419640661858078,
+      "cte_rmse_m": 58.593188713377344,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1136
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000071--8e1585394a/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005304545125740163,
+      "cte_rmse_m": 64.2499874963514,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1668
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000072--65a4345461/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007820621166845806,
+      "cte_rmse_m": 7.41596829881781,
+      "n_yaw_samples": 1971,
+      "n_cte_bins": 429
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000080--129cd7e602/13/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.011083820179559039,
+      "cte_rmse_m": 28.74761677907524,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 874
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000080--129cd7e602/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007573413194496976,
+      "cte_rmse_m": 3.1797540641604507,
+      "n_yaw_samples": 1376,
+      "n_cte_bins": 357
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000082--086cca9558/9/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005852426975430373,
+      "cte_rmse_m": 119.19196565890537,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1670
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/103/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0057110225987479935,
+      "cte_rmse_m": 94.03097466836823,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1461
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/113/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0055933518976586,
+      "cte_rmse_m": 39.045635305884296,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 553
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/115/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007474373146439782,
+      "cte_rmse_m": 36.03237480700843,
+      "n_yaw_samples": 2816,
+      "n_cte_bins": 488
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/58/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0055088985829386105,
+      "cte_rmse_m": 34.92565713667691,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 852
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/64/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004889367957985576,
+      "cte_rmse_m": 72.98997796100291,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1067
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/67/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008251019367098617,
+      "cte_rmse_m": 132.74512470151217,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1580
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/74/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005993984607450165,
+      "cte_rmse_m": 65.42022598028205,
+      "n_yaw_samples": 2248,
+      "n_cte_bins": 587
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/79/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005175206644044898,
+      "cte_rmse_m": 97.49547068629981,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1467
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/80/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004553131848708142,
+      "cte_rmse_m": 44.015505243527635,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1488
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/86/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006613017480523204,
+      "cte_rmse_m": 119.7298144442528,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1401
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/90/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005955864392477857,
+      "cte_rmse_m": 57.90199593273787,
+      "n_yaw_samples": 2475,
+      "n_cte_bins": 1029
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/95/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007058398695760649,
+      "cte_rmse_m": 122.77651172835971,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1413
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/97/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004546091590710675,
+      "cte_rmse_m": 69.49705142117257,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1481
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/98/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007362291026513918,
+      "cte_rmse_m": 128.50184605127419,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1520
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/7f43d35a57b60ac3/00000020--a45e6dbe1a/14/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008810588819948242,
+      "cte_rmse_m": 13.801998379481182,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 800
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/20/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005128201511797044,
+      "cte_rmse_m": 0.9971826837550343,
+      "n_yaw_samples": 503,
+      "n_cte_bins": 59
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/22/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009911628008708807,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 76,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/34/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.01284440346505783,
+      "cte_rmse_m": 16.128852556206883,
+      "n_yaw_samples": 2322,
+      "n_cte_bins": 508
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/36/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004281443641195052,
+      "cte_rmse_m": 43.742780959478615,
+      "n_yaw_samples": 2183,
+      "n_cte_bins": 475
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000001--b3f79ef70c/38/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005965579090792838,
+      "cte_rmse_m": 8.563414855750105,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1116
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000001--b3f79ef70c/45/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00403643187331505,
+      "cte_rmse_m": 8.466907820168824,
+      "n_yaw_samples": 1407,
+      "n_cte_bins": 370
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000002--44b7373c00/33/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003707661094554987,
+      "cte_rmse_m": 45.92987928837039,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1705
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000007--8659b23f20/25/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004035419154107843,
+      "cte_rmse_m": 49.86302567104314,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1614
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000007--8659b23f20/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005920369546680756,
+      "cte_rmse_m": 126.39617676937918,
+      "n_yaw_samples": 1867,
+      "n_cte_bins": 185
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000007--8659b23f20/6/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.014026403036179453,
+      "cte_rmse_m": 50.66968701913638,
+      "n_yaw_samples": 2528,
+      "n_cte_bins": 584
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000010--33840d4f7a/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.01170947507586735,
+      "cte_rmse_m": 25.161642117891482,
+      "n_yaw_samples": 2557,
+      "n_cte_bins": 756
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006586857360208262,
+      "cte_rmse_m": 48.94899906775339,
+      "n_yaw_samples": 2576,
+      "n_cte_bins": 700
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/3/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009985550539440273,
+      "cte_rmse_m": 65.6908776321149,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 904
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00574071490857877,
+      "cte_rmse_m": 40.62026607153676,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 677
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.012060330613639422,
+      "cte_rmse_m": 5.470353633618631,
+      "n_yaw_samples": 1887,
+      "n_cte_bins": 269
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000006--fe9d2dbea8/4/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009412212974149698,
+      "cte_rmse_m": 37.202370843115276,
+      "n_yaw_samples": 2770,
+      "n_cte_bins": 567
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000013--c67db227b6/13/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.010982990279805026,
+      "cte_rmse_m": 56.63180882327801,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 731
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000019--fc0fa0c893/23/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.010200701412941564,
+      "cte_rmse_m": 103.45395145584818,
+      "n_yaw_samples": 1759,
+      "n_cte_bins": 599
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000019--fc0fa0c893/39/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006999578848518338,
+      "cte_rmse_m": 6.500769574357079,
+      "n_yaw_samples": 996,
+      "n_cte_bins": 140
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000019--fc0fa0c893/48/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008066116413277351,
+      "cte_rmse_m": 83.9123879753813,
+      "n_yaw_samples": 2770,
+      "n_cte_bins": 839
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000032--4f9db5b503/18/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.02044965033310706,
+      "cte_rmse_m": 32.721816207244885,
+      "n_yaw_samples": 658,
+      "n_cte_bins": 154
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/0000003e--5d0cedc936/95/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008538300046760497,
+      "cte_rmse_m": 203.1534692073836,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1788
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/00000000--ace0e90f67/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004646312885845763,
+      "cte_rmse_m": 11.398283476285204,
+      "n_yaw_samples": 2716,
+      "n_cte_bins": 587
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/0000005c--4ca389d3fb/4/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.014642159073288688,
+      "cte_rmse_m": 62.627491556480585,
+      "n_yaw_samples": 2296,
+      "n_cte_bins": 472
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/00000062--fd938a6c36/17/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009025026647881776,
+      "cte_rmse_m": 21.72244307305999,
+      "n_yaw_samples": 2902,
+      "n_cte_bins": 1274
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/0000006c--71a7cd5177/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008002423725936545,
+      "cte_rmse_m": 12.493561909807633,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 703
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/0000006e--27027f8fae/9/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007893997388535226,
+      "cte_rmse_m": 125.24033595780814,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1473
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/00000079--bfe6af6bc0/6/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009092293417505446,
+      "cte_rmse_m": 117.07475584732306,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1399
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/12/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008051356110939222,
+      "cte_rmse_m": 177.60841566494804,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1638
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/13/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.010127010560922457,
+      "cte_rmse_m": 189.18154005257037,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/14/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007390947325117248,
+      "cte_rmse_m": 126.69304613999532,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1661
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/15/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.010042856406414318,
+      "cte_rmse_m": 219.8846213845728,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/16/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009220737540946624,
+      "cte_rmse_m": 209.5032803989525,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/17/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.010007078717230387,
+      "cte_rmse_m": 202.85175804383275,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/18/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00870141083077922,
+      "cte_rmse_m": 119.26621214382425,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1660
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/19/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007742139950008319,
+      "cte_rmse_m": 74.70012860053774,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/20/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008884096989428748,
+      "cte_rmse_m": 194.99642704848557,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/21/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.011154004061429069,
+      "cte_rmse_m": 122.73008858265456,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1662
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/22/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009382175858490249,
+      "cte_rmse_m": 218.37741817048484,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/23/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009067615662787921,
+      "cte_rmse_m": 145.96216754292726,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1661
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/24/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007560255797931838,
+      "cte_rmse_m": 110.76750252703866,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1660
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/25/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009018901750998716,
+      "cte_rmse_m": 167.675143431579,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1660
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/26/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007604576949179932,
+      "cte_rmse_m": 133.21587868662692,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/27/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008086485945697218,
+      "cte_rmse_m": 186.01748134451176,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/28/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009773551437421127,
+      "cte_rmse_m": 150.63470300233556,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/29/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008928146119333171,
+      "cte_rmse_m": 76.20781857909226,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 979
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/30/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005965856298321246,
+      "cte_rmse_m": 9.091933884314365,
+      "n_yaw_samples": 2349,
+      "n_cte_bins": 303
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/31/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.011251194887964175,
+      "cte_rmse_m": 49.26995989893719,
+      "n_yaw_samples": 2794,
+      "n_cte_bins": 522
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/32/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004455629320592513,
+      "cte_rmse_m": 29.623732339149438,
+      "n_yaw_samples": 2757,
+      "n_cte_bins": 565
+    }
+  ],
+  "coefficients": {
+    "FORD_F_150_LIGHTNING_MK1": {
+      "k": 0.0009299897686168917,
+      "g": -0.13146377934999154,
+      "b": -0.004858365647164137
+    },
+    "FORD_MUSTANG_MACH_E_MK1": {
+      "k": 0.0007776286604362939,
+      "g": 0.1760123050495998,
+      "b": 0.0007151284926824161
+    },
+    "HYUNDAI_IONIQ_5": {
+      "k": 0.0017086888155224455,
+      "g": -0.02937372993329363,
+      "b": 0.0030989091566628654
+    },
+    "TESLA_MODEL_3": {
+      "k": 0.0,
+      "g": 0.0,
+      "b": 0.0
+    }
+  },
+  "contract": {
+    "allowed_input_columns": [
+      "a_long_mps2",
+      "accel_pedal_pct",
+      "brake_pressed",
+      "delta_road_rad",
+      "delta_wheel_deg",
+      "t_s",
+      "v_mps",
+      "yaw_rate_pred_rads"
+    ],
+    "stripped_columns_per_segment": [],
+    "leak_scan": {
+      "scan_ok": true,
+      "hits_in_predict_body": {},
+      "hits_in_helpers": {},
+      "hits_elsewhere": {},
+      "helpers_called_from_predict": []
+    }
+  }
+}

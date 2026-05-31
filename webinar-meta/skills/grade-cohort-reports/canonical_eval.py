@@ -90,14 +90,18 @@ def derive_agent_id_and_family(folder: Path) -> tuple[str, str]:
 def build_platform_lookup(parsed_yaml: dict) -> dict[str, str]:
     """Build {path-substring -> canonical-platform-name} from the YAML's segment_globs.
 
-    e.g. 'sim/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv'
+    The platform name is the path segment immediately following `segments/`,
+    e.g. 'sim-only/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv'
          -> {'FORD_F_150_LIGHTNING_MK1': 'FORD_F_150_LIGHTNING_MK1'}
+
+    Derived from the path structure rather than a hardcoded manufacturer
+    allowlist so new platforms (HYUNDAI, BYD, …) work without code changes.
     """
     eval_set = parsed_yaml.get("eval_set", {}) or {}
     globs = eval_set.get("segment_globs", []) or []
     lookup: dict[str, str] = {}
     for g in globs:
-        m = re.search(r"(FORD_[A-Z0-9_]+|TESLA_[A-Z0-9_]+|GM_[A-Z0-9_]+|TOYOTA_[A-Z0-9_]+)", g)
+        m = re.search(r"/segments/([^/]+)/", g)
         if m:
             lookup[m.group(1)] = m.group(1)
     return lookup
