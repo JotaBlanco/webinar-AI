@@ -65,20 +65,39 @@ The honest framing: *"hard outer ring, soft inner ring, detective audit on both.
 
 ### The shared `data/` topology (as of 2026-05-31)
 
-`<repo-root>/data/` is three symlinks (not a real tree):
+`<repo-root>/data/` is a real directory tree (copied from KB003 on 2026-05-31 — see commit history). NOT symlinks. This eliminates the symlink-traversal attack class: agents physically cannot navigate to KB003 from their `data/` view.
 
 ```
 data/
-├── raw/        → KB_PARENT/KB003/data/raw                  (raw rlogs)
-├── sim-only/   → KB_PARENT/KB003/data/sim-only/segments    (input-only mirror — operating-contract surface)
-└── sim-full/   → KB_PARENT/KB003/data/sim/segments         (full schema including truth — training/scoring only)
+├── raw/                — raw rlogs (5.1 GB) — adapter code in code/ may read these
+├── sim/segments/       — full schema with truth (823 MB) — training & local scoring only
+└── sim-only/segments/  — input-only mirror (306 MB) — operating-contract surface for predict()
 ```
 
-`sim-only/` is what the canonical grader hands to each agent's `predict()`; truth columns aren't in those CSVs. `sim-full/` is for training and local scoring. The agent prompt template documents this for each agent.
+`sim-only/segments/` is what the canonical grader hands to each agent's `predict()`; truth columns aren't in those CSVs. `sim/segments/` is for training and local scoring. The agent prompt template documents this for each agent.
 
-**Caveat for the `KB_PARENT/KB003/**` declarative deny rule**: the data/ symlinks resolve into KB003. Depending on whether `permissions.deny` matches the literal path argument (safe) or the post-symlink-resolution path (would break legitimate `data/` reads), the KB003 deny may need to be removed. See `_note_on_KB003_symlink_collision` in `settings-deny-snippet.json` for the smoke test. The symlink-aware hook (layer 3) is still the catch-all for direct KB003 reads via absolute path.
+The canonical grader's `eval_data_root` points at `KB_PARENT/KB003/data/val-data/` (a different tree, NOT copied here). Val-data is held out from agents by file-system construction: it doesn't exist in webinar-AI/data at all.
 
-### Setup — done once per angle
+### Setup for the webinar-AI repo specifically (May 2026 onwards)
+
+The "angle root" for this repo is the repo root itself (`/Users/javiquix/Desktop/quixdev/webinar-AI/`). There are no `webinar-angle-A/B/C` wrappers — modules live at top level (`module-1/`, `module-2/`, `module-3/`) and each contains 10 agent slots (`agent-01..10`).
+
+**Source configs live at `webinar-meta/launch-configs/<module>-<idea>.json`** — one file per `(module, idea)` combination. Each contains all 10 agent slots for that combo. Available so far:
+- `m1-idea-01.json` — module-1 (bare) × idea-01 (lateral fidelity)
+
+**Per-launch flow:** when the user asks "launch N agents in module-M for idea-X":
+
+1. Copy `webinar-meta/launch-configs/m{M}-idea-{X}.json` to `<repo-root>/.launch-config.json`.
+2. If N < 10, slice `modules` to the first N entries (jq, python, or sed — your call) and write back to `.launch-config.json`.
+3. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root>`.
+4. Fire the N Agent() calls returned between BEGIN_INVOCATIONS / END_INVOCATIONS, all in ONE message, `run_in_background: true`, `subagent_type: "general-purpose"`.
+5. Wait for all callbacks. Persist any REPORT.md text the agents return (Write on `(report|findings|summary|analysis).*\.md$` is blocked in subagents — see "When a subagent can't write REPORT.md" below).
+6. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root> --verify`.
+7. Summarise: per agent — did `final-model/predict.py` exist? Did it import cleanly? Headline numbers? One sentence each. Don't run grading — separate step (see `grade-cohort-reports` skill).
+
+If the user asks for a (module, idea) combo that has no config file yet, **stop and ask** rather than improvise — the configs encode the harness components and forbidden paths per scenario.
+
+### Original setup — done once per angle (legacy — for repos that still use angle wrappers)
 
 Write `<angle-root>/.launch-config.json` (5-30 lines). Schema:
 

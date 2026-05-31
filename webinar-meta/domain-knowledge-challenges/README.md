@@ -32,8 +32,9 @@ Improve the lateral fidelity. You'll be graded on:
   2. Distance-resampled cross-track-error RMSE (m) — your trajectory vs
      truth, sampled at uniform distance.
 
-A starter toolkit of six skills lives under `skills/` — see `AGENTS.md`.
-Use, modify, or replace them.
+Whatever harness exists in your working directory (`AGENTS.md`, `skills/`,
+helpers) is yours to use, modify, or replace. If nothing is there, build
+what you need.
 
 Ship at `final-model/`:
   - `predict.py` exporting `predict(sim_df, platform) -> DataFrame` aligned
@@ -53,8 +54,13 @@ Our vehicle model currently takes measured longitudinal speed as an input —
 that's the crutch we need to remove. Build a longitudinal model that
 predicts that channel itself, accurately enough to stand on its own.
 
+You'll be graded on:
+  1. Speed RMSE (m/s) — your `v_mps` vs the truth channel.
+  2. Per-segment distance error RMSE (m) — integrate your predicted speed
+     over each segment, compare to integrated truth speed.
+
 Ship at `final-model/` the same way as the lateral challenge: a `predict.py`
-exporting `predict(sim_df, platform) -> DataFrame`, a `manifest.json` with
-`platform_support` and `predict_callable`, plus any coeffs your predict
-depends on.
+exporting `predict(sim_df, platform) -> DataFrame` aligned with `sim_df.index`
+and including a `v_mps` column, a `manifest.json` with `platform_support`
+and `predict_callable`, plus any coeffs your predict depends on.
 ```

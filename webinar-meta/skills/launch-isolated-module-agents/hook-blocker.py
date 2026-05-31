@@ -86,6 +86,10 @@ def parse_args():
     p.add_argument("--repo-root", required=True, type=Path)
     p.add_argument("--extra-deny", action="append", default=[], type=Path,
                    help="Additional absolute path prefix to deny (repeat).")
+    p.add_argument("--allow-module", action="append", default=[], type=str,
+                   help="Module folder name (e.g. module-4) to whitelist back in "
+                        "from the DENY_PATTERNS_REL list. Repeat for multiple. "
+                        "Use for the cohort that is currently active.")
     return p.parse_args()
 
 
@@ -129,7 +133,12 @@ def canonical(p: str, cwd: Path) -> Path | None:
 
 
 # DENIED policy — patterns relative to repo_root. Use fnmatch globs.
+#
+# Layer 3 is the ONLY hard-isolation layer that propagates to Task subagents
+# (verified by smoke test 2026-05-31; declarative `settings.json permissions.deny`
+# is parent-only). So this list must mirror the intent of settings.json deny.
 DENY_PATTERNS_REL = [
+    # ── Prior angle cohorts (cross-angle isolation) ──────────────────────
     "webinar-angle-*/_shared/*",
     "webinar-angle-*/_shared/**",
     "webinar-angle-*/_launch/*",
@@ -139,14 +148,40 @@ DENY_PATTERNS_REL = [
     "webinar-angle-*/process-log.md",
     "webinar-angle-*/RUN-LOG.md",
     "webinar-angle-*/.launch-config.json",
-    "webinar-meta/webinar-00-template-*/*",
-    "webinar-meta/webinar-00-template-*/**",
-    "webinar-meta/domain-knowledge-challenges/*",
-    "webinar-meta/domain-knowledge-challenges/**",
+
+    # ── Substrate that agents must not see (templates, design KB, grading skill) ──
+    # The grading skill source is the most sensitive: if an agent reads the
+    # canonical YAML or worker.py they know exactly what is being measured and
+    # could game it without learning anything.
+    "webinar-meta/**",
+    "webinar-meta/*",
+
+    # ── Prior-cohort module folders (cross-module isolation) ──────────────
+    # Cohort N agents must not read cohort M's work. Pass --allow-module
+    # module-X to whitelist a specific module folder back in (for the active
+    # cohort). Intra-cohort (agent-01 reading agent-02 within same module)
+    # CANNOT be enforced here — the hook is per-project, not per-subagent.
+    "module-1/**",
+    "module-1/*",
+    "module-2/**",
+    "module-2/*",
+    "module-3/**",
+    "module-3/*",
+    "module-4/**",
+    "module-4/*",
+
+    # ── Historical / experimental dirs agents shouldn't read ──────────────
+    "deprecated/**",
+    "deprecated/*",
+    "raw-model/**",
+    "raw-model/*",
+    "_grade/**",
+    "_grade/*",
 ]
 
 
-def is_denied(path: Path, repo_root: Path, extra_deny: list[Path]) -> bool:
+def is_denied(path: Path, repo_root: Path, extra_deny: list[Path],
+              allow_modules: list[str]) -> bool:
     try:
         rel = path.relative_to(repo_root)
     except ValueError:
@@ -157,12 +192,16 @@ def is_denied(path: Path, repo_root: Path, extra_deny: list[Path]) -> bool:
                 return True
         return False
     rel_str = str(rel)
+    # Per-cohort allowlist override: if the active cohort is module-N, the
+    # `--allow-module module-N` arg whitelists `module-N/**` back in even though
+    # `module-N/**` is in DENY_PATTERNS_REL. Lets one config support many cohorts.
+    for am in allow_modules:
+        am = am.strip("/")
+        if rel_str == am or rel_str.startswith(am + "/"):
+            return False
     for pat in DENY_PATTERNS_REL:
         if fnmatch.fnmatch(rel_str, pat):
             return True
-        # also match parent prefixes
-        if "/" not in pat.rstrip("/*"):
-            continue
     return False
 
 
@@ -231,7 +270,7 @@ def main():
         if canon is None or canon in seen_canon:
             continue
         seen_canon.add(canon)
-        if is_denied(canon, repo_root, extra_deny):
+        if is_denied(canon, repo_root, extra_deny, args.allow_module):
             blocked.append((c, canon))
 
     if not blocked:
@@ -251,8 +290,9 @@ def main():
         f"hook-blocker: out-of-scope path(s) — denied by policy.\n"
         f"  tool: {tool_name}\n"
         f"  blocked: {[str(p) for _, p in blocked]}\n"
-        f"  policy: webinar-angle-*/_shared, _launch, _observations, process-log.md, RUN-LOG.md, "
-        f"webinar-meta/webinar-00-template-*, webinar-meta/domain-knowledge-challenges, plus --extra-deny.\n"
+        f"  policy: webinar-angle-*/_shared|_launch|_observations|process-log.md|RUN-LOG.md, "
+        f"webinar-meta/**, module-1/2/3/4/**, deprecated/**, raw-model/**, _grade/**, plus --extra-deny. "
+        f"--allow-module={args.allow_module or 'none'} whitelists the active cohort.\n"
         f"  logged to: {log_file}\n"
         f"If this read is genuinely needed, declare a limitation in REPORT.md and proceed without.",
         file=sys.stderr,

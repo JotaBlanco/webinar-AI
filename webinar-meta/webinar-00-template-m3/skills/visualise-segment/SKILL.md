@@ -37,7 +37,7 @@ def v0(sim_df, platform):
     return sim_df[["yaw_rate_pred_rads"]].copy()
 
 plot(
-    segment_path=Path("data/sim-full/FORD_MUSTANG_MACH_E_MK1/<dev>/<route>/1/sim.csv"),
+    segment_path=Path("data/sim/segments/FORD_MUSTANG_MACH_E_MK1/<dev>/<route>/1/sim.csv"),
     predict_fns={"v0": v0, "my_model": my_model},
     out_path=Path("out/segment_check.png"),
 )

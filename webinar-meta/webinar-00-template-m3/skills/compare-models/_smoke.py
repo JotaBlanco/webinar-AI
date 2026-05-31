@@ -34,9 +34,9 @@ def _pick_segments(n: int = 20) -> list[Path]:
     # Look in the working dir first (where the agent runs); fall back to the
     # repo's top-level data tree if we're invoked from elsewhere.
     candidates = []
-    candidates.extend(sorted(Path.cwd().glob("data/sim-full/FORD_MUSTANG_MACH_E_MK1/**/sim.csv")))
+    candidates.extend(sorted(Path.cwd().glob("data/sim/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv")))
     if not candidates:
-        repo_data = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim-full/FORD_MUSTANG_MACH_E_MK1")
+        repo_data = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim/segments/FORD_MUSTANG_MACH_E_MK1")
         candidates = sorted(repo_data.glob("**/sim.csv"))
     if not candidates:
         raise RuntimeError(

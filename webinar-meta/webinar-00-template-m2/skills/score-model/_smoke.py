@@ -21,7 +21,7 @@ def v0(sim_df, platform):
 
 
 def main() -> int:
-    seg_root = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim-full/FORD_MUSTANG_MACH_E_MK1")
+    seg_root = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim/segments/FORD_MUSTANG_MACH_E_MK1")
     seg_paths = sorted(seg_root.glob("**/sim.csv"))[:5]
     assert seg_paths, f"no sim.csv files found under {seg_root}"
     print(f"[smoke] scoring {len(seg_paths)} segments...")

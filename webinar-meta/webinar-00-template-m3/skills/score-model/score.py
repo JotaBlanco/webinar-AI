@@ -48,14 +48,14 @@ ALLOWED_INPUT_COLUMNS = frozenset({
 # ---------------------------------------------------------------------------
 
 def _platform_from_path(p: Path) -> str:
-    """Platform is the 3rd-from-rightmost dir in data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv."""
+    """Platform is the 3rd-from-rightmost dir in data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv."""
     # parts: ..., PLATFORM, DEVICE, ROUTE, IDX, sim.csv -> parents[3]
     return p.resolve().parents[3].name
 
 
 def _default_segment_paths() -> list[Path]:
-    """All sim.csv under data/sim-full/FORD_*/**/sim.csv relative to cwd."""
-    root = Path.cwd() / "data" / "sim-full"
+    """All sim.csv under data/sim/segments/FORD_*/**/sim.csv relative to cwd."""
+    root = Path.cwd() / "data" / "sim" / "segments"
     if not root.exists():
         return []
     return sorted(root.glob("FORD_*/**/sim.csv"))
@@ -125,7 +125,7 @@ def score(
         predict_fn: callable(sim_df, platform) -> DataFrame aligned with sim_df.index.
             Required column: ``yaw_rate_pred_rads``. Optional: ``x_m``, ``y_m``.
         segment_paths: list of sim.csv paths. If None, glob all
-            ``data/sim-full/FORD_*/**/sim.csv`` under the current working dir.
+            ``data/sim/segments/FORD_*/**/sim.csv`` under the current working dir.
         platform_filter: if set, only keep segments whose platform dir matches.
         grid_step_m: distance grid spacing for CTE (meters).
         min_distance_m: CTE drops segments whose travelled distance is below this.

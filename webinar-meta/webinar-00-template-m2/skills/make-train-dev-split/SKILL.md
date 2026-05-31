@@ -25,7 +25,7 @@ load-cost: ~110 tokens metadata, ~250 tokens body.
 - **Returns warnings**: dev fraction far from target, a platform with zero segments on one side, severely imbalanced platforms.
 
 Split algorithm:
-1. Group input paths by `(platform, device, route)` parsed from `data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv`.
+1. Group input paths by `(platform, device, route)` parsed from `data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv`.
 2. Shuffle the groups with `seed`.
 3. Greedy-fill dev in shuffle order until cumulative segment count crosses `dev_fraction × n_total`. Remainder goes to train.
 4. If `stratify_by_platform=True`, run steps 1–3 independently per platform.

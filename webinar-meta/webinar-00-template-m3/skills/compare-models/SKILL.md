@@ -5,7 +5,7 @@ when-to-invoke: You have two predictors with the same `predict(sim_df, platform)
 inputs:
   - predict_fn_a: callable(sim_df, platform) -> DataFrame with `yaw_rate_pred_rads` (and optionally `x_m`, `y_m`).
   - predict_fn_b: same contract.
-  - segment_paths: optional list of `sim.csv` paths. Default: all `data/sim-full/FORD_*/**/sim.csv` under the working dir.
+  - segment_paths: optional list of `sim.csv` paths. Default: all `data/sim/segments/FORD_*/**/sim.csv` under the working dir.
   - name_a, name_b: labels that appear in the result columns (default "A"/"B").
   - grid_step_m, min_distance_m: passed through to the shared CTE helper.
   - sample_filter_v_mps: rows with v_mps below this are excluded from the yaw-rate RMSE (default 2.0). CTE always uses the full series.

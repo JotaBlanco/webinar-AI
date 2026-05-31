@@ -21,7 +21,7 @@ load-cost: ~140 tokens metadata, ~170 tokens body.
 6. `predict_imports` — loads `predict.py` via `importlib.util`, with `final_model_dir` temporarily on `sys.path` so sibling imports (helpers, coeffs) work.
 7. `predict_callable_exists` — the function named by `predict_callable` (default `predict`) exists and is callable.
 8. `predict_signature_compatible` — signature accepts at least `(sim_df, platform)` positionally, or uses `**kwargs`.
-9. `predict_returns_correct_shape` — calls `predict` on the first `data/sim-only/FORD_MUSTANG_MACH_E_MK1/**/sim.csv` (alphabetical). Asserts the return is a `pandas.DataFrame` with column `yaw_rate_pred_rads`, an index identical to the input, no NaN in `yaw_rate_pred_rads`, and no NaN in `x_m`/`y_m` if present.
+9. `predict_returns_correct_shape` — calls `predict` on the first `data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv` (alphabetical). Asserts the return is a `pandas.DataFrame` with column `yaw_rate_pred_rads`, an index identical to the input, no NaN in `yaw_rate_pred_rads`, and no NaN in `x_m`/`y_m` if present.
 
 Each check is wrapped in its own try/except — a failure becomes `status="fail"` with the truncated exception in `detail`. If a check's prerequisite failed, the dependent check is recorded as `status="skip"` and `passes` is forced to `False`.
 

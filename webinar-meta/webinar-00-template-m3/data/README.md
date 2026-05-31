@@ -32,5 +32,5 @@ If this directory is empty when you clone the template, create the symlinks:
 ```bash
 ln -s /path/to/project/data/raw data/raw
 ln -s /path/to/project/data/sim-only data/sim-only       # input-only mirror
-ln -s /path/to/project/data/sim/segments data/sim-full   # full schema with truth
+ln -s /path/to/project/data/sim/segments data/sim/segments   # full schema with truth
 ```

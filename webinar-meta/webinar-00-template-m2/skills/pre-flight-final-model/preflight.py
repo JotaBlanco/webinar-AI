@@ -41,8 +41,8 @@ def _skip(checks: list[dict], errors: list[str], name: str, reason: str) -> None
 
 
 def _sample_sim_csv() -> Path | None:
-    """Return the first sim.csv under data/sim-only/FORD_MUSTANG_MACH_E_MK1, or None."""
-    root = Path("data/sim-only/FORD_MUSTANG_MACH_E_MK1")
+    """Return the first sim.csv under data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1, or None."""
+    root = Path("data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1")
     if not root.exists():
         return None
     matches = sorted(root.glob("**/sim.csv"))
@@ -249,7 +249,7 @@ def preflight(final_model_dir: str | Path) -> dict[str, Any]:
                     {
                         "name": "predict_returns_correct_shape",
                         "status": "skip",
-                        "detail": "no sample sim.csv found under data/sim-only/FORD_MUSTANG_MACH_E_MK1",
+                        "detail": "no sample sim.csv found under data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1",
                     }
                 )
                 errors.append(

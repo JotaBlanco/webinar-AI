@@ -34,4 +34,4 @@ rm -rf data/                  # remove the empty stub
 ln -s /path/to/project/data   # whole-dir symlink
 ```
 
-This gives you `data/raw/`, `data/sim-only/`, `data/sim-full/` all at once, matching the layout above.
+This gives you `data/raw/`, `data/sim-only/`, `data/sim/segments/` all at once, matching the layout above.

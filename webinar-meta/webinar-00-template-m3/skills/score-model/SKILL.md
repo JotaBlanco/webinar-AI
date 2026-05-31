@@ -27,7 +27,7 @@ If `predict_fn` raises, returns the wrong shape, or is missing the required colu
 
 ## What it does not do
 
-- It does not load your data for you — pass paths in (or let it default to all `data/sim-full/FORD_*/**/sim.csv`).
+- It does not load your data for you — pass paths in (or let it default to all `data/sim/segments/FORD_*/**/sim.csv`).
 - It does not pick a methodology — knobs (`grid_step_m`, `min_distance_m`, `sample_filter_v_mps`) are explicit arguments with sensible defaults.
 - It does not tell you whether your model is good. It returns numbers.
 

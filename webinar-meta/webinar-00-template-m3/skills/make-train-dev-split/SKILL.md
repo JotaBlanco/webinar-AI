@@ -14,7 +14,7 @@ load-cost: ~80 tokens metadata, ~180 tokens body.
 `split(...)` groups segments by `(platform, device, route)` — a "route" being one recorded drive — then assigns whole groups to either train or dev. Within a group, every segment goes to the same side, so correlated neighbours never straddle the partition.
 
 Algorithm:
-1. Group input paths by `(platform, device, route)` parsed from the path: `data/sim-full/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv`.
+1. Group input paths by `(platform, device, route)` parsed from the path: `data/sim/segments/<PLATFORM>/<DEVICE>/<ROUTE>/<IDX>/sim.csv`.
 2. Shuffle the groups with `seed`.
 3. Greedy-fill dev in shuffle order until cumulative segment count crosses `dev_fraction × n_total`. The remainder goes to train.
 4. If `stratify_by_platform=True`, run steps 1–3 independently per platform so each platform contributes roughly `dev_fraction` of its own segments.
@@ -38,7 +38,7 @@ print(len(train_paths), len(dev_paths))
 # Fit on train, evaluate on dev — see score-model for the latter.
 ```
 
-Pass an explicit `segment_paths` list to partition a custom subset; pass `None` (default) to glob all `data/sim-full/FORD_*/**/sim.csv` from the current working directory.
+Pass an explicit `segment_paths` list to partition a custom subset; pass `None` (default) to glob all `data/sim/segments/FORD_*/**/sim.csv` from the current working directory.
 
 ## Smoke test
 
