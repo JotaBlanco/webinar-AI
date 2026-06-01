@@ -1,0 +1,18 @@
+{
+  "name": "module-3-agent-04 lateral-fidelity final model",
+  "predict_callable": "predict.py:predict",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "platform_handling": {
+    "FORD_F_150_LIGHTNING_MK1": "polynomial g + global delta0 + understeer + first-order lag",
+    "FORD_MUSTANG_MACH_E_MK1":  "polynomial g + per-segment delta0 + understeer + first-order lag",
+    "HYUNDAI_IONIQ_5":          "polynomial g + per-segment delta0 + understeer + first-order lag",
+    "TESLA_MODEL_3":            "V0 passthrough (no truth channel to fit against)"
+  },
+  "depends_on": ["coeffs.json"],
+  "produces": ["yaw_rate_pred_rads", "x_m", "y_m"]
+}
