@@ -1,0 +1,20 @@
+{
+  "name": "v2-ks-linear-dynamic-with-jerk-ff",
+  "parent": "v1_baseline",
+  "rung": "1",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "description": "V1 functional form (KS + understeer + first-order lag + per-segment delta0) plus a small steering-rate feedforward term (c_dot * d_delta/dt * v) added to the steady-state yaw rate. Tesla falls through to V0 passthrough (no truth channel).",
+  "dev_metrics": {
+    "yaw_rate_rmse": 0.005845,
+    "cte_rmse": 56.815,
+    "vs_v1_yaw_pct": -0.49,
+    "vs_v1_cte_pct": 0.01
+  },
+  "notes": "V1 sits at the structural ceiling for this functional form on the dev set. Per-platform parameter refits, second-order lag, and a soft-weighted delta0 estimator all gave <1% yaw improvement (or made CTE worse). The dominant CTE driver is per-segment delta0 mis-estimation on Mustang and Hyundai, which is not addressable without truth-channel access at predict time."
+}

@@ -1,0 +1,19 @@
+{
+  "name": "understeer-bicycle-v1",
+  "version": "1.0.0",
+  "description": "Steady-state understeer bicycle (yaw = v*delta/(L+K_us*v^2)) with calibrated steering-ratio scale, steering offset, and a first-order yaw lag. Per-platform coefficients fitted on data/sim/segments truth.",
+  "platform_support": [
+    "TESLA_MODEL_3",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "FORD_F_150_LIGHTNING_MK1",
+    "HYUNDAI_IONIQ_5"
+  ],
+  "predict_callable": "predict.py:predict",
+  "outputs": ["yaw_rate_pred_rads", "x_m", "y_m"],
+  "reads_columns": ["t_s", "delta_road_rad", "v_mps"],
+  "training_data": "data/sim/segments/<platform>/**/sim.csv (truth: yaw_rate_meas_rads, or psi_dot_rads for TESLA_MODEL_3 legacy schema)",
+  "notes": [
+    "TESLA_MODEL_3 falls through to V0 (KS) because the legacy training data is KS-clean — psi_dot_rads is the KS simulator state, not a measured signal.",
+    "Coefficients fitted by Nelder-Mead minimisation of pooled per-platform yaw RMSE (see out/fit_final.py)."
+  ]
+}
