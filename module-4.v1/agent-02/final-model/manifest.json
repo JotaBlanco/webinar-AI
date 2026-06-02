@@ -1,0 +1,22 @@
+{
+  "name": "v1-plus-bias",
+  "description": "V1 (kinematic single-track + understeer + 1st-order lag + per-segment delta_0) plus a per-platform additive bias correction on Mach-E and IONIQ-5. Lightning ships V1 unchanged (at noise floor). Tesla falls through to V0 passthrough.",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "inputs_used": [
+    "t_s",
+    "delta_road_rad",
+    "v_mps",
+    "yaw_rate_pred_rads"
+  ],
+  "outputs": ["yaw_rate_pred_rads"],
+  "trajectory": "integrated from yaw_rate_pred + measured v by the grader",
+  "files": ["predict.py", "coeffs.json", "manifest.json"],
+  "parent": "v1_baseline",
+  "rung": "rung-0 refinement (per-platform bias) — orthogonal candidate (residual-learner ridge head) tested and rejected due to CTE degradation"
+}

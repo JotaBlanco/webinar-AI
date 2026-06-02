@@ -1,0 +1,26 @@
+{
+  "name": "v2-hyundai-refit",
+  "parent": "v1_baseline",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "structure": "kinematic single-track + understeer + first-order lag + per-segment delta0 (Mach-E & Hyundai)",
+  "deltas_vs_v1": [
+    "Refit (g, L_eff, K_us, tau, delta0_fallback) for HYUNDAI_IONIQ_5 via Nelder-Mead on yaw-rate MSE over ~100 subsampled segments.",
+    "Kept FORD_F_150_LIGHTNING_MK1 and FORD_MUSTANG_MACH_E_MK1 at V1 settings (refitting either was either neutral or harmed CTE).",
+    "TESLA_MODEL_3 stays as V0 passthrough (no truth channel)."
+  ],
+  "dev_pooled_metrics": {
+    "yaw_rate_rmse_rad_s": 0.005855,
+    "cte_rmse_m": 56.47
+  },
+  "v1_pooled_metrics": {
+    "yaw_rate_rmse_rad_s": 0.005874,
+    "cte_rmse_m": 56.81
+  },
+  "files": ["predict.py", "v2_params.json"]
+}

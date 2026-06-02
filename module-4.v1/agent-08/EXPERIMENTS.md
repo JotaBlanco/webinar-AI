@@ -39,3 +39,40 @@ Delete this header section once you start logging, but keep the schema close to 
 
 <!-- iterate appends entries below this line. Do not edit by hand;
      edit notes.md and re-iterate instead. -->
+
+### 2026-06-02 — V0 (passthrough)
+- Parent: — | Rung: 0
+- Local pooled: yaw 0.017632, CTE 218.16 m
+- Reference floor (V0 yaw_rate_pred_rads).
+
+### 2026-06-02 — V1 (kinematic single-track + understeer + lag + per-seg δ₀)
+- Parent: V0 | Rung: 0
+- Local pooled: yaw 0.010612, CTE 75.6453 m
+- Stock from code/v1_baseline.py. Constants on this dataset; per-platform
+  yaw RMSE F-150 0.012733 / Mach-E 0.013633 / Hyundai 0.008933.
+
+### 2026-06-02 — V2a (V1 + per-seg straight-driving yaw bias + gain)
+- Parent: V1 | Rung: orthogonal (data-driven post-hoc)
+- Decision: discarded. Per-seg bias removal collided with per-seg δ₀ that V1
+  already does, and on F-150 (constant δ₀) the bias estimator picked up
+  legitimate yaw during gentle turns. CTE blew up to 111 on F-150.
+
+### 2026-06-02 — V2b (V1 + per-seg δ₀ also on F-150 + gain/offset)
+- Parent: V1 | Rung: 0
+- Pooled: yaw 0.010661, CTE 81.04 m. Rejected.
+- F-150 yaw barely moves but its CTE doubles (62→112). The F-150 segment
+  population has long, straight-driving spans where the median δ_road in
+  V1's mask captures structural toe offset that becomes a systematic CTE
+  drift once integrated.
+
+### 2026-06-02 — V2c (V1 + per-platform OLS gain g, offset c) — SHIPPED
+- Parent: V1 | Rung: orthogonal (data-driven calibration head)
+- Fit: OLS on yaw_truth = g · yr_v1 + c per platform, hash-mod-5 split.
+- Coeffs: F-150 g=0.986 c=-0.000296; Mach-E g=0.978 c=+0.001674;
+  Hyundai g=0.990 c=+0.000591; Tesla 1.0/0.0.
+- Pooled: yaw 0.010527, CTE 72.59 m.
+- Gate: pass — every per-platform yaw and CTE improves vs V1.
+
+### 2026-06-02 — V2d (V2c + conservative per-seg straight-line bias)
+- Parent: V2c | Rung: orthogonal
+- Pooled: yaw 0.010538, CTE 73.50 m. Marginal regression vs V2c; rejected.

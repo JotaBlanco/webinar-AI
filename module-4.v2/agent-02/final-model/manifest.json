@@ -1,0 +1,22 @@
+{
+  "model_name": "v3-richer-ridge-resid",
+  "parent": "v1-baseline",
+  "description": "V1 KS + per-platform ridge residual learner with 13-feature non-linear basis (v^2, delta^2, delta^2*v, ay^2 in addition to v, delta, dd_dt, ay_proxy and asymmetry term).",
+  "predict_callable": "predict.py:predict",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "tesla_behaviour": "passthrough V0 (yaw_rate_pred_rads)",
+  "features": ["bias", "v", "v2", "delta", "delta_v", "delta2", "delta2_v", "dd", "dd_v", "ay", "ay_absay", "sgn_delta", "abs_delta_v"],
+  "coefs_dir": "coefs_v3",
+  "fit_method": "ridge regression, route-grouped 5-fold CV lambda selection",
+  "training_data": "data/sim/segments/* (Ford Lightning, Mach-E, IONIQ-5)",
+  "local_dev_metrics": {
+    "v1_baseline": {"yaw_rate_rmse": 0.005874, "cte_rmse": 56.8071},
+    "v3_this_model": {"yaw_rate_rmse": 0.005621, "cte_rmse": 53.4359},
+    "delta_pct": {"yaw_rate_rmse": "-4.31%", "cte_rmse": "-5.94%"}
+  }
+}
