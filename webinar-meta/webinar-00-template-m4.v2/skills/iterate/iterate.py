@@ -392,6 +392,49 @@ def _score_named_node(template_root: Path, node_name: str) -> dict | None:
     return _cv_score(predict_fn, template_root)
 
 
+def _cached_or_rescore(template_root: Path, node: dict) -> dict | None:
+    """Return CV score for a TREE.json node, using cached values when valid.
+
+    The cache is the node itself: pooled_yaw_rmse/std + pooled_cte_rmse/std
+    were written when the node was first logged. We treat them as valid as
+    long as the node's predict.py hasn't been edited since the node was
+    written (mtime check). Saves ~30s per iterate call across a 30-iteration
+    session — the leader doesn't change every turn, and rescoring an
+    unchanged predict on 5 CV folds is pure waste.
+
+    Returns None if the bundle is gone (deleted dir). Falls back to
+    rescoring if the cache fields are missing or predict.py was edited.
+    """
+    bundle = _models_root(template_root) / node["name"]
+    predict_path = bundle / "predict.py"
+    if not predict_path.exists():
+        return None
+    if all(k in node for k in ("pooled_yaw_rmse", "pooled_cte_rmse", "pooled_yaw_std", "pooled_cte_std")):
+        try:
+            node_ts = node.get("timestamp", "")
+            predict_mtime_iso = datetime.utcfromtimestamp(
+                predict_path.stat().st_mtime
+            ).isoformat() + "Z"
+            if node_ts and predict_mtime_iso <= node_ts:
+                # Cache is fresh — predict hasn't been edited since the node
+                # was logged.
+                return {
+                    "pooled": {
+                        "yaw_rmse": node["pooled_yaw_rmse"],
+                        "yaw_std":  node["pooled_yaw_std"],
+                        "cte_rmse": node["pooled_cte_rmse"],
+                        "cte_std":  node["pooled_cte_std"],
+                    },
+                    "per_platform": {},  # not cached; consumers that need it must rescore
+                    "folds": [],
+                    "cached": True,
+                }
+        except OSError:
+            pass
+    # Cache miss — actually re-score.
+    return _score_named_node(template_root, node["name"])
+
+
 # ---------------------------------------------------------------------------
 # iterate() — the public entry
 # ---------------------------------------------------------------------------
@@ -431,22 +474,24 @@ def iterate(model_dir: str | Path, parent: str | None = None, rung: str | None =
     v1_cv = _cv_score(v1_baseline.predict_v1, template_root)
     vs_v1 = _diff(cand_cv, v1_cv)
 
-    # Resolve parent CV: actually score the parent (was: silently used leader_cv).
+    # Resolve parent + leader CV with TREE.json cache (mtime-invalidated).
+    # Leader doesn't change every turn — rescoring is pure waste when the
+    # node's predict.py hasn't been edited since it was logged.
     tree = _read_tree(template_root)
+    by_name = {n["name"]: n for n in tree["nodes"]}
+
     if parent == "v1":
         parent_cv = v1_cv
+    elif parent in by_name:
+        parent_cv = _cached_or_rescore(template_root, by_name[parent]) or v1_cv
     else:
-        parent_cv = _score_named_node(template_root, parent)
-        if parent_cv is None:
-            # Parent bundle missing on disk. Fall back to V1 for the diff but
-            # flag in the gate reasons so it's not silent.
-            parent_cv = v1_cv
+        # parent named in notes.md but no TREE.json node yet — score fresh.
+        parent_cv = _score_named_node(template_root, parent) or v1_cv
     vs_parent = _diff(cand_cv, parent_cv)
 
-    # Leader (uses _models_root → v1/v2 aware).
     leader_node = _find_leader(tree, exclude_name=model_dir.name)
     if leader_node is not None:
-        leader_cv = _score_named_node(template_root, leader_node["name"]) or v1_cv
+        leader_cv = _cached_or_rescore(template_root, leader_node) or v1_cv
     else:
         leader_cv = v1_cv
     vs_leader = _diff(cand_cv, leader_cv)

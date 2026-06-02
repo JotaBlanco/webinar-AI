@@ -66,6 +66,55 @@ Route-grouped specifically because the agent-07 cohort finding (§6 of
 `m4-cohort-findings.md`) showed naive splits overfit asymmetric-bias levers
 that the full-dataset fit had no problem with.
 
+### What the CV σ actually measures (precise division of labour)
+
+The σ from `score_cv` is **route-evaluation variance** — how stable the
+pooled RMSE is across 5 route-grouped subsets of the dev split. The
+candidate's fit was done globally upstream (you fit on the whole dev set
+before calling iterate); the CV here doesn't re-fit on each fold. So the
+σ tells you:
+
+- ✅ "Is one outlier route dominating my pooled metric?" (a real failure mode)
+- ✅ "Is this +0.3% improvement vs parent real, or noise in which routes
+  averaged out?" (the signal-above-noise gate)
+- ❌ **Not** "does this fit generalize?" — that's a train/dev question, and
+  the agent already did the fit globally.
+
+The overfitting story from cohort §6 (agent-07's asymmetric-bias subset fit
+flipped Lightning's sign) is a **fitting** failure — the agent fit on a
+non-representative subset. The gate that catches *that* is the **dev/test
+gap at preflight `--final`**, not the iterate-level σ bars. The two
+mechanisms divide the labour:
+
+| Mechanism | Catches |
+|---|---|
+| `score_cv` σ in iterate gate | "this improvement is within route-pooling noise" |
+| dev/test gap in `pre-flight --final` | "I overfit the dev split across N iterations" |
+
+If you're seeing `signal-below-noise` warnings, that's the σ catching
+route-sensitivity, not overfit. Read it as "my route sample is small;
+this delta is in the noise" rather than "this model will fail on test."
+
+### How noisy is the σ itself?
+
+The σ is computed from 5 fold-pooled RMSEs with `ddof=1`. Five numbers is
+enough to flag big variance but the std-of-5 itself has a wide
+confidence band. **A real-but-small improvement may bounce in and out of
+`signal-above-noise` purely by which routes landed in which folds.** The
+gate is honest about this — it doesn't mean the improvement isn't real.
+
+The right way to read it:
+- **One `signal-below-noise` warn** is not damning. Try the candidate
+  another way (different parent, slight reformulation) and see if the
+  pattern repeats across MODELS.md entries.
+- **Three consecutive `signal-below-noise` warns on the same branch**
+  IS the stagnation signal — it's what `iterate` watches for and what
+  triggers the `compact_and_restart` route.
+
+Raising k to 10 doesn't help much (we have limited routes; folds shrink
+and the per-fold RMSE itself gets noisier). The right answer is reading
+patterns across iterates, not over-reacting to a single flag.
+
 ---
 
 ## RPI — when to phase-separate

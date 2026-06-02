@@ -1,0 +1,85 @@
+# PLAN.md — Phase 2 output
+
+**Locked after phase 2 completes.** Do not edit in Phase 3.
+
+## Selected candidates — ≥2, default 2, up to 3 with rationale
+
+**The default is exactly two candidates: one rung-0 refinement + one
+structurally-different.** This is what keeps Phase 3's wall clock tractable
+and forces a clean A/B comparison.
+
+**You may ship three candidates** if RESEARCH.md surfaces two genuinely
+distinct structural candidates (e.g. dynamic-ST + regime-switched both
+attacking different residual characters) that would each weaken the other
+slot in the default pair. If you do, add a `## Why three candidates`
+section at the bottom of PLAN.md citing the specific RESEARCH.md findings
+that motivate it. Without that rationale, default to two — committee mode
+is the failure pattern the rule prevents.
+
+The pair (or triple) must include **at least one structurally-different
+candidate**. Cohort-evidenced winning pair on this dataset:
+`(rung-0 refinement) + (orthogonal residual learner)` (see
+m4-cohort-findings.md §2 + §4). Rung-1 dynamic ST is also admissible — but
+§1 + §7 evidence is every prior attempt failed for under-parameterization.
+Choose rung-1 only if RESEARCH.md identifies a specific residual character
+a residual learner cannot capture.
+
+### Candidate A — rung-0 refinement on V1
+
+- **name**: <model-dir-name>
+- **rung**: 0
+- **parent**: v1
+- **formulation summary**: <one paragraph>
+- **levers being touched**: <list>
+- **cohort precedent**: <§N from m4-cohort-findings.md>
+- **dev-CV pass criterion**: yaw Δ% vs V1 < <threshold>, signed-bias warnings clear
+- **estimated wall clock**: <minutes>
+
+### Candidate B — structurally different (rung 1+ OR orthogonal)
+
+- **name**: <model-dir-name>
+- **rung**: `1 | 2 | 3 | orthogonal`   ← orthogonal is a peer, not a fallback
+- **parent**: v1 (or candidate A's name if B builds on A)
+- **formulation summary**: <one paragraph>
+- **fit strategy** (if rung 1+): MUST fit C_αf, C_αr, Iz — see `_shared/rung1_starter.py`
+- **starter to use**: `_shared/rung1_starter.py` | residual-learner template | other
+- **why this rung over the alternative**: (mandatory — cite the cohort
+  evidence that swayed your choice between orthogonal and rung-1+)
+- **cohort precedent / warning**: <§N>
+- **dev-CV pass criterion**: <threshold>
+- **estimated wall clock**: <minutes>
+
+## Phase 3 instructions
+
+1. Build both candidates as `models/<A>/predict.py` and `models/<B>/predict.py`.
+2. Each needs a `notes.md` declaring its rung, parent, and expected residual character.
+3. Run `skills/iterate` on each. The gate determines which (if any) goes to `final-model/`.
+4. If both lose to V1 on dev CV, ship V1 with REPORT.md documenting why.
+
+### Candidate C — optional, only if `## Why three candidates` is populated
+
+Same field schema as Candidates A and B. Delete this section if shipping the
+default pair.
+
+## Why three candidates
+
+<!--
+ONLY populate if you are shipping three. Cite the specific RESEARCH.md
+findings that make the third candidate unable to displace either of the
+first two. If you can't write this paragraph, default to two.
+-->
+
+## What was deliberately excluded from the plan
+
+- <name of a candidate from RESEARCH.md you considered but rejected>: <one-sentence reason>
+- <name of another>: <reason>
+
+## Locking
+
+After this PLAN.md is filled in:
+
+```
+bash rpi/lock.sh rpi/artifacts/PLAN.md
+```
+
+Preflight verifies PLAN.md is non-writable before the bundle can ship.

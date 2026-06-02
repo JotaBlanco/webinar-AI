@@ -158,6 +158,17 @@ def _default_segment_paths() -> list[Path]:
 #
 # The same check lives in cv.py for the score_cv wrapper, but lives here
 # too so any direct score() call is also caught. Defense in depth.
+#
+# *** LOAD-BEARING LAYOUT ASSUMPTION ***
+#
+# The marker check below is a substring scan: any path containing
+# "sim-only/test" or "sim/test" is denied. If the project's data layout
+# ever moves the test split elsewhere — e.g. `data/test-split/`,
+# `data/holdout/`, or `data/sim/segments/test/` — the refusal SILENTLY
+# NO-OPS and an agent can score on test during the inner loop without
+# error. Verify data/README.md's "Expected layout" matches reality
+# before every cohort, and edit TEST_SPLIT_MARKER_PARTS if the layout
+# changes — but make it loud, not silent.
 # ---------------------------------------------------------------------------
 
 TEST_SPLIT_MARKER_PARTS = ("sim-only/test", "sim/test")
