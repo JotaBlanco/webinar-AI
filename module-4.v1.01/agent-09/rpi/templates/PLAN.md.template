@@ -1,0 +1,133 @@
+# PLAN.md — Phase 2 output
+
+**Locked after phase 2 completes.** Do not edit in Phase 3.
+
+## Parent baseline
+
+> **Required.** `rpi/lock.sh` refuses to lock PLAN.md without this section
+> filled, and `pre-flight-final-model` refuses to ship the bundle if it is
+> missing or contains only placeholders. The motivating failure mode is
+> `m4.v1 agent-10`, which built on V0 (0.01293 rad/s yaw RMSE) instead of
+> V1 (0.00587), and was 2.2× off the floor before any work began.
+
+- **Baseline**: <V0 | V1 | fresh>
+- **Evidence** (one line, cite numbers): <e.g. "V1 dev pooled yaw RMSE
+  0.00587 (m3.v3 cohort §1.7); V0 is 0.01293. V1 is the floor unless we
+  see a structural reason it's wrong.">
+- **Floor we must clear**: yaw <…> rad/s, CTE <…> m.
+
+If your candidates target different baselines (e.g. a rung-1 fresh fit vs
+a rung-0 V1 refinement), list them all here with separate evidence lines.
+
+## Selected candidates — default 3, two only if you can justify it
+
+**The default is three candidates: one rung-0 refinement + one orthogonal
+residual learner + one structurally-different (rung 1+ or platform-targeted).**
+
+This is a deliberate change from m4.v1's "default 2" because the m4.v1
+cohort showed the median agent at +56.2% yaw, basically tied with m3.v2's
++56.6% — to lift the median past V1's ceiling, the agent has to *try* a
+rung-1 climb or a platform-specific attack, not just refine. The 6-way
+`launch-rungs/` fan-out gives you four or more candidates for free; PLAN.md
+just decides which three you commit to running through `iterate`.
+
+The Lightning platform is the obvious headroom target. The m4.v1 cohort
+ran +21% yaw on Lightning vs +55% on Mach-E/IONIQ — Lightning is where
+the next structural win lives. Candidate C below defaults to "attacks
+Lightning residual".
+
+You may ship two candidates if RESEARCH.md gives a specific reason a third
+would be dominated by one of the first two. Add a `## Why only two
+candidates` section at the bottom in that case.
+
+### Candidate A — rung-0 refinement on V1
+
+- **name**: <model-dir-name>
+- **rung**: 0
+- **parent**: v1
+- **formulation summary**: <one paragraph>
+- **levers being touched**: <list>
+- **cohort precedent**: <§N from m4-cohort-findings.md>
+- **dev-CV pass criterion**: yaw Δ% vs V1 < <threshold>, signed-bias warnings clear
+- **route-CV plan**: <which step is scored under route-grouped CV — if you
+  add a per-platform bias, route-CV is mandatory; bias_without_route_cv
+  gate refuses to ship otherwise. See cohort §6 + §9.>
+- **estimated wall clock**: <minutes — budgets are floors, not ceilings>
+
+### Candidate B — orthogonal residual learner
+
+- **name**: <model-dir-name>
+- **rung**: orthogonal
+- **parent**: v1 (or candidate A's name if B builds on A)
+- **formulation summary**: <one paragraph — 7-feature ridge head by default;
+  GB head if cohort §4 conditions met (ridge R² > 0.2)>
+- **fit strategy**: 5-fold route-grouped CV on the residual fit. Write
+  `route_cv_sigma` into `coeffs.json` for each platform.
+- **cohort precedent**: m4-cohort-findings.md §4 — reliable +1–5% CTE
+- **dev-CV pass criterion**: <threshold>
+- **estimated wall clock**: <minutes>
+
+### Candidate C — structurally-different (rung 1+ or platform-targeted)
+
+- **name**: <model-dir-name>
+- **rung**: `1 | 2 | 3 | orthogonal`   ← orthogonal is a peer, not a fallback
+- **parent**: v1
+- **formulation summary**: <one paragraph>
+- **target platform** (if platform-specific): Lightning is the default
+  Candidate C target — m4.v1 cohort ran +21% yaw on Lightning vs +55% on
+  the other two. Candidate C should either close that gap (Lightning-only
+  fit, regime switch on speed, dynamic ST on Lightning) or be a rung-1
+  climb that's expected to lift all three platforms.
+- **fit strategy** (if rung 1+): MUST fit C_αf, C_αr, Iz — see
+  `_shared/rung1_starter.py`. Route-grouped CV mandatory.
+- **starter to use**: `_shared/rung1_starter.py` | residual-learner template | other
+- **why this rung over the alternative**: (mandatory — cite the cohort
+  evidence that swayed your choice between orthogonal, rung-1+, and
+  platform-specific)
+- **cohort precedent / warning**: <§N>
+- **dev-CV pass criterion**: <threshold>
+- **estimated wall clock**: <minutes>
+
+## Phase 3 instructions
+
+1. Build all three candidates as `models/<A>/predict.py`,
+   `models/<B>/predict.py`, `models/<C>/predict.py`.
+2. Each needs a `notes.md` declaring its rung, parent, and expected
+   residual character — and the mandatory `## What this differs from`
+   section the iterate skill checks for.
+3. Run `skills/iterate` on each. The gate determines which (if any) goes
+   to `final-model/`.
+4. If a per-platform bias term is fitted in any candidate, the fit step
+   MUST use route-grouped CV and write `route_cv_sigma` into
+   `coeffs.json`. The bias_without_route_cv gate refuses to ship
+   otherwise (m4-cohort-findings.md §6 + §9).
+5. If all three lose to V1 on dev CV, ship V1 with REPORT.md documenting
+   why — but you should not be in that situation after three candidates
+   from three different angles.
+
+## Why only two candidates
+
+<!--
+ONLY populate if you are shipping two. Cite the specific RESEARCH.md
+findings that make the third candidate unable to displace either of the
+first two. If you can't write this paragraph, default to three — the
+m4.v1.01 default is three precisely because m4.v1's "default 2" left
+agents at the V1 ceiling.
+-->
+
+## What was deliberately excluded from the plan
+
+- <name of a candidate from RESEARCH.md you considered but rejected>: <one-sentence reason>
+- <name of another>: <reason>
+
+## Locking
+
+After this PLAN.md is filled in:
+
+```
+bash rpi/lock.sh rpi/artifacts/PLAN.md
+```
+
+`lock.sh` refuses to lock if the `## Parent baseline` section is missing
+or contains only placeholders. Preflight verifies PLAN.md is non-writable
+*and* declares a parent baseline before the bundle can ship.
