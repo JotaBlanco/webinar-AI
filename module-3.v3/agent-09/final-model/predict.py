@@ -1,68 +1,54 @@
-"""Final predict for module-3.v2 agent-09.
+"""Shipped model — V1 + per-platform affine bias correction.
 
-Recipe: Kinematic single-track + understeer + first-order yaw lag, with
-platform-gated per-segment δ₀ estimation from input-only straight-driving rows.
+Layered on top of `code/v1_baseline.predict_v1`. Per non-Tesla, non-Lightning
+platform, applies y = s * y_v1 + b. Lightning passes through to V1 (route-
+grouped holdout showed affine correction hurts Lightning CTE). Tesla passes
+through (no truth, V0 only).
 
-Per-platform coefficients in `coeffs.json`. Tesla falls back to V0 passthrough
-(no truth channel).
+Coefficients in `coeffs.json`, fit by closed-form OLS on the full sim/segments
+truth pool.
 """
 from __future__ import annotations
-
 import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-_HERE = Path(__file__).resolve().parent
-with open(_HERE / "coeffs.json") as f:
-    _COEFFS = json.load(f)
+import sys
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+sys.path.insert(0, str(ROOT / "code"))
+from v1_baseline import predict_v1  # type: ignore
+
+_COEFFS = None
 
 
-def _per_segment_delta0(sim_df, fallback=0.0,
-                        yr_thresh=0.03, v_thresh=5.0, min_rows=50):
-    """Estimate δ₀ from THIS segment's own straight-driving rows.
-
-    Uses input-only allowlist channels: V0 yaw-rate prediction as the
-    straight-driving gate.
-    """
-    v = sim_df["v_mps"].to_numpy()
-    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
-    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
-    if int(mask.sum()) < min_rows:
-        return fallback
-    return float(sim_df.loc[mask, "delta_road_rad"].median())
-
-
-def _predict_yaw(sim_df, p):
-    """Compute yaw rate given platform params p (dict)."""
-    if p.get("use_per_segment_delta0", False):
-        delta0 = _per_segment_delta0(sim_df, fallback=p["delta0_fallback"])
-    else:
-        delta0 = p["delta0"]
-    delta = (sim_df["delta_road_rad"].to_numpy() - delta0) * p["g"]
-    v = sim_df["v_mps"].to_numpy()
-    L_eff = p["L_eff"]
-    K_us = p["K_us"]
-    tau = p["tau"]
-    yr_ss = v * delta / (L_eff + K_us * v * v)
-    t = sim_df["t_s"].to_numpy()
-    dt = np.diff(t, prepend=t[0])
-    alpha = dt / (tau + dt)
-    yr = np.empty_like(yr_ss)
-    yr[0] = yr_ss[0]
-    for i in range(1, len(yr)):
-        yr[i] = yr[i - 1] + alpha[i] * (yr_ss[i] - yr[i - 1])
-    return yr
+def _coeffs():
+    global _COEFFS
+    if _COEFFS is None:
+        _COEFFS = json.loads((HERE / "coeffs.json").read_text())
+    return _COEFFS
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
-    if platform not in _COEFFS:
-        # Tesla and any unknown platform → V0 passthrough.
-        return pd.DataFrame(
-            {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
-            index=sim_df.index,
-        )
-    p = _COEFFS[platform]
-    yr = _predict_yaw(sim_df, p)
+    """Predict yaw_rate_pred_rads for the supplied sim_df + platform.
+
+    Args:
+        sim_df: agent-facing 8-column input DataFrame.
+        platform: platform string (e.g. 'FORD_MUSTANG_MACH_E_MK1').
+
+    Returns:
+        DataFrame with `yaw_rate_pred_rads`, indexed like sim_df.
+    """
+    base = predict_v1(sim_df, platform)
+    cf = _coeffs()
+    if platform == "TESLA_MODEL_3" or platform not in cf:
+        return base
+    c = cf[platform]
+    s = float(c.get("s", 1.0))
+    b = float(c.get("b", 0.0))
+    if s == 1.0 and b == 0.0:
+        return base
+    yr = base["yaw_rate_pred_rads"].to_numpy() * s + b
     return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)

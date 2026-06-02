@@ -1,13 +1,8 @@
 {
+  "name": "v1-plus-residual-features",
+  "description": "V1 baseline + per-platform OLS residual correction with affine, saturation (yr_v1*(v*yr_v1)^2), and steering-rate (d delta/dt) terms.",
+  "platform_support": ["FORD_F_150_LIGHTNING_MK1", "FORD_MUSTANG_MACH_E_MK1", "HYUNDAI_IONIQ_5", "TESLA_MODEL_3"],
   "predict_callable": "predict.py:predict",
-  "platform_support": [
-    "FORD_F_150_LIGHTNING_MK1",
-    "FORD_MUSTANG_MACH_E_MK1",
-    "HYUNDAI_IONIQ_5",
-    "TESLA_MODEL_3"
-  ],
-  "rung": 0,
-  "shape": "KS + steering scale g + understeer K_us + first-order lag tau + delta0 (per-segment on Mach-E/IONIQ-5, global on Lightning)",
-  "fits": "scipy.optimize.minimize L-BFGS-B against pooled yaw RMSE per platform, route-grouped 80/20 train/dev split",
-  "tesla": "V0 passthrough (no truth channel)"
+  "depends_on": ["coeffs.json", "code/v1_baseline.py", "code/ks_model.py"],
+  "fallback_behaviour": "Unknown platforms (including TESLA_MODEL_3) pass through V1 baseline, which itself falls through to V0 passthrough on Tesla."
 }

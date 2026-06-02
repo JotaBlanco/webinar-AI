@@ -34,6 +34,16 @@ def fmt_stats_pct(s: dict) -> str:
     return f"{s['mean']:+.1f}% ± {s['std']:.1f}% (med {s['median']:+.1f}%)"
 
 
+def fmt_tokens(v) -> str:
+    if v is None:
+        return "—"
+    if v >= 1_000_000:
+        return f"{v/1_000_000:.2f}M"
+    if v >= 1_000:
+        return f"{v/1_000:.1f}k"
+    return str(v)
+
+
 def render(cohort: dict) -> str:
     out: list[str] = []
     bl = cohort["baseline"]
@@ -78,6 +88,54 @@ def render(cohort: dict) -> str:
         f = cohort["families"][fam]
         out.append(f"| `{fam}` | {f['n_ok']}/{f['n_total']} | {fmt_stats_pct(f['yaw_pct'])} | {fmt_stats_pct(f['cte_pct'])} | {f['n_failed']} |")
     out.append("")
+
+    if cohort.get("usage_loaded"):
+        ut = cohort["usage_totals"]
+        out.append("## Token expenditure")
+        out.append("")
+        out.append(
+            f"Sourced from each agent's Claude Code subagent transcript "
+            f"(`~/.claude/projects/<proj>/*/subagents/agent-*.jsonl`). "
+            f"Tokens summed across every assistant turn of the latest-mtime run per agent. "
+            f"Cohort total: **{fmt_tokens(ut['tokens_sum']['total_tokens'])} tokens** across "
+            f"{ut['n_agents_with_transcript']} agents "
+            f"(median {fmt_tokens(int(ut['tokens_per_agent']['median']))}/agent, "
+            f"median {int(ut['turns_per_agent']['median'])} assistant turns)."
+        )
+        out.append("")
+        out.append("| family | n | total tokens | median / agent | median turns | input | output | cache_create | cache_read |")
+        out.append("|---|---|---|---|---|---|---|---|---|")
+        for fam in cohort["family_order"]:
+            u = cohort["usage_per_family"].get(fam) or {}
+            n = u.get("n_agents_with_transcript", 0)
+            if not n:
+                out.append(f"| `{fam}` | 0 | — | — | — | — | — | — | — |")
+                continue
+            ts = u["tokens_sum"]
+            tpa = u["tokens_per_agent"]; turns = u["turns_per_agent"]
+            out.append(
+                f"| `{fam}` | {n} | **{fmt_tokens(ts['total_tokens'])}** | "
+                f"{fmt_tokens(int(tpa['median']))} | {int(turns['median'])} | "
+                f"{fmt_tokens(ts['input_tokens'])} | {fmt_tokens(ts['output_tokens'])} | "
+                f"{fmt_tokens(ts['cache_creation_input_tokens'])} | "
+                f"{fmt_tokens(ts['cache_read_input_tokens'])} |"
+            )
+        out.append("")
+        out.append("**Per-agent token expenditure (sorted by total):**")
+        out.append("")
+        out.append("| agent | family | turns | total | input | output | cache_create | cache_read | yaw Δ% | CTE Δ% |")
+        out.append("|---|---|---|---|---|---|---|---|---|---|")
+        agents_with_usage = [r for r in cohort["per_agent"] if r.get("usage")]
+        for row in sorted(agents_with_usage, key=lambda r: -r["usage"]["total_tokens"]):
+            u = row["usage"]
+            out.append(
+                f"| `{row['agent_id']}` | `{row['family']}` | {u['n_assistant_turns']} | "
+                f"**{fmt_tokens(u['total_tokens'])}** | {fmt_tokens(u['input_tokens'])} | "
+                f"{fmt_tokens(u['output_tokens'])} | {fmt_tokens(u['cache_creation_input_tokens'])} | "
+                f"{fmt_tokens(u['cache_read_input_tokens'])} | "
+                f"{fmt_pct(row.get('yaw_pct'))} | {fmt_pct(row.get('cte_pct'))} |"
+            )
+        out.append("")
 
     if cohort["per_platform"]:
         out.append("## Per-platform breakdown")

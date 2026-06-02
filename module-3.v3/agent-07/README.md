@@ -1,70 +1,63 @@
 ---
-title: webinar-00-template-m3 — Module 3 substrate (skills + references)
-summary: Module-3 template for the lateral-fidelity webinar. Same eight-skill toolkit and shared math library as m2, plus six short domain-knowledge reference documents (anti-patterns + approach-menu + two-kpi-tradeoff with worked examples and failure-mode indexes; exploration-discipline; dynamics-formulations as a living catalogue agents extend; ceiling-moves) and an EXPERIMENTS.md log template. The references are the m3 increment over m2 — everything else is identical.
-tags: [template, webinar, m3, skills, references, lateral-fidelity]
-updated: 2026-05-31
+title: webinar-00-template-m3.v3 — Module 3 v3 substrate (V1-as-baseline, models-as-first-class)
+summary: Module-3 v3 template for the lateral-fidelity webinar. The m3.v2 cohort converged hard on the recipe shipped in references/anti-patterns.md (6 of 10 shipped identical coefficients). m3.v3 pre-ships that recipe as `code/v1_baseline.py` (the new floor), strips the recipe and coefficients from the references, and reframes the agent task as building structurally-different candidate models that attack V1's residual. Adds: a `models/<name>/` directory pattern with notes.md/assessment.md, a `MODELS.md` registry, a new `assess-candidate-model` skill, and three new preflight gates (alternatives-considered header, models-registry ≥3 entries, structural-novelty diff against V1).
+tags: [template, webinar, m3.v3, skills, references, lateral-fidelity]
+updated: 2026-06-01
 ---
 
-# webinar-00-template-m3
+# webinar-00-template-m3.v3
 
-Module 3 substrate for the lateral-fidelity webinar. **The m3 increment over m2 is the `references/` directory** — five short markdown files that name the levers, traps, and discipline prior cohorts needed. Skills, AGENTS.md framing, `_shared/` math, and the operating contract are identical to m2.
+Module 3 v3 substrate for the lateral-fidelity webinar. **The m3.v3 increment over m3.v2 is V1 as a pre-shipped baseline.** Everything else in the template — the operating contract, the schema-aware skills, the EXPERIMENTS.md log discipline — is inherited.
 
-This README is for the human setting up the template. The agent reads [AGENTS.md](AGENTS.md) — that's the authoritative source for the working-directory layout, the skills inventory, the references inventory, and the modify-the-skill protocol. Don't duplicate that content here.
+This README is for the human setting up the template. The agent reads [AGENTS.md](AGENTS.md) — that's the authoritative source.
 
-## Design principles
+## Why m3.v3 exists
 
-Informed by the m1+m2+m3 cohort grade at `_grade/20260531-003104/`, the KB002 NC catalogue, and recent (Dec 2025 – May 2026) context-engineering writing:
+The m3.v2 cohort (10/10 ok at `_grade/20260601-120739/`) demonstrated that *given the recipe*, agents converge to within 0.3 percentage points of CTE. Six of ten agents shipped V1's coefficients to three decimal places. That's good convergence — but it measured execution fidelity, not problem-solving, because `references/anti-patterns.md` shipped a complete copy-pasteable `predict()` with literal fitted coefficients alongside the diagnostic that named them as the winning move.
 
-1. **Diagnostic surface, not polished oracle.** Inherited from m2: `scoring-model` returns per-segment tables, per-platform signed bias, distributions, dashboard. Not a single pooled number.
-2. **Skills as clay, not library.** Inherited from m2.
-3. **References carry the *why*, not just the rule** (Grove, NC-22). Each reference doc has worked examples drawn from prior top-performing agents — distribution and format matter more than principle correctness (Min et al.).
-4. **References must be guides, not sensors** (NC-15 via BettaTech). Don't try to make a reference "detect" anything; that's an eval/judge job.
-5. **References are ratcheted** (NC-14). Each new failure recurring across cohorts gets engineered into a reference as a new bullet, not re-prompted away.
-6. **Failure-mode index pattern at the end of each reference** — recent practitioner consensus (Husain, Atlan harness-failures). Lead with success patterns; close with a failure checklist.
-7. **Structured divergence beats in-line "think harder"** (arXiv 2509.22480). The exploration-discipline reference prescribes naming ≥3 genuinely different approaches before commitment, plus an `EXPERIMENTS.md` log to prevent silent re-convergence.
+m3.v3's hypothesis: **moving the floor up to V1 and removing the recipe forces agents into structurally different solutions.** The cohort wants evidence on whether rung-1 dynamic single-track, residual learners, regime-switching, complementary filters, or other shapes can beat V1 — and that evidence only arrives if rung-0 refitting is no longer the obvious win.
 
-## What we deliberately did *not* add — and why
+## What's changed vs m3.v2
 
-**Persona / "dream-team multi-role" subagents.** Tempting, but the 2026 literature has *hardened* against this:
+| change | what / where |
+|---|---|
+| V1 baseline pre-shipped | `code/v1_baseline.py` exports `predict_v1` and `PLATFORM_PARAMS_V1`. The m3.v2 winning recipe verbatim. |
+| Recipe stripped from references | `references/anti-patterns.md` § "The legal cousin" loses its `PLATFORM_PARAMS` dict and 30-line `predict()` worked example. Concept stays as a one-paragraph note. |
+| `approach-menu.md` deleted | Pre-classifying the option space anchored agents. They generate their own option list now (gated by preflight, see below). |
+| `ceiling-moves.md` deleted | Pre-naming the moves above the ceiling did the same anchoring job. |
+| Rung-1 scaffold removed | `references/dynamics-formulations.md` keeps the equations, parameter list, and identifiability notes. The 30-line code scaffold is gone — every agent copied it and hit the same Euler instability, producing eight indistinguishable failure reports. |
+| AGENTS.md rewritten | New § "V1's residual diagnosis" ships the *diagnostic*, not the *fix*. New § "Models as first-class objects" describes the `models/<name>/` workflow. The "highest-leverage move" framing is gone. |
+| `MODELS.md` registry | New top-level artifact. Each candidate model gets a `##` entry: directory, structure tag, status, dev score, verdict. |
+| `models/<name>/` directory pattern | Each candidate lives in its own dir with `predict.py`, `notes.md` (formulation before code), `assessment.md` (populated by the new skill). |
+| New skill: `assess-candidate-model` | Coordinator that runs score-vs-V1, compare-against-V1, residual-structure on a candidate and writes a populated `assessment.md`. |
+| Preflight: three new gates | (a) `EXPERIMENTS.md` opens with ≥5-alternatives header (≥3 structurally distinct from V1); (b) `MODELS.md` has ≥3 candidates (≥1 tagged `differs-from-v1`); (c) shipped predict differs from V1 by > tolerance on a sample segment (warn-only). |
+| Rung-climb gate removed | Replaced by the stronger upstream "alternatives header" and "MODELS.md ≥3" gates. `Rung:` tagging is optional on log entries. |
 
-- Horthy (*Advanced Context Engineering*): subagents are context-isolation primitives, not personas.
-- Wasowski's *17 Multi-Agent Topologies* (May 2026): persona-stacking is the #1 budget-burn anti-pattern.
-- Cognition's *Don't Build Multi-Agents* (June 2025) is still the reference position; subsequent vendor convergence (Anthropic, OpenAI, AutoGen, LangChain) is on **orchestrator + isolated subagents for context isolation only**, not role-play.
-- Reported costs: multi-agent uses ~15× more tokens; strictly sequential tasks degrade 39–70% vs single agent.
+## What's *not* changed
 
-Cohort-data check: in the m3 grading, mid-pack agents *correctly diagnosed* their residuals — they cited references by name and named the bias structure. They didn't fail for lack of perspective; they failed for lack of *concrete recipe knowledge*. A "yaw specialist" + "CTE specialist" split wouldn't have caught anything the references with worked examples already provide.
+- The skills toolkit (score-model, fit-model, compare-models, inspect-residuals, residual-structure, route-bias, visualise-segment, make-train-dev-split, load-segments, pre-flight-final-model) — unchanged except for preflight's new gates.
+- The operating contract (8 allowlist columns, `data/sim-only/` for agent-facing scoring).
+- `_shared/` math helpers.
+- `references/two-kpi-tradeoff.md` and `references/exploration-discipline.md` (updated wording but same role).
 
-The narrow exception that survives in the literature — parallel divergent exploration with same-role subagents — is a *system-level* pattern (run N agents on the same task in parallel, merge the winner), not template content. If we want it later, it belongs in the launch skill, not in `references/`.
+## Working layout
 
-## What m3 adds — the references layer
+- `code/v1_baseline.py` — the V1 baseline + its fitted coefficients. Read-only.
+- `AGENTS.md` — agent-facing brief.
+- `EXPERIMENTS.md` — append-only log; opens with "Alternatives considered".
+- `MODELS.md` — registry of candidate models.
+- `models/<name>/` — one dir per candidate (created by the agent).
+- `references/` — four reference docs (anti-patterns, dynamics-formulations, exploration-discipline, two-kpi-tradeoff).
+- `skills/` — ten skills inherited from m3.v2 + `assess-candidate-model` new in m3.v3.
+- `final-model/` — shipped bundle, validated by `pre-flighting-final-model`.
 
-Five short markdown documents under [`references/`](references/), each with a frontmatter `description` + `when-to-load`, a body that includes a worked example drawn from prior top-performing agents, and a failure-mode index at the end:
+## How to drive m3.v3 with this template
 
-- **`anti-patterns.md`** — known traps. Now leads with the per-segment δ₀ recipe (`"The legal cousin"`) as **THE highest-leverage move on this dataset**, with allowlist-clean code (m3.v2 fix: prior version used `a_lat_meas_mps2` which is denied by the operating contract; recipe now uses `yaw_rate_pred_rads` / `delta_road_rad` proxies). Cohort evidence: top tier vs bottom tier = +8pts yaw / +15pts CTE on this single technique.
-- **`approach-menu.md`** — option map. Annotated [explored] / [lightly tried] / [unexplored]. Now opens with `Two model shapes` (reconstruction vs V0-correction) — m3 cohort showed agents who picked V0-correction plateaued ~+48% yaw structurally. Includes the platform-gating diagnostic and the structural-complexity ladder.
-- **`two-kpi-tradeoff.md`** — KPI interpretation. Two-step diagnostic for "yaw improved but CTE stuck". Worked example: per-platform bias-spread check (now part of the AGENTS.md inner-loop as numbered step 2).
-- **`exploration-discipline.md`** — protocol for naming ≥5 alternatives (at least 3 different model structures) before commitment + the `EXPERIMENTS.md` log convention. **m3.v2 change: now requires a `Rung: 0|1|2|3|orthogonal` tag on every log entry, and `pre-flighting-final-model` enforces at least one `Rung: 1+` or `Rung: orthogonal` entry before the bundle can ship.**
-- **`dynamics-formulations.md`** — V0 documented in full. **m3.v2 change: rung 1 is no longer marked `[sketch — not implemented]`; it's flagged as the default climb attempt under the new exploration policy and now includes a "Minimum viable rung-1 attempt" section with a ~30-line code scaffold (Euler integration, fix all params from carParams except `C_αf`, fit per platform).** The cost-to-attempt is much lower than past cohorts assumed.
-- **`ceiling-moves.md`** — four moves above the current best-known ceiling (multi-seed fold averaging, CTE-aware fit, constrained joint fit, climb the structure ladder). With the `fit-model` skill now in the toolkit, several of these are one-line config changes rather than heavy lifts. Sequenced by residual shape. Only load after the agent has already beaten V0 by ≥+30% on both KPIs.
-
-Plus one root-level artifact:
-
-- **[`EXPERIMENTS.md`](EXPERIMENTS.md)** — append-only experiment log template. Lives at the working-dir root, gets one entry per concrete attempt. Prevents silent re-convergence on the same approach.
-
-## How to drive Module 3 with this template
-
-1. Symlink `data/` (whole repo data tree) and `code/` (whole repo code tree) into each agent's working dir — see [data/README.md](data/README.md) and [code/README.md](code/README.md).
+1. Each agent dir has `data/` → `../../data` and `code/` → `../../code` symlinks.
 2. Open the agent dir in Claude Code. `AGENTS.md` loads.
-3. The agent's task prompt names the two KPIs to minimise.
-4. The agent inspects skill and reference metadata first (cheap), loads bodies on demand. Recommended order in AGENTS.md.
-5. Iterate: name alternatives (across rungs) → pick one → fit → `scoring-model` → log to `EXPERIMENTS.md` with `Rung:` tag → consult references when stuck → repeat. Use `comparing-models` for A/B. **Required: log at least one `Rung: 1` (or higher, or `orthogonal`) attempt before declaring done — `pre-flighting-final-model` enforces this.** Run `pre-flighting-final-model` before declaring done.
-
-## What's *not* here (held for later modules)
-
-- No `tasks/` directory. The KPI brief lives in the agent's run-time prompt, not in the template.
-- No `evals/` directory. Skill-level evals appear in later modules.
-- No `tools/` or `.mcp/`. Empty in m3.
-- No multi-agent / persona scaffolding (see "What we deliberately did *not* add" above).
+3. Agent's task prompt names the two KPIs.
+4. Inner loop: score V1 → diagnose residual → write ≥5 alternatives → build candidate in `models/<name>/` → assess vs V1 → register in MODELS.md → repeat until ≥3 candidates → ship best (or V1 with a documented negative result).
+5. Run `pre-flighting-final-model` before declaring done.
 
 ## Dependencies
 

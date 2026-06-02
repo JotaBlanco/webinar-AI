@@ -1,9 +1,9 @@
-# Final model — agent-06
+# REPORT — agent-06 final-model (residual-learner)
 
-Shipped: kinematic single-track + linear understeer + first-order yaw lag + platform-gated per-segment δ₀.
+See `../REPORT.md` for the full report.
 
-Pooled metrics on `data/sim/segments/`: yaw_rate_rmse = 0.005874 rad/s (−54.6% vs V0), cte_rmse = 56.81 m (−65.3% vs V0).
+**Shipped:** V1 + per-platform ridge linear regression on V1's residual using 7 allowlist features `[yr_V1, |yr_V1|, v, v·yr_V1, dδ/dt, δ, 1]`, λ=30.
 
-Coefficients from `references/anti-patterns.md` § "Legal cousin". Platforms supported: Lightning, Mach-E, IONIQ-5, Tesla (V0 passthrough).
+**Pooled dev (sim/segments):** yaw 0.005770 rad/s (−1.8% vs V1), CTE 53.78 m (−5.3% vs V1).
 
-See `../REPORT.md` for the full writeup including the rung-1 climb attempt (V4, rejected).
+Per-platform: Lightning 0.00557/63.4; Mach-E 0.00852/92.1 (CTE drift −22 m → −8.9 m); IONIQ-5 0.00750/65.5 (CTE drift −11.6 m → +1.9 m); Tesla V0 passthrough.

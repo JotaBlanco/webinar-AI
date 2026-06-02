@@ -1,17 +1,25 @@
-# Final model bundle report
+# final-model REPORT — v1-asym-debias
 
-Yaw RMSE: 0.005874 rad/s (V0 0.012934 -> -54.6 percent)
-CTE RMSE: 56.81 m (V0 163.83 -> -65.3 percent)
+See agent-root REPORT.md for the full agent report. This file is the per-bundle
+copy required by preflight.
 
-Model: KS + understeer + first-order lag + per-segment delta0 (platform-gated).
-- Mach-E and Hyundai IONIQ-5: per-segment delta0 ON (gate yaw_rate_pred < 0.03 and v > 5).
-- Lightning: per-segment delta0 OFF (global delta0).
-- Tesla: V0 passthrough (no truth channel).
+## Pooled (full dev set)
 
-Per-platform pooled (sim/):
-- FORD_F_150_LIGHTNING_MK1: yaw 0.00566 cte 62.19 (bias ok)
-- FORD_MUSTANG_MACH_E_MK1: yaw 0.00859 cte 98.68 (cte drift -22.0 m)
-- HYUNDAI_IONIQ_5: yaw 0.00766 cte 69.53 (cte drift -11.6 m)
-- TESLA_MODEL_3: passthrough (no truth)
+| metric | V1 | shipped | Δ |
+|---|---|---|---|
+| yaw_rate_rmse (rad/s) | 0.005874 | 0.005805 | -1.2% |
+| cte_rmse (m)          | 56.807   | 54.689   | -3.7% |
 
-See ../REPORT.md and ../EXPERIMENTS.md for the full narrative.
+## Shape
+
+V1 (kinematic ST + understeer + first-order lag + per-segment δ₀) extended with:
+- direction-asymmetric steering gain g_left, g_right (smooth tanh blend at δ=0)
+- gated additive yaw-bias offset b_offset, zeroed on Lightning by design
+
+Tesla: V0 passthrough (no truth channel).
+
+## Structural diff vs V1
+
+V1 has a single scalar gain `g`; this candidate makes gain sign-dependent —
+not reachable by re-tuning V1's coefs. The additive bias is applied after the
+lag, which is a different transfer function from V1's input-side δ₀.

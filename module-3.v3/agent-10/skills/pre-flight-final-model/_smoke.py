@@ -1,7 +1,12 @@
-"""Smoke test for pre-flight-final-model.
+"""Smoke test for pre-flight-final-model (m3.v3).
 
-Scenario A: build a minimal valid bundle in a tmp dir and assert ``passes=True``.
-Scenario B: break the bundle (remove predict.py) and assert ``passes=False``.
+Builds bundles in a tmp dir and checks the new m3.v3 gates fire as expected:
+- Scenario A: valid bundle with alternatives header + MODELS.md -> passes.
+- Scenario B: predict.py removed -> fails on predict_py_present.
+- Scenario C: EXPERIMENTS.md lacks the "Alternatives considered" header -> fails.
+- Scenario D: EXPERIMENTS.md missing -> fails.
+- Scenario E: MODELS.md has <3 candidates -> fails.
+- Scenario F: shipped predict identical to V1 -> warn (still passes).
 
 Run standalone: ``python3 _smoke.py`` (from this directory).
 """
@@ -13,18 +18,30 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from pprint import pprint
 
-# Make preflight.py importable when running this file directly.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from preflight import preflight  # noqa: E402
 
 
-PREDICT_PY = '''\
+PREDICT_PY_STRUCTURAL = '''\
+"""Stub structurally-different model: V0 passthrough with a constant offset.
+Differs from V1 by more than the diff tolerance — enough to clear the warn."""
 import pandas as pd
 
 def predict(sim_df, platform):
-    return sim_df[["yaw_rate_pred_rads"]].copy()
+    yr = sim_df["yaw_rate_pred_rads"].to_numpy() + 0.01
+    return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
+'''
+
+PREDICT_PY_V1_PASSTHROUGH = '''\
+"""V1 passthrough — should trigger the differs-from-V1 warn."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "code"))
+from v1_baseline import predict_v1
+
+def predict(sim_df, platform):
+    return predict_v1(sim_df, platform)
 '''
 
 MANIFEST = {
@@ -34,57 +51,95 @@ MANIFEST = {
 
 REPORT_BODY = (
     "# Placeholder report\n\n"
-    "This is a stub REPORT.md used by the pre-flight smoke test.\n"
-    "It exists only to clear the >= 100 byte size check; real reports "
-    "should explain method, validation, and known limitations.\n"
+    "Stub REPORT.md used by the pre-flight smoke test. Exists to clear the "
+    ">= 100 byte size check; real reports should explain method, validation, "
+    "and known limitations.\n"
 )
 
-EXPERIMENTS_WITH_CLIMB = """\
+EXPERIMENTS_WITH_ALTERNATIVES = """\
 # EXPERIMENTS.md
 
-## E00 — V0 baseline
-- Rung: 0
-- Hypothesis: floor to beat.
-- Result (dev): yaw 0.01456; CTE 147.44.
+## Alternatives considered
+
+- (structure) Linear dynamic single-track with slip angles — attack transient regime
+- (structure) Regime-switched model: V1 on straight, dynamic on transient
+- (structure) Residual learner on V1 residual with d(delta)/dt feature
+- Polynomial steering scale refinement of V1 — coefficient-only refit
+- (orthogonal) Multi-seed fold averaging on V1
+
+## E00 — V1 baseline
+- Result (dev): yaw 0.00587; CTE 56.81.
 
 ## E01 — Rung-1 dynamic single-track attempt
-- Rung: 1
 - Hypothesis: transient regime carries the largest residual.
-- What I changed vs E00: added vy/yr state-integration with C_af fitted per platform.
-- Result (dev): yaw 0.01080 (-25.8%); CTE 122.9 (-16.6%).
-- Verdict: revert — beaten by E02 rung-0 refinements.
-- Things this rules out: pure linear-tyre dynamic ST doesn't beat a well-fit rung 0 on this data.
+- Result (dev): yaw 0.0108 (-25%); CTE 122 (-16%).
+- Verdict: lost to V1 (under-parameterised).
 """
 
-EXPERIMENTS_RUNG_0_ONLY = """\
+EXPERIMENTS_NO_ALTERNATIVES_HEADER = """\
 # EXPERIMENTS.md
 
-## E00 — V0 baseline
-- Rung: 0
-- Result (dev): yaw 0.01456; CTE 147.44.
+## E00 — V1 baseline
+- Result (dev): yaw 0.00587; CTE 56.81.
 
-## E01 — refit understeer per platform
-- Rung: 0
+## E01 — refit
 - Result (dev): yaw 0.0083; CTE 99.
 """
 
+MODELS_MD = """\
+# MODELS.md
 
-def _build_valid_bundle(d: Path, *, experiments_at: Path | None = None) -> None:
-    (d / "predict.py").write_text(PREDICT_PY)
+Registry of candidate models attempted this run.
+
+## dynamic-single-track-v1
+- dir: models/dynamic-single-track-v1/
+- structure: differs-from-v1
+- status: assessed
+- pooled-yaw-rmse-dev: 0.0108
+- pooled-cte-rmse-dev: 122.0
+- verdict: lost to V1 (under-parameterised at openpilot priors)
+
+## v1-polynomial-g
+- dir: models/v1-polynomial-g/
+- structure: refines-v1
+- status: assessed
+- pooled-yaw-rmse-dev: 0.00580
+- pooled-cte-rmse-dev: 56.4
+- verdict: marginal; within run-to-run noise
+
+## v1-plus-residual-learner
+- dir: models/v1-plus-residual-learner/
+- structure: differs-from-v1
+- status: shipped
+- pooled-yaw-rmse-dev: 0.00420
+- pooled-cte-rmse-dev: 47.2
+- verdict: SHIPPED — V1 + small per-segment correction beat V1 on dev
+"""
+
+MODELS_MD_ONE_ENTRY = """\
+# MODELS.md
+
+## only-candidate
+- structure: differs-from-v1
+- verdict: nope
+"""
+
+
+def _build_valid_bundle(d: Path, *, predict_py: str = PREDICT_PY_STRUCTURAL,
+                        experiments: str = EXPERIMENTS_WITH_ALTERNATIVES,
+                        models: str = MODELS_MD) -> None:
+    (d / "predict.py").write_text(predict_py)
     (d / "manifest.json").write_text(json.dumps(MANIFEST, indent=2))
     (d / "REPORT.md").write_text(REPORT_BODY)
-    # By convention EXPERIMENTS.md lives one level up (working-dir root, sibling
-    # of final-model/). The smoke helper places it there unless explicitly
-    # overridden.
-    target = experiments_at if experiments_at is not None else d.parent / "EXPERIMENTS.md"
-    target.write_text(EXPERIMENTS_WITH_CLIMB)
+    (d.parent / "EXPERIMENTS.md").write_text(experiments)
+    (d.parent / "MODELS.md").write_text(models)
 
 
 def _print_checks(label: str, result: dict) -> None:
     print(f"\n[smoke] === {label} ===")
     print(f"[smoke] passes = {result['passes']}")
     for c in result["checks"]:
-        print(f"  - {c['status']:4s}  {c['name']:35s}  {c['detail']}")
+        print(f"  - {c['status']:4s}  {c['name']:42s}  {c['detail']}")
     if result["errors"]:
         print("[smoke] errors:")
         for e in result["errors"]:
@@ -92,79 +147,76 @@ def _print_checks(label: str, result: dict) -> None:
 
 
 def main() -> int:
-    # Set cwd so the sample-segment glob resolves.
     repo_root = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/")
     os.chdir(repo_root)
 
-    # --- Scenario A: valid bundle ----------------------------------------------
+    # --- Scenario A: valid -----------------------------------------------------
     with tempfile.TemporaryDirectory() as tmp:
         bundle = Path(tmp) / "final-model"
         bundle.mkdir()
         _build_valid_bundle(bundle)
+        result = preflight(bundle)
+        _print_checks("A (valid)", result)
+        assert result["passes"] is True, f"A should pass; errors={result['errors']}"
 
-        result_a = preflight(bundle)
-        _print_checks("Scenario A (valid)", result_a)
-
-        assert result_a["passes"] is True, (
-            f"Scenario A should pass; errors={result_a['errors']}"
-        )
-        assert all(c["status"] == "pass" for c in result_a["checks"]), (
-            "Scenario A: expected every check to be 'pass'"
-        )
-
-    # --- Scenario B: broken bundle (no predict.py) -----------------------------
+    # --- Scenario B: broken (no predict.py) ------------------------------------
     with tempfile.TemporaryDirectory() as tmp:
         bundle = Path(tmp) / "final-model"
         bundle.mkdir()
         _build_valid_bundle(bundle)
-        (bundle / "predict.py").unlink()  # break it
+        (bundle / "predict.py").unlink()
+        result = preflight(bundle)
+        _print_checks("B (no predict.py)", result)
+        failing = {c["name"] for c in result["checks"] if c["status"] == "fail"}
+        assert result["passes"] is False
+        assert "predict_py_present" in failing, failing
 
-        result_b = preflight(bundle)
-        _print_checks("Scenario B (broken: predict.py removed)", result_b)
-
-        assert result_b["passes"] is False, "Scenario B should NOT pass"
-        assert len(result_b["errors"]) >= 1, "Scenario B should report at least one error"
-        # predict_py_present must be the failing check.
-        names_failing = {c["name"] for c in result_b["checks"] if c["status"] == "fail"}
-        assert "predict_py_present" in names_failing, (
-            f"Scenario B: predict_py_present should fail; got failing={names_failing}"
-        )
-
-    # --- Scenario C: rung-0-only EXPERIMENTS.md should fail the new check ------
+    # --- Scenario C: EXPERIMENTS.md missing alternatives header ----------------
     with tempfile.TemporaryDirectory() as tmp:
         bundle = Path(tmp) / "final-model"
         bundle.mkdir()
-        _build_valid_bundle(bundle)
-        # Overwrite the parent's EXPERIMENTS.md with a rung-0-only log
-        (bundle.parent / "EXPERIMENTS.md").write_text(EXPERIMENTS_RUNG_0_ONLY)
+        _build_valid_bundle(bundle, experiments=EXPERIMENTS_NO_ALTERNATIVES_HEADER)
+        result = preflight(bundle)
+        _print_checks("C (no alternatives header)", result)
+        failing = {c["name"] for c in result["checks"] if c["status"] == "fail"}
+        assert result["passes"] is False
+        assert "experiments_md_has_alternatives_header" in failing, failing
 
-        result_c = preflight(bundle)
-        _print_checks("Scenario C (no climb attempt logged)", result_c)
-
-        assert result_c["passes"] is False, "Scenario C should NOT pass"
-        names_failing = {c["name"] for c in result_c["checks"] if c["status"] == "fail"}
-        assert "experiments_md_has_rung_climb_attempt" in names_failing, (
-            "Scenario C: rung-climb check should fail when EXPERIMENTS has only Rung: 0 entries; "
-            f"got failing={names_failing}"
-        )
-
-    # --- Scenario D: missing EXPERIMENTS.md altogether -------------------------
+    # --- Scenario D: EXPERIMENTS.md missing -----------------------------------
     with tempfile.TemporaryDirectory() as tmp:
         bundle = Path(tmp) / "final-model"
         bundle.mkdir()
-        # Build the bundle but DELETE the EXPERIMENTS.md the helper auto-created
         _build_valid_bundle(bundle)
         (bundle.parent / "EXPERIMENTS.md").unlink()
+        result = preflight(bundle)
+        _print_checks("D (no EXPERIMENTS.md)", result)
+        failing = {c["name"] for c in result["checks"] if c["status"] == "fail"}
+        assert result["passes"] is False
+        assert "experiments_md_has_alternatives_header" in failing, failing
 
-        result_d = preflight(bundle)
-        _print_checks("Scenario D (no EXPERIMENTS.md)", result_d)
+    # --- Scenario E: MODELS.md has fewer than 3 entries ------------------------
+    with tempfile.TemporaryDirectory() as tmp:
+        bundle = Path(tmp) / "final-model"
+        bundle.mkdir()
+        _build_valid_bundle(bundle, models=MODELS_MD_ONE_ENTRY)
+        result = preflight(bundle)
+        _print_checks("E (MODELS.md one entry)", result)
+        failing = {c["name"] for c in result["checks"] if c["status"] == "fail"}
+        assert result["passes"] is False
+        assert "models_md_has_three_candidates" in failing, failing
 
-        assert result_d["passes"] is False, "Scenario D should NOT pass"
-        names_failing = {c["name"] for c in result_d["checks"] if c["status"] == "fail"}
-        assert "experiments_md_has_rung_climb_attempt" in names_failing, (
-            "Scenario D: rung-climb check should fail when EXPERIMENTS.md is missing; "
-            f"got failing={names_failing}"
+    # --- Scenario F: shipped predict identical to V1 -> warn (still passes) ---
+    with tempfile.TemporaryDirectory() as tmp:
+        bundle = Path(tmp) / "final-model"
+        bundle.mkdir()
+        _build_valid_bundle(bundle, predict_py=PREDICT_PY_V1_PASSTHROUGH)
+        result = preflight(bundle)
+        _print_checks("F (V1 passthrough -> warn)", result)
+        statuses = {c["name"]: c["status"] for c in result["checks"]}
+        assert statuses["predict_differs_structurally_from_v1"] == "warn", (
+            f"F should warn on structural-novelty; got {statuses['predict_differs_structurally_from_v1']}"
         )
+        assert result["passes"] is True, f"F warn should still pass; errors={result['errors']}"
 
     print("\n[smoke] PASS")
     return 0

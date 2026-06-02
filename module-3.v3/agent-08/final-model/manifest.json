@@ -1,10 +1,12 @@
 {
+  "model_name": "v1-plus-residual",
+  "predict_callable": "predict.py:predict",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "predict_callable": "predict.py:predict",
-  "notes": "Kinematic single-track with platform-tuned (g, L_eff, K_us, tau, delta0); per-segment δ₀ on Mach-E + IONIQ-5, global δ₀ on Lightning; Tesla = V0 passthrough."
+  "notes": "V1 baseline + per-platform linear residual on 10 allowlist features. TESLA_MODEL_3 falls through to V1 (which falls through to V0 passthrough — no truth on Tesla).",
+  "source_model_dir": "models/v1-plus-residual/"
 }

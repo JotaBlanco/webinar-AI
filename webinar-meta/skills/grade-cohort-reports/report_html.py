@@ -54,6 +54,90 @@ def fmt_n(v, digits=4) -> str:
     return f"{v:.{digits}f}"
 
 
+def fmt_tokens(v) -> str:
+    if v is None:
+        return "—"
+    if v >= 1_000_000:
+        return f"{v/1_000_000:.2f}M"
+    if v >= 1_000:
+        return f"{v/1_000:.1f}k"
+    return str(v)
+
+
+def usage_section(cohort: dict) -> str:
+    if not cohort.get("usage_loaded"):
+        return ""
+    ut = cohort["usage_totals"]
+    fam_rows = []
+    for fam in cohort["family_order"]:
+        u = cohort["usage_per_family"].get(fam) or {}
+        n = u.get("n_agents_with_transcript", 0)
+        if not n:
+            fam_rows.append(
+                f"<tr><td><code>{fam}</code></td><td>0</td>"
+                + "<td>—</td>" * 7 + "</tr>"
+            )
+            continue
+        ts = u["tokens_sum"]; tpa = u["tokens_per_agent"]; turns = u["turns_per_agent"]
+        fam_rows.append(
+            f"<tr><td><code>{fam}</code></td><td>{n}</td>"
+            f"<td><strong>{fmt_tokens(ts['total_tokens'])}</strong></td>"
+            f"<td>{fmt_tokens(int(tpa['median']))}</td>"
+            f"<td>{int(turns['median'])}</td>"
+            f"<td>{fmt_tokens(ts['input_tokens'])}</td>"
+            f"<td>{fmt_tokens(ts['output_tokens'])}</td>"
+            f"<td>{fmt_tokens(ts['cache_creation_input_tokens'])}</td>"
+            f"<td>{fmt_tokens(ts['cache_read_input_tokens'])}</td></tr>"
+        )
+    agent_rows = []
+    for row in sorted(
+        [r for r in cohort["per_agent"] if r.get("usage")],
+        key=lambda r: -r["usage"]["total_tokens"],
+    ):
+        u = row["usage"]
+        agent_rows.append(
+            f"<tr><td><code>{row['agent_id']}</code></td>"
+            f"<td><code>{row['family']}</code></td>"
+            f"<td>{u['n_assistant_turns']}</td>"
+            f"<td><strong>{fmt_tokens(u['total_tokens'])}</strong></td>"
+            f"<td>{fmt_tokens(u['input_tokens'])}</td>"
+            f"<td>{fmt_tokens(u['output_tokens'])}</td>"
+            f"<td>{fmt_tokens(u['cache_creation_input_tokens'])}</td>"
+            f"<td>{fmt_tokens(u['cache_read_input_tokens'])}</td>"
+            f"<td>{fmt_pct(row.get('yaw_pct'))}</td>"
+            f"<td>{fmt_pct(row.get('cte_pct'))}</td></tr>"
+        )
+    return f"""
+<p>Sourced from each agent's Claude Code subagent transcript
+(<code>~/.claude/projects/&lt;proj&gt;/*/subagents/agent-*.jsonl</code>).
+Tokens summed across every assistant turn of the latest-mtime run per agent.</p>
+
+<div class="summary-grid">
+  <div class="stat"><div class="l">cohort total</div><div class="v">{fmt_tokens(ut['tokens_sum']['total_tokens'])}</div></div>
+  <div class="stat"><div class="l">median / agent</div><div class="v">{fmt_tokens(int(ut['tokens_per_agent']['median']))}</div></div>
+  <div class="stat"><div class="l">median turns</div><div class="v">{int(ut['turns_per_agent']['median'])}</div></div>
+  <div class="stat"><div class="l">agents w/ transcript</div><div class="v">{ut['n_agents_with_transcript']}</div></div>
+</div>
+
+<h3>By family</h3>
+<div class="table-wrap"><table><thead><tr>
+<th>family</th><th>n</th><th>total tokens</th><th>median / agent</th><th>median turns</th>
+<th>input</th><th>output</th><th>cache_create</th><th>cache_read</th>
+</tr></thead><tbody>
+{"".join(fam_rows)}
+</tbody></table></div>
+
+<h3>Per agent (sorted by total)</h3>
+<div class="table-wrap"><table><thead><tr>
+<th>agent</th><th>family</th><th>turns</th><th>total</th>
+<th>input</th><th>output</th><th>cache_create</th><th>cache_read</th>
+<th>yaw Δ%</th><th>CTE Δ%</th>
+</tr></thead><tbody>
+{"".join(agent_rows)}
+</tbody></table></div>
+"""
+
+
 def metric_class(v) -> str:
     """For numeric improvement: green ≥ +20, neutral 0–20, red ≤ 0."""
     if v is None:
@@ -385,6 +469,15 @@ pre {{ font-family: 'JetBrains Mono', 'Menlo', monospace; }}
 </section>
 
 <section class="section section-alt">
+<div class="container">
+<h2 class="accent-blue">2b. Token expenditure per agent</h2>
+<div class="card card-blue">
+{usage_section(cohort) if cohort.get("usage_loaded") else "<p>No transcripts found under ~/.claude/projects/&lt;proj&gt;/*/subagents/.</p>"}
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="container">
 <h2 class="accent-blue">3. Per-platform breakdown</h2>
 <div class="card card-blue">

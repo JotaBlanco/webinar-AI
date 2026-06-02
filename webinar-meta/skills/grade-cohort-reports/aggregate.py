@@ -26,6 +26,11 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+# Local — see usage.py
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from usage import collect_usage, USAGE_FIELDS  # noqa: E402
+
 
 def _safe_stats(values: list[float]) -> dict:
     clean = [v for v in values if v is not None and not (isinstance(v, float) and math.isnan(v))]
@@ -275,7 +280,47 @@ def _leak_attempt_for(card: dict) -> dict:
     }
 
 
-def per_agent_table(cards_all: list[dict], families: dict[str, str], self_reported: dict[str, dict]) -> list[dict]:
+def per_family_usage(usage_map: dict[str, dict], families: dict[str, str], fam_order: list[str]) -> dict:
+    """For each family, aggregate token expenditure across the agents that have a
+    transcript. Surfaces total + median + per-field breakdown so we can compare
+    families at a glance."""
+    by_fam: dict[str, list[dict]] = defaultdict(list)
+    for aid, rec in usage_map.items():
+        fam = families.get(aid, rec.get("family", "unknown"))
+        by_fam[fam].append(rec)
+    out: dict[str, dict] = {}
+    for fam in fam_order:
+        recs = by_fam.get(fam, [])
+        if not recs:
+            out[fam] = {"n_agents_with_transcript": 0}
+            continue
+        totals = {k: sum(r.get(k, 0) for r in recs) for k in USAGE_FIELDS}
+        totals["total_tokens"] = sum(r["total_tokens"] for r in recs)
+        per_agent_totals = [r["total_tokens"] for r in recs]
+        per_agent_turns = [r["n_assistant_turns"] for r in recs]
+        out[fam] = {
+            "n_agents_with_transcript": len(recs),
+            "tokens_sum":     totals,
+            "tokens_per_agent": _safe_stats(per_agent_totals),
+            "turns_per_agent":  _safe_stats(per_agent_turns),
+        }
+    return out
+
+
+def cohort_usage_totals(usage_map: dict[str, dict]) -> dict:
+    if not usage_map:
+        return {"n_agents_with_transcript": 0}
+    totals = {k: sum(r.get(k, 0) for r in usage_map.values()) for k in USAGE_FIELDS}
+    totals["total_tokens"] = sum(r["total_tokens"] for r in usage_map.values())
+    return {
+        "n_agents_with_transcript": len(usage_map),
+        "tokens_sum":     totals,
+        "tokens_per_agent": _safe_stats([r["total_tokens"] for r in usage_map.values()]),
+        "turns_per_agent":  _safe_stats([r["n_assistant_turns"] for r in usage_map.values()]),
+    }
+
+
+def per_agent_table(cards_all: list[dict], families: dict[str, str], self_reported: dict[str, dict], usage_map: dict[str, dict]) -> list[dict]:
     """Wide per-agent row used by the renderer."""
     rows = []
     for c in cards_all:
@@ -285,6 +330,18 @@ def per_agent_table(cards_all: list[dict], families: dict[str, str], self_report
         yaw = c.get("yaw_rate") or {}
         cte = c.get("cte") or {}
         exec_ = c["execution"]
+        u = usage_map.get(aid)
+        usage_block = None
+        if u:
+            usage_block = {
+                "input_tokens":                 u["input_tokens"],
+                "output_tokens":                u["output_tokens"],
+                "cache_creation_input_tokens":  u["cache_creation_input_tokens"],
+                "cache_read_input_tokens":      u["cache_read_input_tokens"],
+                "total_tokens":                 u["total_tokens"],
+                "n_assistant_turns":            u["n_assistant_turns"],
+                "transcript_mtime_iso":         u.get("transcript_mtime_iso"),
+            }
         row = {
             "agent_id":           aid,
             "family":             fam,
@@ -300,6 +357,7 @@ def per_agent_table(cards_all: list[dict], families: dict[str, str], self_report
             "n_seg_total":        exec_.get("n_segments_attempted"),
             "wall_seconds":       exec_.get("wall_time_seconds"),
             "platforms_supported": (c.get("manifest") or {}).get("platform_support", []) if c.get("manifest") else [],
+            "usage":               usage_block,
             **_leak_attempt_for(c),
         }
         sr = self_reported.get(aid)
@@ -332,6 +390,17 @@ def main():
 
     fam_section, fam_order = per_family(cards_ok, cards, families)
 
+    # Token expenditure — best-effort. Scans ~/.claude/projects/<proj>/*/subagents/*.jsonl.
+    # Restrict to agent_ids in this cohort so re-launches of stale agents don't pollute.
+    wanted_ids = {c["agent_id"] for c in cards}
+    try:
+        usage_map = collect_usage(wanted_agent_ids=wanted_ids)
+    except Exception as e:
+        print(f"aggregate: usage collection skipped — {e}", file=sys.stderr)
+        usage_map = {}
+
+    fam_usage = per_family_usage(usage_map, families, fam_order) if usage_map else {}
+
     cohort = {
         "schema_version":  "2.0",
         "idea_id":         baseline.get("idea_id"),
@@ -349,8 +418,11 @@ def main():
         "reconstruction":  reconstruction_quality(cards),
         "leak_audit":      leak_audit(cards),
         "coefficients":    coefficient_summary(cards_ok),
-        "per_agent":       per_agent_table(cards, families, self_reported),
+        "per_agent":       per_agent_table(cards, families, self_reported, usage_map),
         "self_reported_loaded": bool(self_reported),
+        "usage_loaded":         bool(usage_map),
+        "usage_totals":         cohort_usage_totals(usage_map),
+        "usage_per_family":     fam_usage,
     }
     out = args.grade_dir / "cohort.json"
     out.write_text(json.dumps(cohort, indent=2, default=str))

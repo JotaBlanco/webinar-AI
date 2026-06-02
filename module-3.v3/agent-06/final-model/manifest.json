@@ -1,5 +1,5 @@
 {
-  "name": "agent-06-ks-understeer-lag-perseg-delta0",
+  "name": "v1-residual-learner",
   "version": "1.0",
   "predict_callable": "predict.py:predict",
   "platform_support": [
@@ -8,5 +8,7 @@
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "notes": "Rung-0 reconstruction: linear-understeer + first-order lag + platform-gated per-segment delta0 (allowlist-only, yaw-rate gate). Tesla passthrough."
+  "structure": "V1 (kinematic ST + understeer + first-order lag + per-segment δ₀) + per-platform ridge linear residual correction on 7 allowlist features [yr_v1, |yr_v1|, v, v*yr_v1, ddelta/dt, delta, 1]; λ=30; Tesla falls through to V0 passthrough.",
+  "dev_pooled": {"yaw_rate_rmse": 0.005770, "cte_rmse": 53.78},
+  "v1_pooled":  {"yaw_rate_rmse": 0.005874, "cte_rmse": 56.81}
 }

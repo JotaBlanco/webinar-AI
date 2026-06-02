@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 
@@ -296,28 +297,34 @@ def preflight(final_model_dir: str | Path) -> dict[str, Any]:
                 detail += f"; no sample data for {platforms_skipped}"
             _add(checks, errors, "predict_returns_correct_shape", "pass", detail)
 
-    # --- 10. experiments_md_has_rung_climb_attempt ------------------------------
-    # The template defaults to "attempt a structural climb past rung 0" — see
-    # AGENTS.md § "On exploration — the default is to climb". This check is the
-    # enforcement: EXPERIMENTS.md (one level up from final-model/) must contain
-    # at least one entry tagged `Rung: 1`, `Rung: 2`, `Rung: 3`, or
-    # `Rung: orthogonal`. The shipped model can still be rung 0; the attempt
-    # has to be logged.
-    _check_rung_climb(bundle, checks, errors)
+    # --- 10. experiments_md_has_alternatives_header -----------------------------
+    # m3.v3 replaces the "Rung: 1+ required" gate with a stronger upstream gate:
+    # EXPERIMENTS.md must open with an "Alternatives considered" block listing
+    # >= 5 candidate model shapes BEFORE any experiment entry. See
+    # references/exploration-discipline.md.
+    _check_alternatives_header(bundle, checks, errors)
 
-    passes = all(c["status"] == "pass" for c in checks)
+    # --- 11. models_md_has_three_candidates -------------------------------------
+    # m3.v3 makes models first-class. MODELS.md must list >= 3 candidates in
+    # models/, at least one tagged `structure: differs-from-v1`.
+    _check_models_registry(bundle, checks, errors)
+
+    # --- 12. predict_differs_structurally_from_v1 -------------------------------
+    # Warn if the shipped predict() is functionally equivalent to V1 on a sample
+    # segment (max abs yaw diff below tolerance). Catches "I refit V1 and shipped
+    # it". The check warns rather than fails: shipping V1 is permitted when all
+    # candidates lost, but it must be an explicit choice.
+    if fn is not None and sig_ok:
+        _check_predict_differs_from_v1(fn, manifest, checks, errors)
+    else:
+        _skip(checks, errors, "predict_differs_structurally_from_v1", "predict not invokable")
+
+    passes = all(c["status"] in ("pass", "warn") for c in checks)
     return {"passes": passes, "checks": checks, "errors": errors}
 
 
-_RUNG_CLIMB_RE = re.compile(
-    r"^\s*[-*]?\s*Rung\s*:\s*(1|2|3|orthogonal)\b",
-    re.IGNORECASE | re.MULTILINE,
-)
-
-
 def _find_experiments_md(bundle: Path) -> Path | None:
-    """Locate EXPERIMENTS.md. Conventionally one level up from final-model/, but
-    we also check the cwd and bundle itself as fallbacks."""
+    """Locate EXPERIMENTS.md (bundle.parent / cwd / bundle)."""
     candidates = [
         bundle.parent / "EXPERIMENTS.md",
         Path("EXPERIMENTS.md"),
@@ -329,8 +336,32 @@ def _find_experiments_md(bundle: Path) -> Path | None:
     return None
 
 
-def _check_rung_climb(bundle: Path, checks: list[dict], errors: list[str]) -> None:
-    name = "experiments_md_has_rung_climb_attempt"
+def _find_models_md(bundle: Path) -> Path | None:
+    """Locate MODELS.md (bundle.parent / cwd / bundle)."""
+    candidates = [
+        bundle.parent / "MODELS.md",
+        Path("MODELS.md"),
+        bundle / "MODELS.md",
+    ]
+    for c in candidates:
+        if c.exists() and c.is_file():
+            return c
+    return None
+
+
+# --- 10. Alternatives header ------------------------------------------------
+
+_ALTERNATIVES_HEADING_RE = re.compile(
+    r"^\s*#{1,3}\s*Alternatives\s+considered\b", re.IGNORECASE | re.MULTILINE
+)
+_ALT_BULLET_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+\S", re.MULTILINE)
+_STRUCTURE_TAG_RE = re.compile(
+    r"\(\s*structure\s*\)|\bstructure:\s*differs-from-v1\b", re.IGNORECASE
+)
+
+
+def _check_alternatives_header(bundle: Path, checks: list[dict], errors: list[str]) -> None:
+    name = "experiments_md_has_alternatives_header"
     experiments = _find_experiments_md(bundle)
     if experiments is None:
         _add(
@@ -339,7 +370,8 @@ def _check_rung_climb(bundle: Path, checks: list[dict], errors: list[str]) -> No
             name,
             "fail",
             "EXPERIMENTS.md not found at bundle.parent/, cwd, or bundle/. "
-            "Per AGENTS.md § 'On exploration', log at least one Rung: 1+ or Rung: orthogonal attempt.",
+            "Per AGENTS.md § 'Inner loop', open EXPERIMENTS.md with an "
+            "'Alternatives considered' block listing >= 5 candidate model shapes.",
         )
         return
     try:
@@ -347,24 +379,185 @@ def _check_rung_climb(bundle: Path, checks: list[dict], errors: list[str]) -> No
     except OSError as e:
         _add(checks, errors, name, "fail", f"EXPERIMENTS.md exists but couldn't be read: {_truncate(repr(e))}")
         return
-    matches = _RUNG_CLIMB_RE.findall(text)
-    if not matches:
+
+    m = _ALTERNATIVES_HEADING_RE.search(text)
+    if not m:
         _add(
             checks,
             errors,
             name,
             "fail",
-            f"EXPERIMENTS.md ({experiments}) has no entry tagged `Rung: 1`, `Rung: 2`, `Rung: 3`, "
-            "or `Rung: orthogonal`. The template defaults to a structural climb attempt — see "
-            "AGENTS.md § 'On exploration' and references/dynamics-formulations.md § 'Rung 1' "
-            "(Minimum viable recipe).",
+            "EXPERIMENTS.md has no '## Alternatives considered' heading. "
+            "See references/exploration-discipline.md § 'Before you commit'.",
         )
         return
-    rungs_seen = sorted({m.lower() for m in matches})
+
+    # Capture body until the next heading (## or #).
+    body_start = m.end()
+    next_heading = re.search(r"^\s*#{1,3}\s", text[body_start:], re.MULTILINE)
+    body = text[body_start : body_start + (next_heading.start() if next_heading else len(text) - body_start)]
+
+    bullets = _ALT_BULLET_RE.findall(body)
+    structurally_distinct = len(_STRUCTURE_TAG_RE.findall(body))
+
+    if len(bullets) < 5:
+        _add(
+            checks,
+            errors,
+            name,
+            "fail",
+            f"'Alternatives considered' has {len(bullets)} bullet(s); need >= 5. "
+            "Tag each line with `(structure)` or `structure: differs-from-v1` "
+            "if it differs from V1's kinematic-single-track shape. "
+            "See references/exploration-discipline.md.",
+        )
+        return
+    if structurally_distinct < 3:
+        _add(
+            checks,
+            errors,
+            name,
+            "fail",
+            f"'Alternatives considered' has {structurally_distinct} entries tagged as "
+            "structurally distinct from V1; need >= 3. Tag with `(structure)` or "
+            "`structure: differs-from-v1`. See references/exploration-discipline.md.",
+        )
+        return
     _add(
         checks,
         errors,
         name,
         "pass",
-        f"{experiments.name} logs {len(matches)} climb attempt(s) across rung(s) {rungs_seen}",
+        f"{experiments.name} lists {len(bullets)} alternatives, "
+        f"{structurally_distinct} tagged structurally distinct from V1",
     )
+
+
+# --- 11. MODELS.md registry -------------------------------------------------
+
+_MODELS_ENTRY_RE = re.compile(r"^\s*##\s+(\S.*)$", re.MULTILINE)
+_DIFFERS_FROM_V1_RE = re.compile(
+    r"structure\s*:\s*differs-from-v1\b", re.IGNORECASE
+)
+
+
+def _check_models_registry(bundle: Path, checks: list[dict], errors: list[str]) -> None:
+    name = "models_md_has_three_candidates"
+    models_md = _find_models_md(bundle)
+    if models_md is None:
+        _add(
+            checks,
+            errors,
+            name,
+            "fail",
+            "MODELS.md not found at bundle.parent/, cwd, or bundle/. "
+            "m3.v3 requires a registry of >= 3 candidate models — see AGENTS.md § 'Models as first-class objects'.",
+        )
+        return
+    try:
+        text = models_md.read_text(encoding="utf-8")
+    except OSError as e:
+        _add(checks, errors, name, "fail", f"MODELS.md exists but couldn't be read: {_truncate(repr(e))}")
+        return
+    entries = _MODELS_ENTRY_RE.findall(text)
+    differ_count = len(_DIFFERS_FROM_V1_RE.findall(text))
+    if len(entries) < 3:
+        _add(
+            checks,
+            errors,
+            name,
+            "fail",
+            f"MODELS.md has {len(entries)} candidate entries (##-level headings); need >= 3. "
+            "See AGENTS.md § 'Models as first-class objects'.",
+        )
+        return
+    if differ_count < 1:
+        _add(
+            checks,
+            errors,
+            name,
+            "fail",
+            f"MODELS.md has {len(entries)} entries but 0 tagged `structure: differs-from-v1`. "
+            "At least one candidate must attack V1 structurally, not just refit V1's coefficients.",
+        )
+        return
+    _add(
+        checks,
+        errors,
+        name,
+        "pass",
+        f"{models_md.name} registers {len(entries)} candidate(s); {differ_count} tagged differs-from-v1",
+    )
+
+
+# --- 12. Structural-novelty diff against V1 --------------------------------
+
+_V1_DIFF_TOLERANCE_RAD = 1e-3  # max abs |yaw_pred - yaw_v1| below this -> warn
+
+
+def _check_predict_differs_from_v1(
+    fn, manifest: dict | None, checks: list[dict], errors: list[str]
+) -> None:
+    name = "predict_differs_structurally_from_v1"
+    try:
+        # Find V1 baseline. Conventionally code/v1_baseline.py — we expose it via
+        # sys.path so the bundle's code/ symlink resolves it.
+        v1_path = Path("code") / "v1_baseline.py"
+        if not v1_path.exists():
+            _add(checks, errors, name, "skip", f"V1 baseline not found at {v1_path}; skipping diff check")
+            return
+        sys.path.insert(0, str(Path("code").resolve()))
+        try:
+            from v1_baseline import predict_v1  # type: ignore
+        finally:
+            try:
+                sys.path.remove(str(Path("code").resolve()))
+            except ValueError:
+                pass
+
+        # Pick a non-Tesla platform with sample data (V1 only varies on those).
+        declared = (manifest or {}).get("platform_support") or []
+        sample = None
+        sample_platform = None
+        for p in declared:
+            if p == "TESLA_MODEL_3":
+                continue
+            s = _sample_sim_csv(p)
+            if s is not None:
+                sample = s
+                sample_platform = p
+                break
+        if sample is None:
+            _add(checks, errors, name, "skip", "no non-Tesla sample sim.csv found; skipping diff check")
+            return
+
+        sim_df = pd.read_csv(sample)
+        out_shipped = fn(sim_df, sample_platform)
+        out_v1 = predict_v1(sim_df, sample_platform)
+        diff = (
+            out_shipped["yaw_rate_pred_rads"].to_numpy()
+            - out_v1["yaw_rate_pred_rads"].to_numpy()
+        )
+        max_abs = float(np.max(np.abs(diff)))
+        if max_abs < _V1_DIFF_TOLERANCE_RAD:
+            _add(
+                checks,
+                errors,
+                name,
+                "warn",
+                f"shipped predict differs from V1 by max |Δyaw| = {max_abs:.6f} rad/s "
+                f"on {sample_platform} (< {_V1_DIFF_TOLERANCE_RAD} tolerance). "
+                "This looks like V1 with re-fitted coefficients, not a structurally-different model. "
+                "If your candidates all lost to V1 and you're intentionally shipping V1, document "
+                "this in REPORT.md. Otherwise ship a candidate from models/.",
+            )
+            return
+        _add(
+            checks,
+            errors,
+            name,
+            "pass",
+            f"max |Δyaw| vs V1 = {max_abs:.4f} rad/s on {sample_platform} (above {_V1_DIFF_TOLERANCE_RAD} tolerance)",
+        )
+    except Exception as e:
+        _add(checks, errors, name, "fail", _truncate(repr(e)))

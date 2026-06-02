@@ -1,15 +1,15 @@
 ---
 name: dynamics-formulations
-description: A growing catalogue of vehicle lateral-dynamics formulations the agent can pick from when choosing what model to fit. Starts with V0 documented in full (rung 0 — kinematic single-track + understeer + first-order lag) and sketches the higher rungs (linear dynamic ST, nonlinear tyre, multi-body). Expected to grow — when you ship a new formulation, append a section here so the next agent can build on your work.
-when-to-load: At the start, paired with `approach-menu.md` § "Physics-based options — a ladder", when you're choosing what model to fit. Re-load when you've climbed a rung and are ready to document what you found.
-load-cost: ~900 words at start; grows as agents append.
+description: A catalogue of vehicle lateral-dynamics formulations — equations, parameter lists, identifiability notes. Starts with V0 (kinematic single-track + understeer + first-order lag, what V1 wraps) and sketches the higher rungs (linear dynamic ST, nonlinear tyre, multi-body). Expected to grow as agents document what they ship.
+when-to-load: When you are deciding what *shape* of model to try beyond V1. Re-load when you've shipped a new formulation and are ready to document it for the next agent.
+load-cost: ~700 words at start; grows as agents append.
 ---
 
 # Dynamics formulations
 
-A catalogue of vehicle lateral-dynamics models in increasing structural complexity. Use it as a menu when deciding *what shape* of model to fit (`approach-menu.md` covers when to climb vs refine; this doc covers *what* you'd climb to).
+A catalogue of vehicle lateral-dynamics models in increasing structural complexity. Use it as a menu when deciding *what shape* of model to try.
 
-**This doc is designed to grow.** V0 is documented in full because every agent starts there. Rungs 1–3 are sketched — equations, parameter lists, implementation notes — but not implemented. When you ship something past V0, append your worked formulation here following V0's shape. The next agent shouldn't have to re-derive the slip-angle equations from scratch.
+**This doc deliberately stops at equations + parameter list + identifiability notes per rung.** No drop-in `predict()` scaffolds — those produced a row of identical failure reports in m3.v2 (everyone copied the scaffold, hit the same Euler-instability at the same priors, reverted). The choice of integrator, state-variable initialisation, and parameter-identifiability strategy is the work — not boilerplate. When you ship something past V1, append your formulation here following V0's shape so the next agent doesn't re-derive equations from scratch.
 
 ---
 
@@ -54,9 +54,9 @@ Use `scoring-model`'s per-regime breakdown to diagnose:
 
 ---
 
-## Rung 1 — Linear dynamic single-track with slip angles *[the default climb attempt — see AGENTS.md § "On exploration"]*
+## Rung 1 — Linear dynamic single-track with slip angles
 
-The first principled climb past V0. Replaces the steady-state assumption with the actual lateral dynamics ODE. **This is the rung your `EXPERIMENTS.md` is required to contain at least one attempt at** — the cohort needs evidence about whether it pays on this data, and we don't have that evidence yet.
+The first principled climb past V0/V1. Replaces the steady-state assumption with the actual lateral dynamics ODE. The m3.v2 cohort produced ten attempts at a "minimum viable" version of this rung; all reverted. Common failure modes: Euler instability at openpilot `C_α` priors at 20 ms sample rate; `C_αf` / `C_αr` unidentifiable when the data is straight-driving-dominated; rung-1 yaw RMSE worse than the rung-0 ceiling because rung-0 had `δ₀` correction and the rung-1 attempt didn't. None of these are theoretical reasons rung 1 can't beat V1 — they're implementation issues that the prior cohort didn't fix.
 
 ### Equations
 
@@ -85,53 +85,16 @@ Where `vx = v_mps` (longitudinal speed, measured), `vy` is lateral velocity (a s
 | `a`, `b` | CG-to-axle distances (m) | carParams (verify `a + b == L_eff`) |
 | `τ` | optional first-order lag on top | fit, may go to zero |
 
-### Minimum viable rung-1 attempt — ~30 lines, two fitted params
+### Implementation notes — things to decide before writing the integrator
 
-You do NOT have to fit all of `{C_αf, C_αr, m, Iz, a, b}`. The cheap version: fix `m`, `Iz`, `a`, `b` from `code/parameters.py` (carParams), fix `C_αr` from carParams too, fit **only** `C_αf` per platform. That's two states (`vy`, `yr`), Euler integration, one fitted parameter. The expensive part is the integration loop, not the optimisation.
+The implementation choices are the work; this list is a checklist, not a recipe:
 
-```python
-import numpy as np
-import pandas as pd
-
-def _rung1_predict(sim_df: pd.DataFrame, p: dict) -> np.ndarray:
-    """Linear dynamic single-track. p = {C_af, C_ar, m, Iz, a, b}.
-    Returns yaw_rate aligned with sim_df.index."""
-    delta = sim_df["delta_road_rad"].to_numpy()
-    vx    = sim_df["v_mps"].to_numpy()
-    t     = sim_df["t_s"].to_numpy()
-
-    vx_safe = np.maximum(vx, 1.0)         # clamp to avoid /0 in slip-angle
-    dt = np.diff(t, prepend=t[0])
-
-    C_af, C_ar = p["C_af"], p["C_ar"]
-    m, Iz       = p["m"], p["Iz"]
-    a, b        = p["a"], p["b"]
-
-    vy = 0.0                              # state init
-    yr = 0.0
-    out = np.empty_like(vx)
-    for i in range(len(vx)):
-        alpha_f = delta[i] - (vy + a * yr) / vx_safe[i]
-        alpha_r =           -(vy - b * yr) / vx_safe[i]
-        F_yf = C_af * alpha_f
-        F_yr = C_ar * alpha_r
-        vy_dot = (F_yf + F_yr) / m - vx[i] * yr
-        yr_dot = (a * F_yf - b * F_yr) / Iz
-        vy += vy_dot * dt[i]
-        yr += yr_dot * dt[i]
-        out[i] = yr
-    return out
-```
-
-Wrap that in a `predict_factory(platform, coeffs)` (see `fit-model`'s SKILL.md), seed `C_af` from carParams (e.g. ~80,000 N/rad for the Fords), bound it to `(20_000, 200_000)`, and let `fit-model` go. Per platform. Total time: an hour if you've never written this before, much less if you have. Even if it doesn't beat your rung-0 model, **log it under `Rung: 1` in `EXPERIMENTS.md`** — that is the required deliverable. Past cohorts assumed this was a 50-100 line lift; it's 30 lines and one fitted parameter.
-
-### Implementation notes (when you build this)
-
-- Two integration states: `vy`, `yr`. Use the same dt-step Euler as V0 — start simple. Upgrade to RK4 only if you see instability at low `vx`.
-- Initial condition `vy[0] = 0` is a small simplification (segments often start mid-motion). Could fit `vy[0]` per segment from a few rows, or ignore.
-- `vx · yr` term in `vy_dot` becomes near-singular at very low `vx`; clamp `vx > 1.0` or use implicit step.
-- Use `fit-model` with the coefficient dict `{C_af, C_ar, m, Iz, a, b}`. Per-platform.
-- **Identifiability warning**: `C_αf` and `C_αr` cannot both be observed independently without enough lateral-acceleration variation. If your dev data is dominated by straight-driving, fix one or constrain the ratio from `carParams`.
+- **State variables and initial condition.** `vy` and `yr`. Segments start mid-motion, so `vy[0] = 0` is a simplification — could fit `vy[0]` per segment from the first few rows, or warm-start from a low-pass-filtered V0 trajectory, or accept the transient.
+- **Integrator.** Explicit Euler is unstable at openpilot `C_α` priors at 20 ms sample rate. Options: backward (implicit) Euler, RK4, sub-stepping, or refit `C_α` so the eigenvalues sit inside the explicit-Euler stability region.
+- **`vx · yr` term in `vy_dot`** becomes near-singular at very low `vx`. Clamp, switch integrator, or filter the sample.
+- **Identifiability.** `C_αf` and `C_αr` cannot both be observed independently without enough lateral-acceleration variation. If your dev data is dominated by straight-driving, fix one, constrain the ratio from carParams, or use a regularised fit.
+- **Composition with V1.** Rung-1 dynamics is orthogonal to the V1 `δ₀` correction — you can keep the per-segment `δ₀` layer in front of the rung-1 integrator. A rung-1 attempt that *drops* the `δ₀` correction is competing against V0, not V1.
+- **Fittable parameter set.** Naive list is `{C_αf, C_αr, m, Iz, a, b}`. Fixing `{m, Iz, a, b}` from carParams and fitting only `{C_αf, C_αr}` is cheap but the carParams `Iz` is itself crude — sensitive parameter, may need a third fit knob.
 
 ### When this helps
 

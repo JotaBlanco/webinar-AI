@@ -1,1 +1,0 @@
-Placeholder report. Full report is in /Users/javiquix/Desktop/quixdev/webinar-AI/module-3.v2/agent-08/REPORT.md (rendered by orchestrator). See predict.py and coeffs.json for the shipped model; see EXPERIMENTS.md for the experiment log including the required Rung:1 attempt.

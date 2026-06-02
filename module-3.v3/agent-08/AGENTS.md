@@ -1,6 +1,24 @@
-# AGENTS.md — Module 3 (lateral fidelity, skills + references)
+# AGENTS.md — Module 3 v3 (beyond V1: structurally-different lateral-fidelity models)
 
-You are working on the lateral-fidelity challenge. The two KPIs to minimise are in your task prompt. You have a starter toolkit of skills under `skills/` and short reference documents under `references/`, plus an experiment log template `EXPERIMENTS.md` at the root. They are short on purpose — short enough to read, short enough to change.
+You are working on the lateral-fidelity challenge. The two KPIs are in your task prompt: pooled yaw-rate RMSE and distance-resampled cross-track-error RMSE. The job in m3.v3 is **not** to fit better coefficients to the kinematic single-track — that ceiling is already shipped as V1.
+
+## What is V1, and why it changes how you should work
+
+`code/v1_baseline.py` is the converged rung-0 model: kinematic single-track + understeer + first-order lag + platform-gated per-segment δ₀. It is the cohort-validated ceiling of that *shape* of model. In the m3.v2 cohort, six of ten agents shipped V1's coefficients to three decimal places; the spread across the cohort was 0.3 percentage points on CTE.
+
+V1's local scores against `data/sim/segments/`:
+
+| platform | yaw RMSE (rad/s) | CTE RMSE (m) | residual character (what V1 still gets wrong) |
+|---|---|---|---|
+| FORD_F_150_LIGHTNING_MK1 | 0.00566 | 62.2 | closest to noise floor; CTE residual is mild drift |
+| FORD_MUSTANG_MACH_E_MK1 | 0.00859 | 98.7 | **worst-fitted**; yaw bias + CTE drift; first-order lag is a band-aid for transient dynamics |
+| HYUNDAI_IONIQ_5 | 0.00766 | 69.5 | per-segment δ₀ helps but doesn't close the gap; CTE drift ~−12 m |
+| TESLA_MODEL_3 | 0 (no truth) | 0 | V0 passthrough; don't try to fit |
+| pooled | 0.00587 | 56.8 | — |
+
+V0 pooled for reference: yaw 0.01293, CTE 163.83.
+
+**Your job in m3.v3 is to build candidate models that attack V1's residual structurally, not to refit V1.** A model that imports `code.v1_baseline.predict_v1` and only re-fits its coefficients will score ≈V1 and the preflight will flag it.
 
 ## Operating contract — what your `predict()` will see at grading time
 
@@ -15,116 +33,137 @@ The canonical grader hands your `predict(sim_df, platform)` a DataFrame containi
 | `a_long_mps2` | longitudinal acceleration (m/s²) |
 | `accel_pedal_pct` | accelerator pedal position (%) |
 | `brake_pressed` | brake-pressed flag (0/1) |
-| `yaw_rate_pred_rads` | V0 baseline yaw rate (rad/s) — the column your `predict()` is replacing |
+| `yaw_rate_pred_rads` | V0 baseline yaw rate (rad/s) — V1 uses this as a straight-row gate; you can too |
 
-**Anything else will raise `KeyError`.** Three notable absences to be aware of:
+**Anything else will raise `KeyError`.** Notable absences:
 
 - **`yaw_rate_meas_rads`** — the truth channel. Denied because it's what the grader scores against.
-- **`a_lat_meas_mps2`** — lateral acceleration. Denied because in this dataset it's computed kinematically from truth yaw rate (`a_lat = v · ψ̇_truth`), so using it is equivalent to peeking at truth up to a `v` factor. **Some recipes and intuitions point to `a_lat_meas` as a useful straight-row detector. Don't import them verbatim — always substitute an allowlist proxy** (e.g. `v_mps * yaw_rate_pred_rads`, or `|yaw_rate_pred_rads|`, or `|delta_road_rad|`).
+- **`a_lat_meas_mps2`** — lateral acceleration. Denied because in this dataset it's computed kinematically from truth yaw rate (`a_lat = v · ψ̇_truth`), so using it is equivalent to peeking at truth up to a `v` factor. **Some recipes online use `a_lat_meas` as a straight-row gate. Always substitute an allowlist proxy** (e.g. `v_mps * yaw_rate_pred_rads`, `|yaw_rate_pred_rads|`, or `|delta_road_rad|`).
 - **`yaw_rate_resid_rads`, `a_y_resid_mps2`, `x_m`, `y_m`, `psi_rad`** — denied (direct or integrated truth leaks).
 
 The local `data/` tree contains TWO views of the same segments:
-- **`data/sim-only/segments/`** — agent-facing view. Only the 8 allowlist columns. The local `score-model` skill and `pre-flighting-final-model` use this — so your local numbers match the canonical grader's numbers.
-- **`data/sim/segments/`** — full-fidelity view including truth. Useful for *offline* fitting (e.g. with `fit-model`), but anything your `predict()` reads from this set will silently break at grading time. If you write `sim_df["a_lat_meas_mps2"]` and test against `data/sim/`, it works locally and fails the moment preflight or the grader strips the input to the allowlist.
+- **`data/sim-only/segments/`** — agent-facing view. Only the 8 allowlist columns. The local `score-model` skill and `pre-flighting-final-model` use this — local numbers match the canonical grader.
+- **`data/sim/segments/`** — full-fidelity view including truth. Useful for *offline* fitting. Anything your `predict()` reads from this set will silently break at grading time.
 
 The Tesla platform has no `yaw_rate_meas_rads` channel (no truth) — V0 passthrough is the honest fallback. Don't fit Tesla.
 
-## The highest-leverage move on this dataset
-
-If past cohort grades are any guide, **the single biggest yes/no decision on this dataset is whether you ship per-segment δ₀ estimation, platform-gated**. In the most recent graded m3 cohort, the three top-tier agents (yaw +56-57%, CTE +67-72% over V0) all shipped it; the three bottom-tier agents (yaw +48-50%, CTE +55%) all didn't, despite identical model form otherwise. That single recipe is worth ~8 pts of yaw and ~15 pts of CTE.
-
-**Read `references/anti-patterns.md` § "The legal cousin" early.** It contains the recipe, the platform-gating rule (Mach-E and Hyundai IONIQ-5: on; Lightning: off), and a worked example using only allowlist channels. This is not a "watch out for" warning — it's a positive recipe disguised as one because the doc also documents the *illegal* truth-peeking version next to it.
-
-This is not the only ceiling. The rung-0 local optimum (KS + understeer + lag + per-segment δ₀) tops out around +55-60% yaw / +65-70% CTE. To get past that, see `references/dynamics-formulations.md` for structural climbs (rung 1 dynamic single-track with slip angles, rung 2 nonlinear tyre).
-
 ## Working directory layout
 
-- `skills/` — toolkit. Inspect each `SKILL.md` metadata first; load the body only when relevant.
-- `references/` — short domain-knowledge documents (anti-patterns, option-space map, KPI tradeoff, exploration discipline, dynamics formulations, ceiling moves). Read frontmatter first; load bodies when relevant.
-- `EXPERIMENTS.md` — append-only log of approaches you've tried. Maintain it as you go.
-- `_shared/` — local helpers used by the skills (trajectory integration, CTE math). Plain Python; modify freely.
+- `code/v1_baseline.py` — the V1 baseline + its fitted coefficients. Import and use; don't edit.
+- `code/ks_model.py`, `code/parameters.py` — V0 source and openpilot carParams (mass, inertia, wheelbase priors). carParams are calibrated for upstream use, not ground truth for this data — treat as initial guesses.
+- `models/` — one subdirectory per candidate model you build. See § "Models as first-class objects".
+- `MODELS.md` — registry of every candidate model: shape, status, dev-score vs V1, verdict.
+- `EXPERIMENTS.md` — append-only log of attempts; one entry per concrete attempt.
+- `skills/` — toolkit. Inspect each `SKILL.md` metadata before loading the body.
+- `references/` — short domain-knowledge docs.
+- `_shared/` — local helpers used by skills (trajectory integration, CTE math). Plain Python; modify freely.
 - `data/` — symlinked sim data (read-only).
-- `code/` — symlinked baseline model code, including `ks_model.py` (read-only).
-- `final-model/` — where you ship your final model. The deliverable contract is enforced by `skills/pre-flight-final-model/`.
+- `final-model/` — where you ship your chosen model. Deliverable contract enforced by `skills/pre-flight-final-model/`.
+
+## Models as first-class objects
+
+Past cohorts treated their work as "one growing `predict.py`". m3.v3 makes models *first-class*: each candidate lives in its own directory, with its own notes, its own assessment, and an entry in a registry. This makes structural comparison cheap, rollback obvious, and accidental convergence on a single model hard.
+
+A candidate model lives under `models/<name>/`:
+
+```
+models/
+  <model-name>/
+    predict.py          # predict(sim_df, platform) -> DataFrame
+    notes.md            # formulation, state-space, integrator, priors, expected residual character
+    assessment.md       # populated by assess-candidate-model: per-platform vs V1, residual diagnosis, verdict
+    <coeffs / helpers>  # anything predict.py depends on
+```
+
+Each candidate must:
+- Have a `notes.md` describing the **formulation** (equations or pseudo-code), the **state-space** (what's a state, what's an input, initial conditions), the **integrator** (if applicable), and the **expected residual character** — i.e. *which* of V1's residuals you're attacking and why this shape attacks it.
+- Be scored alongside V1 using `score-model` and `compare-models`. Save results + conclusions to `assessment.md`.
+- Be registered in `MODELS.md`.
+
+The `assess-candidate-model` skill runs the standard battery (score, residual-structure, compare-against-V1) and stamps a populated `assessment.md`. Adapt or replace it per model class if the standard battery isn't the right diagnostic for your model shape — that's the point of having skills be modifiable. A rung-1 dynamic single-track wants a slip-angle diagnostic; a residual learner wants feature-importance; build the diagnostic that's right for *your* model.
+
+Your shipped `final-model/predict.py` is whichever candidate you choose to ship. Often a thin re-export of a `models/<name>/predict.py`. If all your candidates lose to V1 on dev, ship V1 and document the negative result in REPORT.md — that is itself a useful cohort contribution.
 
 ## Skills inventory
 
-- `score-model/` — schema-aware scorer for any `predict()` function across all platforms: pooled yaw + CTE, per-segment tables, per-platform signed-bias warnings, distribution stats. Use as your inner-loop oracle.
-- `fit-model/` — model-agnostic per-platform coefficient fitter against yaw / CTE / yaw+CTE objectives. You supply a `predict_factory(platform, coeffs)`; the skill runs scipy and returns fitted coeffs **plus post-fit diagnostics** — co-collapse, stuck-on-bound, overfit-gap, non-convergence. Train/dev gap surfaces inline when `dev_segments` is passed. Pass `bounds` whenever you can.
-- `compare-models/` — diff two `predict()` functions per-segment. Default-sorts by delta; surfaces top regressions and top improvements.
-- `inspect-residuals/` — plot yaw residual against one OR two input features. 1-D scatter + binned mean/σ; 2-D heatmap of mean residual over (x, y) cells. Schema-aware (Tesla, IONIQ, any platform).
-- `residual-structure/` — diagnose what's *left* in the residual after a fit: temporal autocorrelation at multiple lags, correlation with each input feature AND its time-derivative, sign-asymmetry. Returns a per-platform **verdict** (`"noise_floor"` → stop; `"structure_detected"` → specific reason like "autocorrelated at lag 6 → try a steering-rate term"). The bridge between "I fit it" and "is V2 worth building?". A key signal for whether to climb a rung.
-- `route-bias/` — per-route signed yaw bias and CTE drift ranked by each route's share of platform pooled error, with per-route input-feature means. Use after a fit when scoring-model still flags bias but per-platform fit has plateaued. Route ID isn't an inference input — output is diagnostic, used to discover an observable input feature you should add.
-- `visualise-segment/` — render a multi-panel PNG of one segment with truth and one or more predictions overlaid.
-- `make-train-dev-split/` — produce a route-grouped train/dev split. Ships with a validator that flags route leakage.
-- `load-segments/` — load segment `sim.csv`s into pandas DataFrames with consistent dtype hygiene.
-- `pre-flight-final-model/` — verify that your `final-model/` bundle matches the deliverable contract. Tests every platform declared in `manifest.platform_support`, not just one — catches platform-conditional failures.
+Inherited from m3.v2 (unchanged):
+
+- `score-model/` — schema-aware scorer for any `predict()` across all platforms. Pooled + per-segment + per-platform signed bias + distribution stats. Always pair with comparing against V1.
+- `fit-model/` — per-platform coefficient fitter against yaw / CTE / yaw+CTE. Pass a `predict_factory(platform, coeffs)`; returns fitted coeffs + post-fit diagnostics (co-collapse, stuck-on-bound, overfit-gap).
+- `compare-models/` — per-segment diff between two `predict()` functions. **Use this to compare every candidate against V1.**
+- `inspect-residuals/` — plot yaw residual vs one or two input features. Useful for spotting *which* feature still drives residual.
+- `residual-structure/` — diagnose what's left in the residual: autocorrelation, feature-correlation, sign asymmetry. Returns a verdict (`"noise_floor"` → done with this model; `"structure_detected"` → specific reason).
+- `route-bias/` — per-route signed yaw bias and CTE drift ranked by share of platform pooled error.
+- `visualise-segment/` — multi-panel PNG of one segment with truth + predictions overlaid.
+- `make-train-dev-split/` — route-grouped train/dev split with leakage validator.
+- `load-segments/` — load segment `sim.csv`s with consistent dtype hygiene.
+- `pre-flight-final-model/` — deliverable-bundle validator. See § "Preflight gates" below.
+
+New in m3.v3:
+
+- `assess-candidate-model/` — coordinator that runs score + compare-vs-V1 + residual-structure on a candidate's `predict.py` and writes a populated `assessment.md` in `models/<name>/`. Treat its output as a starting template — extend with model-class-specific diagnostics.
 
 ## References inventory
 
-Read the frontmatter (description + when-to-load) before loading the body. Recommended order on a fresh task:
+Read the frontmatter (description + when-to-load) before loading the body.
 
-- `references/exploration-discipline.md` — protocol for naming alternatives before committing and logging what you try. Load at the start.
-- `references/anti-patterns.md` — common ways prior work has gone wrong, plus the **per-segment δ₀ recipe** (§ "The legal cousin") which is the highest-leverage move on this dataset. Load first.
-- `references/approach-menu.md` — a map of the option space for improving on V0. Annotated by what's been explored, what's lightly tried, and what's unexplored. Includes a platform-gating diagnostic and a structural-complexity ladder.
-- `references/dynamics-formulations.md` — V0 documented in full plus sketches of higher-rung formulations (linear dynamic ST with slip angles, nonlinear tyre, multi-body). **Living doc — append your formulation here when you ship one past V0.**
-- `references/two-kpi-tradeoff.md` — how yaw-rate RMSE and CTE RMSE relate. Load after you have a working model and want to interpret your numbers; the worked example shows the per-platform bias-spread diagnostic.
-- `references/ceiling-moves.md` — four unexplored moves above the current best-known ceiling. Load only after you've already beaten V0 by ≥+30% on both KPIs — loading earlier wastes the doc.
+- `references/exploration-discipline.md` — protocol for naming ≥5 alternatives across model structures before committing. The first thing to load.
+- `references/anti-patterns.md` — known traps. Truth peeks, sample-level leakage, denied-column slips. No longer contains a winning recipe — V1 covers that case.
+- `references/dynamics-formulations.md` — catalogue of vehicle lateral-dynamics models in increasing structural complexity. V0 documented in full; rungs 1–3 sketched (equations + parameter list + identifiability notes — **no drop-in scaffold**). **Append your shipped formulation here for the next agent.**
+- `references/two-kpi-tradeoff.md` — how yaw RMSE and CTE relate. Useful when interpreting your model's numbers.
 
-The references are knowledge, not prescription. They describe the landscape; you choose the route. Each ends with a "failure-mode index" — a checklist of "you'll see this if…" patterns to verify before committing.
+The references are knowledge, not prescription. If a reference says something you find misleading, edit it. If a reference is in your way, delete it. The only obligation is to lower the canonical KPIs.
 
-## Working with skills and references
+## V1's residual diagnosis — what's actually left to attack
 
-The skills are deliberately small. Treat them as **clay, not library**. The expected workflow when a skill's output isn't useful:
+V1 leaves three distinct kinds of residual on the data. Each suggests different structural attacks. Pick what to attack based on *your own* residual diagnosis, not from this list — these are pointers, not prescriptions.
 
-1. Look at the output. Is the signal you need *in there* somewhere?
-2. If yes — extract it inline; you don't have to change the skill.
-3. If no — the skill is wrong. Open the body, add the column or table you need, save, re-run.
+1. **Transient-regime yaw error on Mach-E** (yaw RMSE 0.0086, ~2× Lightning). The first-order lag with τ ≈ 0.07 s is a single-pole approximation of dynamics V1 doesn't actually model. Candidate structural attacks: dynamic single-track ODE (rung 1 — see `dynamics-formulations.md`), regime-switched model (V1 for straight, dynamic for transient), residual learner trained on the V1 residual with `d(delta)/dt` and `v_mps` features.
 
-The references work the same way — if one says something you find misleading, edit it. If a reference is in your way, delete it. The only obligation is to lower the canonical KPIs.
+2. **Per-platform CTE drift that survives V1** (Lightning +20 m, IONIQ-5 −12 m residual). V1's δ₀ correction landed the bulk but a tail remains. Candidate structural attacks: complementary filter blending V1 yaw with a steering-derivative-driven signal; per-route bias model fit on input features only; an integrator-error correction (CTE accumulates yaw error linearly with distance — small persistent yaw bias = large CTE).
 
-## On exploration — the default is to climb
+3. **High-`|a_lat|` segments where V1's linear understeer saturates.** Real tyres saturate. Use the allowlist proxy `|v_mps · yaw_rate_pred_rads| > 4` to find these segments. Candidate structural attacks: nonlinear tyre on top of rung 1 (rung 2), or a piecewise-saturated correction added to V1.
 
-Past cohorts have a near-universal failure mode: every agent ships a refined rung-0 model (kinematic single-track + understeer + lag, with better coefficients). Nobody attempts rung 1 (linear dynamic single-track with slip angles) or above. The reports show this isn't lack of awareness — agents *consider* climbing and reject it, because rung-0 refinements are reliable and rung 1 looks expensive. The result is the cohort piles up at the same local optimum and we don't learn whether rung 1 actually helps on this data.
+Use `residual-structure/` and `inspect-residuals/` to see which kind dominates *your* model's residual after each iteration. The diagnosis is the work — different residuals point at different structures.
 
-**The default in this template is now: ship a structural climb attempt.** Refining rung 0 stays available, but it's no longer the default path. Concretely:
+## Preflight gates — what `pre-flighting-final-model` enforces
 
-1. **Your `EXPERIMENTS.md` must contain at least one entry tagged `Rung: 1` (or higher, or `orthogonal`).** This is enforced by `pre-flighting-final-model` — a bundle without a logged climb attempt does not pass. The attempt does **not** have to be your shipped model; it has to be a real, scored attempt that you ran and logged.
-2. **If your shipped model is rung 0**, the log entry for the climb attempt must include a comparison against your rung-0 model on dev and a one-line reason for falling back.
-3. **The "Minimum viable rung-1 attempt" recipe** in `references/dynamics-formulations.md` § "Rung 1" gives you a ~30-line scaffolded climb. Use it as a starting point; the cost-to-attempt is lower than past cohorts assumed.
+In addition to the m3.v2 checks (file presence, manifest sanity, allowlist compliance, runs on every declared platform), m3.v3 preflight also enforces:
 
-The point isn't to force-ship climbed models — your safety net is the rung-0 fallback. The point is to **generate evidence**, in this cohort, about whether rung 1 helps on this dataset. We don't have that evidence yet because nobody has tried.
+1. **`MODELS.md` exists with ≥3 candidate entries.** At least one must be tagged `structure: differs-from-V1`. This forces you to *build* multiple candidates instead of fixating on one.
+2. **`EXPERIMENTS.md` opens with a ≥5-alternatives header block** (heading "Alternatives considered"). One line per alternative, with model structure named. Three of the five must be structurally distinct from V1. Lifts directly from `exploration-discipline.md`.
+3. **Structural-novelty diff against V1.** If your shipped `final-model/predict.py` produces results substantively identical to V1 across the dev set (per-segment yaw difference below a tolerance), preflight warns. You can ship V1 anyway if all your candidates lost — but the warning forces the explicit choice and `REPORT.md` must document the negative result.
 
-Read `references/exploration-discipline.md` for the full protocol (5 named alternatives, the experiment log schema). The `Rung:` field is now required on every `EXPERIMENTS.md` entry.
+The shipped model does **not** need to beat V1. The cohort wants evidence about which structures lose, why, and which (if any) win. A clean negative result is a contribution.
 
-## A workable inner-loop on this task
+## Inner loop — a workable rhythm
 
 This is a recipe, not a rule. Adapt freely.
 
-1. **Score V0 with `score-model`** to establish the floor and see the per-platform residual breakdown.
-2. **Run the per-platform bias-spread diagnostic** (see `references/two-kpi-tradeoff.md` § "Worked example") *before* you start fitting. For each platform, compute `std(per_segment_yaw_residual_mean)`:
-   - `std > 0.002 rad/s` → that platform will benefit from per-segment δ₀.
-   - `std < 0.002 rad/s` → that platform won't; use a global δ₀ there.
-   This gate determines `use_per_segment_delta0=True/False` per platform in your first model. Skipping the gate is how top-tier and bottom-tier outcomes diverge.
-3. **Write a reconstruction-shape `predict()`** (see `references/approach-menu.md` § "Two model *shapes*") with per-platform `{g, L_eff, K_us, tau, delta0, use_per_segment_delta0}`. Use `fit-model` to fit coefficients per platform on `data/sim/` against the yaw or yaw+CTE objective.
-4. **Score with `score-model`** and check residual shape per regime (straight/steady/transient). If transient dominates, see the "climb the ladder" path in `references/approach-menu.md`. If straight/steady dominates, refine coefficients or polynomial steering scale.
-5. **Log each attempt to `EXPERIMENTS.md`** with the hypothesis, the change, the result, and the required `Rung:` tag (`0` / `1` / `2` / `3` / `orthogonal`).
-6. **Before shipping any rung-0 model, run a rung-1 attempt** following the "Minimum viable rung-1 attempt" recipe in `references/dynamics-formulations.md` § "Rung 1". Even if it doesn't beat your rung-0 model, log it. This is enforced — see § "On exploration" above.
-7. **Before declaring done**, run the deliverable-hygiene checklist below.
+1. **Score V1** with `score-model` to confirm the floor and read the per-platform residual breakdown.
+2. **Diagnose V1's residual** with `residual-structure` and `inspect-residuals` — find which of the three residual kinds dominates on each platform. This is the start of *your* problem definition.
+3. **Open `EXPERIMENTS.md` and write the ≥5-alternatives header** (see `references/exploration-discipline.md`). Three must be structurally distinct from V1. Make the alternatives match the residual you saw in step 2.
+4. **Pick the most promising candidate**; create `models/<name>/` with `notes.md` *before* writing `predict.py`. Formulation first, code second.
+5. **Build `predict.py`**; score against V1; run `assess-candidate-model` to populate `assessment.md`; register in `MODELS.md`. Write up what the residual structure tells you about whether the model is over- or under-parameterised.
+6. **If it lost to V1**, write down *why* in `assessment.md` (under-parameterised? over-parameterised? wrong residual attacked? integrator unstable?), then return to step 3 and pick another alternative. Don't fall back to V1 just to ship — the cohort gets no signal from that.
+7. **When you've built ≥3 candidates** with completed assessments, decide what to ship. The candidate that beats V1 on dev pooled metrics is the default ship; if none does, ship V1 with a REPORT.md that names the three structures you ruled out.
+8. **Run `pre-flighting-final-model`** and confirm every check passes.
 
-The other failure pattern past cohorts produce is silent re-convergence on the same approach wearing a different variable name. The `EXPERIMENTS.md` log + the required `Rung:` tag is what catches both: it makes structurally-different attempts visible *to yourself*, and it makes "I tried 8 flavours of the same coefficient tweak" mechanically detectable when every entry is `Rung: 0`.
+## Working with skills and references
+
+The skills are deliberately small. Treat them as **clay, not library**. The workflow when a skill's output isn't useful:
+
+1. Look at the output. Is the signal you need *in there* somewhere? If yes — extract it inline.
+2. If no — the skill is wrong for your model class. Open it, add the diagnostic you need, save, re-run. Per-model-class assessment is expected; that's why the standard battery is a starting point.
+
+Same for references — edit, extend, delete. Only obligation is to lower the canonical KPIs.
 
 ## Before declaring done — deliverable hygiene checklist
 
-This is the final gate before you stop. Skipping it is the single most common way agents lose graded points to packaging mistakes rather than to weak models.
+1. `pre-flighting-final-model` passes every check.
+2. `MODELS.md` is consistent with directories under `models/` (no orphan entries, no models without an entry).
+3. Every `models/<name>/` has both `notes.md` and `assessment.md`. Skim each `assessment.md` — does it state a verdict and reason?
+4. `REPORT.md` (in the agent root) summarises the residual diagnosis you started with, the structures you tried, the verdict on each, and what your shipped model does differently from V1.
+5. Read your manifest's `platform_support` out loud. Every declared platform must have a working `predict.py` code path. If you support IONIQ-5 but your coefficients only cover Mach-E and Lightning, IONIQ-5 will silently fall through to V0 — you ship +0% on a third of the pool.
 
-1. **Run `pre-flighting-final-model`** on your `final-model/` bundle and confirm every check passes. It catches:
-   - missing `predict.py`, `manifest.json`, `REPORT.md` (≥100 bytes)
-   - missing sibling files referenced by `predict.py` (e.g. `coeffs.json` that you forgot to ship — caught at the `predict_imports` step)
-   - reads from denied columns like `a_lat_meas_mps2` (the dry-run uses `data/sim-only/` so allowlist violations surface)
-   - per-platform `KeyError`/exception paths in your predict (the dry-run iterates every platform declared in `manifest.platform_support`)
-2. **Read your manifest's `platform_support`** out loud. Does every entry have a corresponding code path in `predict()`? If you declared support for IONIQ-5 but `coeffs.json` only has Mach-E and Lightning, your IONIQ-5 segments will silently fall through to V0 passthrough at grading time — you ship +0% on a third of the pool.
-3. **List your `final-model/` directory contents.** Every file your `predict.py` opens at import time or at call time must be present.
-4. **Confirm your `EXPERIMENTS.md` contains at least one `Rung: 1+` or `Rung: orthogonal` entry.** Preflight checks this — see § "On exploration" for why.
-
-If any check fails, fix and re-run. Don't ship a bundle that doesn't pass preflight.
+If any check fails, fix and re-run.

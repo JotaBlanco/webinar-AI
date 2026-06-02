@@ -1,41 +1,43 @@
 ---
 name: exploration-discipline
-description: How to keep yourself from locking in on the first approach. A short protocol for naming alternatives before committing, the EXPERIMENTS.md schema (including the required `Rung:` tag), and the rule that you must log at least one rung-1+ climb attempt.
+description: How to keep yourself from locking in on the first approach. A short protocol for naming alternatives before committing, the EXPERIMENTS.md schema (including the required `Rung:` tag), and the rule that the shipped model must differ structurally from V1.
 when-to-load: At the start of the task, and again any time you find yourself iterating on the same approach without progress for more than ~15 minutes.
 load-cost: ~500 words.
 ---
 
 # Exploration discipline
 
-Modelling tasks reward divergence then convergence. The trap past cohorts have fallen into isn't a lack of divergence — it's **convergence to the same rung-0 local optimum, by every agent, every time.** Reading the m3 reports shows agents *considered* climbing and rejected it, because rung 0 is reliable and rung 1 looks expensive. The result is the cohort piles up around +48–57% over V0 and we still don't know whether rung 1 helps on this data.
+Modelling tasks reward divergence then convergence. The trap past cohorts have fallen into isn't a lack of divergence — it's **convergence to the same rung-0 local optimum, by every agent, every time.** In m3.v2, six of ten agents shipped the same coefficients to three decimal places. That's not search; that's transcription.
 
-The discipline in this template addresses both halves of that:
-1. **Name alternatives across rungs before committing**, so the structure-space gets a fair search.
-2. **Log at least one rung-1+ (or orthogonal) climb attempt** before declaring done — enforced by `pre-flighting-final-model`. The cohort needs evidence about whether rung 1 pays on this data; that evidence only arrives if agents try.
+m3.v3 raises the floor: rung-0 kinematic-single-track + `δ₀` + lag is pre-shipped as V1 (`code/v1_baseline.py`), scored, and treated as the new baseline. Re-fitting V1's coefficients buys ~0 points. To improve on V1 you need a different *shape* of model, and the discipline here is how to find one.
+
+This template enforces:
+1. **Name alternatives across model structures before committing**, so the structure-space gets a fair search.
+2. **The shipped model must differ structurally from V1** — not just in fitted coefficients. Preflight checks this. The cohort needs evidence about what shapes beat V1; that evidence only arrives if agents ship beyond V1.
 
 ## Before you commit to an approach — name five, with at least three different model structures
 
 When you've finished diagnosis and are about to start fitting, write down **at least five genuinely different approaches** that might close the residual you're seeing. One line each, with a one-line argument *for* it.
 
-**Hard rule: at least three of the five must be different *model structures*, not five flavours of the same model.** "Polynomial g on Mach-E", "polynomial g on Lightning", and "polynomial g with bounds" are *one* approach in three costumes — they all stay on rung 0 of the structure ladder (see `approach-menu.md`). Climbing to rung 1 (dynamic single-track) or rung 2 (nonlinear tyre) is a *different structure*.
+**Hard rule: at least three of the five must be different *model structures*, not five flavours of V1's shape.** "Polynomial g on Mach-E", "polynomial g on Lightning", and "polynomial g with bounds" are *one* approach in three costumes — they all stay inside V1's kinematic-single-track form and a refit of V1 with these alone scores ~V1. A different *structure* is something V1 cannot reach by re-fitting coefficients: a dynamic single-track ODE, a nonlinear tyre, a residual-learning layer on top of V1, a sensor-fusion / complementary-filter approach, a regime-switched model.
 
-Example list that satisfies the rule:
+Example list that satisfies the rule (the structures, not specific recipes):
 
-> 1. *(rung 0, coefficient)* Polynomial steering scale on Mach-E — residual concentrates in high-curvature segments.
-> 2. *(rung 0, coefficient)* Per-segment δ₀ from straight-driving rows — per-segment yaw-bias spread is wide.
-> 3. *(rung 1, structure)* Linear dynamic single-track with slip angles — transient regime carries the largest residual; the first-order lag is a band-aid.
-> 4. *(rung 2, structure)* Pacejka tyre on top of rung 1 — high-`a_lat` segments suggest tyre saturation; only worth it after rung 1.
-> 5. *(orthogonal)* Multi-seed fold averaging — current dev-score swings with seed, suggesting noise in the fit.
+> 1. *(structure)* Linear dynamic single-track with slip angles — transient regime carries the largest residual against V1; V1's first-order lag is a band-aid for the missing transient.
+> 2. *(structure)* Regime-switched model — V1 on straight-driving, something else on transient. Pick the switch threshold from residual diagnostics.
+> 3. *(structure)* Residual learner on top of V1 — fit a small model on V1's residual against allowlist features; ship V1 + learned residual.
+> 4. *(structure)* Complementary filter / sensor fusion — blend V1 with a steering-derivative-driven model in frequency domain.
+> 5. *(orthogonal)* Multi-seed fold averaging on V1 — current dev-score swings with seed, suggesting noise that averaging would cancel.
 
-"Genuinely different" is the key word. **Three flavours of polynomial g do not count as three approaches** — they're one approach in three costumes. The point is to force a *choice across the strategy space* — refine vs climb vs orthogonal — and to make the not-chosen options visible so they can be tried later.
+"Genuinely different" is the key word. **Three flavours of polynomial g do not count as three approaches** — they're one approach in three costumes, all inside V1's shape. The point is to force a *choice across the strategy space* and to make the not-chosen options visible so they can be tried later.
 
-Then pick one, try it, score it, log it (see below). If the chosen approach doesn't beat dev by a meaningful margin (~2% on at least one KPI), come back to the list and try the next.
+Then pick one, build it under `models/<name>/`, assess it (compare against V1, not V0), log it. If the chosen approach doesn't meaningfully beat V1 on dev (~1% on at least one KPI), come back to the list and try the next.
 
-## You must log at least one rung-1+ climb attempt
+## The shipped model must differ structurally from V1
 
-`pre-flighting-final-model` checks `EXPERIMENTS.md` and fails the bundle if no entry is tagged `Rung: 1` (or higher, or `orthogonal`). This isn't aspirational — it's mechanical. **Your shipped model can still be rung 0** if your climb attempt didn't beat it; what's required is that you *tried* and logged the result.
+`pre-flighting-final-model` checks that the shipped `final-model/predict.py` is *not* a thin wrapper around `code.v1_baseline.predict_v1` (i.e. it isn't "import V1 and re-fit coefficients"). It also checks `MODELS.md` contains at least three candidate models, each in `models/<name>/`, with at least one structurally distinct from V1.
 
-See `references/dynamics-formulations.md` § "Minimum viable rung-1 attempt" for a 30-line scaffold. The cost is lower than past cohorts assumed. If your climb fails or hurts, that is itself a contribution to the cohort — it lets the next agent skip the deadend (and the template `## Tried and shelved` section is where it goes).
+The shipped model does not need to *beat* V1 — what's required is a structural change attempt. If three structurally-different models all lost to V1, ship V1 and document the negative result. That is itself a cohort contribution.
 
 ## EXPERIMENTS.md schema — `Rung:` is required
 
@@ -59,6 +61,6 @@ A starter template lives at the template root as `EXPERIMENTS.md` — copy or ex
 
 ## When to stop
 
-You're done exploring when the **named alternatives are exhausted** AND your `EXPERIMENTS.md` includes at least one `Rung: 1+` or `Rung: orthogonal` entry. If neither is true, you have at least one option left worth trying — go try it.
+You're done exploring when **at least three structurally-different candidate models live under `models/`**, each with an `assessment.md`, and `MODELS.md` is up to date. If your best candidate beats V1, ship it. If not, ship V1 and write up which structures lost and why in `REPORT.md` — that is a useful result.
 
 You should improve on this if you can.

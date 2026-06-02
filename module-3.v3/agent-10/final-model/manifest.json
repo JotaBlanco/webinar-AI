@@ -1,11 +1,24 @@
 {
-  "name": "agent-10-rung0-per-segment-delta0",
-  "predict_callable": "predict.py:predict",
+  "model_name": "v1-plus-resid",
+  "model_dir": "models/v1-plus-resid",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "notes": "Per-platform reconstruction shape: yr_ss = v*delta_eff/(L_eff+K_us*v^2) -> first-order lag (tau). Per-segment delta0 from input-only straight-row gate on Mach-E and IONIQ-5. Lightning uses a global delta0. Tesla is V0 passthrough (no truth channel)."
+  "predict_callable": "predict.py:predict",
+  "depends_on": [
+    "../code/v1_baseline.py",
+    "coeffs.json"
+  ],
+  "dev_scores": {
+    "yaw_rate_rmse": 0.005727,
+    "cte_rmse": 54.304,
+    "baseline_v1": {
+      "yaw_rate_rmse": 0.005874,
+      "cte_rmse": 56.807
+    }
+  },
+  "notes": "Per-platform linear residual learner on top of V1. Tesla falls through to V0 passthrough (no truth)."
 }

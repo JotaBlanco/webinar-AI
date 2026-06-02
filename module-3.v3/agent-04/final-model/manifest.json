@@ -1,12 +1,12 @@
 {
-  "name": "m3v2-agent-04-ks-understeer-lag-perseg-delta0",
-  "version": "1.0.0",
+  "predict_callable": "predict.py:predict",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "predict_callable": "predict.py:predict",
-  "description": "Speed-known bicycle-like reconstruction with understeer (K_us), first-order lag (tau), per-segment delta0 estimated from input channels only. Mach-E and IONIQ-5 use per-segment delta0; Lightning uses global delta0. Tesla falls back to V0 passthrough."
+  "model_shape": "V1 (kinematic-single-track + understeer + lag + per-segment delta0) + per-platform 8-feature linear correction fitted on V1 residuals",
+  "features": ["1", "|delta|*delta", "v*delta", "v^2*delta", "delta^3", "ddelta_dt", "ddelta_dt*v", "sign(delta)*delta^2*v"],
+  "notes": "Tesla falls through to V0 passthrough via V1 (no truth, no fit). All features derived from operating-contract allowlist columns only."
 }

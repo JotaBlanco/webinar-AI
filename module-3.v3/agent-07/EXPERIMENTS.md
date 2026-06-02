@@ -1,39 +1,126 @@
 # EXPERIMENTS.md
 
-Append-only log of approaches tried.
+Append-only log of attempts. One entry per concrete attempt.
+See `references/exploration-discipline.md` for why.
 
-## E00 — V0 baseline (no changes)
-- Rung: 0
-- Hypothesis: establish the floor we're trying to beat.
-- What I changed vs nothing: nothing — predict() passes through `yaw_rate_pred_rads`.
-- Result (full sim/): yaw 0.012934 rad/s; CTE 163.83 m.
-  - per-platform: Lightning yaw 0.01633 cte 157.5; Mach-E yaw 0.01362 cte 148.0; Hyundai yaw 0.01770 cte 247.5.
-  - signed bias: Lightning +39.7 m drift, Hyundai -54.8 m drift (both flagged 🚨).
-- Verdict: baseline.
+## Alternatives considered
 
-## E01 — Recipe: KS + understeer + lag + per-segment δ₀, platform-gated
-- Rung: 0
-- Hypothesis: anti-patterns.md identifies this as THE highest-leverage move (the "legal cousin"). Per-segment δ₀ estimated from straight-driving rows using the V0 yaw-rate gate (allowlist-only).
-- What I changed vs E00: shipped the recipe verbatim from references/anti-patterns.md § "The legal cousin" with the prior top-tier coefficient set. Per-segment δ₀ ON for Mach-E and Hyundai, OFF for Lightning (uses global δ₀). Tesla unchanged (V0 passthrough).
-- Result (full sim/): yaw 0.005874 rad/s (-54.6%); CTE 56.81 m (-65.3%).
-  - per-platform: Lightning yaw 0.00566 cte 62.2; Mach-E yaw 0.00859 cte 98.7; Hyundai yaw 0.00766 cte 69.5.
-  - signed bias: Lightning ok; Mach-E -21.98 m (🚨); Hyundai -11.57 m (⚠️).
-- Verdict: keep, ship.
+**Preflight requires ≥5 bullets here, with ≥3 tagged `(structure)`.**
 
-## E02 — Refit coefficients with scipy on yaw_plus_cte (Rung 0)
-- Rung: 0
-- Hypothesis: scipy may find better coeffs than the prior cohort's published numbers.
-- What I changed vs E01: ran fit-model L-BFGS-B per platform on 200-segment subsample, 80/20 route-grouped train/dev split, objective="yaw_plus_cte". Bounds wide on g, L_eff, K_us, tau, delta0.
-- Result (full sim/): yaw 0.006193 rad/s (-52.1%); CTE 55.97 m (-65.8%).
-  - Fit warnings: Lightning train_obj=0.054 dev_obj=0.102 (gap +87.9% ⚠️ — overfit symptom). Hyundai tau collapsed to 0.020 (vs 0.062 prior).
-  - Pooled scores essentially tied with E01. CTE marginally better, yaw marginally worse.
-- Verdict: revert — the marginal CTE gain isn't worth the train/dev gap warning on Lightning. E01 ships.
-- Rules out: scipy fitting on this objective shape doesn't materially beat the published cohort coeffs — the rung-0 optimum is essentially flat in this neighbourhood.
+Fill this in **before** building your first candidate, based on V1's residual
+diagnosis (see `AGENTS.md` § "V1's residual diagnosis"). Each bullet: one line
+naming a *model shape* (not a coefficient tweak) and the V1 residual it
+attacks. Tag with `(structure)` if it differs from V1's kinematic-single-track
+form, `(refines-v1)` if it stays inside V1's shape, `(orthogonal)` if it's a
+non-modelling intervention (ensembling, multi-seed averaging).
 
-## E03 — Rung-1 attempt: linear dynamic single-track on Mach-E
-- Rung: 1
-- Hypothesis: dynamics-formulations.md § "Rung 1" suggests slip-angle dynamic ST may capture transient regime residual (Mach-E has -22 m drift after E01, biggest CTE flag).
-- What I changed vs E01: implemented the 30-line minimum-viable recipe from dynamics-formulations.md. Two-state Euler (vy, yr), forces F_yf=C_αf·α_f and F_yr=C_αr·α_r with carParams seed (m=2336, Iz=4879, l_f=1.313, l_r=1.671, C_αf=286_551, C_αr=355_912). Fit C_αf, C_αr, g, δ₀ per platform with L-BFGS-B on yaw_plus_cte.
-- Result (Mach-E only): integration unstable. fit reported train_obj=inf and did_not_converge. Scoring the unfit init also produced numeric overflow in yaw RMSE.
-- Verdict: revert — Euler integration of this ODE at carParams initial conditions blows up (likely the `vx · yr` coupling at the iteration scale combined with stiff C_α values). Would need RK4 + smaller substep + warm-start on vy from data, plus C_α bounding from observed peak a_lat. Costs more than the time budget allows.
-- Rules out: the published rung-1 recipe is NOT plug-and-play stable at carParams priors on this dataset's sample-rate; future agents should expect to debug integrator stability before getting a fittable objective.
+- (structure) **Linear dynamic single-track (rung 1)** with bicycle-model ODE on `(vy, yr)`, RK4 integration; attacks transient-regime yaw RMSE (0.0165 vs 0.0044 straight) and Mach-E first-order-lag band-aid.
+- (structure) **Second-order yaw transfer function** (V1's `yr_ss` driven through a damped second-order LTI instead of first-order lag); attacks transient yaw overshoot directly without committing to bicycle-model identifiability.
+- (structure) **Steering-rate feedforward correction** — add `k_δ̇ · d(δ_road)/dt` to V1's yr; attacks the same transient residual via "anticipation" without ODE state. Structurally different shape: input-derivative term V1 lacks entirely.
+- (structure) **Per-platform steering-gain debias** — fit `g` so residual slope vs truth = 0; orthogonal to V1's shape because V1's `g` was fit jointly with K_us/L_eff and is locked. Attacks CTE drift (proportional yaw bias).
+- (refines-v1) **Re-fit V1 coefficients per route** rather than per platform — sanity check that V1's pooled fit isn't washing out heterogeneity.
+- (orthogonal) **Blend V1 with V0** (convex combo) on transient regime — averaging instead of new structure. Cheap fallback.
+
+---
+
+## Log entry schema
+
+```
+## E<NN> — <one-line approach name>
+- Model dir: models/<name>/   (if applicable)
+- Hypothesis: why you thought this would help, in one line.
+- What I changed vs E<NN-1>: the minimal diff.
+- Result (dev pooled): yaw <old> → <new> (Δ% vs V1); CTE <old> → <new> (Δ% vs V1).
+- Verdict: keep | shelve | revisit-later.
+- Things this rules out: what you learned, even if the experiment failed.
+```
+
+Tag every entry with the model dir (when applicable) so the link to MODELS.md is
+explicit. **The shipped model must differ structurally from V1** — preflight
+warns if your shipped predict is functionally identical to V1.
+
+---
+
+## E00 — V1 baseline
+
+- Hypothesis: V1 is the pre-shipped rung-0 ceiling. Score it to confirm the
+  floor and to read the per-platform residual breakdown.
+- What I did: ran `score-model` on `code.v1_baseline.predict_v1`.
+- Result (dev pooled): yaw 0.005874 rad/s; CTE 56.81 m.
+  - Per-platform: Lightning yaw 0.00566 / CTE 62.2; Mach-E yaw 0.00859 / CTE 98.7;
+    IONIQ-5 yaw 0.00766 / CTE 69.5; Tesla 0/0 (passthrough).
+- Verdict: baseline. **Next: diagnose what's left.**
+
+## E01 — V1 residual probe
+
+- Hypothesis: per-platform signed yaw bias should be largely a constant or
+  v-dependent offset.
+- What I did: looped over Mach-E, IONIQ-5, Lightning; computed signed yaw
+  residual in regime slices (straight/steady/transient, left/right turns,
+  v bins, high-|a_lat|).
+- Result: **strong left/right asymmetry on Mach-E and IONIQ-5.** Right-turn
+  bias on Mach-E -0.00719; left-turn bias -0.00032. IONIQ-5 right -0.00547;
+  left +0.00026. Lightning is symmetric. Transient regime carries 3.5× the
+  yaw RMSE of straight regime (0.0165 vs 0.0047).
+- Verdict: actionable. Two attack vectors: (a) asymmetric steering scale,
+  (b) dynamic-ST for the transient residual. (a) is easier; try first.
+
+## E02 — v1-steerrate-ff (yr_v1 + k_dd · ddelta · clip(v,0,40)/30)
+
+- Model dir: models/v1-steerrate-ff/
+- Hypothesis: V1's first-order lag underfits the transient response;
+  adding the steering derivative as a feedforward term should restore the
+  second-order behaviour.
+- What I changed: yr = yr_v1 · g_corr + k_dd · ddelta · clip(v,0,40)/30.
+  Grid scan over (g_corr, k_dd) per platform on 120 segments.
+- Result (pooled subset): yaw -0.2% / -0.3% / -0.7% per platform; CTE
+  essentially unchanged. k_dd sign flipped to negative on Mach-E (the term
+  was correcting an over-anticipation, not adding one).
+- Verdict: **shelve.** Below noise. The transient residual is not a missing
+  scalar input-derivative — it likely needs a true second-order dynamic.
+- Rules out: scalar steering-derivative feedforward as a cheap structural
+  attack on the transient.
+
+## E03 — v1-asym-gain (sign-dependent steering gain)
+
+- Model dir: models/v1-asym-gain/
+- Hypothesis: E01 found pure left/right gain asymmetry. A smooth-blended
+  pair (g_left, g_right) replaces V1's single g.
+- What I changed: g_eff = g_left · w_left + g_right · (1−w_left), where
+  w_left = 0.5·(1+tanh(δ_raw/0.005)). Fit per platform via Nelder-Mead on a
+  yaw/cte-anchored loss.
+- Result (pooled full): yaw 0.005844 (-0.5% vs V1); CTE 56.04 (-1.4% vs V1).
+  Mach-E signed-bias fraction collapses from 0.03 → 0.004; IONIQ-5 0.01 →
+  0.001. Lightning held neutral.
+- Verdict: **keep.** Small but real and consistent across platforms.
+
+## E04 — v1-asym-debias (E03 + gated additive output bias)  [SHIPPED]
+
+- Model dir: models/v1-asym-debias/
+- Hypothesis: even after the gain split, a small residual signed-bias
+  remains (e.g. Mach-E -0.00055 after E03). Closing it with a gated additive
+  output term should kill the surviving CTE drift.
+- What I changed: yr = yr_lag + b_offset · 1[v > 2]. Fit b_offset on top of
+  the E03 (g_left, g_right). **Halved** b_offset on Mach-E/IONIQ-5 and
+  **zeroed** on Lightning to guard against subset overfitting (the 80-seg
+  fit produced a Lightning b_offset of -0.00165 that made the full-dataset
+  bias *worse* — see E04a below).
+- Result (pooled full): yaw 0.005805 (**-1.2% vs V1**); CTE 54.69
+  (**-3.7% vs V1**). Mach-E CTE 98.68 → 92.49 (-6.3%); IONIQ-5 CTE 69.53 →
+  67.65 (-2.7%). All bias warnings cleared (signed yaw |·| < 0.0003 every
+  platform; cte_drift -5 to -7 m, well under V1's -22 m on Mach-E).
+- Verdict: **ship.**
+- Rules out: refits of V1's existing-shape coefficient alone (was tested in
+  E03; reached only 1% pooled). Confirmed the V1 paper claim that
+  coefficient-level intervention is bounded at ~1-5%.
+
+## E04a — overfit Lightning b_offset
+
+- What happened: optimising b_offset jointly on 80 Lightning segments produced
+  -0.00165, which on the full dataset (175 Lightning segs) flipped signed
+  bias to -0.00169 and signed CTE drift to -19.7 m — **worse** than V1.
+- Mitigation: zero out Lightning's b_offset (already at threshold pre-fit).
+  This is a regularisation pattern: when the V1 residual on a platform is
+  already at the noise floor, additional fitting only adds variance.
+- Captured so the next agent: don't fit additive offsets on platforms whose
+  V1 signed bias is already within ⚠️ threshold. The fit will overshoot.

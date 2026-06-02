@@ -1,71 +1,76 @@
 # EXPERIMENTS.md
 
-Append-only log.
+Append-only log of attempts. One entry per concrete attempt.
+See `references/exploration-discipline.md` for why.
+
+## Alternatives considered
+
+**Preflight requires ≥5 bullets here, with ≥3 tagged `(structure)`.**
+
+Fill this in **before** building your first candidate, based on V1's residual
+diagnosis (see `AGENTS.md` § "V1's residual diagnosis"). Each bullet: one line
+naming a *model shape* (not a coefficient tweak) and the V1 residual it
+attacks. Tag with `(structure)` if it differs from V1's kinematic-single-track
+form, `(refines-v1)` if it stays inside V1's shape, `(orthogonal)` if it's a
+non-modelling intervention (ensembling, multi-seed averaging).
+
+- (structure) **bias-corrected-v1** — V1 + per-platform additive yaw-rate bias term learned offline. Attacks the residual CTE drift (Mach-E −22m, IONIQ −12m) that survives V1; structurally adds an extra fitted state (constant offset on yaw_rate output) outside V1's single-track equations.
+- (structure) **steering-derivative residual learner** — V1 + a linear residual model `r̂ = a·(dδ/dt) + b·v·dδ/dt + c·sign(δ̇)` fit on the V1 residual. Attacks transient yaw error on Mach-E (regime rmse 0.0165) which the first-order lag under-models.
+- (structure) **v-dependent lag (rung-1-lite)** — replace V1's scalar τ with τ(v) = τ0 + τ1/v so the lag responds harder at low speed (where transients dominate CTE). Differs from V1 because τ is no longer a single fitted scalar.
+- (structure) **regime-switched composite** — V1 for straight + steady, a separately-tuned V1 (or steering-derivative-driven correction) for transient. Differs because the predict has a state-machine selector V1 can't reach by refit.
+- (refines-v1) **refit-v1-cte-objective** — refit V1's (g, L_eff, K_us, τ, δ0_fallback) jointly minimising CTE, not yaw RMSE. Sanity refit; tests whether the cte-drift can be killed without new structure.
+- (orthogonal) **ensemble** — average yaw_rate of V1 and the bias-corrected variant. Non-modelling intervention used only if both win on different platforms.
 
 ---
 
-## E00 — V0 baseline (pass-through)
-- Rung: 0
-- Hypothesis: establish the floor.
-- What I changed: nothing — predict() returns sim_df["yaw_rate_pred_rads"].
-- Result (full set, all 4 platforms):
-  - **yaw_rmse: 0.01361 rad/s**
-  - **cte_rmse: 163.83 m**
-  - Per platform: Lightning yaw 0.0163 / cte 157; Mach-E yaw 0.0136 / cte 148; IONIQ-5 yaw 0.0177 / cte 247; Tesla 0 (no truth).
-  - Bias warnings: cte_drift HIGH on Lightning (+39.7 m) and IONIQ-5 (-54.8 m).
-- Verdict: baseline.
+## Log entry schema
 
-## E01 — V1: KS + understeer + first-order lag + per-segment δ₀ (platform-gated)
-- Rung: 0
-- Hypothesis: the highest-leverage move from references/anti-patterns.md §
-  "The legal cousin". Per-segment δ₀ from straight-row median + understeer
-  (K_us) + first-order lag, gated per-platform.
-- What I changed vs E00:
-  - δ' = (delta_road_rad − δ₀_seg) · g; yr_ss = v · δ' / (L_eff + K_us · v²); first-order lag (τ).
-  - δ₀ estimated per segment from rows where |yr_v0| < 0.03 ∧ v > 5 (≥50 rows).
-  - Gated ON for Mach-E + IONIQ-5; OFF for Lightning; Tesla → V0 passthrough.
-  - Coeffs fit per-platform with `fit-model` (objective: yaw_plus_cte,
-    L-BFGS-B, bounded), route-grouped 75/25 train/dev split.
-  - Fitted: Lightning {g=0.838, L_eff=3.27, K_us=0.00309, τ=0.063, δ₀=0.0014};
-    Mach-E {g=0.869, L_eff=2.23, K_us=0.00154, τ=0.048, per-seg δ₀};
-    IONIQ-5 {g=0.904, L_eff=2.91, K_us=0.00217, τ=0.022, per-seg δ₀}.
-- Result (full set, all platforms pooled):
-  - **yaw_rmse: 0.00608 rad/s  (−55% vs V0)**
-  - **cte_rmse: 55.85 m         (−66% vs V0)**
-  - Per platform:
-    - Lightning: yaw 0.0060 (−63%), cte 60.8 (−61%)
-    - Mach-E:    yaw 0.0086 (−37%), cte 98.7 (−33%)
-    - IONIQ-5:   yaw 0.0080 (−55%), cte 67.6 (−73%)
-    - Tesla:     unchanged (passthrough).
-  - Bias warnings: Mach-E cte_drift −21.8 m (still HIGH); IONIQ-5 −12.5 m (WARN); Lightning ok.
-  - Fit warning: Mach-E train/dev gap +54% — high variance from only 13 Mach-E routes; in-pool RMSE still well below V0.
-- Verdict: ship.
-- Things this rules out: V0's biggest gap is per-segment steering offset and understeer scaling, not transient dynamics.
+```
+## E<NN> — <one-line approach name>
+- Model dir: models/<name>/   (if applicable)
+- Hypothesis: why you thought this would help, in one line.
+- What I changed vs E<NN-1>: the minimal diff.
+- Result (dev pooled): yaw <old> → <new> (Δ% vs V1); CTE <old> → <new> (Δ% vs V1).
+- Verdict: keep | shelve | revisit-later.
+- Things this rules out: what you learned, even if the experiment failed.
+```
 
-## E02 — Rung 1: linear dynamic single-track (Mach-E only, cheap version)
-- Rung: 1
-- Hypothesis: V1 leaves Mach-E weakest (yaw 0.0086 / cte 98.7). A state-space
-  single-track with slip angles models transient lateral dynamics that V1's
-  first-order lag only band-aids. Recipe from references/dynamics-formulations.md
-  § "Rung 1": fit C_af only, fix {m, Iz, a, b, C_ar} from MachEST carParams.
-- What I changed vs E01: predict shape replaced with two-state Euler on
-  (vy, yr), 4 sub-steps per sample to stabilise at low vx; defensive clamps
-  on |vy|, |yr| to avoid runaway. Manual grid sweep over C_af on Mach-E
-  train-subset (40 segs) because L-BFGS-B returns zero finite-difference
-  gradient on this noisy objective.
-- Result (Mach-E, train-subset, sweep over C_af):
-  - C_af=80k → yaw 0.0195; 120k → 0.0166; 160k → 0.0148; 200k → 0.0136;
-    250k → 0.0128; 300k → **0.0125 (best)**; 400k → 0.0128.
-  - Comparison: V1 (E01) on the FULL Mach-E set = **0.0086** yaw RMSE.
-  - **Rung 1 is ~45% worse than V1's rung 0 on Mach-E.**
-- Verdict: revert. Rung 0 + per-segment δ₀ wins.
-- Things this rules out:
-  - Two-state slip-angle dynamics with a single fitted C_af (carParams-fixed
-    elsewhere) does NOT beat rung 0 + per-segment δ₀ on Mach-E.
-  - The cohort evidence for "does rung 1 help on this dataset?" is: at the
-    cheap end of the rung-1 ladder, no. A higher-effort rung 1 would need
-    (a) C_ar, m, Iz also free, AND (b) the per-segment δ₀ recipe layered
-    on top — without that, the bias source rung 0 fixes is left on the table.
-  - Concrete costs encountered: integrator stability at low vx forced
-    sub-stepping (~4x cost per evaluation); finite-difference optimisation
-    returned zero gradient, forcing manual sweep.
+Tag every entry with the model dir (when applicable) so the link to MODELS.md is
+explicit. **The shipped model must differ structurally from V1** — preflight
+warns if your shipped predict is functionally identical to V1.
+
+---
+
+## E00 — V1 baseline
+
+- Hypothesis: V1 is the pre-shipped rung-0 ceiling. Score it to confirm the
+  floor and to read the per-platform residual breakdown.
+- What I did: ran `score-model` on `code.v1_baseline.predict_v1`.
+- Result (dev pooled): yaw 0.005874 rad/s; CTE 56.81 m.
+  - Per-platform: Lightning yaw 0.00566 / CTE 62.2; Mach-E yaw 0.00859 / CTE 98.7;
+    IONIQ-5 yaw 0.00766 / CTE 69.5; Tesla 0/0 (passthrough).
+- Verdict: baseline. **Next: diagnose what's left.**
+
+## E01 — bias-corrected-v1 (SHIPPED)
+- Model dir: models/bias-corrected-v1/
+- Hypothesis: V1's residual CTE drift is bias-dominated; a small per-platform yaw offset on V1's output should integrate away the drift.
+- What I changed vs V1: add scalar offset to V1.predict output (per-platform). Mach-E +0.00210, IONIQ +0.00108, Lightning 0.
+- Result (dev pooled): yaw 0.005874 -> 0.005843 (-0.5%); CTE 56.81 -> 54.19 (-4.6%).
+- Verdict: KEEP. Ship.
+- Things this rules out: nothing — confirms diagnosis (bias is the dominant residual on Mach-E/IONIQ).
+
+## E02 — steering-derivative-residual
+- Model dir: models/steering-derivative-residual/
+- Hypothesis: V1's transient yaw error correlates with steering rate; a small linear residual learner on (dδ/dt, v·dδ/dt, sign·sqrt|δ̇|, 1) should improve both yaw and CTE.
+- What I changed vs E01: replaced scalar offset with a 4-feature ridge-fit linear residual per platform.
+- Result (dev pooled): yaw 0.005827 (-0.8%); CTE 54.51 (-4.0%).
+- Verdict: SHELVE. Yaw fractionally better, CTE fractionally worse. Complexity not earned.
+- Things this rules out: the constant term dominates the residual learner; the dδ/dt features barely contribute. Most of the CTE win is just bias correction in fancier dress.
+
+## E03 — v-dependent-lag
+- Model dir: models/v-dependent-lag/
+- Hypothesis: V1's scalar lag τ should grow at low v (where transients dominate CTE).
+- What I changed vs V1: τ(v) = τ0 + τ1 / max(v, 1), grid-search per platform.
+- Result (dev pooled): yaw 0.005871 (-0.05%); CTE 56.74 (-0.1%). Both inside noise.
+- Verdict: SHELVE.
+- Things this rules out: scalar lag is already well-fit; the transient regime residual is not lag-misfit. Next agent should not climb rung-1 dynamics motivated by lag.

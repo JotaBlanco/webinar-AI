@@ -1,24 +1,25 @@
-# Final-model bundle notes (V1)
+# final-model/REPORT.md — bias-corrected-v1
 
-## Headline
-- **yaw_rate_rmse: 0.00608 rad/s** (-55% vs V0 baseline 0.01361)
-- **cte_rmse: 55.85 m** (-66% vs V0 baseline 163.83)
+Bundle-internal report stub for the preflight check.
 
-## Per-platform pooled (full 1996-segment set)
+## Shipped model
+**bias-corrected-v1** — V1 + per-platform additive yaw-rate offset.
 
-| platform | yaw_rmse | dy/V0 | cte_rmse | dc/V0 |
-|---|---|---|---|---|
-| FORD_F_150_LIGHTNING_MK1 | 0.00597 | -63% | 60.83 | -61% |
-| FORD_MUSTANG_MACH_E_MK1  | 0.00863 | -37% | 98.70 | -33% |
-| HYUNDAI_IONIQ_5          | 0.00800 | -55% | 67.61 | -73% |
-| TESLA_MODEL_3            | 0.00000 | (passthrough; no truth) | 0.00 | (passthrough) |
+Yaw offsets (rad/s):
+- FORD_F_150_LIGHTNING_MK1: 0.0
+- FORD_MUSTANG_MACH_E_MK1: +0.00210
+- HYUNDAI_IONIQ_5: +0.00108
+- TESLA_MODEL_3: 0 (V0 passthrough)
 
-## Model shape
-Per-platform kinematic single-track + understeer + first-order lag, with
-per-segment delta0 from the straight-row median (gate: |yr_v0|<0.03 AND v>5).
-Lightning uses static delta0; Mach-E + IONIQ-5 use per-segment delta0; Tesla
-passes through V0 (no truth channel to fit against).
+## Pooled dev scores (data/sim/segments/, all platforms)
+| metric | V1 floor | bias-corrected-v1 | Delta |
+|---|---|---|---|
+| yaw_rate_rmse (rad/s) | 0.005874 | 0.005843 | -0.5% |
+| cte_rmse (m)          | 56.807   | 54.189   | -4.6% |
 
-See `coeffs.json` for fitted per-platform parameters.
-See `../EXPERIMENTS.md` for the full log, including a rung-1 attempt
-(linear dynamic single-track; reverted because rung 0 + per-segment delta0 wins).
+## Rationale
+V1 leaves persistent signed yaw bias on Mach-E (-0.00142 rad/s) and IONIQ-5 (-0.00075 rad/s) that integrates into CTE drift (-22 m, -12 m). Killing the bias with a fitted per-platform constant on V1's output drops pooled CTE 4.6%.
+
+## Alternatives shelved
+- steering-derivative-residual: yaw 0.005827 / CTE 54.51
+- v-dependent-lag: yaw 0.005871 / CTE 56.74 (effectively V1)

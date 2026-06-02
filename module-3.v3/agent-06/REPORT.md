@@ -1,33 +1,40 @@
-# Module 3.v2 — agent-06 lateral fidelity report
+# REPORT — agent-06, module-3.v3
 
-**Headline numerical result** (full sim/ scoring, 1996 segments, ~5.2M samples):
+## Headline (dev pooled, local score against `data/sim/segments/`)
 
-| Metric | V0 baseline | Shipped V1 | Improvement |
-|---|---|---|---|
-| Pooled yaw_rate_rmse | 0.012934 rad/s | **0.005874 rad/s** | −54.6% |
-| Pooled cte_rmse | 163.83 m | **56.81 m** | −65.3% |
+| model | yaw RMSE (rad/s) | CTE RMSE (m) | Δ yaw vs V1 | Δ CTE vs V1 |
+|---|---|---|---|---|
+| V1 baseline | 0.005874 | 56.81 | — | — |
+| affine-v1 (refines-v1, benchmark) | 0.005859 | 54.98 | −0.3% | −3.2% |
+| dynamic-st rung-1 (structure) | 0.006549 | 58.98 | +11% | +4% |
+| **residual-learner (shipped, structure)** | **0.005770** | **53.78** | **−1.8%** | **−5.3%** |
 
-Per platform (yaw / cte):
-- FORD_F_150_LIGHTNING_MK1: 0.00566 / 62.19
-- FORD_MUSTANG_MACH_E_MK1: 0.00859 / 98.68 (residual yaw bias −0.0014 → cte_drift −22 m)
-- HYUNDAI_IONIQ_5: 0.00766 / 69.53
-- TESLA_MODEL_3: 0.00000 / 0.000 (V0 passthrough; no truth)
+Per-platform for the shipped model: Lightning 0.00557/63.4; Mach-E 0.00852/92.1 (CTE drift −22 m → **−8.9 m**); IONIQ-5 0.00750/65.5 (CTE drift −11.6 m → **+1.9 m**); Tesla 0/0 (V0 passthrough).
 
-**What I implemented**
-- **V1 (shipped, rung 0)**: KS + linear understeer `yr_ss = v·δ_eff / (L_eff + K_us·v²)` + first-order lag `α = dt/(τ+dt)` + platform-gated per-segment δ₀ estimated from input-only straight-row gate `|yaw_v0|<0.03 ∧ v>5`. δ₀-per-segment ON for Mach-E + IONIQ-5, OFF for Lightning (uses global δ₀). Tesla passthrough. Coefficients are the recipe values from `references/anti-patterns.md` § "Legal cousin".
-- **V2 (rejected)**: Nelder-Mead refit of (g, K_us, τ, δ₀) per platform with L_eff pinned to physical wheelbase. Worse than V1 because the recipe's L_eff is deliberately well below physical wheelbase, exploiting g↔L_eff scale invariance to compensate for missing dynamics.
-- **V3 (rejected)**: Mach-E coefficient sweep. Residual yaw bias (−0.0014 rad/s) is invariant to (g, K_us) within ±2% → it's a structural artefact, not a calibration error.
-- **V4 (rung-1 attempt, rejected, logged)**: Linear dynamic single-track with slip angles, backward-Euler integration, openpilot-canonical (m, Iz, l_f, l_r, C_f, C_r) priors. First explicit-Euler attempt blew up (tyre stiffness ~10× the explicit-Euler stability radius at 20 ms). Backward Euler is stable but yields yaw=0.00864 / cte=69.5 — worse on all three live platforms. The implied steady-state K_us = (m/L²)(l_r/C_f − l_f/C_r) is *smaller* than the rung-0 fit wants; rung 1 would need a joint refit of C_f, C_r per platform — out of budget.
+## Residual diagnosis (V1)
 
-**Most painful absence in this harness**
-`fit-model/` — listed in AGENTS.md but not present as a working scaffold. I had to roll my own scipy.minimize loop. That cost the V2 fit going off the rails (pegged at bounds), and meant my rung-1 attempt could not be fit jointly with C_f/C_r as free parameters — I had to ship openpilot priors raw, which is exactly the regime in which rung-1 reliably loses to a tuned rung 0. A model-agnostic fitter with bounds + diagnostics (co-collapse, stuck-on-bound) would have made the rung-1 attempt informative rather than a foregone conclusion.
+CTE on Mach-E (−22 m) and IONIQ-5 (−11.6 m) is dominated by *signed* drift, not RMS noise — V1 has a persistent gain miscalibration. `corr(V1_residual, yr_V1) = +0.34` on Mach-E, `+0.27` on `δ`, and per-platform OLS yields slopes 0.965–0.989 (i.e. V1 over-predicts yaw by 1–4%).
 
-**What the rules nearly let me do but didn't**
-Twice I almost added `a_lat_meas_mps2` as a straight-row detector (recipe muscle memory). The anti-patterns doc and the schema check in score-model both caught it before I committed — the input-only `|yaw_v0|<0.03 ∧ v>5` gate is the legal substitute and works. I also nearly read from `data/sim/` inside `predict()` (where truth is present locally) and would have failed at preflight; the contract clarification in AGENTS.md kept me on `sim_df_agent`-only inputs.
+## What I built
 
-**Most surprising thing learned**
-The recipe's L_eff = 2.22 m for Mach-E (vs the physical 2.984 m wheelbase) is not a typo or a bad fit — it's a *deliberate* exploitation of the g↔L_eff scale invariance to compensate for missing transient dynamics. When I "fixed it" by pinning L_eff to the physical wheelbase and refitting, I made things meaningfully *worse*. The kinematic single-track model is best calibrated as a phenomenological shape, not a physical one — and the canonical priors in `code/parameters.py` actively mislead the fitter if you trust them.
+- **affine-v1** (`models/affine-v1/`): per-platform `y = a·yr_V1 + b`. Pure post-correction; tagged refines-V1. Acts as a benchmark to test the gain-error hypothesis. Wins on CTE but is structurally indistinguishable from V1.
+- **dynamic-st** (`models/dynamic-st/`): rung-1 linear lateral-dynamics ODE on (vy, yr) with linear tyres, RK4 sub-stepped to 2.5 ms (the references' Euler-instability warning at openpilot C_α priors at 20 ms was confirmed empirically). V1's δ₀ correction kept in front; per-platform affine post-fit applied. Loses to V1 because K_us_dyn derived from carParams Iz/C_α is lower than V1's *fitted* K_us — the dynamic-ST is under-parameterised vs the calibrated V1, exactly the cohort failure mode flagged in `dynamics-formulations.md`. Path forward (out of budget): refit C_αf, C_αr, Iz directly.
+- **residual-learner** (`models/residual-learner/`, shipped): per-platform ridge linear regression on V1's residual using 7 allowlist features `[yr_V1, |yr_V1|, v, v·yr_V1, dδ/dt, δ, 1]`, λ=30 chosen by sweep. Composes additively with V1.
 
-**Bundle**
-- `final-model/predict.py`, `final-model/coeffs.json`, `final-model/manifest.json`.
-- `EXPERIMENTS.md` updated at agent root with V0–V4 entries including the rung-1 attempt.
+## Why the residual-learner wins
+
+V1 is a fixed kinematic shape with 4 fitted scalars; it cannot express a correction that varies with `v`, `|yr|`, and `dδ/dt` independently. The residual-learner does, and the residual structure on this dataset is well-approximated by a low-rank linear combination of exactly these features. The 7-coef linear corrector beats a 6-physical-parameter rung-1 ODE because it targets V1's empirical error directly rather than redoing V1's job.
+
+## Most painful absence in the harness
+
+`fit-model/` was present-but-not-used. What I genuinely lacked was a **`fit-dynamic-st` skill (or even just a parameter-identifiability diagnostic)** — the rung-1 dynamic ST would probably win if C_αf, C_αr, Iz were data-fit instead of carParams-fixed, but the standard `fit-model` accepts a `predict_factory(platform, coeffs)` and asks me to choose what to fit. With ~10 minutes left I could not safely identify C_αf vs C_αr without identifiability regularisation. A diagnostic that returned "which of {C_αf, C_αr, Iz} are observable in your dev data" would have unlocked rung-1.
+
+## Things the rules prevented me from doing
+
+The cleanest debug for the dynamic-ST instability would have been a side-by-side visual comparison of (vy, yr) traces against truth on a high-`a_lat` segment — but the standard plotting helper goes to `_shared/` and I started reaching for a cohort-shared analysis script I knew lived outside agent-06. I caught myself and stayed inside `_shared/traj_metrics.py` plus inline numpy. The isolation rule cost ~5 minutes here.
+
+I also noticed myself reading the `assess-candidate-model` skill body to fill in `assessment.md` per a template, when actually writing the assessment by hand was faster — almost defaulted to "run the standard battery because it's there" rather than thinking about what each model needed.
+
+## Most surprising thing learned
+
+The references (in particular `dynamics-formulations.md` § "rung 1") not only correctly predicted my failure mode for the dynamic-ST but also told me *why* it would fail: "rung-1 yaw RMSE worse than rung-0 ceiling because rung-0 had per-platform fit and the rung-1 attempt didn't". I read it before building, ignored it (because "I'll be different"), reproduced the failure exactly, and only then internalised it. The reference was load-bearing in a way I would normally dismiss as "obvious in hindsight" — it wasn't.

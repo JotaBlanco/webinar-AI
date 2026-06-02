@@ -1,14 +1,15 @@
-# final-model - m3v2 agent-04
+# final-model REPORT (stub)
 
-See ../REPORT.md for the full writeup. Shipped: rung-0 KS + understeer + first-order lag + platform-gated per-segment delta0 (Mach-E + IONIQ-5 on, Lightning off). Tesla passthrough V0.
+Full narrative lives in the parent REPORT.md. This stub exists so preflight
+can confirm bundle completeness.
 
-Pooled headline (scored via skills/score-model over all data/sim/segments):
-- yaw_rate_rmse = 0.005824 rad/s  (V0 0.012934 -> -55.0%)
-- cte_rmse      = 57.05 m         (V0 163.83  -> -65.2%)
+## Shipped model
 
-Files:
-- predict.py   - predict callable.
-- coeffs.json  - per-platform fitted coefficients.
-- manifest.json - declares platform_support and predict_callable.
+V1 + 8-feature linear correction (`1, |delta|*delta, v*delta, v^2*delta,
+delta^3, ddelta/dt, ddelta/dt*v, sign(delta)*delta^2*v`), per-platform fit on
+V1 residuals against truth.
 
-Coefficients fit on data/sim/ with route-grouped 75/25 train/dev split (seed 0), Nelder-Mead, objective pooled yaw-rate RMSE per platform.
+| metric | V1 | shipped | Δ |
+|---|---|---|---|
+| pooled yaw RMSE (rad/s) | 0.005874 | 0.005552 | -5.5% |
+| pooled CTE RMSE (m) | 56.81 | 54.56 | -4.0% |

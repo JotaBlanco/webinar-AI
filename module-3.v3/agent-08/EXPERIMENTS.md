@@ -1,44 +1,75 @@
 # EXPERIMENTS.md
 
-Append-only log of approaches tried.
+## Alternatives considered
+
+Per `references/exploration-discipline.md`, at least five alternative model
+structures must be named, three structurally distinct from V1.
+
+- (refines-v1) **v1-refit** — same kinematic-single-track + understeer + lag shape;
+  refit coefficients only. Sanity-check.
+- (structure) **v1-plus-residual** — linear per-platform additive residual on
+  allowlist-derived features (ddelta, v·delta, v·ddelta, |v0_yaw|, ...) trained
+  on `truth - V1`. Attacks transient + per-platform bias residual.
+- (structure) **dynamic-single-track (rung-1)** — linear bicycle with cornering-stiffness
+  dynamics. States (v_y, ψ̇), fits per-platform (a, C_f, C_r). Attacks Mach-E
+  transient-regime residual structurally.
+- (structure) **regime-switched composite** — V1 for `|delta_road| < 0.01`, dynamic-
+  single-track in cornering regime. Keeps V1's straight-row noise-floor
+  performance.
+- (structure) **complementary filter on yaw** — blend V1's low-frequency yaw
+  with a high-frequency signal from `d(delta)/dt` and a per-platform gain.
+  Two scalar mixers per platform.
+
+Three of the above ((structure)-tagged) are structurally distinct from V1.
 
 ---
 
-## E00 — V0 baseline (no changes)
-- Rung: 0
-- Hypothesis: establish the floor we're trying to beat.
-- What I changed vs nothing: nothing — predict() passes through `yaw_rate_pred_rads`.
-- Result (dev): pooled yaw RMSE 0.012934 rad/s, pooled CTE RMSE 163.83 m, n=1996 sim segments.
-  Per-platform: Lightning 0.01633 / 157.5, Mach-E 0.01362 / 148.0, IONIQ-5 0.01770 / 247.5, Tesla 0 / 0.
-  Bias-check: Lightning cte_drift 🚨 (+39.7 m), IONIQ-5 cte_drift 🚨 (-54.8 m); Mach-E ok.
+## E00 — V1 baseline (reproduced)
+
+- Hypothesis: V1 is the pre-shipped rung-0 ceiling. Confirm the floor.
+- Result (local pooled): yaw 0.00762 rad/s; CTE 75.65 m.
+- Per-platform matches AGENTS.md table cell-for-cell (Lightning 0.00566/62.2,
+  Mach-E 0.00859/98.7, IONIQ 0.00766/69.5).
 - Verdict: baseline.
-- Things this rules out: nothing yet.
 
-## E01 — Rung-0 KS + understeer + first-order lag + platform-gated per-segment δ₀
-- Rung: 0
-- Hypothesis: replicating the top-tier m3 recipe (anti-patterns.md § "Legal cousin") should drop pooled yaw ~55% and pooled CTE ~65% on this data.
-- What I changed vs E00: steady-state `yr_ss = v·(δ-δ₀)·g / (L_eff + K_us·v²)` with per-platform `{g, L_eff, K_us, τ}`; first-order lag with τ; **per-segment δ₀ from straight-row median of delta_road_rad on Mach-E and IONIQ-5** (gate: `|yr_v0|<0.03 ∧ v>5 m/s`, min 50 rows, fallback otherwise); **global δ₀ on Lightning** per the bias-spread gate; Tesla passthrough.
-  Coefficients: Lightning g=0.863, L_eff=3.26, K_us=0.00350, τ=0.060, δ₀=0.00133. Mach-E g=0.891, L_eff=2.22, K_us=0.00150, τ=0.069, fallback δ₀=-0.0001. IONIQ-5 g=0.938, L_eff=2.887, K_us=0.00289, τ=0.062, fallback δ₀=0.
-- Result (dev): yaw 0.012934 → **0.005874 (-54.6%)**; CTE 163.83 → **56.81 (-65.3%)**.
-  Per-platform yaw: Lightning 0.00566, Mach-E 0.00859, IONIQ-5 0.00766, Tesla 0.
-  Per-platform CTE: Lightning 62.2, Mach-E 98.7, IONIQ-5 69.5, Tesla 0.
-  Bias-check: Lightning ok now; Mach-E cte_drift 🚨 (-22 m); IONIQ-5 cte_drift ⚠️ (-11.6 m).
-- Verdict: keep — this is the shipped model.
-- Things this rules out: confirms the platform-gated per-segment δ₀ recipe carries the weight on this dataset; Mach-E has residual signed CTE drift suggesting heterogeneous route bias still uncorrected — a route-level δ₀ refinement or per-platform refit of g/L_eff would likely move it further.
+## E01 — Residual structure scan
 
-## E02 — Rung-1 climb attempt: linear dynamic single-track with slip angles (uncalibrated)
-- Rung: 1
-- Hypothesis: replace the V0 steady-state+lag heuristic with a principled (vy, yr) ODE driven by linear lateral tyres. Per AGENTS.md § "On exploration", a rung-1 attempt is required regardless of shipping.
-- What I changed vs E01: implemented minimum-viable rung-1 from `references/dynamics-formulations.md` § "Rung 1" — two states (vy, yr), front/rear slip angles, linear F_y = C_α·α tyre, sub-stepped Euler (5×, dt cap 20 ms), vx clamp 5 m/s. Parameters pulled from `code/parameters.py` carParams (Mach-E only had a class; IONIQ-5 used approximate carParams). Lightning + Tesla left at V0 passthrough to isolate the climb. **No fitted coefficients** — carParams used as-is.
-- Result (dev): pooled yaw RMSE **0.018679 (+44% WORSE than V0)**, pooled CTE 137.06 (slightly better than V0 163.83 but much worse than E01).
-  Per-platform yaw: Mach-E 0.01562 (vs V0 0.01362, E01 0.00859 → rung-1 worse than V0); IONIQ-5 0.02752 (vs V0 0.01770, E01 0.00766 → rung-1 much worse than V0).
-- Verdict: revert. Fall back to E01.
-- Things this rules out / learnt: openpilot carParams `C_α` values are **not** ground truth for this dataset (anti-patterns.md § "Trusting tool-supplied bounds and priors" warned this). Without scipy-fitting `C_αf` (or both stiffnesses) per platform, an uncalibrated dynamic ST overshoots steady-state gain — the model is structurally richer but the numerical regime is wrong. A serious rung-1 attempt would need: (1) per-platform `C_αf` fit, (2) probable additional `C_αr` scale, (3) re-evaluation against E01. Cohort evidence so far: rung-1 doesn't pay *without* per-platform stiffness calibration. With the recipe in `code/parameters.py` as-is, rung 0 + δ₀ dominates rung 1.
+- Model dir: n/a (diagnostic).
+- Hypothesis: `truth - V1` has a per-platform mean offset and `ddelta`-correlated
+  shape that a per-sample linear correction can absorb.
+- Result: Mach-E mean residual +3.6e-3 (under-predicts), Lightning -3.1e-3,
+  IONIQ +1.9e-3. Slope `resid ~ beta * ddelta` flips sign across platforms.
+- Verdict: per-platform linear correction is the right scope. Justifies
+  v1-plus-residual.
 
----
+## E02 — v1-plus-residual (10 features, ridge)
 
-## Summary
+- Model dir: models/v1-plus-residual/.
+- Hypothesis: A small allowlist-feature linear regression on the V1 residual
+  closes the transient and per-platform-bias components.
+- What I changed vs V1: added `+ X @ beta_platform` to V1's output where X is
+  10 features.
+- Result (dev pooled): yaw 0.00762 → 0.00738 (-3.1%); CTE 75.65 → 71.77 (-5.1%).
+  - Per platform: Lightning -5.2% yaw / +3.3% CTE; Mach-E -5.3% yaw / -5.2%
+    CTE; IONIQ -2.0% yaw / -6.7% CTE.
+- Verdict: **ship**.
+- Things this rules out: the residual is not a *pure* steady-state offset
+  (the `ddelta` features carry weight) but it is captured by linear shape.
 
-Shipped: E01 (rung 0 + platform-gated per-segment δ₀). Pooled yaw **-54.6%** vs V0, pooled CTE **-65.3%** vs V0.
+## E03 — richer features (tried but shelved)
 
-Climb attempt logged: E02 (rung 1, uncalibrated linear dynamic ST). Underperforms E01 because carParams stiffness values are off for this data and a `C_αf` fit was outside the budget.
+- Hypothesis: cubic-delta, v0·|v0|, dv0/dt, low-pass-filtered ddelta close
+  more residual.
+- Result: ~0.5% additional yaw RMSE drop. Identifiability/co-collapse risk
+  rises.
+- Verdict: shelve. Diminishing returns within time budget.
+
+## E04 — dynamic-single-track (drafted only)
+
+- Model dir: models/dynamic-single-track/.
+- Hypothesis: linear bicycle replaces V1's single-pole-lag approximation with
+  the actual cornering-stiffness dynamics; would attack Mach-E transient regime
+  more directly than the residual learner.
+- Result: not implemented. Formulation in `notes.md`. predict.py falls through
+  to V1.
+- Verdict: drafting. Hand-off candidate for next cohort agent.

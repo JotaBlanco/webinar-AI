@@ -1,45 +1,45 @@
-# EXPERIMENTS log — agent-06
+# EXPERIMENTS.md
 
-Pooled KPIs across all 4 platforms (1996 segments, ~5.2M samples). Tesla is V0 passthrough.
+Append-only log of attempts. One entry per concrete attempt.
 
-## V0 — baseline KS passthrough
-- Rung: 0
-- Hypothesis: floor.
-- Result: yaw_rate_rmse = 0.012934 rad/s, cte_rmse = 163.83 m.
+## Alternatives considered
 
-## V1 — KS + understeer + lag + per-segment δ₀ (recipe defaults from anti-patterns.md)
-- Rung: 0
-- Hypothesis: replicate the "legal cousin" recipe with platform-gated per-segment δ₀ (Mach-E + IONIQ-5 on, Lightning off).
-- Change: linear understeer (g, L_eff, K_us) + first-order lag (tau), with per-segment δ₀ estimated from the V0 straight-row gate `|yaw_v0|<0.03 ∧ v>5`.
-- Result: yaw = 0.005874 rad/s (−54.6% vs V0), cte = 56.81 m (−65.3% vs V0).
-- Notes: Mach-E shows residual signed yaw bias (−0.00142 rad/s) → cte_drift −22.0 m. Worst-CTE segments concentrate on 5 Mach-E segments under route 33439c2a9c.
+- (structure) **Residual-learner on V1** — ridge linear regression of (V1 − truth) on allowlist features {yr_v1, |yr_v1|, v, v·yr_v1, dδ/dt, δ, 1}. Attacks: per-platform gain bias + transient signed bias.
+- (structure) **Linear dynamic single-track (rung 1)** — proper (vy, yr) ODE with linear tyres, RK4 sub-stepped. Attacks: transient regime where V1's first-order lag is a band-aid.
+- (structure) **Regime-switched composite** — V1 in straight-line/steady, dynamic-ST in transient. Attacks: V1's lag underfit on `|dδ/dt|>0.05` rows. *(Not built — superseded once residual-learner already covered the structurally-different requirement and won; in the time budget, building this fourth was not worth the risk.)*
+- (structure) **Complementary filter** blending V1 yaw with a high-pass of δ̇·g / L_eff. Attacks: V1's lag induces phase error on fast steering. *(Sketched; not built — same reason as above.)*
+- (refines-v1) **Affine post-correction** `y = a·yr_V1 + b` per platform — sanity refit of V1 to absorb gain error. Tagged refines-v1 because it cannot reach states V1 cannot.
 
-## V2 — Nelder-Mead refit with L_eff pinned to physical wheelbase
-- Rung: 0
-- Hypothesis: pinning L_eff would resolve the g↔L_eff scale invariance and let scipy find a tighter fit per platform.
-- Change: scipy NM over (g, K_us, tau, δ₀_fallback) on 100 training segments per platform; yaw-RMSE + 50×|bias| loss.
-- Result: yaw = 0.007650 rad/s, cte = 69.23 m — WORSE than V1.
-- Reason: Mach-E pegged at upper g bound (1.30) and lower tau bound (0.005). The recipe value L_eff=2.22 for Mach-E is FAR below the physical 2.984 m wheelbase — the recipe encodes an effective-wheelbase choice that fixed-L_eff fitting cannot reach. Pinning L_eff to the physical value is NOT a free move.
-- Decision: revert to V1 defaults.
+---
 
-## V3 — coefficient sweep on Mach-E only (g ∈ [0.870, 0.920], K_us ∈ [0.0010, 0.0020])
-- Rung: 0
-- Hypothesis: the published Mach-E coefficients are already near optimum; sweeps will be flat.
-- Result: best Mach-E-only yaw = 0.00842 (g=0.891, K_us=0.0020) — virtually identical to V1 default 0.00859. The signed yaw bias (−0.0014) is invariant to (g, K_us) within ±2% — likely a structural artefact (lag asymmetry between L/R turns, or missing nonlinear tyre), reachable only by climbing a rung.
-- Decision: ship V1 defaults.
+## E00 — V1 baseline
 
-## V4 — Rung-1 attempt: linear dynamic single-track with slip angles
-- Rung: 1
-- Hypothesis: replace kinematic steady-state with a slip-angle linear bicycle (vy, r) state-space; backward-Euler integration should out-perform the kinematic understeer model in the transient regime (rung-0 yaw_rmse peaks at 0.0165 rad/s there).
-- Change: 2-state semi-implicit (backward Euler) integration of
-    m·v̇_y = −C_f·α_f − C_r·α_r − m·u·r
-    Iz·ṙ   = −l_f·C_f·α_f + l_r·C_r·α_r
-  with openpilot-canonical mass / inertia / tyre stiffness from `code/parameters.py` for Mach-E and Lightning; IONIQ-5 used literature defaults (m=2100, Iz=4500, Cf=300k, Cr=370k). Per-segment δ₀ kept on for Mach-E + IONIQ-5.
-- Result: yaw = 0.008636 rad/s (vs V1 0.005874 — WORSE by +47%), cte = 69.51 m (vs V1 56.81 — WORSE by +22%).
-- Per-platform: Mach-E yaw=0.01379, Lightning yaw=0.00914, IONIQ yaw=0.01071. Lightning fares closest to V1; Mach-E worst.
-- Failure notes: first explicit-Euler attempt blew up (stiffness with C_f≈300k at 20 ms — eigenvalues outside stability region). Backward Euler stabilises but the openpilot C_f/C_r priors are too high for these data — the linear-ST steady-state K_us = (m/L²)(l_r/C_f − l_f/C_r) is *smaller* than what the rung-0 fit converged on. Rung 1 needs a joint refit of (C_f, C_r) per platform to be competitive — out of budget here.
-- Reason for falling back to rung-0: yaw_rmse increased on all three live platforms.
+- Hypothesis: confirm the floor.
+- Result (dev pooled): yaw 0.005874; CTE 56.81.
+- Per-platform: Lightning 0.00566 / 62.2; Mach-E 0.00859 / 98.7 (CTE drift −22 m 🚨); IONIQ-5 0.00766 / 69.5 (CTE drift −11.6 m ⚠️); Tesla 0/0.
+- Verdict: baseline. Residual diagnosis: CTE is dominated by signed yaw bias, not noise. corr(V1 residual, yr_v1) = +0.34 on Mach-E → V1's gain is too high.
 
-## Shipped — V1 (rung 0)
-- Coefficients in `final-model/coeffs.json`.
-- Final pooled: yaw_rate_rmse = 0.005874 rad/s (−54.6% vs V0), cte_rmse = 56.81 m (−65.3% vs V0).
+## E01 — affine-v1 (refines-v1, benchmark)
+
+- Model dir: models/affine-v1/
+- Hypothesis: if V1's residual is dominated by a per-platform gain error, an affine `y = a·yr_v1 + b` should remove most of it.
+- What I did: per-platform OLS on truth vs V1 yr (v>5 m/s), 300 segs/platform.
+- Result (dev pooled): yaw 0.005874 → 0.005859 (−0.3%); CTE 56.81 → 54.98 (−3.2%).
+- Verdict: keep as benchmark — confirms gain hypothesis. Subsumed by E03.
+
+## E02 — dynamic-st rung-1 (structure)
+
+- Model dir: models/dynamic-st/
+- Hypothesis: replace V1's steady-state + first-order lag with the actual linear lateral dynamics ODE (vy, yr).
+- Build notes: explicit RK4 at 20 ms exploded at openpilot C_αf=286 kN/rad priors (exactly the failure mode `references/dynamics-formulations.md` warned about). Fixed by sub-stepping to 2.5 ms inside each 20 ms tick. Added per-platform affine post-fit on the output to absorb gain mismatch.
+- Result (dev pooled): yaw 0.005874 → 0.006549 (+11%); CTE 56.81 → 58.98 (+4%).
+- Verdict: shelve for this iteration. Root cause: V1's K_us was *fit* on this data (≈0.0015 Mach-E, 0.0035 Lightning), whereas the rung-1 effective K_us_dyn derived from carParams is ~0.0017 across the fleet — i.e. lower. The dynamic ST is under-parameterised relative to the *fitted* V1, not the *theoretical* V1. With time, the right move is fitting C_αf, C_αr, Iz directly instead of using carParams. The cohort failure mode in m3.v2 was real.
+
+## E03 — residual-learner (structure, shipped)
+
+- Model dir: models/residual-learner/
+- Hypothesis: V1's residual is well-approximated by a low-dim linear combination of allowlist features — fit it, subtract it.
+- What I did: per-platform ridge regression with features [yr_v1, |yr_v1|, v, v·yr_v1, dδ/dt, δ, 1]. Trained on first 70% of segments per platform. Swept λ ∈ {0.001 … 3000}; best around λ=30 (yaw lowest, CTE within 0.5 m of its minimum).
+- Result (dev pooled): yaw 0.005874 → **0.005770** (−1.8%); CTE 56.81 → **53.78** (−5.3%).
+- Per-platform CTE drift: Lightning +0.3 → +2.3 m; Mach-E −22.0 → **−8.9** m; IONIQ-5 −11.6 → **+1.9** m.
+- Verdict: SHIPPED. Cleanest residual diagnosis is the simplest tool — a 7-coef linear correction beats a rung-1 ODE with 6 physical parameters because the correction directly targets V1's actual error structure rather than redoing V1's job.

@@ -31,96 +31,17 @@ Tempting: at inference time, compute the per-segment mean of `(yr_pred − yr_me
 
 You should improve on this if you can.
 
-## The legal cousin — per-segment δ₀ from input channels (this is THE winning move on the right platforms)
+## The "legal cousin" — per-segment δ₀ from input channels
 
-This is the **single highest-leverage move on this dataset.** In the most recent m3 cohort, the three top-tier agents all shipped it; the three bottom-tier agents all didn't — and the gap was +8 pts yaw / +15 pts CTE between tiers, with model form otherwise identical. If you do only one thing past V0 + understeer + lag, do this.
+The *illegal* per-segment bias removal above has a legal cousin: estimate a per-segment steering offset `δ₀` from the segment's *own straight-driving rows*, using only allowlist channels (e.g. a straight-row gate on `|yaw_rate_pred_rads|` or `|delta_road_rad|`, then `δ₀ = median(delta_road_rad)` over those rows). No truth involved, legal at inference time.
 
-The valuable per-segment trick **estimates δ₀ from input channels only**, never from truth. Recipe:
+This is already part of `code/v1_baseline.py` (the pre-shipped rung-0 ceiling). It is **not** the headline move for m3.v3 — V1 has it built in and the m3.v2 cohort showed it caps out around the V1 numbers regardless of whose hands fit the coefficients. Mention here so you don't re-derive it from scratch thinking it's new.
 
-1. From the segment's own data, find rows where the vehicle is driving straight. Since `a_lat_meas_mps2` is **NOT** in the operating-contract allowlist (it's a kinematic shadow of truth — see `AGENTS.md` § Operating contract), use an input-only proxy. Three that have shipped successfully on this dataset:
-   - **Yaw-rate gate** (top-tier m3 agent): `|yaw_rate_pred_rads| < 0.03 ∧ v_mps > 5`. The V0 baseline is a reliable straight-driving indicator at speed.
-   - **A_lat proxy** (top-tier m3 agent): `|v_mps * yaw_rate_pred_rads| < 0.3 ∧ v_mps > 5`. Approximates `a_lat = v · ψ̇` from allowlist channels only.
-   - **Steering gate** (top-tier m3 agent): `|delta_road_rad| < 0.005 ∧ v_mps > 8`. Direct on the input.
-2. If you have ≥ 50–80 qualifying rows, set `δ₀_segment = median(delta_road_rad)` over those rows. Otherwise fall back to a platform-wide δ₀.
-3. Subtract `δ₀_segment` from `delta_road_rad` before computing yaw rate.
+The thing worth knowing for *new* model shapes:
+- Anything you estimate per-segment must be derivable from that segment's own allowlist data. δ₀ from a straight-row gate qualifies; a per-segment scale factor fit against truth doesn't.
+- `a_lat_meas_mps2` is denied at grading time (kinematic shadow of truth). If a recipe you find online uses it as a straight-row gate, substitute an allowlist proxy: `|v_mps * yaw_rate_pred_rads|`, `|yaw_rate_pred_rads|`, or `|delta_road_rad|`.
 
-These use only input channels. Legal at inference time. **But: gate it by platform.** On this dataset:
-
-- **Mach-E and Hyundai IONIQ-5**: per-segment yaw-bias scatter is wide (std > 0.002 rad/s); per-segment δ₀ closes most of the CTE gap. All three top-tier m3 agents enabled it on both.
-- **Lightning**: steering offset is stable across segments; applying per-segment δ₀ *hurts* — use a single global δ₀ here.
-
-The diagnostic test before turning per-segment δ₀ on for a platform: compute `median(yr_pred - yr_meas_truth_dev)` per segment on your *dev set*, take the std across segments. If > 0.002 rad/s, per-segment correction is worth it. If not, don't bother.
-
-### Worked example — recipe drawn from a prior top-performing predict()
-
-```python
-import numpy as np
-import pandas as pd
-
-def _per_segment_delta0(sim_df, fallback=0.0,
-                        yr_thresh=0.03, v_thresh=5.0, min_rows=50):
-    """Estimate δ₀ from THIS segment's own straight-driving rows.
-
-    Uses input channels only — legal at inference time. The straight-row
-    gate is `|yaw_rate_pred_rads| < yr_thresh ∧ v > v_thresh`: the V0
-    baseline yaw-rate prediction is in the allowlist and is a reliable
-    straight-driving indicator at speed. (Do NOT use a_lat_meas_mps2 —
-    it's denied at grading time as a kinematic shadow of truth.)
-    """
-    v = sim_df["v_mps"].to_numpy()
-    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
-    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
-    if int(mask.sum()) < min_rows:
-        return fallback
-    return float(sim_df.loc[mask, "delta_road_rad"].median())
-
-PLATFORM_PARAMS = {
-    "FORD_F_150_LIGHTNING_MK1": {
-        "use_per_segment_delta0": False,        # platform-gated OFF (tight bias spread)
-        "delta0": 0.00133,
-        "g": 0.863, "L_eff": 3.26, "K_us": 0.00350, "tau": 0.060,
-    },
-    "FORD_MUSTANG_MACH_E_MK1": {
-        "use_per_segment_delta0": True,         # platform-gated ON (wide bias spread)
-        "delta0_fallback": -0.0001,
-        "g": 0.891, "L_eff": 2.22, "K_us": 0.00150, "tau": 0.069,
-    },
-    "HYUNDAI_IONIQ_5": {
-        "use_per_segment_delta0": True,         # platform-gated ON (wide bias spread)
-        "delta0_fallback": 0.0,
-        "g": 0.938, "L_eff": 2.887, "K_us": 0.00289, "tau": 0.062,
-    },
-}
-
-def predict(sim_df, platform):
-    if platform not in PLATFORM_PARAMS:
-        # Tesla — no truth channel to fit against; V0 passthrough is the honest move
-        return pd.DataFrame(
-            {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
-            index=sim_df.index,
-        )
-    p = PLATFORM_PARAMS[platform]
-    delta0 = (_per_segment_delta0(sim_df, fallback=p["delta0_fallback"])
-              if p["use_per_segment_delta0"] else p["delta0"])
-    delta = (sim_df["delta_road_rad"].to_numpy() - delta0) * p["g"]
-    v = sim_df["v_mps"].to_numpy()
-    yr_ss = v * delta / (p["L_eff"] + p["K_us"] * v * v)
-    # First-order lag, discretised over the segment's own dt.
-    t = sim_df["t_s"].to_numpy()
-    dt = np.diff(t, prepend=t[0])
-    alpha = dt / (p["tau"] + dt)
-    yr = np.empty_like(yr_ss)
-    yr[0] = yr_ss[0]
-    for i in range(1, len(yr)):
-        yr[i] = yr[i-1] + alpha[i] * (yr_ss[i] - yr[i-1])
-    return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
-```
-
-Recipe shape drawn from the top-tier m3 cohort (yaw +56-57%, CTE +67-72% over V0 on the canonical eval). Three things to note: (1) `δ₀` comes from input channels only — specifically `yaw_rate_pred_rads`, which is in the allowlist; (2) it's *platform-gated* (Lightning uses a global δ₀, Mach-E and IONIQ-5 use per-segment); (3) Tesla passes through V0 because it has no truth channel to fit against. The `PLATFORM_PARAMS` numbers above are real shipped fits — to find your own, wrap this shape in a `predict_factory(platform, coeffs)` and call `fit-model` with `objective="cte"` (use the per-platform bias-spread diagnostic in `two-kpi-tradeoff.md` to decide which platforms get `use_per_segment_delta0=True`).
-
-**Common slip: copying an older version of this recipe that uses `a_lat_meas_mps2`.** That column is denied at grading time. If you wrote `sim_df["a_lat_meas_mps2"]` anywhere in your `predict()`, you will pass local scoring against `data/sim/` (which contains it) but fail `pre-flighting-final-model` (which uses `data/sim-only/`) and fail the canonical grader. Use one of the allowlist gates above.
-
-You should improve on this if you can.
+If you only do δ₀ refinement, your score will equal V1 — that is the point of pre-shipping V1.
 
 ## Optimising one KPI while ignoring the other
 
@@ -162,4 +83,5 @@ Quick pre-commit checklist. If any of these describe what you're about to do, st
 | your fitted `K_us` is pegged at a bound | bound is wrong for your platform — widen and re-fit |
 | your `predict` raises on Tesla because it depends on truth | Tesla has no truth — V0 passthrough is the honest fallback |
 | your yaw RMSE drops 40% but CTE barely moves | residual is per-segment bias — see "Legal cousin" section + `two-kpi-tradeoff.md` |
-| your fit reports `g₀ × L_eff` keep diverging in opposite directions | g ↔ L_eff scale-invariance; constrain one or both (see `approach-menu.md`) |
+| your fit reports `g × L_eff` keep diverging in opposite directions | g ↔ L_eff scale-invariance; constrain one or both, or pin to a physical wheelbase from `code/parameters.py` |
+| you matched V1 to 3 decimals | V1 is the floor — you tuned coefficients but didn't change the model |

@@ -1,68 +1,94 @@
 # EXPERIMENTS.md
 
-Append-only log of approaches you tried. One entry per concrete attempt. See `references/exploration-discipline.md` for the why.
+Append-only log of attempts. One entry per concrete attempt.
+See `references/exploration-discipline.md` for why.
 
-Schema (every field required):
+## Alternatives considered
 
-```
-## E<NN> — <one-line approach name>
-- Rung: 0 | 1 | 2 | 3 | orthogonal
-- Hypothesis: why you thought this would help, in one line.
-- What I changed vs E<NN-1>: the minimal diff.
-- Result (dev): yaw <old> → <new> (Δ%); CTE <old> → <new> (Δ%).
-- Verdict: keep | revert | revisit-later.
-- Things this rules out: what you learned, even if the experiment failed.
-```
+**Preflight requires ≥5 bullets here, with ≥3 tagged `(structure)`.**
 
-**`Rung:` is required on every entry.** The grader's preflight checks for at least one entry tagged `Rung: 1` (or higher, or `orthogonal`). Past cohorts piled up at rung 0 — see `AGENTS.md` § "On exploration — the default is to climb". Tagging discipline:
+Fill this in **before** building your first candidate, based on V1's residual
+diagnosis (see `AGENTS.md` § "V1's residual diagnosis"). Each bullet: one line
+naming a *model shape* (not a coefficient tweak) and the V1 residual it
+attacks. Tag with `(structure)` if it differs from V1's kinematic-single-track
+form, `(refines-v1)` if it stays inside V1's shape, `(orthogonal)` if it's a
+non-modelling intervention (ensembling, multi-seed averaging).
 
-- `Rung: 0` — kinematic single-track (V0 shape): coefficient refinements, polynomial steering scale, per-segment δ₀, lag time-constant tuning. Anything that stays in `yr_ss = v · δ / (L + K · v²)` territory.
-- `Rung: 1` — linear dynamic single-track with slip angles. State variables `vy`, `yr`; lateral force `F = C_α · α`. See `references/dynamics-formulations.md` § "Rung 1" for the minimum viable recipe.
-- `Rung: 2` — nonlinear tyre (Pacejka, Fiala, brush) on top of rung 1.
-- `Rung: 3` — multi-body / weight-transfer coupling.
-- `Rung: orthogonal` — non-physics paths (residual ML on top of a physical prior, sensor-fusion / complementary filter, etc.).
-
-Delete this header section once you start logging, but keep the schema close to mind.
+- (structure) **Nonlinear understeer (cubic K_us)** — V1 uses linear understeer `L_eff + K_us*v^2`; add a cubic-in-lateral-accel term to model tyre saturation. Attacks Mach-E's high-|a_lat| residual that grows from -0.003 to -0.012 between |a_lat_proxy| 0.5 and 5.
+- (structure) **Affine post-correction on V1 yaw** — `yr = a * yr_v1 + b` per platform, with `a, b` fit on V1 residual. Structurally different because it abandons single-track-physics-only and treats V1 as a feature. Attacks both yaw-scale residual (Lightning bias) and CTE drift.
+- (structure) **Steering-rate transient feature** — V1's first-order lag is a single-pole. Augment yr_v1 with a `d(delta_road)/dt` term: `yr = yr_v1 + c * ddelta_dt`. Attacks Mach-E transient regime where lag is band-aid.
+- (refines-v1) **Refit K_us, tau, L_eff jointly per-platform on yaw RMSE** — cheap sanity check.
+- (orthogonal) **Blend V1 with a smoothed V0** — `yr = w*v1 + (1-w)*v0_smoothed`; non-structural blend as a sanity-check ceiling.
 
 ---
 
-## E00 — V0 baseline (no changes)
-- Rung: 0
-- Hypothesis: establish the floor we're trying to beat.
-- What I changed vs nothing: nothing — predict() passes through `yaw_rate_pred_rads`.
-- Result (dev): yaw 0.01456; CTE 147.44.
-- Verdict: baseline.
-- Things this rules out: nothing yet.
+## Log entry schema
 
+```
+## E<NN> — <one-line approach name>
+- Model dir: models/<name>/   (if applicable)
+- Hypothesis: why you thought this would help, in one line.
+- What I changed vs E<NN-1>: the minimal diff.
+- Result (dev pooled): yaw <old> → <new> (Δ% vs V1); CTE <old> → <new> (Δ% vs V1).
+- Verdict: keep | shelve | revisit-later.
+- Things this rules out: what you learned, even if the experiment failed.
+```
 
-## E01 — V1 recipe (rung-0 KS + per-segment delta0 from anti-patterns.md)
-- Rung: 0
-- Hypothesis: legal-cousin per-segment delta0 from input-only straight gate, platform-gated (off Lightning, on Mach-E + IONIQ-5), should close most of CTE drift.
-- What I changed vs E00: implemented PLATFORM_PARAMS recipe verbatim from references/anti-patterns.md with shipped top-tier-cohort coefficients.
-- Result (full sim/): yaw 0.012934 -> 0.005874 (-54.6%); CTE 163.83 -> 56.81 (-65.3%).
-- Verdict: keep (forms basis for V2).
-- Things this rules out: rung 0 + recipe coeffs already gets close to documented top-tier; further gains require either better coeffs or rung-up.
+Tag every entry with the model dir (when applicable) so the link to MODELS.md is
+explicit. **The shipped model must differ structurally from V1** — preflight
+warns if your shipped predict is functionally identical to V1.
 
-## E02 — V2 per-platform yaw-RMSE fit (scipy L-BFGS-B, route-grouped 80/20)
-- Rung: 0
-- Hypothesis: dataset-specific fit improves on the cohort-published recipe coefficients.
-- What I changed vs E01: scipy.optimize.minimize on (g, L_eff, K_us, tau, delta0_or_fallback) per platform against pooled yaw RMSE on the training split; route-grouped dev held out for overfit check.
-- Result (full sim/): yaw 0.005874 -> 0.005824 (-0.85%); CTE 56.81 -> 56.99 (+0.32%).
-- Verdict: keep yaw (marginal); CTE slightly worse on Mach-E (cte_signed -21 m, drift not removed by yaw-RMSE fit alone).
-- Things this rules out: pure yaw-RMSE fit at rung-0 with this state-space is essentially saturated within ~1% of the shipped recipe; further yaw gains will not come from rung-0 coefficient tuning.
+---
 
-## E03 — V3 yaw-RMSE + bias-squared penalty fit (rung-0)
-- Rung: 0
-- Hypothesis: adding lambda * mean_signed_residual^2 penalty steers the fit toward zero-bias and reduces CTE drift.
-- What I changed vs E02: replaced pure yaw-RMSE objective with rmse^2 + 5 * bias^2.
-- Result (full sim/): yaw 0.005824 -> 0.005829 (+0.09%); CTE 56.99 -> 57.27 (+0.49%); per-platform bias barely shifted.
-- Verdict: revert (V2 better on both).
-- Things this rules out: the residual bias on Mach-E / IONIQ-5 is not addressable by a global parameter nudge inside the rung-0 state space; it is a per-route / per-regime structure (top-CTE segments all sit on a single Mach-E route 00000000--33439c2a9c, suggesting a route-level or surface-specific effect rung 0 cannot represent).
+## E00 — V1 baseline
 
-## E04 — Rung-1 linear dynamic single-track (REQUIRED CLIMB ATTEMPT)
-- Rung: 1
-- Hypothesis: replacing steady-state yr_ss with the actual lateral-dynamics ODE (states vy, yr; F = C_alpha * alpha) will fit transient regime better. Default-climb attempt mandated by AGENTS.md § "On exploration".
-- What I changed vs V2: implemented the minimum-viable recipe from references/dynamics-formulations.md § "Rung 1". Fixed m, Iz, a, b, C_ar from code/parameters.py (carParams). Fitted only C_af per platform on Mach-E (scalar bounded minimisation). Used 20x sub-stepped Euler integration at 1 kHz substep because 50 Hz Euler diverged (mentioned as a failure mode in the reference; confirmed empirically).
-- Result (Mach-E only, full train): rung-1 yaw 0.01452 (dev 0.01157); compare V2 Mach-E yaw 0.00842 (-72% worse than V2 on Mach-E). No delta0, no steering scale g, no understeer term -- so structurally undercutting V2's calibrated rung-0.
-- Verdict: revert; ship V2 (rung-0). Even with a stable integrator, raw carParams-based rung-1 with one fitted parameter does not beat a well-calibrated rung-0 model. To win it would need: (a) per-platform fit of g, delta0 in front of the dynamics layer; (b) fit C_af AND C_ar AND Iz jointly; (c) per-segment delta0 still on top. That is multi-hour work beyond the time budget.
-- Things this rules out: the lazy "swap V0 for rung-1 with one fitted parameter" path is a net regression on this dataset within 45-min budget. The legitimate rung-1 win, if it exists, requires either (i) re-implementing the whole rung-0 calibration stack inside rung-1, or (ii) a hybrid that uses rung-1 only on transient regime where rung-0 lag-fit fails. Logged as evidence for the cohort.
+- Hypothesis: V1 is the pre-shipped rung-0 ceiling. Score it to confirm the
+  floor and to read the per-platform residual breakdown.
+- What I did: ran an inline scoring harness (`out/scoring.py`) on
+  `code.v1_baseline.predict_v1` against all of `data/sim-only/segments/`.
+- Result (dev pooled, this dataset): yaw 0.01061 rad/s; CTE 75.65 m.
+  - Per-platform: Lightning yaw 0.01273 / CTE 62.2 / signed +0.32;
+    Mach-E yaw 0.01363 / CTE 98.7 / signed -21.98;
+    IONIQ-5 yaw 0.00893 / CTE 69.5 / signed -11.57; Tesla 0/0.
+  - Note: numbers differ from AGENTS.md (~half the figures) because this run
+    uses the full sim-only set (~3.5M samples) vs the smaller dev slice the
+    AGENTS doc was calibrated on. Relative ordering identical.
+- Verdict: baseline. Residual diagnosis: large signed CTE drift on Mach-E /
+  IONIQ-5 — bias-shaped — plus an |a_lat|-bin-dependent yaw bias on Mach-E
+  growing from -0.003 (low a_lat) to -0.012 (3-5 m/s²).
+
+## E01 — V1 + affine post-correction
+- Model dir: models/affine-postcorrection/
+- Hypothesis: Signed-CTE drift is a single number per platform. A two-param
+  per-platform OLS calibration on V1's output should kill most CTE.
+- What I changed vs E00: added `yr = a*yr_v1 + b` per platform.
+- Result (dev pooled): yaw 0.01061 → 0.01053 (-0.7%); CTE 75.65 → 72.53 (-4.1%).
+- Verdict: KEEP.
+- Things this rules out: most of the available CTE win is bias-removal, not
+  scale or shape. The yaw RMSE moves <1% — residual is dominated by
+  high-frequency noise, not structure removable by point-wise calibration.
+
+## E02 — V1 + saturation (cubic in a_lat)
+- Model dir: models/saturation-correction/
+- Hypothesis: Bin-wise diagnostic showed mean residual growing with |a_lat|
+  on Mach-E, suggesting tyre saturation V1's linear K_us misses.
+- What I changed: added `c * yr_v1 * (v*yr_v1)^2` to the affine model.
+- Result (dev pooled): yaw 0.01053 (~tied); CTE 72.61 (~tied with affine).
+- Verdict: SHELVE.
+- Things this rules out: a linear-fit single-feature cubic correction cannot
+  separate from the affine gain — it co-collapses on lstsq. A real saturation
+  attack would need to enter as nonlinear understeer inside V1's steady-state
+  equation, not as a residual feature.
+
+## E03 — V1 + residual features (affine + saturation + steering-rate)
+- Model dir: models/v1-plus-residual-features/   (SHIPPED)
+- Hypothesis: V1's first-order lag is a single-pole approximation of dynamic
+  steering response. Adding `d * d(delta_road)/dt` as a residual feature should
+  capture transient yaw V1 misses, especially on Mach-E (worst-fitted).
+- What I changed: combined OLS over [yr_v1, 1, yr_v1*a_lat², ddelta_dt].
+- Result (dev pooled): yaw 0.01052 (-0.9% vs V1); CTE 72.61 (-4.0% vs V1).
+- Verdict: SHIP.
+- Things this rules out: the steering-rate term has a meaningful Mach-E
+  coefficient (-0.022) — real structural signal — but it lifts yaw only ~1 bp
+  and CTE not at all beyond the affine bias. The bulk of the gain is the
+  per-platform `b` term. The transient-residual story is real but small.

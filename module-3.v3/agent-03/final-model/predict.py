@@ -1,71 +1,57 @@
-"""Lateral-fidelity predict — KS + understeer + first-order lag + per-segment δ₀.
+"""Shipped model: V1 baseline + per-platform gradient-boosted residual correction.
 
-Schema-aware (operating contract): reads only the 8-column allowlist.
-For Tesla, passes through V0 (no truth channel — fitting is moot).
-For each Ford/Hyundai platform, applies:
+Structure-novel vs V1: V1 is closed-form (kinematic single-track + understeer +
+first-order lag + δ₀). This model wraps V1 with a learned residual using
+gradient-boosted decision trees over allowlist-safe input features.
 
-    delta = (delta_road_rad - delta0_seg) * g
-    yr_ss = v * delta / (L_eff + K_us * v^2)
-    yr_smoothed[i] = yr_smoothed[i-1] + alpha[i] * (yr_ss[i] - yr_smoothed[i-1])
-    where alpha = dt / (tau + dt)
+predict(sim_df, platform) -> pd.DataFrame with column `yaw_rate_pred_rads`
+aligned with sim_df.index.
 
-`delta0_seg` is the per-segment steering offset estimated from input-only
-straight-driving rows (legal). Platforms gated per the bias-spread diagnostic.
+Allowlist inputs used:
+  t_s, delta_road_rad, v_mps, yaw_rate_pred_rads, a_long_mps2.
+(Plus internally-computed yr_v1 from V1.)
 """
 from __future__ import annotations
 
-import json
+import importlib.util
+import pickle
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-_COEFFS_PATH = Path(__file__).parent / "coeffs.json"
-_COEFFS = json.loads(_COEFFS_PATH.read_text())
+_HERE = Path(__file__).resolve().parent
+
+# Bundled V1 baseline (independent copy, no parent imports)
+_v1_spec = importlib.util.spec_from_file_location("_v1_baseline", _HERE / "v1_baseline.py")
+_v1 = importlib.util.module_from_spec(_v1_spec); _v1_spec.loader.exec_module(_v1)
+predict_v1 = _v1.predict_v1
 
 
-def _per_segment_delta0(sim_df: pd.DataFrame, fallback: float,
-                        yr_thresh: float = 0.03, v_thresh: float = 5.0,
-                        min_rows: int = 50) -> float:
-    """δ₀ estimated from THIS segment's straight-driving rows (input-only)."""
-    v = sim_df["v_mps"].to_numpy()
-    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
-    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
-    if int(mask.sum()) < min_rows:
-        return fallback
-    return float(sim_df.loc[mask, "delta_road_rad"].median())
+_MODELS = {}
+for _pkl in _HERE.glob("*.pkl"):
+    with _pkl.open("rb") as _f:
+        _MODELS[_pkl.stem] = pickle.load(_f)
 
 
-def _apply_model(sim_df: pd.DataFrame, p: dict) -> np.ndarray:
-    if p.get("use_per_segment_delta0", False):
-        delta0 = _per_segment_delta0(sim_df, fallback=p.get("delta0_fallback", 0.0))
-    else:
-        delta0 = p.get("delta0", 0.0)
-
-    delta_road = sim_df["delta_road_rad"].to_numpy(dtype=float)
-    v = sim_df["v_mps"].to_numpy(dtype=float)
-    t = sim_df["t_s"].to_numpy(dtype=float)
-
-    delta_eff = (delta_road - delta0) * p["g"]
-    yr_ss = v * delta_eff / (p["L_eff"] + p["K_us"] * v * v)
-
-    tau = p["tau"]
-    dt = np.diff(t, prepend=t[0])
-    alpha = dt / (tau + dt)
-    yr = np.empty_like(yr_ss)
-    yr[0] = yr_ss[0]
-    for i in range(1, len(yr)):
-        yr[i] = yr[i - 1] + alpha[i] * (yr_ss[i] - yr[i - 1])
-    return yr
+def _features(df: pd.DataFrame, yr_v1: np.ndarray) -> np.ndarray:
+    t = df["t_s"].to_numpy()
+    delta = df["delta_road_rad"].to_numpy()
+    v = df["v_mps"].to_numpy()
+    yr_v0 = df["yaw_rate_pred_rads"].to_numpy()
+    d_delta = np.gradient(delta, t) if len(t) > 1 else np.zeros_like(delta)
+    a_lat_proxy = v * yr_v0
+    a_long = df["a_long_mps2"].to_numpy()
+    return np.column_stack([delta, d_delta, v, yr_v0, yr_v1, a_lat_proxy, a_long])
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
-    if platform not in _COEFFS:
-        # V0 passthrough for unknown platforms (including Tesla — no truth to fit).
-        return pd.DataFrame(
-            {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
-            index=sim_df.index,
-        )
-    p = _COEFFS[platform]
-    yr = _apply_model(sim_df, p)
+    yr = predict_v1(sim_df, platform)["yaw_rate_pred_rads"].to_numpy().copy()
+    if platform in _MODELS:
+        feats = _features(sim_df, yr)
+        m = np.all(np.isfinite(feats), axis=1)
+        corr = np.zeros(len(yr))
+        if m.any():
+            corr[m] = _MODELS[platform]["model"].predict(feats[m])
+        yr = yr + corr
     return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)

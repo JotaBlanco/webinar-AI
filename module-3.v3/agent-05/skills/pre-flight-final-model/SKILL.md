@@ -1,6 +1,6 @@
 ---
 name: pre-flighting-final-model
-description: Sanity-check that a `final-model/` deliverable bundle is shaped the way the task brief requires. Verifies required files exist (`predict.py`, `manifest.json`, `REPORT.md`), `predict.py` imports cleanly with siblings on sys.path (this is where missing-coeffs.json failures surface), the configured `predict_callable` resolves, its signature accepts `(sim_df, platform)`, the predict dry-runs on every platform declared in `manifest.platform_support` (against `data/sim-only/` so allowlist violations like reading `a_lat_meas_mps2` surface here too), and `EXPERIMENTS.md` contains at least one logged structural-climb attempt (`Rung: 1+` or `Rung: orthogonal`). Returns a structured pass/fail report — never raises on individual check failures.
+description: Sanity-check that a `final-model/` deliverable bundle is shaped the way the task brief requires. Verifies required files exist (`predict.py`, `manifest.json`, `REPORT.md`), `predict.py` imports cleanly with siblings on sys.path, the configured `predict_callable` resolves, its signature accepts `(sim_df, platform)`, the predict dry-runs on every platform declared in `manifest.platform_support` (against `data/sim-only/` so allowlist violations surface here too), `EXPERIMENTS.md` opens with an "Alternatives considered" block listing ≥5 candidate model shapes (≥3 tagged structurally distinct from V1), `MODELS.md` registers ≥3 candidates (≥1 tagged `structure: differs-from-v1`), and the shipped predict differs from V1 by more than a small tolerance on a sample segment. Returns a structured pass/fail report — never raises on individual check failures.
 when-to-invoke: You think your `final-model/` is done and want to catch dumb mistakes (missing files, broken imports, wrong return shape) before declaring the deliverable shipped. Run it last, after you have written `predict.py`, `manifest.json`, and `REPORT.md`.
 when-NOT-to-invoke: You want to score model quality (use scoring-model). You want to validate intermediate states of `predict.py` during iteration — this is for the final bundle, not the inner loop.
 inputs: final_model_dir (str or Path) — directory holding the bundle to check.
@@ -12,7 +12,7 @@ load-cost: ~150 tokens metadata, ~170 tokens body.
 
 ## What it does
 
-`preflight(final_model_dir)` runs ten checks in order against a candidate `final-model/` bundle:
+`preflight(final_model_dir)` runs twelve checks in order against a candidate `final-model/` bundle:
 
 1. `directory_exists` — the directory is present.
 2. `predict_py_present` — `predict.py` exists.
@@ -20,12 +20,14 @@ load-cost: ~150 tokens metadata, ~170 tokens body.
 4. `report_md_present` — `REPORT.md` exists and is ≥ 100 bytes.
 5. `manifest_parses` — JSON parses, has `platform_support` (list[str]) and `predict_callable` (`"<file>:<fn>"`).
 6. `predict_imports` — loads `predict.py` via `importlib.util`, with `final_model_dir` temporarily on `sys.path` so sibling imports (helpers, coeffs) work.
-7. `predict_callable_exists` — the function named by `predict_callable` (default `predict`) exists and is callable.
+7. `predict_callable_exists` — the function named by `predict_callable` exists and is callable.
 8. `predict_signature_compatible` — signature accepts at least `(sim_df, platform)` positionally, or uses `**kwargs`.
-9. `predict_returns_correct_shape` — calls `predict` once per platform declared in `manifest.platform_support`, on the first alphabetical `data/sim-only/segments/<PLATFORM>/**/sim.csv` per platform. Asserts the return is a `pandas.DataFrame` with column `yaw_rate_pred_rads`, an index identical to the input, no NaN in `yaw_rate_pred_rads`, and no NaN in `x_m`/`y_m` if present. Catches platform-conditional failures (a predict that works on Mach-E but raises on IONIQ, etc.). Platforms with no sample data under `data/sim-only/` are skipped without failing the check.
-10. `experiments_md_has_rung_climb_attempt` — looks for `EXPERIMENTS.md` (at `final_model_dir.parent`, then cwd, then bundle) and greps for at least one entry tagged `Rung: 1`, `Rung: 2`, `Rung: 3`, or `Rung: orthogonal`. Enforces the "default is to climb" policy from AGENTS.md § "On exploration" — the cohort needs evidence about rung 1, and that evidence only arrives if agents log climb attempts. The shipped model can still be rung 0; only the *attempt* has to be logged.
+9. `predict_returns_correct_shape` — calls `predict` once per platform declared in `manifest.platform_support`. Asserts the return is a `pandas.DataFrame` with column `yaw_rate_pred_rads`, index identical to the input, no NaN. Catches platform-conditional failures.
+10. `experiments_md_has_alternatives_header` *(new in m3.v3)* — looks for `EXPERIMENTS.md` and checks it opens with a heading "Alternatives considered" containing ≥5 bullets, of which ≥3 are tagged structurally distinct from V1 (via `(structure)` or `structure: differs-from-v1`). Enforces the upstream option-generation discipline from `references/exploration-discipline.md`.
+11. `models_md_has_three_candidates` *(new in m3.v3)* — looks for `MODELS.md` and checks it has ≥3 `##`-level candidate entries, with ≥1 tagged `structure: differs-from-v1`. Enforces the "models as first-class objects" workflow from AGENTS.md.
+12. `predict_differs_structurally_from_v1` *(new in m3.v3, warn-only)* — calls the shipped predict and `code.v1_baseline.predict_v1` on the same sample segment and compares pointwise yaw output. Warns (not fails) if max abs diff < 1e-3 rad/s — that pattern usually means "I refit V1 and shipped it". The warn lets agents ship V1 explicitly when all candidates lost, but forces the choice to be documented in REPORT.md.
 
-Each check is wrapped in its own try/except — a failure becomes `status="fail"` with the truncated exception in `detail`. If a check's prerequisite failed, the dependent check is recorded as `status="skip"` and `passes` is forced to `False`.
+Each check is wrapped in its own try/except — failures become `status="fail"`, transient/optional failures become `status="warn"` (still pass), skipped checks become `status="skip"` (force `passes=False`).
 
 ## What it does not do
 

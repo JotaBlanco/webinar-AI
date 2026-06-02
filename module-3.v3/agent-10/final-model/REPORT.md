@@ -1,38 +1,22 @@
-# Final model — agent-10 (rung-0, per-segment δ₀, platform-gated)
+# final-model — v1-plus-resid
 
-See parent dir REPORT.md and EXPERIMENTS.md for full provenance.
+Shipped model: per-platform linear residual learner on top of the V1 kinematic-single-track baseline.
 
-## Headline (full data/sim/, 1996 segments, pooled)
-- yaw_rate_rmse: 0.005874 rad/s  (vs V0 0.01293, -54.6%)
-- cte_rmse:      56.81 m         (vs V0 163.83,  -65.3%)
+## Pooled dev scores (data/sim/segments, 1996 segments, ~5.2 M samples)
 
-## Per-platform (pooled)
-| platform | n_seg | yaw_rmse (V0 → V1) | cte_rmse (V0 → V1) |
+| metric | V1 | v1-plus-resid | Δ vs V1 |
 |---|---|---|---|
-| FORD_F_150_LIGHTNING_MK1 | 175 | 0.01633 → 0.00566 (-65%) | 157.51 → 62.19 (-61%) |
-| FORD_MUSTANG_MACH_E_MK1  | 240 | 0.01362 → 0.00859 (-37%) | 148.00 → 98.68 (-33%) |
-| HYUNDAI_IONIQ_5          | 800 | 0.01770 → 0.00766 (-57%) | 247.50 → 69.53 (-72%) |
-| TESLA_MODEL_3            | 781 | 0.00000 (V0 passthrough — no truth) |
+| yaw_rate_rmse (rad/s) | 0.005874 | **0.005727** | −2.5% |
+| cte_rmse (m)          | 56.807   | **54.304**   | −4.4% |
 
-## Model
-Per-platform reconstruction shape:
-- delta_eff = (delta_road_rad − δ₀) · g
-- yr_ss     = v · delta_eff / (L_eff + K_us · v²)
-- yr        = first-order lag(yr_ss, τ) (discretised over segment dt)
-- (x, y)    = forward Euler of (v · cos ψ, v · sin ψ) with ψ = ∫yr dt
+## Per-platform
 
-δ₀ is platform-gated:
-- Lightning: single global δ₀ (per-segment hurt it; stable steering offset)
-- Mach-E and IONIQ-5: per-segment δ₀ from input-only straight-row gate
-  (|yaw_rate_pred_rads| < 0.03 ∧ v > 5, median delta_road_rad, ≥ 50 rows)
-- Tesla: V0 passthrough (no truth channel to score against)
+| platform | yaw V1 | yaw shipped | CTE V1 | CTE shipped |
+|---|---|---|---|---|
+| FORD_F_150_LIGHTNING_MK1 | 0.00566 | 0.00550 | 62.19 | 65.40 |
+| FORD_MUSTANG_MACH_E_MK1  | 0.00859 | 0.00815 | 98.68 | 90.38 |
+| HYUNDAI_IONIQ_5          | 0.00766 | 0.00755 | 69.53 | 66.97 |
+| TESLA_MODEL_3            | 0       | 0       | 0     | 0     |
 
-Coefficients are the published top-tier-cohort values; Nelder-Mead refit
-shaved <2% pooled yaw RMSE and produced a degenerate g↔L_eff fit on
-Mach-E. Coeffs frozen at the recipe values. See EXPERIMENTS.md E01–E04.
-
-## Rung-1 attempt
-Linear dynamic single-track (vy, yr ODE) with C_αf-only fit (other params
-from carParams). On a 60-segment subset: -5.8% yaw on IONIQ-5, -1.1% on
-Mach-E with C_αf pegging the upper bound. Not robust enough in 45-min
-budget. Logged as EXPERIMENTS.md E04, fell back to rung 0.
+See `models/v1-plus-resid/notes.md` and `assessment.md` for the formulation,
+fit procedure, and residual diagnosis.
