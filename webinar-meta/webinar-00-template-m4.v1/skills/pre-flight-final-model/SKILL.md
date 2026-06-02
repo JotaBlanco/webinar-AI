@@ -25,6 +25,14 @@ load-cost: ~150 tokens metadata, ~170 tokens body.
 9. `predict_returns_correct_shape` — calls `predict` once per platform declared in `manifest.platform_support`, on the first alphabetical `data/sim-only/segments/<PLATFORM>/**/sim.csv` per platform. Asserts the return is a `pandas.DataFrame` with column `yaw_rate_pred_rads`, an index identical to the input, no NaN in `yaw_rate_pred_rads`, and no NaN in `x_m`/`y_m` if present. Catches platform-conditional failures (a predict that works on Mach-E but raises on IONIQ, etc.). Platforms with no sample data under `data/sim-only/` are skipped without failing the check.
 10. `experiments_md_has_rung_climb_attempt` — looks for `EXPERIMENTS.md` (at `final_model_dir.parent`, then cwd, then bundle) and greps for at least one entry tagged `Rung: 1`, `Rung: 2`, `Rung: 3`, or `Rung: orthogonal`. Enforces the "default is to climb" policy from AGENTS.md § "On exploration" — the cohort needs evidence about rung 1, and that evidence only arrives if agents log climb attempts. The shipped model can still be rung 0; only the *attempt* has to be logged.
 
+### m4 additional checks
+
+11. `models_md_has_min_candidates` — `MODELS.md` has ≥4 candidate entries with at least one tagged `rung: 1`, `rung: 2`, or `rung: orthogonal`. Enforces structural diversity at the registry level, not just the experiment-log level.
+12. `tree_json_consistent` — every model entry in `MODELS.md` has a corresponding node in `TREE.json` and vice versa. Catches the failure mode of editing `MODELS.md` by hand without going through `iterate`.
+13. `tree_has_diverse_rungs` — `TREE.json` contains nodes from ≥2 distinct rung values (e.g. `0` + `orthogonal`, or `0` + `1`). Catches the m3.v2 / m3.v3 cohort failure of piling up at rung 0.
+14. `rpi_artifacts_locked_if_present` — if `rpi/artifacts/RESEARCH.md` or `PLAN.md` exist, both must be non-writable (the RPI lock gate). If you ran RPI, you must have locked the artifacts.
+15. `test_split_gate` — *only when invoked with `--final`* — scores the shipped `predict.py` on the frozen test split (`data/sim-only/test/` and `data/sim/test/`) and adds the test pooled scores to the report. Warns if `(dev - test) / dev > 5%` on either KPI — that's the canonical overfit signal under the route-grouped CV σ band. Without `--final`, the test split is never read.
+
 Each check is wrapped in its own try/except — a failure becomes `status="fail"` with the truncated exception in `detail`. If a check's prerequisite failed, the dependent check is recorded as `status="skip"` and `passes` is forced to `False`.
 
 ## What it does not do

@@ -35,11 +35,27 @@ divergence finding in arXiv 2509.22480.
 - [`manifest.yaml`](manifest.yaml) — declarative list of subagents. Default
   ships 4: rung-0 polish, rung-0 orthogonal (residual learner), rung-1
   dynamic-ST fit, rung-1 regime-switched. Edit freely.
-- [`launch.sh`](launch.sh) — shell driver that reads the manifest and spawns
-  N parallel sessions. Skeleton — you adapt the launch command to your
-  substrate (Claude Code CLI, agent-SDK, Quix runtime).
-- `_sessions/` — per-subagent workdirs containing their generated `PROMPT.md`.
-  Cleaned by `launch.sh --clean`.
+- [`launch.sh`](launch.sh) — shell driver. Generates per-subagent prompts
+  and spawns true OS-level parallel `claude` CLI sessions. Use when driving
+  from a shell terminal outside Claude Code.
+- [`orchestrate.md`](orchestrate.md) — Task-tool dispatch protocol. Use when
+  driving from inside an open Claude Code session (orchestrator role).
+- `_sessions/` — per-subagent workdirs containing their generated `PROMPT.md`
+  and per-session logs. Inspectable after a run.
+
+## Two dispatch paths, same outcome
+
+Pick based on where you're driving from:
+
+| You are driving from… | Use |
+|---|---|
+| Shell terminal, outside Claude Code | `bash launch.sh` |
+| An open Claude Code session (orchestrator) | [`orchestrate.md`](orchestrate.md) |
+| A non-Claude harness (Quix runtime, custom SDK) | `bash launch.sh --dry` to generate prompts, then adapt |
+
+`launch.sh --dry` writes the per-subagent `PROMPT.md` files without spawning
+sessions — useful both for inspection and as the input to `orchestrate.md`'s
+Task-tool dispatch.
 
 ## When NOT to use parallel fan-out
 

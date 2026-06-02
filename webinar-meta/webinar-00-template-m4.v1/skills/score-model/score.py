@@ -148,6 +148,39 @@ def _default_segment_paths() -> list[Path]:
     return sorted(p for p in root.glob("*/**/sim.csv") if p.is_file())
 
 
+# ---------------------------------------------------------------------------
+# Test-split refusal — defense at the data-access layer.
+#
+# The frozen test split lives at data/{sim,sim-only}/test/. score() refuses
+# to read it unless explicitly invoked with `final=True`, which is only
+# allowed by pre-flight-final-model --final. This is the load-bearing claim
+# in AGENTS.md's "Test-split discipline" section.
+#
+# The same check lives in cv.py for the score_cv wrapper, but lives here
+# too so any direct score() call is also caught. Defense in depth.
+# ---------------------------------------------------------------------------
+
+TEST_SPLIT_MARKER_PARTS = ("sim-only/test", "sim/test")
+
+
+class TestSplitDeniedError(RuntimeError):
+    """Raised when score() / score_cv() is asked to read the frozen test split
+    outside the final preflight gate. See SKILL.md § 'Test split refusal'."""
+
+
+def _assert_not_test(segment_paths, final: bool) -> None:
+    if final or not segment_paths:
+        return
+    for p in segment_paths:
+        s = str(p)
+        if any(marker in s for marker in TEST_SPLIT_MARKER_PARTS):
+            raise TestSplitDeniedError(
+                f"Test-split read attempted on {p}. The test split is reserved "
+                "for pre-flight-final-model --final. Use the dev split, or pass "
+                "final=True (only allowed from preflight)."
+            )
+
+
 def _resolve_schema(platform: str) -> dict:
     return PLATFORM_SCHEMA.get(platform, DEFAULT_SCHEMA)
 
@@ -179,6 +212,7 @@ def score(
     min_distance_m: float = 20.0,
     sample_filter_v_mps: float = 2.0,
     top_n: int = 10,
+    final: bool = False,
 ) -> dict:
     """Score a predict callable across segments.
 
@@ -199,6 +233,7 @@ def score(
     if segment_paths is None:
         segment_paths = _default_segment_paths()
     segment_paths = [Path(p) for p in segment_paths]
+    _assert_not_test(segment_paths, final=final)
     if platform_filter is not None:
         segment_paths = [p for p in segment_paths if _platform_from_path(p) == platform_filter]
 

@@ -1,73 +1,190 @@
 ---
-title: webinar-00-template-m3 — Module 3 substrate (skills + references)
-summary: Module-3 template for the lateral-fidelity webinar. Same eight-skill toolkit and shared math library as m2, plus six short domain-knowledge reference documents (anti-patterns + approach-menu + two-kpi-tradeoff with worked examples and failure-mode indexes; exploration-discipline; dynamics-formulations as a living catalogue agents extend; ceiling-moves) and an EXPERIMENTS.md log template. The references are the m3 increment over m2 — everything else is identical.
-tags: [template, webinar, m3, skills, references, lateral-fidelity]
-updated: 2026-05-31
+title: webinar-00-template-m4.v2 — Module 4 substrate (RPI-first lifecycle)
+summary: m4.v2 takes the same five closed-loop mechanisms, V1 baseline, skills toolkit, references, and cohort findings as m4.v1, and reorganizes the framing so the Research → Plan → Implement lifecycle IS the spine. The directory layout reflects phases (phases/1-research/, phases/2-plan/, phases/3-implement/), the root AGENTS.md is an index, and per-phase READMEs carry the load-bearing guidance. Tree-search planning and parallel-rung subagents happen inside the Implement phase, after PLAN.md is locked.
+tags: [template, webinar, m4, RPI, lifecycle, tree-search, cross-validation, parallel-subagents, lateral-fidelity]
+updated: 2026-06-02
 ---
 
-# webinar-00-template-m3
+# webinar-00-template-m4.v2
 
-Module 3 substrate for the lateral-fidelity webinar. **The m3 increment over m2 is the `references/` directory** — five short markdown files that name the levers, traps, and discipline prior cohorts needed. Skills, AGENTS.md framing, `_shared/` math, and the operating contract are identical to m2.
+Module 4 substrate for the lateral-fidelity webinar. **The v2 increment
+over v1 is the framing**: same content, reorganized around the RPI
+lifecycle as the spine rather than as opt-in scaffolding.
 
-This README is for the human setting up the template. The agent reads [AGENTS.md](AGENTS.md) — that's the authoritative source for the working-directory layout, the skills inventory, the references inventory, and the modify-the-skill protocol. Don't duplicate that content here.
+The agent enters at [`AGENTS.md`](AGENTS.md) — a ~50-line index that points
+at the phase READMEs. The load-bearing guidance lives in
+[`phases/1-research/README.md`](phases/1-research/README.md),
+[`phases/2-plan/README.md`](phases/2-plan/README.md), and
+[`phases/3-implement/README.md`](phases/3-implement/README.md). Each phase
+README is the agent's complete guide for that phase only.
+
+## The v2 thesis — why this contrasts with v1
+
+m4.v1 makes RPI opt-in. Its AGENTS.md hands the agent the full operating
+contract, the five mechanisms, the inner-loop recipe, the cohort findings,
+and the test-split discipline all at once — and offers RPI / launch-rungs
+as scaffolding the agent can choose to invoke. The agent has full
+information available throughout.
+
+m4.v2 makes RPI the **spine**: every action belongs to a phase, every
+phase reads only what the prior phase produced. Context discipline is
+enforced by the layout, not by the agent's restraint. The Plan phase has
+no access to `references/` — the cohort findings it needs are already
+cited by section number in the locked `RESEARCH.md`. The Implement phase
+has no access to `RESEARCH.md`'s deliberation — it has only the two
+candidates `PLAN.md` selected.
+
+The bet: at 200k models with a ~40% smart-zone cliff (Horthy / HumanLayer
+telemetry), the load-out of having all information available costs more
+than it gains. v2 trades v1's flexibility for v1's discipline.
 
 ## Design principles
 
-Informed by the m1+m2+m3 cohort grade at `_grade/20260531-003104/`, the KB002 NC catalogue, and recent (Dec 2025 – May 2026) context-engineering writing:
+Inherited unchanged from v1:
 
-1. **Diagnostic surface, not polished oracle.** Inherited from m2: `scoring-model` returns per-segment tables, per-platform signed bias, distributions, dashboard. Not a single pooled number.
-2. **Skills as clay, not library.** Inherited from m2.
-3. **References carry the *why*, not just the rule** (Grove, NC-22). Each reference doc has worked examples drawn from prior top-performing agents — distribution and format matter more than principle correctness (Min et al.).
-4. **References must be guides, not sensors** (NC-15 via BettaTech). Don't try to make a reference "detect" anything; that's an eval/judge job.
-5. **References are ratcheted** (NC-14). Each new failure recurring across cohorts gets engineered into a reference as a new bullet, not re-prompted away.
-6. **Failure-mode index pattern at the end of each reference** — recent practitioner consensus (Husain, Atlan harness-failures). Lead with success patterns; close with a failure checklist.
-7. **Structured divergence beats in-line "think harder"** (arXiv 2509.22480). The exploration-discipline reference prescribes naming ≥3 genuinely different approaches before commitment, plus an `EXPERIMENTS.md` log to prevent silent re-convergence.
+1. **The verifier exists — use it.** `score-model` is a deterministic
+   scorer against truth on dev. The 2026 verification-gap finding (CMU)
+   doesn't apply here. Close the loop.
+2. **Tree-search beats linear iteration on this task class.** AIDE
+   (arxiv.org/abs/2502.13138) wins 4× more MLE-bench medals than the best
+   linear agent. In v2 the search tree is planted in Plan (the two-candidates
+   rule produces two children of V1) and grown in Implement.
+3. **Verifier-guided agents lifted SWE-bench Verified +10.7 pts** with PRM
+   course-correction. `skills/iterate` is the analogous mechanism.
+4. **Cross-validation respects route grouping.** Agent-07's m3.v3 finding
+   is the empirical motivation (the cohort paid for this lesson).
+5. **Context discipline at the 40% inflection.** v2 hardens this from v1's
+   opt-in RPI into the template's organizing principle.
+6. **Structured divergence beats in-line "think harder."** Parallel rung
+   subagents (in Phase 3) are context isolation, not personas. Anthropic
+   Research / MAESTRO / arXiv 2509.22480.
+7. **No persona multi-agent.** Same rationale as m3.v2 / v1.
+8. **References + skills ratchet.** Cohort-evidenced findings replace
+   themselves each cohort.
 
-## What we deliberately did *not* add — and why
+## File-by-file — the v2 layout
 
-**Persona / "dream-team multi-role" subagents.** Tempting, but the 2026 literature has *hardened* against this:
+```
+m4.v2/
+├── AGENTS.md            (~50 lines — index only; points at phase READMEs)
+├── README.md            (this file — human-facing v2 thesis)
+├── MODELS.md            ← registry; auto-filled by skills/iterate (stays at root)
+├── TREE.json            ← tree; auto-filled by skills/iterate (stays at root)
+├── EXPERIMENTS.md       ← log; auto-filled by skills/iterate (stays at root)
+├── phases/
+│   ├── 1-research/
+│   │   ├── README.md    (rich phase guide — required reading on phase entry)
+│   │   ├── run.sh       (phase driver: seeds skeleton, prints next steps)
+│   │   ├── PROMPT.md    (seed prompt to paste into a fresh session)
+│   │   └── artifacts/   (RESEARCH.md lands here, then chmod -w)
+│   ├── 2-plan/
+│   │   ├── README.md
+│   │   ├── run.sh
+│   │   ├── PROMPT.md
+│   │   └── artifacts/   (PLAN.md lands here, then chmod -w)
+│   └── 3-implement/
+│       ├── README.md    (the inner-loop recipe lives here, not at root)
+│       ├── run.sh
+│       ├── PROMPT.md
+│       ├── artifacts/
+│       └── models/      ← candidate model bundles live HERE in v2 (not at root)
+├── lock.sh              ← shared chmod helper used by all three phases
+├── launch-rungs/        ← invoked INSIDE phase 3, after PLAN.md is locked
+├── skills/              ← unchanged from v1 (everything inherited + the m4 new ones)
+├── references/          ← unchanged from v1
+├── _shared/             ← unchanged (rung1_starter.py + cte math)
+├── code/                ← unchanged (symlink stub)
+├── data/                ← unchanged (symlink stub)
+├── final-model/         ← only created by Implement phase
+└── pyproject.toml       ← unchanged
+```
 
-- Horthy (*Advanced Context Engineering*): subagents are context-isolation primitives, not personas.
-- Wasowski's *17 Multi-Agent Topologies* (May 2026): persona-stacking is the #1 budget-burn anti-pattern.
-- Cognition's *Don't Build Multi-Agents* (June 2025) is still the reference position; subsequent vendor convergence (Anthropic, OpenAI, AutoGen, LangChain) is on **orchestrator + isolated subagents for context isolation only**, not role-play.
-- Reported costs: multi-agent uses ~15× more tokens; strictly sequential tasks degrade 39–70% vs single agent.
+What's different vs v1, concretely:
 
-Cohort-data check: in the m3 grading, mid-pack agents *correctly diagnosed* their residuals — they cited references by name and named the bias structure. They didn't fail for lack of perspective; they failed for lack of *concrete recipe knowledge*. A "yaw specialist" + "CTE specialist" split wouldn't have caught anything the references with worked examples already provide.
+- The root `AGENTS.md` shrunk from ~190 lines to ~50.
+- The old top-level `rpi/` directory is gone. Its contents moved into
+  `phases/N-*/` with updated paths.
+- Candidate models live under `phases/3-implement/models/<name>/`, not at
+  template root. Registries (`MODELS.md`, `TREE.json`, `EXPERIMENTS.md`)
+  stay at root so they survive phase compactions.
+- `lock.sh` moved to the template root (was `rpi/lock.sh`).
+- Each phase has its own `README.md` (rich, ~150-250 lines) and `PROMPT.md`
+  (short seed prompt, ~30 lines).
 
-The narrow exception that survives in the literature — parallel divergent exploration with same-role subagents — is a *system-level* pattern (run N agents on the same task in parallel, merge the winner), not template content. If we want it later, it belongs in the launch skill, not in `references/`.
+## What we deliberately did *not* add
 
-## What m3 adds — the references layer
+Identical to v1:
 
-Five short markdown documents under [`references/`](references/), each with a frontmatter `description` + `when-to-load`, a body that includes a worked example drawn from prior top-performing agents, and a failure-mode index at the end:
+- **Persona / multi-role subagents.** `launch-rungs/` is context isolation,
+  not role-play.
+- **Model self-judging best-of-N without the real scorer.** The verification
+  gap *widens* with N.
+- **External SaaS sandboxes (Modal, E2B).** Task runs locally on CPU.
+- **LLM-as-judge as a quality gate.** `critique-residuals` is a
+  typed-grounded router.
+- **Cohort-level automated skill ratchet.** Held for a later module — see § "What m5 owes m4" below.
 
-- **`anti-patterns.md`** — known traps. Now leads with the per-segment δ₀ recipe (`"The legal cousin"`) as **THE highest-leverage move on this dataset**, with allowlist-clean code (m3.v2 fix: prior version used `a_lat_meas_mps2` which is denied by the operating contract; recipe now uses `yaw_rate_pred_rads` / `delta_road_rad` proxies). Cohort evidence: top tier vs bottom tier = +8pts yaw / +15pts CTE on this single technique.
-- **`approach-menu.md`** — option map. Annotated [explored] / [lightly tried] / [unexplored]. Now opens with `Two model shapes` (reconstruction vs V0-correction) — m3 cohort showed agents who picked V0-correction plateaued ~+48% yaw structurally. Includes the platform-gating diagnostic and the structural-complexity ladder.
-- **`two-kpi-tradeoff.md`** — KPI interpretation. Two-step diagnostic for "yaw improved but CTE stuck". Worked example: per-platform bias-spread check (now part of the AGENTS.md inner-loop as numbered step 2).
-- **`exploration-discipline.md`** — protocol for naming ≥5 alternatives (at least 3 different model structures) before commitment + the `EXPERIMENTS.md` log convention. **m3.v2 change: now requires a `Rung: 0|1|2|3|orthogonal` tag on every log entry, and `pre-flighting-final-model` enforces at least one `Rung: 1+` or `Rung: orthogonal` entry before the bundle can ship.**
-- **`dynamics-formulations.md`** — V0 documented in full. **m3.v2 change: rung 1 is no longer marked `[sketch — not implemented]`; it's flagged as the default climb attempt under the new exploration policy and now includes a "Minimum viable rung-1 attempt" section with a ~30-line code scaffold (Euler integration, fix all params from carParams except `C_αf`, fit per platform).** The cost-to-attempt is much lower than past cohorts assumed.
-- **`ceiling-moves.md`** — four moves above the current best-known ceiling (multi-seed fold averaging, CTE-aware fit, constrained joint fit, climb the structure ladder). With the `fit-model` skill now in the toolkit, several of these are one-line config changes rather than heavy lifts. Sequenced by residual shape. Only load after the agent has already beaten V0 by ≥+30% on both KPIs.
+## What m5 owes m4 — the unclosed loop
 
-Plus one root-level artifact:
+m4 closes the inner loop (every iteration auto-scores, auto-logs, auto-routes)
+but does not close the **cross-cohort loop**: `references/m4-cohort-findings.md`
+was curated from the m3.v3 cohort by hand. m5's responsibility is to ship a
+skill — provisionally `crystallise-cohort-findings` — that ingests the m4
+cohort's REPORT.md files + assessment.md verdicts + TREE.json data, finds
+the patterns that recur across runs, and emits the next iteration's
+cohort-findings reference automatically.
 
-- **[`EXPERIMENTS.md`](EXPERIMENTS.md)** — append-only experiment log template. Lives at the working-dir root, gets one entry per concrete attempt. Prevents silent re-convergence on the same approach.
+Without this skill, the m4 ratchet stops after one cohort. The next cohort
+inherits stale findings, the references drift out of sync with reality, and
+the cohort-evidenced routing in `critique-residuals` decays. The placeholder
+exists here so the gap is named, not silently inherited.
 
-## How to drive Module 3 with this template
+## How to drive Module 4 v2 with this template
 
-1. Symlink `data/` (whole repo data tree) and `code/` (whole repo code tree) into each agent's working dir — see [data/README.md](data/README.md) and [code/README.md](code/README.md).
-2. Open the agent dir in Claude Code. `AGENTS.md` loads.
-3. The agent's task prompt names the two KPIs to minimise.
-4. The agent inspects skill and reference metadata first (cheap), loads bodies on demand. Recommended order in AGENTS.md.
-5. Iterate: name alternatives (across rungs) → pick one → fit → `scoring-model` → log to `EXPERIMENTS.md` with `Rung:` tag → consult references when stuck → repeat. Use `comparing-models` for A/B. **Required: log at least one `Rung: 1` (or higher, or `orthogonal`) attempt before declaring done — `pre-flighting-final-model` enforces this.** Run `pre-flighting-final-model` before declaring done.
-
-## What's *not* here (held for later modules)
-
-- No `tasks/` directory. The KPI brief lives in the agent's run-time prompt, not in the template.
-- No `evals/` directory. Skill-level evals appear in later modules.
-- No `tools/` or `.mcp/`. Empty in m3.
-- No multi-agent / persona scaffolding (see "What we deliberately did *not* add" above).
+1. Symlink `data/` and `code/` into the agent's working dir
+   (see [data/README.md](data/README.md), [code/README.md](code/README.md)).
+   The code symlink must contain `v1_baseline.py` (m3.v3+).
+2. Open the agent dir in Claude Code. `AGENTS.md` loads — but it just
+   points at the phase READMEs.
+3. The agent's task prompt names the two KPIs + V1's pooled scores as floor.
+4. **Phase 1.** `bash phases/1-research/run.sh`. Fresh session uses
+   `phases/1-research/PROMPT.md` to bootstrap. Produces `RESEARCH.md`,
+   locked.
+5. **Phase 2.** `bash phases/2-plan/run.sh`. Fresh session uses
+   `phases/2-plan/PROMPT.md`. Reads only `RESEARCH.md`. Produces `PLAN.md`,
+   locked.
+6. **Phase 3.** `bash phases/3-implement/run.sh`. Fresh session uses
+   `phases/3-implement/PROMPT.md`. Reads only `PLAN.md` + skills. Builds,
+   runs the iterate loop, ships `final-model/`. Optionally invokes
+   `launch-rungs/launch.sh` here.
+7. End gate: `pre-flight-final-model --final` reads the frozen test split,
+   reports dev/test gap, ships if within band. Locks on `RESEARCH.md` and
+   `PLAN.md` are verified by the preflight.
 
 ## Dependencies
 
 - Python 3.11+
-- `uv` for env management (`uv sync` after first clone)
+- `uv` (`uv sync` after first clone)
+- `yq` for launch-rungs manifest parser (`brew install yq`)
 - Claude Code
+- (optional) matplotlib for PNG tree visualisation
+
+## Sources informing m4 (same as v1)
+
+Internal:
+- m3.v3 cohort grade — `_grade/20260601-173918/cohort.md`
+- m3.v3 cohort reports — `module-3.v3/agent-{01..10}/REPORT.md`
+- AI-axis NC framework — `F1/KB002/ai-axis/_README.md`
+
+External:
+- AIDE — `arxiv.org/abs/2502.13138`
+- AlphaEvolve — `arxiv.org/abs/2506.13131`
+- CodeEvolve — `arxiv.org/abs/2510.14150`
+- MLE-bench — `arxiv.org/abs/2410.07095`
+- MAESTRO divergent-convergent — `arxiv.org/abs/2511.06134`
+- Multi-Agent Verification — `arxiv.org/abs/2502.20379`
+- CMU agent test-time-scaling ceiling (2026)
+- Anthropic Multi-Agent Research (April 2025)
+- Horthy, Advanced Context Engineering (RPI loop) — load-bearing for v2's
+  organizing principle, where it informed v1 as one mechanism among five.
+- HumanLayer 100K-session telemetry (40% context-fill inflection)

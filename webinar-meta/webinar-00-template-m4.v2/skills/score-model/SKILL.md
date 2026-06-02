@@ -73,3 +73,41 @@ mache_bias  = result["per_platform"]["FORD_MUSTANG_MACH_E_MK1"]["yaw_residual_me
 ## Extending this skill
 
 If the signal you need isn't in the per-segment table, add a column to it in `score.py`. The whole point of this skill being small is so you can edit it in one sitting. Useful extensions other agents have wanted: per-segment yaw_rate_meas variance (to spot quiet vs busy segments), residual autocorrelation, per-platform per-route cross-tabulation.
+
+## m4 addendum — CV and the test-split gate
+
+m4 adds two disciplines on top of the m3.v2 scorer. Both are wrappers around
+`score()`; the underlying scorer is unchanged.
+
+### k-fold route-grouped CV on dev (`score_cv`)
+
+```python
+from skills.score_model.cv import score_cv
+result = score_cv(predict_fn, k=5)
+# result["pooled"] now has mean ± std per metric.
+```
+
+`score_cv` partitions the dev split into k=5 route-grouped folds (no route ID
+crosses folds — see `make-train-dev-split` for the leakage validator),
+scores the candidate on each, and returns `mean ± std`. The σ is what tells
+the agent whether a +0.3% improvement vs parent is signal or noise.
+
+This is the discipline that catches the agent-07 cohort failure mode
+(`references/m4-cohort-findings.md` §6 — asymmetric-bias subset fit flipped
+Lightning's sign on 80-segment splits). Use `score_cv` from `iterate`
+automatically; use `score()` directly only for quick mid-iteration sanity
+checks.
+
+### Test split refusal
+
+`score()` and `score_cv()` refuse to read from `data/sim-only/test/` (or
+`data/sim/test/`) unless invoked with `final=True`. The test split is the
+agent's honest stopping signal — it is *only* read once, by
+`pre-flight-final-model --final`. Any attempt to score on test during the
+inner loop raises a `TestSplitDeniedError`.
+
+Why: CMU 2026 showed that with a verifier in the loop, the verification gap
+*widens* with sample count. Every iteration risks overfitting the thing the
+agent can score against. The frozen test split is the cheapest insurance
+against that — see `references/closing-the-loop.md` § "CV and the dev/test
+split".

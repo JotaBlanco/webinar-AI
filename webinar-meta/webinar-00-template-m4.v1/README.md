@@ -1,73 +1,162 @@
 ---
-title: webinar-00-template-m3 — Module 3 substrate (skills + references)
-summary: Module-3 template for the lateral-fidelity webinar. Same eight-skill toolkit and shared math library as m2, plus six short domain-knowledge reference documents (anti-patterns + approach-menu + two-kpi-tradeoff with worked examples and failure-mode indexes; exploration-discipline; dynamics-formulations as a living catalogue agents extend; ceiling-moves) and an EXPERIMENTS.md log template. The references are the m3 increment over m2 — everything else is identical.
-tags: [template, webinar, m3, skills, references, lateral-fidelity]
-updated: 2026-05-31
+title: webinar-00-template-m4.v1 — Module 4 substrate (closed-loop tree search)
+summary: m4.v1 inherits the m3.v2 + m3.v3 stack (V1 baseline, models/ first-class, full skills toolkit, reference docs with worked examples) and adds five mechanisms that close the inner loop: the iterate skill (one-shot tree-search step), k-fold route-grouped CV + frozen test split (overfit insurance), Research → Plan → Implement with hard-locked artifacts (context discipline), parallel divergent rung subagents (forced structural diversity), and the typed-grounded critique router. Everything is built around the existing real verifier (score-model against truth) — the rare task where AlphaEvolve-style search isn't bottlenecked by the verification gap.
+tags: [template, webinar, m4, tree-search, RPI, cross-validation, parallel-subagents, lateral-fidelity]
+updated: 2026-06-02
 ---
 
-# webinar-00-template-m3
+# webinar-00-template-m4.v1
 
-Module 3 substrate for the lateral-fidelity webinar. **The m3 increment over m2 is the `references/` directory** — five short markdown files that name the levers, traps, and discipline prior cohorts needed. Skills, AGENTS.md framing, `_shared/` math, and the operating contract are identical to m2.
+Module 4 substrate for the lateral-fidelity webinar. **The m4 increment over
+m3.v3 is the five closed-loop mechanisms** plus the cohort-findings reference.
+Everything else (V1 baseline, `models/` + `MODELS.md` registry, skills
+toolkit, m3.v2 references) is inherited unchanged.
 
-This README is for the human setting up the template. The agent reads [AGENTS.md](AGENTS.md) — that's the authoritative source for the working-directory layout, the skills inventory, the references inventory, and the modify-the-skill protocol. Don't duplicate that content here.
+The agent reads [`AGENTS.md`](AGENTS.md) — authoritative source for layout,
+mechanisms, and inner-loop recipe. This README is for the human setting up
+the template.
 
 ## Design principles
 
-Informed by the m1+m2+m3 cohort grade at `_grade/20260531-003104/`, the KB002 NC catalogue, and recent (Dec 2025 – May 2026) context-engineering writing:
+Informed by the m1+m2+m3.v2+m3.v3 cohort grades and recent (Jan-June 2026)
+AI engineering writing:
 
-1. **Diagnostic surface, not polished oracle.** Inherited from m2: `scoring-model` returns per-segment tables, per-platform signed bias, distributions, dashboard. Not a single pooled number.
-2. **Skills as clay, not library.** Inherited from m2.
-3. **References carry the *why*, not just the rule** (Grove, NC-22). Each reference doc has worked examples drawn from prior top-performing agents — distribution and format matter more than principle correctness (Min et al.).
-4. **References must be guides, not sensors** (NC-15 via BettaTech). Don't try to make a reference "detect" anything; that's an eval/judge job.
-5. **References are ratcheted** (NC-14). Each new failure recurring across cohorts gets engineered into a reference as a new bullet, not re-prompted away.
-6. **Failure-mode index pattern at the end of each reference** — recent practitioner consensus (Husain, Atlan harness-failures). Lead with success patterns; close with a failure checklist.
-7. **Structured divergence beats in-line "think harder"** (arXiv 2509.22480). The exploration-discipline reference prescribes naming ≥3 genuinely different approaches before commitment, plus an `EXPERIMENTS.md` log to prevent silent re-convergence.
+1. **The verifier exists — use it.** `score-model` is a real deterministic
+   scorer against truth on dev. Almost every 2026 test-time-scaling finding
+   is bottlenecked by the "verification gap" (CMU 2026: model self-selection
+   closes ~55% of oracle gap, gap *widens* with N). m4 doesn't have that
+   bottleneck. Close the loop.
+2. **Tree-search beats linear iteration on this task class.** AIDE
+   (`arxiv.org/abs/2502.13138`) wins 4× more MLE-bench medals than the best
+   linear agent. AlphaEvolve / CodeEvolve recipe applies.
+3. **Verifier-guided agents lifted SWE-bench Verified +10.7 pts** with PRM
+   course-correction (Sep 2025). The `iterate` skill is the analogous
+   mechanism here — auto-firing computational sensors gate every model entry
+   into the registry.
+4. **Cross-validation respects route grouping.** Agent-07's m3.v3 finding
+   (asymmetric-bias subset fit flipped Lightning sign) is the empirical
+   motivation. The cohort already paid for this lesson.
+5. **Context discipline at the 40% inflection.** RPI phase separation
+   (Horthy, HumanLayer 100K-session telemetry) is hard-locked because soft
+   discipline blurs under pressure.
+6. **Structured divergence beats in-line "think harder."** Parallel rung
+   subagents are context-isolation, not personas. Anthropic Research's
+   90.2% internal-eval lift + MAESTRO + arXiv 2509.22480.
+7. **No persona multi-agent.** Same rationale as m3.v2 (Cognition,
+   Wasowski, Anthropic production patterns) — hardened in 2026.
+8. **References + skills ratchet.** Same pattern m2/m3 use. The new
+   `m4-cohort-findings.md` is the first cohort-evidenced reference in m4;
+   the next cohort's findings replace it.
 
-## What we deliberately did *not* add — and why
+## What m4 adds — file-by-file
 
-**Persona / "dream-team multi-role" subagents.** Tempting, but the 2026 literature has *hardened* against this:
+**New skills** (in [`skills/`](skills/)):
 
-- Horthy (*Advanced Context Engineering*): subagents are context-isolation primitives, not personas.
-- Wasowski's *17 Multi-Agent Topologies* (May 2026): persona-stacking is the #1 budget-burn anti-pattern.
-- Cognition's *Don't Build Multi-Agents* (June 2025) is still the reference position; subsequent vendor convergence (Anthropic, OpenAI, AutoGen, LangChain) is on **orchestrator + isolated subagents for context isolation only**, not role-play.
-- Reported costs: multi-agent uses ~15× more tokens; strictly sequential tasks degrade 39–70% vs single agent.
+- [`iterate/`](skills/iterate/) — one-shot tree-search step. Model-shape-agnostic.
+  Runs the verifier gate (CV + residual + diff vs parent vs V1 vs leader),
+  appends to TREE.json + MODELS.md + EXPERIMENTS.md, returns routing dict.
+- [`critique-residuals/`](skills/critique-residuals/) — typed-grounded router
+  (not judge). Emits one of a fixed set of routes whose precondition is
+  mechanically verifiable from the gate output.
+- [`visualise-tree/`](skills/visualise-tree/) — render TREE.json as ASCII /
+  markdown / PNG. Spot stagnation and rung collapse visually.
+- [`score-model/cv.py`](skills/score-model/cv.py) — k=5 route-grouped CV
+  wrapper around `score()`, with test-split refusal.
+- [`assess-candidate-model/`](skills/assess-candidate-model/) — inherited
+  unchanged from m3.v3.
+- [`pre-flight-final-model/`](skills/pre-flight-final-model/) — adds 5
+  m4-specific gates (MODELS.md candidate floor, TREE.json consistency,
+  rung diversity, RPI lock, test-split gate).
 
-Cohort-data check: in the m3 grading, mid-pack agents *correctly diagnosed* their residuals — they cited references by name and named the bias structure. They didn't fail for lack of perspective; they failed for lack of *concrete recipe knowledge*. A "yaw specialist" + "CTE specialist" split wouldn't have caught anything the references with worked examples already provide.
+**New code** (in [`_shared/`](_shared/)):
 
-The narrow exception that survives in the literature — parallel divergent exploration with same-role subagents — is a *system-level* pattern (run N agents on the same task in parallel, merge the winner), not template content. If we want it later, it belongs in the launch skill, not in `references/`.
+- [`rung1_starter.py`](_shared/rung1_starter.py) — linear dynamic single-track
+  scaffold with RK4 integration and `fit_calpha_and_iz()`. Closes the m3.v3
+  cohort tooling gap (§7) that blocked every rung-1 attempt.
 
-## What m3 adds — the references layer
+**New scaffolding** (root):
 
-Five short markdown documents under [`references/`](references/), each with a frontmatter `description` + `when-to-load`, a body that includes a worked example drawn from prior top-performing agents, and a failure-mode index at the end:
+- [`launch-rungs/`](launch-rungs/) — parallel divergent subagent manifest +
+  launch script. 4 subagents by default.
+- [`rpi/`](rpi/) — three-phase RPI driver with hard-locked artifacts.
+- [`MODELS.md`](MODELS.md) — registry schema. Now includes `parent:` field.
+- [`TREE.json`](TREE.json) — machine-readable tree managed by `skills/iterate`.
 
-- **`anti-patterns.md`** — known traps. Now leads with the per-segment δ₀ recipe (`"The legal cousin"`) as **THE highest-leverage move on this dataset**, with allowlist-clean code (m3.v2 fix: prior version used `a_lat_meas_mps2` which is denied by the operating contract; recipe now uses `yaw_rate_pred_rads` / `delta_road_rad` proxies). Cohort evidence: top tier vs bottom tier = +8pts yaw / +15pts CTE on this single technique.
-- **`approach-menu.md`** — option map. Annotated [explored] / [lightly tried] / [unexplored]. Now opens with `Two model shapes` (reconstruction vs V0-correction) — m3 cohort showed agents who picked V0-correction plateaued ~+48% yaw structurally. Includes the platform-gating diagnostic and the structural-complexity ladder.
-- **`two-kpi-tradeoff.md`** — KPI interpretation. Two-step diagnostic for "yaw improved but CTE stuck". Worked example: per-platform bias-spread check (now part of the AGENTS.md inner-loop as numbered step 2).
-- **`exploration-discipline.md`** — protocol for naming ≥5 alternatives (at least 3 different model structures) before commitment + the `EXPERIMENTS.md` log convention. **m3.v2 change: now requires a `Rung: 0|1|2|3|orthogonal` tag on every log entry, and `pre-flighting-final-model` enforces at least one `Rung: 1+` or `Rung: orthogonal` entry before the bundle can ship.**
-- **`dynamics-formulations.md`** — V0 documented in full. **m3.v2 change: rung 1 is no longer marked `[sketch — not implemented]`; it's flagged as the default climb attempt under the new exploration policy and now includes a "Minimum viable rung-1 attempt" section with a ~30-line code scaffold (Euler integration, fix all params from carParams except `C_αf`, fit per platform).** The cost-to-attempt is much lower than past cohorts assumed.
-- **`ceiling-moves.md`** — four moves above the current best-known ceiling (multi-seed fold averaging, CTE-aware fit, constrained joint fit, climb the structure ladder). With the `fit-model` skill now in the toolkit, several of these are one-line config changes rather than heavy lifts. Sequenced by residual shape. Only load after the agent has already beaten V0 by ≥+30% on both KPIs.
+**New references** (in [`references/`](references/)):
 
-Plus one root-level artifact:
+- [`m4-cohort-findings.md`](references/m4-cohort-findings.md) — 8
+  evidence-backed patterns from the m3.v3 cohort. Cited by
+  `critique-residuals` via section number.
+- [`closing-the-loop.md`](references/closing-the-loop.md) — how the five
+  m4 mechanisms compose. Read first.
 
-- **[`EXPERIMENTS.md`](EXPERIMENTS.md)** — append-only experiment log template. Lives at the working-dir root, gets one entry per concrete attempt. Prevents silent re-convergence on the same approach.
+**m4.v1 is strictly additive over m3.v3.**
 
-## How to drive Module 3 with this template
+## What we deliberately did *not* add
 
-1. Symlink `data/` (whole repo data tree) and `code/` (whole repo code tree) into each agent's working dir — see [data/README.md](data/README.md) and [code/README.md](code/README.md).
+- **Persona / multi-role subagents.** Same rationale as m3.v2 (Cognition,
+  Wasowski, Anthropic production patterns 2026). `launch-rungs/` is context
+  isolation, not role-play.
+- **Model self-judging best-of-N without the real scorer.** The verification
+  gap *widens* with N.
+- **External SaaS sandboxes (Modal, E2B).** Task runs locally on CPU.
+- **LLM-as-judge as a quality gate.** `critique-residuals` is typed-grounded
+  router (only emits routes whose preconditions it can verify from gate
+  output). Avoids the 2026 self-refine "coherence trap."
+- **Cohort-level automated skill ratchet.** Held for a later module — see § "What m5 owes m4" below.
+
+## What m5 owes m4 — the unclosed loop
+
+m4 closes the inner loop (every iteration auto-scores, auto-logs, auto-routes)
+but does not close the **cross-cohort loop**: `references/m4-cohort-findings.md`
+was curated from the m3.v3 cohort by hand. m5's responsibility is to ship a
+skill — provisionally `crystallise-cohort-findings` — that ingests the m4
+cohort's REPORT.md files + assessment.md verdicts + TREE.json data, finds
+the patterns that recur across runs (winning structures, failure modes,
+specific cohort-level evidence), and emits the next iteration's
+`m4-cohort-findings.md` (renamed `m5-cohort-findings.md`) automatically.
+
+Without this skill, the m4 ratchet stops after one cohort. The next cohort
+inherits stale findings, the references drift out of sync with reality, and
+the cohort-evidenced routing in `critique-residuals` decays. The placeholder
+exists here so the gap is named, not silently inherited.
+
+## How to drive Module 4 with this template
+
+1. Symlink `data/` and `code/` into the agent's working dir
+   (see [data/README.md](data/README.md), [code/README.md](code/README.md)).
+   The code symlink must contain `v1_baseline.py` (m3.v3+).
 2. Open the agent dir in Claude Code. `AGENTS.md` loads.
-3. The agent's task prompt names the two KPIs to minimise.
-4. The agent inspects skill and reference metadata first (cheap), loads bodies on demand. Recommended order in AGENTS.md.
-5. Iterate: name alternatives (across rungs) → pick one → fit → `scoring-model` → log to `EXPERIMENTS.md` with `Rung:` tag → consult references when stuck → repeat. Use `comparing-models` for A/B. **Required: log at least one `Rung: 1` (or higher, or `orthogonal`) attempt before declaring done — `pre-flighting-final-model` enforces this.** Run `pre-flighting-final-model` before declaring done.
-
-## What's *not* here (held for later modules)
-
-- No `tasks/` directory. The KPI brief lives in the agent's run-time prompt, not in the template.
-- No `evals/` directory. Skill-level evals appear in later modules.
-- No `tools/` or `.mcp/`. Empty in m3.
-- No multi-agent / persona scaffolding (see "What we deliberately did *not* add" above).
+3. The agent's task prompt names the two KPIs + V1's pooled scores as floor.
+4. Inner loop: build `models/<name>/` → `skills/iterate` → follow the route.
+5. Optional: `bash rpi/run-research.sh` for phase-separated research; or
+   `bash launch-rungs/launch.sh` for parallel rung subagents.
+6. End gate: `pre-flight-final-model --final` reads the frozen test split,
+   reports dev/test gap, ships if within band.
 
 ## Dependencies
 
 - Python 3.11+
-- `uv` for env management (`uv sync` after first clone)
+- `uv` (`uv sync` after first clone)
+- `yq` for launch-rungs manifest parser (`brew install yq`)
 - Claude Code
+- (optional) matplotlib for PNG tree visualisation
+
+## Sources informing m4
+
+Internal:
+- m3.v3 cohort grade — `_grade/20260601-173918/cohort.md`
+- m3.v3 cohort reports — `module-3.v3/agent-{01..10}/REPORT.md`
+- AI-axis NC framework — `F1/KB002/ai-axis/_README.md`
+
+External:
+- AIDE — `arxiv.org/abs/2502.13138`
+- AlphaEvolve — `arxiv.org/abs/2506.13131`
+- CodeEvolve — `arxiv.org/abs/2510.14150`
+- MLE-bench — `arxiv.org/abs/2410.07095`
+- MAESTRO divergent-convergent — `arxiv.org/abs/2511.06134`
+- Multi-Agent Verification — `arxiv.org/abs/2502.20379`
+- CMU agent test-time-scaling ceiling (2026)
+- Anthropic Multi-Agent Research (April 2025)
+- Horthy, Advanced Context Engineering (RPI loop)
+- HumanLayer 100K-session telemetry (40% context-fill inflection)
