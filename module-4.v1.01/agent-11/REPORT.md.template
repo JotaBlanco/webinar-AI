@@ -1,0 +1,113 @@
+# REPORT.md — cohort-feeding template
+
+Copy this to `REPORT.md` at the end of your run. The prompts here are what
+the m3.v3 cohort REPORT.md files captured — the same questions are what
+generated the findings in [`references/m4-cohort-findings.md`](references/m4-cohort-findings.md).
+Keeping the template stable means the next cohort's findings stay comparable
+to this one's. m5 will ingest these REPORT.md files automatically; for now
+the m4 → m5 ratchet runs by hand on whatever is captured here.
+
+---
+
+## What I shipped
+
+- Final-model bundle: `final-model/`
+- Parent in the search tree: <leader name or `v1`>
+- Dev CV: yaw <mean ± σ>, CTE <mean ± σ>
+- Test (read once at preflight --final): yaw <…>, CTE <…>
+- Dev/test gap: <…%> on yaw, <…%> on CTE
+- Rung: <0 | 1 | 2 | 3 | orthogonal>
+
+## Structures I tried (and the verdict on each)
+
+One paragraph per `models/<name>/` you built. Cite cohort findings if your
+result confirms or contradicts them.
+
+- **<name>** — <rung tag>. <one-sentence formulation>. <Δ% vs V1>.
+  Verdict: <kept | shelved | shipped>. <one-sentence why>.
+- **<name>** — …
+
+## Candidates considered and rejected
+
+> **Required.** Preflight's `report_cites_rejected` gate fails the bundle if
+> this section has no entries with a non-shipped verdict. The motivating
+> failure mode is m4.v1 agent-07, which shipped one candidate with no
+> MODELS.md iterations.
+>
+> **Verdict vocabulary** — the gate fuzzy-matches any of these words:
+> `shelved`, `rejected`, `did not ship`, `ruled out`, `discarded`. Pick
+> whichever fits — `shelved` matches the MODELS.md status enum for
+> candidates that were built and scored but didn't win; the other four
+> are fine for candidates considered but never built.
+
+| candidate | what it tried | verdict | one-line reason |
+|---|---|---|---|
+| <name> | <formulation — built and scored> | shelved | <lost to leader by N% on dev CV> |
+| <name> | <formulation — considered but not built> | ruled out | <why it never ran> |
+
+## Deferred under budget
+
+> **Structured.** The cohort orchestrator parses this table to flag
+> systematic deferrals across the cohort (e.g. "3 of 10 agents deferred
+> route-CV"). m4.v1.01 makes this structured because m4.v1 agents
+> (notably agent-07) buried "I deferred route-CV under budget" in prose,
+> where it could only be rediscovered one transcript at a time.
+
+If you didn't defer anything, leave the table empty with one bullet under it:
+"- Nothing deferred — budget was sufficient."
+
+| move | reason | rerun-cost-estimate |
+|---|---|---|
+| <e.g. route-grouped CV for the Lightning bias> | <e.g. budget ran low; ridge was prioritized> | <e.g. ~15 min on dev pool> |
+| <…> | <…> | <…> |
+
+## Most painful absence — what tooling would have saved me 30+ minutes?
+
+The single thing that wasn't in the template that would have changed your
+trajectory. Be concrete — name the skill, the helper, the reference
+section, the smoke test. The m3.v3 answer to this question (`fit-model`
+absent for non-V1 shapes) is what motivates `_shared/rung1_starter.py`
+existing in m4. Your answer here is what motivates the m5 template.
+
+## Single most surprising thing I learned
+
+The result that made you say "huh". Bonus if it contradicts a cohort
+finding from `m4-cohort-findings.md` — those are the patterns most worth
+testing again next cohort.
+
+## What I almost did that the rules / template prevented
+
+The deviation you considered and didn't take. Names a place where the
+discipline paid off. If this section is empty, the template was either
+perfectly aligned with your intuition (unlikely) or so light that it never
+constrained you (worth fixing).
+
+## What I almost did that the rules / template *failed* to prevent
+
+The bug or footgun the template let you walk into. Names a place where
+the next iteration of the template can ratchet — same shape as cohort §6
+ratcheting route-grouped CV into being mandatory.
+
+## Process deviations (if you skipped a default)
+
+One line per skip. Defaults are RPI (`bash rpi/run-*.sh` or
+`bash phases/*/run.sh`), `launch-rungs/launch.sh`, the stagnation reset.
+
+- Skipped <mechanism>: <reason>
+- …
+
+## What I would tell the next cohort
+
+One paragraph. The thing you wish someone had told *you* at hour zero.
+This becomes the seed for the next cohort's `references/closing-the-loop.md`
+update.
+
+---
+
+## Required fields preflight checks for
+
+- [ ] Final-model bundle path is named.
+- [ ] Structures-tried section has ≥1 entry.
+- [ ] "Most painful absence" is filled in (not the literal placeholder).
+- [ ] "Surprising thing" is filled in.
+- [ ] Process deviations either lists ≥1 skip or says "no defaults skipped".

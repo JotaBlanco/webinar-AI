@@ -1,0 +1,37 @@
+{
+  "model_name": "v1-baseline-shipped",
+  "rung": 0,
+  "parent": "v1",
+  "description": "V1 baseline (kinematic single-track + understeer + first-order tau lag + per-segment delta0). I attempted the M4 relaxation-length rung-1 orthogonal climb but it lost to V1 by 3.3% on yaw on apples-to-apples scoring. Shipping V1 as the honest dominant model. Rung-1 attempt is logged in MODELS.md as shelved.",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "coeffs_file": "coeffs.json",
+  "dev_metrics": {
+    "yaw_rate_rmse": 0.005430,
+    "cte_rmse": 52.2152,
+    "n_segments": 402,
+    "per_platform_yaw_rmse": {
+      "FORD_F_150_LIGHTNING_MK1": 0.00754,
+      "FORD_MUSTANG_MACH_E_MK1": 0.00827,
+      "HYUNDAI_IONIQ_5": 0.00650,
+      "TESLA_MODEL_3": 0.00000
+    },
+    "per_platform_cte_rmse": {
+      "FORD_F_150_LIGHTNING_MK1": 93.768,
+      "FORD_MUSTANG_MACH_E_MK1": 63.647,
+      "HYUNDAI_IONIQ_5": 67.172,
+      "TESLA_MODEL_3": 0.000
+    }
+  },
+  "m4_attempted": {
+    "name": "m4-relaxation-length (orthogonal rung-1)",
+    "yaw_rate_rmse": 0.005610,
+    "cte_rmse": 52.1003,
+    "verdict": "shelved — yaw regression vs V1 of +3.3%, CTE win of 0.12 m within noise"
+  }
+}

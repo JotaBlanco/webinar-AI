@@ -1,0 +1,21 @@
+{
+  "model_name": "v1-baseline-shipped",
+  "module": "module-4.v2.01",
+  "agent": "agent-03",
+  "predict_callable": "predict.py:predict",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "rung": 0,
+  "parent": "v1",
+  "notes": "V1 baseline (kinematic single-track + understeer + first-order lag + per-segment delta0). Shipped after the m1-linear-dynamic-st rung-1 climb attempt failed to beat V1 within budget (m1 unfit: 0.00919/116.89 yaw/CTE; m4-relax fitted: 0.005634/52.10 — slightly worse yaw, slightly better CTE, net loss). Operating contract: reads only t_s, delta_road_rad, v_mps, yaw_rate_pred_rads from sim_df.",
+  "scorecard_dev_pooled": {
+    "yaw_rate_rmse": 0.005430,
+    "cte_rmse": 52.215,
+    "n_segments": 402
+  },
+  "rung1_attempt": "models/m1-linear-dynamic-st (logged in MODELS.md; gate: fail/unfit)"
+}

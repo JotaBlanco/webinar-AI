@@ -1,0 +1,32 @@
+{
+  "name": "v1-loadtransfer-correction",
+  "version": "1.0.0",
+  "predict_callable": "predict.py:predict",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "parent_model": "v1-baseline (m3.v3)",
+  "rung": "0+",
+  "structural_change": "Per-platform multiplicative correction in V1 lateral acceleration proxy (a_lat = yr_v1 * v).",
+  "dev_metrics_pooled_3plat": {
+    "yaw_rate_rmse": 0.007021,
+    "cte_rmse": 69.4304,
+    "delta_vs_V1_yaw_pct": -0.38,
+    "delta_vs_V1_cte_pct": -0.74
+  },
+  "per_platform_dev": {
+    "FORD_F_150_LIGHTNING_MK1": {"yaw": 0.007512, "cte": 90.617},
+    "FORD_MUSTANG_MACH_E_MK1":  {"yaw": 0.008179, "cte": 63.451},
+    "HYUNDAI_IONIQ_5":          {"yaw": 0.006497, "cte": 67.172}
+  },
+  "fitted_params": {
+    "FORD_F_150_LIGHTNING_MK1": {"k1": -0.00331, "k2": -0.00063},
+    "FORD_MUSTANG_MACH_E_MK1":  {"k1":  0.00179, "k2": -0.00271},
+    "HYUNDAI_IONIQ_5":          {"k1":  0.0, "k2": 0.0}
+  },
+  "training_split": "frozen route-grouped train (60% of routes, n=1187 segments)",
+  "scoring_notes": "yaw RMSE pooled over v_mps > 2.0 samples; CTE RMSE pooled over distance bins (1m grid, segments >= 20m)."
+}

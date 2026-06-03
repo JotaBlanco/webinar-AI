@@ -1,0 +1,21 @@
+{
+  "name": "fitted-v1",
+  "rung": 0,
+  "parent": "v1_baseline",
+  "platform_support": [
+    "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "predict_callable": "predict.py:predict",
+  "dev_metrics": {
+    "yaw_rate_rmse_rad_s": 0.005410,
+    "cte_rmse_m": 52.1632
+  },
+  "test_metrics": {
+    "yaw_rate_rmse_rad_s": 0.005563,
+    "cte_rmse_m": 48.9724
+  },
+  "notes": "V1 with conservative tau tweaks: Mach-E tau 0.069 -> 0.060, Ioniq tau 0.062 -> 0.045. F150 left unchanged after a delta0=0.002 fit overfit dev (-15.7% CTE on dev but +95% CTE drift sign-flip on test, indicating dev-route-specific bias). Tesla V0 passthrough."
+}
