@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template 04 — Terminal</title>
+<style>
+  /* =========================================================
+     TEMPLATE 04 — TERMINAL
+     Vibe: cinematic developer console, scan lines, typewriter
+     reveals, blinking cursor, glow accents. Engineering-first
+     but elevated — not a Hollywood hacker scene.
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #060810;
+    --bg-2: #0a0c18;
+    --ink: #e6ecf2;
+    --ink-soft: rgba(230,236,242,0.72);
+    --ink-mute: rgba(230,236,242,0.4);
+    --green: #00dd81;
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --cyan: #58e2ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --red: #ff4040;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', 'Menlo', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: radial-gradient(ellipse at center, var(--bg-2), var(--bg) 70%);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* CRT scanlines */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 4; pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.015) 0 1px,
+      transparent 1px 3px
+    );
+    mix-blend-mode: overlay;
+  }
+  /* vignette */
+  body::after {
+    content: ''; position: fixed; inset: 0; z-index: 3; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+  }
+
+  /* faint matrix grid */
+  .matrix {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,221,129,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,221,129,0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  }
+
+  /* top status bar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+    color: var(--green); text-transform: uppercase;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 1rem; }
+  .topbar .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 10px var(--green);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 2; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 9vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .prompt {
+    font-family: var(--mono);
+    color: var(--green);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .prompt::before { content: '$'; color: var(--cyan); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(2.8rem, 7vw, 6.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 40px rgba(61,137,255,0.15);
+  }
+  h1.display .accent {
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(0,221,129,0.4);
+  }
+  h1.display .cursor {
+    display: inline-block; width: 0.5em; height: 1em;
+    background: var(--green); vertical-align: -0.05em;
+    margin-left: 0.1em;
+    animation: blink 1.1s steps(2) infinite;
+    box-shadow: 0 0 12px var(--green);
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* typewriter-style subtitle */
+  .subtitle-mono {
+    font-family: var(--mono);
+    color: var(--ink-soft);
+    font-size: clamp(0.95rem, 1.25vw, 1.05rem);
+    line-height: 1.7;
+    max-width: 78ch;
+    margin-bottom: 1rem;
+  }
+  .subtitle-mono .key { color: var(--cyan); }
+  .subtitle-mono .val { color: var(--ink); }
+  .subtitle-mono .cmt { color: var(--ink-mute); }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    line-height: 1.6;
+    max-width: 64ch;
+  }
+
+  /* section divider */
+  .section-tag {
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.24em;
+    color: var(--cyan); text-transform: uppercase; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.6rem;
+  }
+  .section-tag::before {
+    content: '>>'; color: var(--green); font-weight: 700;
+  }
+  h2.section {
+    color: var(--ink);
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+  h2.section .green { color: var(--green); }
+
+  h3.heading {
+    color: var(--ink);
+    font-size: clamp(1.5rem, 2.2vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin-bottom: 1rem;
+  }
+
+  p.body {
+    color: var(--ink-soft);
+    font-size: 1.05rem; line-height: 1.7;
+    max-width: 62ch;
+    margin-bottom: 1rem;
+  }
+
+  /* code-like output block */
+  .console {
+    font-family: var(--mono); font-size: 0.88rem; line-height: 1.7;
+    padding: 1.25rem 1.5rem;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,221,129,0.2);
+    border-radius: 6px;
+    color: var(--ink);
+    margin-top: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .console::before {
+    content: ''; position: absolute; top: 0; left: 0; height: 2px; width: 40%;
+    background: linear-gradient(90deg, var(--green), transparent);
+  }
+  .console .ln { display: flex; gap: 1rem; }
+  .console .num { color: var(--ink-mute); width: 1.5em; text-align: right; flex-shrink: 0; }
+  .console .ok { color: var(--green); }
+  .console .warn { color: var(--orange); }
+  .console .err { color: var(--red); }
+  .console .dim { color: var(--ink-mute); }
+  .console .key { color: var(--cyan); }
+  .console .str { color: var(--purple); }
+
+  /* metric tag */
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; font-family: var(--mono); }
+  .tag {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid rgba(0,221,129,0.3);
+    background: rgba(0,221,129,0.06);
+    color: var(--green);
+    border-radius: 3px;
+  }
+  .tag.blue { border-color: rgba(61,137,255,0.4); background: rgba(61,137,255,0.06); color: var(--blue-l); }
+  .tag.purple { border-color: rgba(189,46,255,0.4); background: rgba(189,46,255,0.06); color: var(--purple); }
+  .tag.orange { border-color: rgba(255,120,40,0.4); background: rgba(255,120,40,0.06); color: var(--orange); }
+
+  /* data slide */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+  .metric-box {
+    border: 1px solid rgba(61,137,255,0.25);
+    background: linear-gradient(180deg, rgba(61,137,255,0.05), transparent);
+    padding: 1.25rem;
+    border-radius: 4px;
+    position: relative;
+  }
+  .metric-box::after {
+    content: ''; position: absolute; bottom: 0; left: 0; height: 1px; width: 100%;
+    background: linear-gradient(90deg, var(--green) 0%, transparent 70%);
+  }
+  .metric-box .k {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.2em;
+    color: var(--cyan); text-transform: uppercase; margin-bottom: 0.5rem;
+  }
+  .metric-box .v {
+    font-family: var(--mono); font-size: 2.4rem; color: var(--ink);
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1;
+  }
+  .metric-box .v small { font-size: 1rem; color: var(--ink-mute); font-weight: 400; }
+  .metric-box .delta { font-family: var(--mono); font-size: 0.78rem; color: var(--green); margin-top: 0.5rem; }
+
+  /* quote */
+  .terminal-quote {
+    font-family: var(--mono);
+    font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+    color: var(--ink); font-weight: 500;
+    line-height: 1.5;
+    max-width: 38ch;
+    letter-spacing: -0.01em;
+  }
+  .terminal-quote::before {
+    content: '// '; color: var(--green); opacity: 0.7;
+  }
+
+  /* entrance */
+  .slide.active .reveal    { animation: typeIn 0.6s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1 { animation: typeIn 0.6s cubic-bezier(.2,.7,.2,1) 0.12s both; }
+  .slide.active .reveal-d2 { animation: typeIn 0.6s cubic-bezier(.2,.7,.2,1) 0.24s both; }
+  .slide.active .reveal-d3 { animation: typeIn 0.6s cubic-bezier(.2,.7,.2,1) 0.36s both; }
+  .slide.active .reveal-d4 { animation: typeIn 0.6s cubic-bezier(.2,.7,.2,1) 0.48s both; }
+  @keyframes typeIn {
+    from { opacity: 0; transform: translateY(8px); clip-path: inset(0 100% 0 0); }
+    to   { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0 0); }
+  }
+
+  /* footer */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+    color: var(--ink-mute); text-transform: uppercase;
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 1px;
+    background: rgba(0,221,129,0.1); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    transition: width 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="matrix"></div>
+
+<div class="topbar">
+  <div class="left">
+    <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+    <span class="dot"></span>
+    <span>session active · /dev/quix/04</span>
+  </div>
+  <span>06:42:18 utc</span>
+</div>
+
+<div class="deck">
+
+  <!-- cover -->
+  <section class="slide active" data-i="1">
+    <div class="prompt reveal">./present --deck=04 --mode=cinematic</div>
+    <h1 class="display reveal-d1">streaming<br><span class="accent">at the speed of decisions</span><span class="cursor"></span></h1>
+    <p class="subtitle-mono reveal-d2">
+      <span class="cmt"># Terminal aesthetic — scan lines, CRT vignette, blinking cursor.</span><br>
+      <span class="key">audience</span> = <span class="val">"engineers"</span><br>
+      <span class="key">tone</span>    = <span class="val">"technical, dry-witted, confident"</span>
+    </p>
+  </section>
+
+  <!-- section -->
+  <section class="slide" data-i="2">
+    <div class="section-tag reveal">module 02</div>
+    <h2 class="section reveal-d1">when <span class="green">stateful</span> stops scaling.</h2>
+    <p class="subtitle reveal-d2">A walk through three failure modes nobody documented because nobody survived the postmortem.</p>
+  </section>
+
+  <!-- content with console -->
+  <section class="slide" data-i="3">
+    <div class="section-tag reveal">finding · 03</div>
+    <h3 class="heading reveal-d1">The bottleneck isn't where the metrics say it is.</h3>
+    <p class="body reveal-d2">Dashboards show CPU. The problem is RocksDB compaction. The problem is always RocksDB compaction.</p>
+    <div class="console reveal-d3">
+      <div class="ln"><span class="num">01</span><span class="dim">$</span> kubectl logs ingest-7d8f --tail=8</div>
+      <div class="ln"><span class="num">02</span><span class="ok">[ok]</span>  consumer lag: <span class="key">82</span> msgs</div>
+      <div class="ln"><span class="num">03</span><span class="ok">[ok]</span>  p50 latency: <span class="key">18ms</span></div>
+      <div class="ln"><span class="num">04</span><span class="warn">[warn]</span> compaction backlog: <span class="key">3.2GB</span></div>
+      <div class="ln"><span class="num">05</span><span class="err">[err]</span>  rocksdb write stall <span class="str">"L0 too many files"</span></div>
+      <div class="ln"><span class="num">06</span><span class="dim">--</span></div>
+      <div class="ln"><span class="num">07</span><span class="dim">$</span> echo <span class="str">"this is the actual bug"</span></div>
+    </div>
+    <div class="tags reveal-d4">
+      <span class="tag">rocksdb</span>
+      <span class="tag blue">kafka-3.6</span>
+      <span class="tag purple">k8s</span>
+      <span class="tag orange">page-cache</span>
+    </div>
+  </section>
+
+  <!-- data -->
+  <section class="slide" data-i="4">
+    <div class="section-tag reveal">results · prod · 14d</div>
+    <h3 class="heading reveal-d1">After the rewrite.</h3>
+    <div class="grid3 reveal-d2">
+      <div class="metric-box">
+        <div class="k">latency.p99</div>
+        <div class="v">42<small>ms</small></div>
+        <div class="delta">// -78% vs. v0</div>
+      </div>
+      <div class="metric-box">
+        <div class="k">cost.per_1m</div>
+        <div class="v">$0.18</div>
+        <div class="delta">// -64% vs. v0</div>
+      </div>
+      <div class="metric-box">
+        <div class="k">recovery.sla</div>
+        <div class="v">7.2<small>s</small></div>
+        <div class="delta">// -91% vs. v0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- quote -->
+  <section class="slide" data-i="5">
+    <p class="terminal-quote reveal">if you can't tail it, you can't debug it. if you can't debug it, you can't ship it.</p>
+    <div class="prompt reveal-d2" style="margin-top: 2.5rem;">end-of-deck<span style="display:inline-block;width:0.5em;height:1em;background:var(--green);vertical-align:-0.05em;margin-left:0.3em;animation:blink 1.1s steps(2) infinite;box-shadow:0 0 12px var(--green);"></span></div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>quix.proc · 2026</span>
+  <span>frame <span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = slides.length;
+  let i = 0;
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp') go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+  go(0);
+</script>
+</body>
+</html>

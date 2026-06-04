@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 02 — Skills · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · Level 02 · Skills
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --cyan: #58e2ff;
+    --grey-l: rgba(180,190,210,0.42);
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.orange { color: var(--orange-l); }
+  .eyebrow.orange::before { background: var(--orange-l); }
+  .eyebrow.green  { color: var(--green); }
+  .eyebrow.green::before  { background: var(--green); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+
+  .big-num {
+    font-size: clamp(7rem, 17vw, 15rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    background: linear-gradient(180deg, var(--ink) 25%, rgba(255,255,255,0.12) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+
+  /* ============== SLIDE 1 — section opener ============== */
+  .opener {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .opener .level-tag {
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--purple-l);
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .opener .level-tag::before {
+    content: ''; width: 36px; height: 1px; background: var(--purple-l);
+    box-shadow: 0 0 8px var(--purple-l);
+  }
+  .opener h1 {
+    font-size: clamp(4.5rem, 13vw, 11rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-top: 1rem;
+  }
+  .opener h1 .grad {
+    background: linear-gradient(120deg, var(--purple) 0%, var(--blue-l) 50%, var(--cyan) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .opener .subline {
+    margin-top: 2rem;
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .opener .subline::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
+    max-width: 280px;
+  }
+
+  /* ============== SLIDE 2 — definition ============== */
+  .definition { max-width: 64rem; }
+  .def-headword {
+    display: flex; align-items: baseline; gap: 1.25rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .def-headword h2 {
+    font-size: clamp(3rem, 6.5vw, 5.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .def-headword h2 .grad {
+    background: linear-gradient(120deg, var(--purple) 0%, var(--blue-l) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .def-headword .pos {
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-mute);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .def-headword .pron {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+  }
+  .def-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--purple), var(--blue-l), var(--cyan), transparent);
+    margin-bottom: 2rem;
+    max-width: 280px;
+    transform-origin: left;
+    animation: drawDiv 1.2s cubic-bezier(.2,.7,.2,1) 0.4s both;
+  }
+  @keyframes drawDiv { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .def-body {
+    font-size: clamp(1.2rem, 1.75vw, 1.55rem);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    max-width: 44ch;
+    margin-bottom: 2rem;
+  }
+  .def-body .em-core   { color: var(--ink); border-bottom: 1px solid rgba(255,255,255,0.55); padding-bottom: 1px; }
+  .def-body .em-cyan   { color: var(--ink); border-bottom: 1px dashed rgba(88,226,255,0.8); padding-bottom: 1px; }
+  .def-body .em-blue   { color: var(--ink); border-bottom: 1px dashed rgba(61,137,255,0.7); padding-bottom: 1px; }
+  .def-body .em-purple { color: var(--ink); border-bottom: 1px dashed rgba(202,95,255,0.7); padding-bottom: 1px; }
+  .def-body .em-orange { color: var(--ink); border-bottom: 1px dashed rgba(254,147,83,0.7); padding-bottom: 1px; }
+  .def-body .gate-clause {
+    display: block;
+    margin-top: 0.7em;
+    color: var(--green);
+    font-style: italic;
+  }
+  .def-body .gate-clause .gate-icon {
+    display: inline-block;
+    font-style: normal;
+    margin-right: 0.4em;
+  }
+
+  .def-components {
+    display: flex; flex-wrap: wrap; gap: 0.7rem;
+    margin-bottom: 2.25rem;
+  }
+  .def-pill {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    font-size: 0.95rem; font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .def-pill .n {
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--ink-mute); letter-spacing: 0.15em;
+  }
+  .def-pill.cyan   { border-color: rgba(88,226,255,0.50); background: rgba(88,226,255,0.10); }
+  .def-pill.blue   { border-color: rgba(61,137,255,0.45); background: rgba(61,137,255,0.08); }
+  .def-pill.purple { border-color: rgba(202,95,255,0.45); background: rgba(202,95,255,0.08); }
+  .def-pill.orange { border-color: rgba(254,147,83,0.45); background: rgba(254,147,83,0.08); }
+
+  .def-source {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 60ch;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.15);
+  }
+  .def-source b { color: var(--ink-soft); font-style: normal; font-weight: 500; }
+
+  /* ============== SLIDE 3 — diagram (skills shelf, built up) ============== */
+  .diagram-wrap {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    justify-content: center;
+  }
+  .diagram-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.25rem;
+  }
+  .diagram-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .diagram-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .diagram {
+    display: flex; flex-direction: column;
+    gap: 0.85rem;
+    align-items: stretch;
+  }
+  .diagram svg {
+    width: 100%;
+    height: auto;
+    max-height: 64vh;
+    display: block;
+  }
+  .diagram-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 70ch;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+  }
+
+  /* SVG element styling */
+  .diagram svg text {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    fill: var(--ink);
+  }
+  .diagram svg .lbl {
+    font-size: 18px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: -0.005em;
+  }
+  .diagram svg .lbl-sm {
+    font-size: 14px; font-weight: 500;
+    text-anchor: middle; dominant-baseline: central;
+  }
+  .diagram svg .lbl-header {
+    font-size: 13px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    fill: rgba(255,255,255,0.7);
+  }
+  .diagram svg .lbl-folder {
+    font-family: var(--mono);
+    font-size: 14px; font-weight: 600;
+    text-anchor: start; dominant-baseline: central;
+    letter-spacing: 0.14em;
+    fill: var(--cyan);
+  }
+  .diagram svg .arrow-label {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 500;
+    fill: rgba(255,255,255,0.75);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-anchor: middle;
+  }
+
+  /* greyed Level-01 loop layer */
+  .diagram svg .l01-box rect.bg {
+    fill: rgba(180,190,210,0.04);
+    stroke: var(--grey-l);
+    stroke-width: 1.2;
+  }
+  .diagram svg .l01-box text { fill: var(--grey-l); }
+  .diagram svg .l01-arrow path {
+    fill: none;
+    stroke: var(--grey-l);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .diagram svg .l01-arrow.dashed path { stroke-dasharray: 6 5; }
+  .diagram svg .l01-arrow .arrow-label { fill: var(--grey-l); }
+  .diagram svg .l01-sub rect {
+    fill: rgba(180,190,210,0.03);
+    stroke: var(--grey-l);
+    stroke-width: 0.8;
+    stroke-dasharray: 3 3;
+  }
+  .diagram svg .l01-sub text { fill: var(--grey-l); }
+  .diagram svg .l01-icon {
+    fill: none;
+    stroke: var(--grey-l);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .diagram svg .l01-chip rect {
+    fill: var(--bg-deep);
+    stroke: var(--grey-l);
+    stroke-width: 1.2;
+  }
+  .diagram svg .l01-chip text {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 600;
+    fill: var(--grey-l);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+
+  /* skills layer — colour */
+  .diagram svg .sp-box rect.bg {
+    fill: rgba(254,147,83,0.10);
+    stroke: var(--orange-l);
+    stroke-width: 1.6;
+  }
+  .diagram svg .sp-box text { fill: var(--ink); }
+
+  .diagram svg .sk-folder rect.bg {
+    fill: rgba(88,226,255,0.04);
+    stroke: var(--cyan);
+    stroke-width: 1.4;
+  }
+  .diagram svg .sk-folder .tab {
+    fill: rgba(88,226,255,0.10);
+    stroke: var(--cyan);
+    stroke-width: 1.4;
+  }
+  .diagram svg .sk-card rect.bg {
+    fill: rgba(10,11,22,0.7);
+    stroke: rgba(88,226,255,0.45);
+    stroke-width: 1;
+  }
+  .diagram svg .sk-card text.name {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 600;
+    text-anchor: start; dominant-baseline: central;
+    letter-spacing: 0.02em;
+    fill: var(--ink);
+  }
+  .diagram svg .sk-card .meta-dot { fill: var(--cyan); }
+  .diagram svg .sk-card text.meta-label {
+    font-family: var(--mono);
+    font-size: 8.5px; font-weight: 500;
+    text-anchor: start; dominant-baseline: central;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    fill: var(--ink-mute);
+  }
+  .diagram svg .sk-card.active rect.bg {
+    fill: rgba(0,221,129,0.16);
+    stroke: var(--green);
+    stroke-width: 1.6;
+  }
+  .diagram svg .sk-card.active text.name { fill: var(--green); }
+  .diagram svg .sk-card.active .meta-dot { fill: var(--green); }
+
+  /* metadata fan lines (dashed cyan) */
+  .diagram svg .meta-line {
+    fill: none;
+    stroke: var(--cyan);
+    stroke-width: 0.9;
+    stroke-dasharray: 3 3;
+    opacity: 0.55;
+  }
+  /* body line (solid green) */
+  .diagram svg .body-line {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  /* highlight overlay on frame 7 */
+  .diagram svg .l01-highlight path {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    opacity: 0.95;
+  }
+
+  /* draw-stroke animation */
+  .diagram svg .draw-stroke {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    transition: stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1) 0.15s;
+  }
+  .diagram svg .dia-el.show .draw-stroke { stroke-dashoffset: 0; }
+
+  /* per-element fade */
+  .diagram svg .dia-el {
+    opacity: 0;
+    transition: opacity 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+  .diagram svg .dia-el.show { opacity: 1; }
+
+  /* arrow heads (per colour) */
+  .diagram svg marker.grey   path { fill: var(--grey-l); }
+  .diagram svg marker.green  path { fill: var(--green); }
+  .diagram svg marker.orange path { fill: var(--orange-l); }
+
+  /* ============== SLIDE 4 — references carousel ============== */
+  .ref-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 2rem;
+  }
+  .ref-header .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .ref-header .counter b { color: var(--ink); font-weight: 600; }
+
+  .carousel {
+    position: relative;
+    height: 62vh; min-height: 440px;
+  }
+  .ref-card {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 2.5rem;
+    align-items: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s cubic-bezier(.2,.7,.2,1), transform 0.6s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+  .ref-card.prev { transform: translateX(-40px); }
+  .ref-card.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .ref-thumb {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    align-self: center;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg-deep);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .ref-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ref-thumb::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(5,6,15,0.4) 100%);
+    pointer-events: none;
+  }
+
+  /* generated thumb — for cards without image */
+  .ref-thumb.gen {
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 1.75rem;
+  }
+  .ref-thumb.gen::before {
+    content: ''; position: absolute; inset: 0;
+    filter: blur(30px);
+  }
+  .ref-card[data-card="0"] .ref-thumb.gen::before {
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(189,46,255,0.45), transparent 60%),
+      radial-gradient(50% 50% at 80% 80%, rgba(0,100,255,0.30), transparent 60%);
+  }
+  .ref-card[data-card="1"] .ref-thumb.gen::before {
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(0,221,129,0.40), transparent 60%),
+      radial-gradient(50% 50% at 80% 80%, rgba(88,226,255,0.30), transparent 60%);
+  }
+  .ref-thumb.gen .gen-top {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+  }
+  .ref-thumb.gen .gen-mark {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); font-size: 1.05rem;
+  }
+  .ref-thumb.gen .gen-headline {
+    position: relative; z-index: 1;
+    color: var(--ink);
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+  .ref-thumb.gen .gen-meta {
+    position: relative; z-index: 1;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .ref-thumb.gen svg.glyph {
+    position: absolute; inset: 0; margin: auto;
+    width: 55%; height: auto; opacity: 0.18;
+    z-index: 0;
+  }
+
+  .ref-body {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0.5rem 0;
+  }
+  .ref-body .ref-tag {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--blue-l); margin-bottom: 1rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .ref-body .ref-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l);
+  }
+  .ref-card[data-card="0"] .ref-tag { color: var(--purple-l); }
+  .ref-card[data-card="0"] .ref-tag::before { background: var(--purple-l); box-shadow: 0 0 8px var(--purple-l); }
+  .ref-card[data-card="1"] .ref-tag { color: var(--green); }
+  .ref-card[data-card="1"] .ref-tag::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  .ref-body h3 {
+    color: var(--ink);
+    font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+  .ref-body .ref-author {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .ref-body .ref-author b { color: var(--ink); font-weight: 600; }
+
+  .ref-takeaways {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .ref-takeaways li {
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .ref-takeaways li::before {
+    content: ''; position: absolute; left: 0; top: 0.6em;
+    width: 8px; height: 1px;
+    background: var(--blue-l);
+  }
+  .ref-takeaways li em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .ref-takeaways li b  { color: var(--ink); font-weight: 600; }
+
+  .ref-link {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue-l); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid rgba(61,137,255,0.4);
+    background: rgba(61,137,255,0.06);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    align-self: flex-start;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .ref-link:hover {
+    background: rgba(61,137,255,0.18);
+    transform: translateY(-2px);
+  }
+  .ref-link::after { content: '↗'; font-size: 0.95rem; }
+
+  /* carousel dots */
+  .carousel-dots {
+    position: absolute; bottom: -3.5rem; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 0.6rem;
+  }
+  .carousel-dots button {
+    width: 26px; height: 3px; border: 0;
+    border-radius: 2px; padding: 0;
+    background: rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+  .carousel-dots button.active {
+    background: var(--blue-l);
+    width: 44px;
+    box-shadow: 0 0 8px var(--blue-l);
+  }
+  .carousel-dots button:hover { background: rgba(255,255,255,0.35); }
+
+  /* ============== SLIDE 5 — anatomy of a SKILL.md ============== */
+  .anatomy-wrap {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.7fr 0.85fr;
+    gap: 3.5rem;
+    align-items: start;
+    height: 100%;
+  }
+  /* connector overlay disabled — boxes now toggle on click, no lines */
+  .connector-svg { display: none; }
+
+  .anatomy-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .anatomy-head h3 {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .anatomy-head .file-meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  /* code card — cosmic-style soft card */
+  .code-card {
+    position: relative;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(61,137,255,0.2);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem 1.6rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    max-height: 66vh;
+    overflow: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .code-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), var(--orange), transparent);
+  }
+  .code-card .file-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.7rem;
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .code-card .file-bar .file-name { color: var(--cyan); }
+  .code-card pre {
+    font-family: var(--mono);
+    font-size: clamp(0.74rem, 0.92vw, 0.86rem);
+    color: var(--ink-soft);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .code-card pre .k   { color: var(--cyan); }
+  .code-card pre .v   { color: var(--ink); }
+  .code-card pre .sep { color: var(--ink-mute); }
+  .code-card pre .hl-name { background: rgba(61,137,255,0.14); padding: 0 3px; border-radius: 3px; }
+  .code-card pre .hl-desc { background: rgba(202,95,255,0.12); padding: 0 3px; border-radius: 3px; }
+  .code-card pre .hl-not  { background: rgba(254,147,83,0.12); padding: 0 3px; border-radius: 3px; }
+  .code-card pre .hl-cost { background: rgba(0,221,129,0.14); padding: 0 3px; border-radius: 3px; }
+
+  /* clickable YAML fields — invite interaction + active highlight */
+  .code-card pre .yaml-clickable { cursor: pointer; transition: background 0.25s ease, box-shadow 0.25s ease; }
+  .code-card pre .yaml-clickable:hover { filter: brightness(1.18); }
+  .code-card pre .hl-desc.is-active {
+    background: rgba(202,95,255,0.32);
+    box-shadow: 0 0 0 1px rgba(202,95,255,0.55), 0 0 14px rgba(202,95,255,0.25);
+  }
+  .code-card pre .hl-not.is-active  {
+    background: rgba(254,147,83,0.32);
+    box-shadow: 0 0 0 1px rgba(254,147,83,0.55), 0 0 14px rgba(254,147,83,0.25);
+  }
+  .code-card pre .hl-cost.is-active {
+    background: rgba(0,221,129,0.34);
+    box-shadow: 0 0 0 1px rgba(0,221,129,0.55), 0 0 14px rgba(0,221,129,0.25);
+  }
+  .code-card pre .k.is-active { filter: brightness(1.3); }
+
+  /* annotations column — single-box-on-click reveal */
+  .annotations {
+    position: relative;
+    height: 66vh;
+    min-height: 460px;
+    display: flex;
+    align-items: center;
+  }
+  .annotation {
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%;
+    background: rgba(10,11,22,0.6);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 1.2rem 1.35rem 1.4rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-50%) translateX(14px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+  .annotation.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+  }
+  .annotation::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), transparent);
+  }
+  .annotation.purple::before { background: linear-gradient(90deg, var(--purple), transparent); }
+  .annotation.orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
+  .annotation.green::before  { background: linear-gradient(90deg, var(--green), transparent); }
+  .annotation.purple { border-color: rgba(202,95,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(202,95,255,0.15); }
+  .annotation.orange { border-color: rgba(254,147,83,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(254,147,83,0.15); }
+  .annotation.green  { border-color: rgba(0,221,129,0.40);  box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,221,129,0.15); }
+
+  /* close affordance in top-right of annotation */
+  .annotation .a-close {
+    position: absolute; top: 0.6rem; right: 0.75rem;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    color: var(--ink-mute);
+    font-family: var(--mono); font-size: 0.85rem; line-height: 1;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .annotation .a-close:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+
+  /* hint shown when no annotation is active */
+  .anno-hint {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 0 1rem;
+    opacity: 0.7;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .anno-hint.hidden { opacity: 0; }
+  .anno-hint .ah-arrow {
+    display: inline-block;
+    margin-right: 0.6rem;
+    color: var(--purple-l);
+  }
+
+  .annotation .a-tag {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: var(--mono); font-size: 0.66rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.4rem;
+  }
+  .annotation .a-key {
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+  .annotation.purple .a-key { color: var(--purple-l); }
+  .annotation.orange .a-key { color: var(--orange-l); }
+  .annotation.green  .a-key { color: var(--green); }
+
+  .annotation h4 {
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+  }
+  .annotation p {
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  .annotation p em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .annotation p b  { color: var(--ink); font-weight: 600; }
+  .annotation p code {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--cyan);
+    background: rgba(88,226,255,0.08);
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+
+  /* ============== SLIDE 6 — skills inventory ============== */
+  .inv-wrap {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    height: 100%;
+  }
+  .inv-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .inv-head h3 {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .inv-head .file-meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  .inv-grid {
+    display: flex; flex-direction: column;
+    gap: 1.1rem;
+    max-height: 70vh;
+    overflow: auto;
+    padding-right: 0.5rem;
+  }
+  .inv-group .inv-cat {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.55rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .inv-group .inv-cat::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .inv-group.oracle   .inv-cat { color: var(--blue-l); }
+  .inv-group.diagnose .inv-cat { color: var(--purple-l); }
+  .inv-group.prep     .inv-cat { color: var(--orange-l); }
+  .inv-group.ship     .inv-cat { color: var(--green); }
+
+  .inv-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+  }
+  .inv-chip {
+    cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .inv-chip:hover {
+    background: rgba(255,255,255,0.06);
+    transform: translateY(-1px);
+  }
+  .inv-chip .chip-name {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .inv-chip .chip-tag {
+    font-size: 0.7rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+  }
+  .inv-group.oracle   .inv-chip.active { background: rgba(61,137,255,0.16);  border-color: rgba(61,137,255,0.65);  box-shadow: 0 0 0 1px rgba(61,137,255,0.4), 0 0 24px rgba(61,137,255,0.18); }
+  .inv-group.diagnose .inv-chip.active { background: rgba(202,95,255,0.16);  border-color: rgba(202,95,255,0.65);  box-shadow: 0 0 0 1px rgba(202,95,255,0.4), 0 0 24px rgba(202,95,255,0.18); }
+  .inv-group.prep     .inv-chip.active { background: rgba(254,147,83,0.16);  border-color: rgba(254,147,83,0.65);  box-shadow: 0 0 0 1px rgba(254,147,83,0.4), 0 0 24px rgba(254,147,83,0.18); }
+  .inv-group.ship     .inv-chip.active { background: rgba(0,221,129,0.16);   border-color: rgba(0,221,129,0.65);   box-shadow: 0 0 0 1px rgba(0,221,129,0.4), 0 0 24px rgba(0,221,129,0.18); }
+  .inv-chip.active .chip-name { color: var(--ink); }
+
+  .inv-detail {
+    position: sticky;
+    top: 0;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 1.5rem 1.6rem 1.6rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    min-height: 380px;
+  }
+  .inv-detail::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), transparent);
+  }
+  .inv-detail.oracle   { border-color: rgba(61,137,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(61,137,255,0.18); }
+  .inv-detail.diagnose { border-color: rgba(202,95,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(202,95,255,0.18); }
+  .inv-detail.prep     { border-color: rgba(254,147,83,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(254,147,83,0.18); }
+  .inv-detail.ship     { border-color: rgba(0,221,129,0.40);  box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,221,129,0.18); }
+
+  .inv-detail .d-tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.85rem;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+  }
+  .inv-detail.oracle   .d-tag .d-cat { color: var(--blue-l); }
+  .inv-detail.diagnose .d-tag .d-cat { color: var(--purple-l); }
+  .inv-detail.prep     .d-tag .d-cat { color: var(--orange-l); }
+  .inv-detail.ship     .d-tag .d-cat { color: var(--green); }
+
+  .inv-detail .d-name {
+    font-family: var(--mono);
+    font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    margin-bottom: 0.45rem;
+  }
+  .inv-detail .d-lede {
+    font-size: 1rem;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.45;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+  .inv-detail .d-body {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .inv-detail .d-body b { color: var(--ink); font-weight: 600; }
+  .inv-detail .d-when {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    line-height: 1.55;
+  }
+  .inv-detail .d-when .d-when-label {
+    display: block;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.3rem;
+    font-size: 0.66rem;
+  }
+
+  /* ============== SLIDE 7 — AGENTS.md ============== */
+  .agents-wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 3.5rem;
+    align-items: start;
+    height: 100%;
+  }
+  .agents-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .agents-head h3 {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .agents-head .file-meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  .agents-file {
+    position: relative;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(61,137,255,0.2);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem 1.6rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    max-height: 70vh;
+    overflow: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .agents-file::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--cyan), var(--blue-l), var(--purple), transparent);
+  }
+  .agents-file .file-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.7rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .agents-file .file-bar .file-name { color: var(--cyan); }
+
+  .agents-file .am-section {
+    position: relative;
+    padding: 0.65rem 0.85rem 0.75rem 1rem;
+    border-left: 2px solid;
+    margin-bottom: 0.65rem;
+    border-radius: 0 8px 8px 0;
+    background: rgba(255,255,255,0.025);
+    transition: background 0.25s ease;
+  }
+  .agents-file .am-section:hover { background: rgba(255,255,255,0.05); }
+  .agents-file .am-section .am-h {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+    display: flex; align-items: center; gap: 0.55rem;
+  }
+  .agents-file .am-section .am-h .am-hash {
+    color: var(--ink-mute); font-weight: 400;
+  }
+  .agents-file .am-section .am-p {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .agents-file .am-section .am-p code {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--cyan);
+    background: rgba(88,226,255,0.08);
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+  .agents-file .am-section.layout   { border-color: var(--cyan);     }
+  .agents-file .am-section.layout   .am-h .am-hash { color: var(--cyan); }
+  .agents-file .am-section.inv      { border-color: var(--purple-l); }
+  .agents-file .am-section.inv      .am-h .am-hash { color: var(--purple-l); }
+  .agents-file .am-section.loop     { border-color: var(--blue-l);   }
+  .agents-file .am-section.loop     .am-h .am-hash { color: var(--blue-l); }
+  .agents-file .am-section.warning  { border-color: var(--orange-l); }
+  .agents-file .am-section.warning  .am-h .am-hash { color: var(--orange-l); }
+  .agents-file .am-section.clay     { border-color: var(--green);    }
+  .agents-file .am-section.clay     .am-h .am-hash { color: var(--green); }
+
+  /* explanation column */
+  .agents-explain {
+    display: flex; flex-direction: column;
+    gap: 1.1rem;
+  }
+  .agents-explain .lede {
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    color: var(--ink);
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    margin-bottom: 0.5rem;
+  }
+  .agents-explain .lede em { color: var(--cyan); font-style: normal; font-family: var(--mono); }
+  .agents-explain .lede b  { color: var(--ink); font-weight: 700; }
+
+  .agents-explain .ax-point {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: start;
+    padding: 0.65rem 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .agents-explain .ax-point:first-of-type { border-top: 0; padding-top: 0; }
+  .agents-explain .ax-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    padding-top: 0.15rem;
+    min-width: 1.6rem;
+  }
+  .agents-explain .ax-body h5 {
+    color: var(--ink);
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.005em;
+  }
+  .agents-explain .ax-body p {
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+  .agents-explain .ax-body p b    { color: var(--ink); font-weight: 600; }
+  .agents-explain .ax-body p code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--cyan);
+    background: rgba(88,226,255,0.08);
+    padding: 0 4px; border-radius: 4px;
+  }
+  .agents-explain .ax-point.c-cyan    .ax-num { color: var(--cyan); }
+  .agents-explain .ax-point.c-purple  .ax-num { color: var(--purple-l); }
+  .agents-explain .ax-point.c-blue    .ax-num { color: var(--blue-l); }
+  .agents-explain .ax-point.c-orange  .ax-num { color: var(--orange-l); }
+  .agents-explain .ax-point.c-green   .ax-num { color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Level 02 · Skills</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — section opener ===== -->
+  <section class="slide active" data-i="1">
+    <div class="opener">
+      <span class="level-tag reveal">Level 02</span>
+      <div class="reveal-d1" style="margin-top: 1.5rem;">
+        <span class="big-num">02</span>
+      </div>
+      <h1 class="reveal-d2"><span class="grad">Skills.</span></h1>
+      <div class="subline reveal-d3">A working definition · The shelf, built up · Further reading · Anatomy of a SKILL.md · The toolkit · AGENTS.md</div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — definition ===== -->
+  <section class="slide" data-i="2">
+    <div class="definition">
+      <span class="eyebrow purple">Definition · 02</span>
+      <div class="def-headword reveal-d1">
+        <h2><span class="grad">Skill</span></h2>
+        <span class="pos">noun</span>
+        <span class="pron">/skɪl/</span>
+      </div>
+      <div class="def-divider"></div>
+      <p class="def-body reveal-d2">
+        A <span class="em-core">folder</span> the agent can load <span class="em-core">on demand</span>. Inside:
+        <span class="em-cyan">metadata</span> that says when to use it,
+        <span class="em-blue">instructions</span> that say how,
+        <span class="em-purple">scripts</span> that do the work,
+        and any <span class="em-orange">assets</span> the work needs.
+        <span class="gate-clause"><span class="gate-icon">⌁</span>The agent reads the metadata at startup; the rest only enters context when the skill is judged relevant.</span>
+      </p>
+      <div class="def-components reveal-d3">
+        <span class="def-pill cyan"><span class="n">01</span> metadata</span>
+        <span class="def-pill blue"><span class="n">02</span> instructions</span>
+        <span class="def-pill purple"><span class="n">03</span> scripts</span>
+        <span class="def-pill orange"><span class="n">04</span> assets</span>
+      </div>
+      <p class="def-source reveal-d4">
+        <b>Anthropic Engineering</b> — <i>Equipping Agents for the Real World with Agent Skills</i>, Dec 2025.<br>
+        <b>See also</b> Zhang &amp; Murag — <i>Don't Build Agents, Build Skills Instead</i>, AI Engineer Code Summit, late 2025.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — animated diagram (skills shelf, built up) ===== -->
+  <section class="slide" data-i="3">
+    <div class="diagram-wrap">
+      <div class="diagram-head reveal">
+        <span class="eyebrow purple">Diagram · 03 · The skills shelf, built up</span>
+        <span class="counter"><b id="dCur">01</b> / 07</span>
+      </div>
+      <div class="diagram reveal-d1" data-frame="1" id="diagram">
+        <svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrGrey"   class="grey"   viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z"/>
+            </marker>
+            <marker id="arrGreen"  class="green"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z"/>
+            </marker>
+            <marker id="arrOrange" class="orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z"/>
+            </marker>
+          </defs>
+
+          <!-- FRAME 1 — Level 01 loop, in grey -->
+          <g class="dia-el" data-from="1">
+            <!-- Human -->
+            <g class="l01-box">
+              <rect class="bg" x="60" y="420" width="120" height="60" rx="12"/>
+              <text class="lbl" x="120" y="450">Human</text>
+            </g>
+            <!-- Human ↔ LLM Call (dashed bidirectional) -->
+            <g class="l01-arrow dashed">
+              <path d="M 184 450 L 296 450" marker-start="url(#arrGrey)" marker-end="url(#arrGrey)"/>
+            </g>
+            <!-- LLM Call -->
+            <g class="l01-box">
+              <rect class="bg" x="300" y="395" width="170" height="110" rx="14"/>
+              <text class="lbl" x="385" y="450">LLM Call</text>
+            </g>
+            <!-- Action arrow -->
+            <g class="l01-arrow">
+              <text class="arrow-label" x="555" y="368">Action</text>
+              <path d="M 474 418 Q 555 388, 636 405" marker-end="url(#arrGrey)"/>
+            </g>
+            <!-- tools chip on Action arrow -->
+            <g class="l01-chip">
+              <rect x="518" y="378" width="74" height="22" rx="11"/>
+              <text x="555" y="389" text-anchor="middle" dominant-baseline="central">tools</text>
+            </g>
+            <!-- Environment -->
+            <g class="l01-box">
+              <rect class="bg" x="640" y="350" width="270" height="200" rx="14"/>
+              <text class="lbl-header" x="775" y="378">Environment</text>
+            </g>
+            <!-- data sub-box -->
+            <g class="l01-sub">
+              <rect x="658" y="412" width="110" height="120" rx="10"/>
+              <g class="l01-icon" transform="translate(713, 442)">
+                <ellipse cx="0" cy="-10" rx="18" ry="4.5"/>
+                <path d="M -18 -10 L -18 10 A 18 4.5 0 0 0 18 10 L 18 -10"/>
+                <path d="M -18 0 A 18 4.5 0 0 0 18 0" opacity="0.7"/>
+              </g>
+              <text class="lbl-sm" x="713" y="500">data</text>
+            </g>
+            <!-- code sub-box -->
+            <g class="l01-sub">
+              <rect x="780" y="412" width="110" height="120" rx="10"/>
+              <g class="l01-icon" transform="translate(835, 442)">
+                <path d="M -10 -10 L -19 0 L -10 10"/>
+                <path d="M 10 -10 L 19 0 L 10 10"/>
+                <path d="M -4 13 L 4 -13" opacity="0.7"/>
+              </g>
+              <text class="lbl-sm" x="835" y="500">code</text>
+            </g>
+            <!-- Feedback arrow -->
+            <g class="l01-arrow">
+              <path d="M 636 495 Q 555 522, 474 485" marker-end="url(#arrGrey)"/>
+              <text class="arrow-label" x="555" y="552">Feedback</text>
+            </g>
+            <!-- Stop -->
+            <g class="l01-arrow dashed">
+              <path d="M 385 509 L 385 588" marker-end="url(#arrGrey)"/>
+            </g>
+            <g class="l01-box">
+              <rect class="bg" x="350" y="592" width="70" height="40" rx="10"/>
+              <text class="lbl-sm" x="385" y="612">Stop</text>
+            </g>
+          </g>
+
+          <!-- FRAME 2 — System Prompt appears above LLM Call -->
+          <g class="dia-el sp-box" data-from="2">
+            <rect class="bg" x="300" y="265" width="170" height="70" rx="12"/>
+            <text class="lbl" x="385" y="300">System Prompt</text>
+            <path d="M 385 339 L 385 391"
+                  stroke="var(--orange-l)" stroke-width="1.8" fill="none"
+                  marker-end="url(#arrOrange)"/>
+          </g>
+
+          <!-- FRAME 3 — skills/ folder (empty) -->
+          <g class="dia-el sk-folder" data-from="3">
+            <path class="tab" d="M 520 60 L 620 60 L 640 80 L 940 80 L 940 90 L 520 90 Z"/>
+            <rect class="bg" x="520" y="86" width="420" height="240" rx="8"/>
+            <text class="lbl-folder" x="538" y="76">skills/</text>
+          </g>
+
+          <!-- FRAME 4 — 10 skill cards populate -->
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="108" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="123">residual-structure</text>
+            <circle class="meta-dot" cx="552" cy="135" r="1.6"/>
+            <text class="meta-label" x="558" y="135">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="108" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="123">fit-model</text>
+            <circle class="meta-dot" cx="756" cy="135" r="1.6"/>
+            <text class="meta-label" x="762" y="135">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="152" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="167">score-model</text>
+            <circle class="meta-dot" cx="552" cy="179" r="1.6"/>
+            <text class="meta-label" x="558" y="179">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="152" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="167">route-bias</text>
+            <circle class="meta-dot" cx="756" cy="179" r="1.6"/>
+            <text class="meta-label" x="762" y="179">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="196" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="211">inspect-residuals</text>
+            <circle class="meta-dot" cx="552" cy="223" r="1.6"/>
+            <text class="meta-label" x="558" y="223">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="196" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="211">canonical-grade</text>
+            <circle class="meta-dot" cx="756" cy="223" r="1.6"/>
+            <text class="meta-label" x="762" y="223">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="240" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="255">segment-globs</text>
+            <circle class="meta-dot" cx="552" cy="267" r="1.6"/>
+            <text class="meta-label" x="558" y="267">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="240" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="255">baseline-check</text>
+            <circle class="meta-dot" cx="756" cy="267" r="1.6"/>
+            <text class="meta-label" x="762" y="267">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="284" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="299">emit-report</text>
+            <circle class="meta-dot" cx="552" cy="311" r="1.6"/>
+            <text class="meta-label" x="558" y="311">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="284" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="299">normalise-data</text>
+            <circle class="meta-dot" cx="756" cy="311" r="1.6"/>
+            <text class="meta-label" x="762" y="311">desc · when · not</text>
+          </g>
+
+          <!-- FRAME 5 — dashed metadata fan into System Prompt -->
+          <g class="dia-el" data-from="5">
+            <path class="meta-line" d="M 538 126 Q 470 200, 412 265"/>
+            <path class="meta-line" d="M 742 126 Q 600 180, 425 265"/>
+            <path class="meta-line" d="M 538 170 Q 470 230, 408 265"/>
+            <path class="meta-line" d="M 742 170 Q 600 215, 420 265"/>
+            <path class="meta-line" d="M 538 214 Q 470 250, 404 265"/>
+            <path class="meta-line" d="M 742 214 Q 600 245, 415 265"/>
+            <path class="meta-line" d="M 538 258 Q 480 270, 400 268"/>
+            <path class="meta-line" d="M 742 258 Q 600 275, 410 268"/>
+            <path class="meta-line" d="M 538 302 Q 490 300, 396 272"/>
+            <path class="meta-line" d="M 742 302 Q 600 305, 405 272"/>
+          </g>
+
+          <!-- FRAME 6 — one skill activates, body slides into System Prompt -->
+          <g class="dia-el sk-card active" data-from="6">
+            <rect class="bg" x="538" y="108" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="123">residual-structure</text>
+            <circle class="meta-dot" cx="552" cy="135" r="1.8"/>
+            <text class="meta-label" x="558" y="135">+ body loaded</text>
+          </g>
+          <g class="dia-el" data-from="6">
+            <path class="body-line draw-stroke"
+                  d="M 538 126 Q 460 195, 416 265"
+                  marker-end="url(#arrGreen)"/>
+            <text class="arrow-label" x="450" y="195"
+                  style="fill: var(--green); font-size: 11px; letter-spacing: 0.18em;">BODY</text>
+          </g>
+
+          <!-- FRAME 7 — script flows through Action → tools → Environment -->
+          <g class="dia-el l01-highlight" data-from="7">
+            <path class="draw-stroke" d="M 474 418 Q 555 388, 636 405"
+                  marker-end="url(#arrGreen)"/>
+          </g>
+          <g class="dia-el" data-from="7">
+            <rect x="514" y="374" width="82" height="30" rx="13"
+                  fill="none" stroke="var(--green)" stroke-width="1.4"
+                  opacity="0.85"/>
+            <text class="arrow-label" x="555" y="338"
+                  style="fill: var(--green); font-size: 11px; letter-spacing: 0.2em;">SCRIPT</text>
+          </g>
+        </svg>
+        <p class="diagram-caption" id="diaCaption">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 4 — references carousel ===== -->
+  <section class="slide" data-i="4">
+    <div class="ref-header reveal">
+      <span class="eyebrow orange">References · Further reading</span>
+      <span class="counter"><b id="cCur">01</b> / 02</span>
+    </div>
+
+    <div class="carousel" id="carousel">
+
+      <!-- card 1 — Don't Build Agents, Build Skills Instead -->
+      <div class="ref-card active" data-card="0">
+        <div class="ref-thumb">
+          <img src="buildskillsinstead.jpg" alt="Don't Build Agents, Build Skills Instead — Zhang &amp; Murag">
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Talk · AI Engineer Code Summit · late 2025</span>
+          <h3>Don't Build Agents, Build Skills Instead</h3>
+          <p class="ref-author"><b>Barry Zhang &amp; Mahesh Murag</b> — Anthropic</p>
+          <ul class="ref-takeaways">
+            <li>The same Anthropic speaker who gave the canonical <em>Building Effective Agents</em> talk six months earlier publicly course-corrects: <b>one universal agent + a library of skills</b> beats one bespoke agent per domain.</li>
+          </ul>
+          <a class="ref-link" href="https://www.youtube.com/watch?v=CEvIs9y1uog" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+      </div>
+
+      <!-- card 2 — The New Code -->
+      <div class="ref-card" data-card="1">
+        <div class="ref-thumb">
+          <img src="thenewcode.jpg" alt="The New Code — Sean Grove">
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Talk · AI Engineer World's Fair 2025</span>
+          <h3>The New Code</h3>
+          <p class="ref-author"><b>Sean Grove</b> — then OpenAI alignment</p>
+          <ul class="ref-takeaways">
+            <li><em>"Code is a lossy projection of intent; the specification is the lossless source."</em> Same idea Anthropic ships as Skills coming from the other major frontier lab.</li>
+            <li>OpenAI's <b>Model Spec</b> and Anthropic's <b>Skills</b> are the <em>same primitive</em> — versioned, clause-addressable markdown authored by domain experts that compiles to documentation, evaluations, prompts, and behaviour.</li>
+          </ul>
+          <a class="ref-link" href="https://www.youtube.com/watch?v=8rABwKRsec4" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+      </div>
+
+      <div class="carousel-dots">
+        <button class="active" data-dot="0" aria-label="Card 1"></button>
+        <button data-dot="1" aria-label="Card 2"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 5 — anatomy of a SKILL.md ===== -->
+  <section class="slide" data-i="5">
+    <div class="anatomy-wrap" id="anatomyWrap">
+      <div class="anatomy-head reveal">
+        <h3>Anatomy of a <span style="color:var(--cyan); font-family: var(--mono);">SKILL.md</span></h3>
+        <span class="file-meta">05 · residual-structure / SKILL.md</span>
+      </div>
+
+      <div class="code-card reveal-d1">
+        <div class="file-bar">
+          <span class="file-name">module-2.v3/agent-01/skills/residual-structure/SKILL.md</span>
+          <span>YAML · frontmatter</span>
+        </div>
+<pre><span class="sep">---</span>
+<span class="k">name</span><span class="sep">:</span> <span class="v hl-name">residual-structure</span>
+<span class="k" id="anchor-desc">description</span><span class="sep">:</span> <span class="v hl-desc">After a fit, characterise what's LEFT in the residual —
+  temporal autocorrelation at multiple lags, Pearson correlation with
+  each input feature AND its first time-derivative, sign-asymmetry in δ.
+  Returns a per-platform <b>verdict</b> — either "noise_floor" (stop;
+  you're done) or "structure_detected" with a specific reason
+  ("residual autocorrelated at lag 6 → try a τ·d(δ)/dt term"). Use as
+  the bridge between fit-model and "is V2 worth building?". This is
+  the diagnostic the v2 cohort silently lacked — almost everyone
+  shipped V1 understeer; the one agent who didn't (m2-agent-05,
+  +51.5% yaw) saw exactly this autocorrelation signature and added
+  a steering-rate lead.</span>
+<span class="k">when-to-invoke</span><span class="sep">:</span> <span class="v">After running `fit-model` and `score-model`, when
+  you are trying to decide whether your current model has more headroom
+  or you are at the noise floor. Especially when yaw RMSE has stalled
+  and you do not know whether to ship or keep iterating.</span>
+<span class="k" id="anchor-not">when-NOT-to-invoke</span><span class="sep">:</span> <span class="v hl-not">Before any fit (run scoring-model first — you
+  need a fitted predict_fn). To see route-level bias (use route-bias).
+  To plot residual vs one feature (use inspect-residuals).</span>
+<span class="k" id="anchor-cost">load-cost</span><span class="sep">:</span> <span class="v hl-cost">~210 tokens metadata, ~500 tokens body.</span>
+<span class="sep">---</span></pre>
+      </div>
+
+      <div class="annotations">
+        <p class="anno-hint" id="annoHint"><span class="ah-arrow">←</span> Click a highlighted YAML field</p>
+
+        <div class="annotation purple" id="anno-desc">
+          <span class="a-close" data-close>×</span>
+          <div class="a-tag">A · <span class="a-key">description</span></div>
+          <h4>Carries judgement, not mechanics.</h4>
+          <p>Names the <b>verdict</b> the skill produces — and the failure mode it prevents — not the function it calls. Where your organisation's expertise lives.</p>
+        </div>
+
+        <div class="annotation orange" id="anno-not">
+          <span class="a-close" data-close>×</span>
+          <div class="a-tag">B · <span class="a-key">when-NOT-to-invoke</span></div>
+          <h4>Routes the agent.</h4>
+          <p>Three explicit redirects. Without them the agent guesses which skill to load; with them, it <b>routes</b>.</p>
+        </div>
+
+        <div class="annotation green" id="anno-cost">
+          <span class="a-close" data-close>×</span>
+          <div class="a-tag">C · <span class="a-key">load-cost</span></div>
+          <h4>Prices the abstraction.</h4>
+          <p>Metadata is paid every turn; body only when this skill activates. Without the receipt, you can't budget the eleventh skill.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 6 — skills inventory (interactive) ===== -->
+  <section class="slide" data-i="6">
+    <div class="inv-wrap" id="invWrap">
+      <div class="inv-head reveal">
+        <h3>The toolkit — <span style="color:var(--cyan); font-family: var(--mono);">10 skills</span></h3>
+        <span class="file-meta">06 · env-template-LV02 / skills/</span>
+      </div>
+
+      <div class="inv-grid reveal-d1">
+
+        <div class="inv-group oracle">
+          <div class="inv-cat">Oracle · inner loop</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="score-model">
+              <span class="chip-name">score-model</span>
+              <span class="chip-tag">KPIs + diagnostics for any predict().</span>
+            </div>
+            <div class="inv-chip" data-skill="fit-model">
+              <span class="chip-name">fit-model</span>
+              <span class="chip-tag">Tune per-platform coefficients with scipy.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-group diagnose">
+          <div class="inv-cat">Diagnose · what's left</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="residual-structure">
+              <span class="chip-name">residual-structure</span>
+              <span class="chip-tag">Verdict — noise floor or more to model?</span>
+            </div>
+            <div class="inv-chip" data-skill="route-bias">
+              <span class="chip-name">route-bias</span>
+              <span class="chip-tag">Rank routes by share of pooled error.</span>
+            </div>
+            <div class="inv-chip" data-skill="inspect-residuals">
+              <span class="chip-name">inspect-residuals</span>
+              <span class="chip-tag">Plot residual vs 1 or 2 input features.</span>
+            </div>
+            <div class="inv-chip" data-skill="compare-models">
+              <span class="chip-name">compare-models</span>
+              <span class="chip-tag">Diff two predict()s segment-by-segment.</span>
+            </div>
+            <div class="inv-chip" data-skill="visualise-segment">
+              <span class="chip-name">visualise-segment</span>
+              <span class="chip-tag">3-panel PNG: trajectory · yaw · residual.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-group prep">
+          <div class="inv-cat">Prep · data plumbing</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="load-segments">
+              <span class="chip-name">load-segments</span>
+              <span class="chip-tag">sim.csv → DataFrames with provenance.</span>
+            </div>
+            <div class="inv-chip" data-skill="make-train-dev-split">
+              <span class="chip-name">make-train-dev-split</span>
+              <span class="chip-tag">Route-grouped split — no leakage.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-group ship">
+          <div class="inv-cat">Ship · the gate</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="pre-flight-final-model">
+              <span class="chip-name">pre-flight-final-model</span>
+              <span class="chip-tag">Verify the final-model/ bundle contract.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="inv-detail oracle reveal-d2" id="invDetail">
+        <div class="d-tag"><span class="d-cat" id="dCat">ORACLE · INNER LOOP</span></div>
+        <div class="d-name" id="dName">score-model</div>
+        <div class="d-lede" id="dLede">The inner-loop oracle.</div>
+        <p class="d-body" id="dBody">
+          Runs any <b>predict()</b> over the segments and returns one structured bundle —
+          pooled <b>yaw + CTE RMSE</b>, per-segment / per-platform / per-route / per-regime
+          tables, residual stats, worst-N outliers, and a <b>signed-bias warning block</b>
+          at the top. Schema-aware: resolves the ground-truth column per platform, so Tesla
+          (and any non-default schema) scores instead of being silently skipped.
+        </p>
+        <div class="d-when">
+          <span class="d-when-label">when to invoke</span>
+          <span id="dWhen">Every iteration. This is the oracle — read its bias-warnings block before deciding anything else.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 7 — AGENTS.md ===== -->
+  <section class="slide" data-i="7">
+    <div class="agents-wrap">
+      <div class="agents-head reveal">
+        <h3>The orientation file — <span style="color:var(--cyan); font-family: var(--mono);">AGENTS.md</span></h3>
+        <span class="file-meta">07 · env-template-LV02 / AGENTS.md</span>
+      </div>
+
+      <div class="agents-file reveal-d1">
+        <div class="file-bar">
+          <span class="file-name">env-template-LV02/AGENTS.md</span>
+          <span>markdown · project root</span>
+        </div>
+
+        <div class="am-section layout">
+          <div class="am-h"><span class="am-hash">##</span> Working directory layout</div>
+          <p class="am-p">Maps the workspace — <code>skills/</code>, <code>_shared/</code>, <code>data/</code>, <code>code/</code>, <code>final-model/</code>. So the agent knows <b>where</b> things live before it touches anything.</p>
+        </div>
+
+        <div class="am-section inv">
+          <div class="am-h"><span class="am-hash">##</span> Skills inventory</div>
+          <p class="am-p">One paragraph per skill — what it returns, what to read first, the cohort lesson baked in. The agent learns the toolkit <b>without</b> opening ten <code>SKILL.md</code> files.</p>
+        </div>
+
+        <div class="am-section loop">
+          <div class="am-h"><span class="am-hash">##</span> Suggested loop</div>
+          <p class="am-p">Score → fit → diagnose → iterate the model, not the fit. Encodes <b>how skills chain</b> — the workflow the cohort discovered, frozen as instructions.</p>
+        </div>
+
+        <div class="am-section warning">
+          <div class="am-h"><span class="am-hash">##</span> Don't ship V1</div>
+          <p class="am-p">The specific failure mode that ceiling-ed the v2 cohort. <b>"After your first fit, run residual-structure and build a second candidate."</b> Hard-won lesson, written down once.</p>
+        </div>
+
+        <div class="am-section clay">
+          <div class="am-h"><span class="am-hash">##</span> Working with skills</div>
+          <p class="am-p"><em>"Skills are clay, not library."</em> If a skill is in the way — delete it. The only obligation is to lower the canonical KPIs.</p>
+        </div>
+      </div>
+
+      <div class="agents-explain reveal-d2">
+        <p class="lede">
+          <em>AGENTS.md</em> is the project's <b>orientation file</b> — the agent reads it once at startup, before any skill metadata is even scanned. It's the manifest that turns a folder into a workspace.
+        </p>
+
+        <div class="ax-point c-cyan">
+          <span class="ax-num">01</span>
+          <div class="ax-body">
+            <h5>Always in context.</h5>
+            <p>Loaded every turn — unlike skill bodies. So it has to be <b>tight</b>. Anything you put here is paid for forever; anything you leave for a <code>SKILL.md</code> body only enters when needed.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-purple">
+          <span class="ax-num">02</span>
+          <div class="ax-body">
+            <h5>Names the toolkit.</h5>
+            <p>The agent doesn't have to <code>ls skills/</code> and guess. AGENTS.md lists every skill with its judgement — same writing discipline as a SKILL.md description, just one level up.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-blue">
+          <span class="ax-num">03</span>
+          <div class="ax-body">
+            <h5>Encodes the loop.</h5>
+            <p>Tells the agent <b>how the skills chain</b> — score → fit → diagnose → iterate. Without this, the agent picks an arbitrary order and burns turns rediscovering the workflow.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-orange">
+          <span class="ax-num">04</span>
+          <div class="ax-body">
+            <h5>Carries the hard-won lessons.</h5>
+            <p><b>"Don't ship V1"</b> is not advice — it's a recorded failure mode. AGENTS.md is where the cohort's institutional memory lives, so the next agent doesn't repeat the same ceiling.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-green">
+          <span class="ax-num">05</span>
+          <div class="ax-body">
+            <h5>Sets the contract.</h5>
+            <p>Skills are <b>clay, not library</b>. The agent has permission to modify, extend, or delete any skill. The only obligation is the KPI. AGENTS.md is where that permission is granted.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+  const cards  = document.querySelectorAll('.ref-card');
+  const dots   = document.querySelectorAll('.carousel-dots button');
+  const diaEls = document.querySelectorAll('#diagram [data-from]');
+  const diagram = document.getElementById('diagram');
+  const cap = document.getElementById('diaCaption');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const cCur = document.getElementById('cCur');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+
+  const DIAGRAM_SLIDE = 2;   // zero-based — slide 3
+  const REFS_SLIDE    = 3;   // zero-based — slide 4
+  const ANATOMY_SLIDE = 4;   // zero-based — slide 5
+  const INV_SLIDE     = 5;   // zero-based — slide 6
+  const TOTAL_FRAMES  = 7;
+  tot.textContent = slides.length;
+
+  let i = 0;
+  let c = 0;
+  let frame = 1;
+
+  const captions = {
+    1: 'where we left off — the level 01 loop, dimmed.',
+    2: 'system prompt — the place instructions enter the loop.',
+    3: 'skills/ — the folder, where procedural knowledge lives.',
+    4: 'ten skills · each a name + a metadata block.',
+    5: 'metadata loads every turn — cheap, always in context.',
+    6: 'the body loads only when the task matches.',
+    7: 'skills act through the same tools — the loop is unchanged.'
+  };
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+    resetAnatomy();
+  }
+  function paintCarousel() {
+    cards.forEach((card, idx) => {
+      card.classList.toggle('active', idx === c);
+      card.classList.toggle('prev', idx < c);
+    });
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === c));
+    cCur.textContent = String(c + 1).padStart(2, '0');
+  }
+  function paintDiagram() {
+    diagram.dataset.frame = frame;
+    diaEls.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+    dCur.textContent = String(frame).padStart(2, '0');
+    cap.textContent = captions[frame] || ' ';
+  }
+
+  /* slide 5 — click-to-reveal annotation per YAML field */
+  const annoHint = document.getElementById('annoHint');
+  const fields = [
+    { anchor: 'anchor-desc', highlight: 'hl-desc', anno: 'anno-desc' },
+    { anchor: 'anchor-not',  highlight: 'hl-not',  anno: 'anno-not'  },
+    { anchor: 'anchor-cost', highlight: 'hl-cost', anno: 'anno-cost' }
+  ];
+
+  let activeField = null;
+
+  function setActiveField(annoId) {
+    activeField = annoId;
+    fields.forEach(f => {
+      const on = f.anno === annoId;
+      const anno = document.getElementById(f.anno);
+      if (anno) anno.classList.toggle('visible', on);
+      const k = document.getElementById(f.anchor);
+      if (k) k.classList.toggle('is-active', on);
+      document.querySelectorAll('.' + f.highlight).forEach(el => el.classList.toggle('is-active', on));
+    });
+    if (annoHint) annoHint.classList.toggle('hidden', !!annoId);
+  }
+
+  function toggleField(annoId) {
+    setActiveField(activeField === annoId ? null : annoId);
+  }
+
+  fields.forEach(f => {
+    const k = document.getElementById(f.anchor);
+    if (k) {
+      k.classList.add('yaml-clickable');
+      k.addEventListener('click', e => { e.stopPropagation(); toggleField(f.anno); });
+    }
+    document.querySelectorAll('.' + f.highlight).forEach(el => {
+      el.classList.add('yaml-clickable');
+      el.addEventListener('click', e => { e.stopPropagation(); toggleField(f.anno); });
+    });
+  });
+
+  document.querySelectorAll('.annotation [data-close]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); setActiveField(null); });
+  });
+
+  function resetAnatomy() { setActiveField(null); }
+
+  /* slide 6 — skills inventory */
+  const skillsCatalogue = {
+    'score-model': {
+      cat: 'oracle', catLabel: 'ORACLE · INNER LOOP',
+      lede: 'The inner-loop oracle.',
+      body: 'Runs any <b>predict()</b> over the segments and returns one structured bundle — pooled <b>yaw + CTE RMSE</b>, per-segment / per-platform / per-route / per-regime tables, residual stats, worst-N outliers, and a <b>signed-bias warning block</b> at the top. Schema-aware: resolves ground-truth per platform, so Tesla (and any non-default schema) scores instead of being silently skipped.',
+      when: 'Every iteration. Read the bias-warnings block first — CTE is bias-dominated.'
+    },
+    'fit-model': {
+      cat: 'oracle', catLabel: 'ORACLE · INNER LOOP',
+      lede: 'Auto-tune coefficients against the KPI.',
+      body: 'Optimise per-platform coefficient dicts of an opaque model via scipy. You supply a <b>predict_factory(platform, coeffs)</b>; the fitter steps the vector against yaw RMSE, CTE RMSE, or a blend. Summary opens with <b>fit warnings</b> (co-collapse, overfit, stuck-on-bound) and shows the <b>train/dev gap inline</b>.',
+      when: 'When scoring shows systematic per-platform bias. Pass bounds if you have physical intuition.'
+    },
+    'residual-structure': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Noise floor — or is there more to model?',
+      body: 'After a fit, characterises what\'s LEFT in the residual: temporal autocorrelation at multiple lags, correlation with each input feature and its time-derivative, sign-asymmetry. Returns a <b>verdict</b> — <code>noise_floor</code> (stop) or <code>structure_detected</code> with a specific reason ("autocorrelated at lag 6 → try a τ·d(δ)/dt term").',
+      when: 'After fit-model and score-model, when yaw RMSE has stalled and you need to decide whether to ship or keep iterating.'
+    },
+    'route-bias': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Find the routes that dominate the drift.',
+      body: 'Groups residuals by <b>(platform, route)</b> and ranks routes by their share of the platform\'s pooled error — so you see the biggest opportunity, not just the noisiest. Includes per-route means of input features so you can correlate route bias against an <b>observable</b> feature to add to your model.',
+      when: 'When per-platform bias is squeezed out but residual CTE drift is still uncomfortable. Cohort evidence says it\'s route-level.'
+    },
+    'inspect-residuals': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Plot residual vs one or two input features.',
+      body: '1-D mode: scatter coloured by platform + binned mean ± σ band. <b>2-D mode</b>: per-platform heatmap with diverging colour scale so signed bias jumps out — use it when the residual depends on two axes at once (understeer is <code>v² × δ</code>, neither axis alone tells the story).',
+      when: 'After scoring surfaces a per-platform bias or unusually wide CTE — to discover which input dimension the residual depends on.'
+    },
+    'compare-models': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Diff two predict()s segment-by-segment.',
+      body: 'Returns a per-segment table with yaw/CTE RMSE for both, signed deltas, and regime fractions. Exposes <code>top_regressions</code> and <code>top_improvements</code> ranked views, plus a per-platform summary. <b>Negative deltas mean B is better.</b>',
+      when: 'When you have V1 and V2 and need to see <em>where</em> each one wins — not just which one has the lower scalar.'
+    },
+    'visualise-segment': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'See where a model diverges on one segment.',
+      body: 'Renders a 3-panel PNG of a single segment — bird\'s-eye trajectory (x vs y), yaw rate time series, yaw residual — with truth overlaid against one or more prediction callables.',
+      when: 'After scoring flags a problematic segment or route. Confirm by eye.'
+    },
+    'load-segments': {
+      cat: 'prep', catLabel: 'PREP · DATA PLUMBING',
+      lede: 'sim.csv → DataFrames with provenance.',
+      body: 'Resolves a set of <code>sim.csv</code> files (by paths, glob, platform, or default to all FORD) and returns them as a sorted list of DataFrames with consistent dtypes and <code>df.attrs</code> populated with <b>platform / device / route / idx</b>. Saves ~30 lines of boilerplate per script.',
+      when: 'Before any per-segment analysis (custom plots, custom scoring, feature extraction).'
+    },
+    'make-train-dev-split': {
+      cat: 'prep', catLabel: 'PREP · DATA PLUMBING',
+      lede: 'Route-grouped split — no leakage.',
+      body: 'Splits segment paths into <b>train</b> and <b>dev</b>, holding out whole <b>routes</b> so adjacent (and highly correlated) samples never straddle the partition. Ships with <code>validate_split</code> that raises on route leakage, path collisions, or per-platform imbalance.',
+      when: 'Before any fit you plan to evaluate on held-out data. Per-sample random splits leak.'
+    },
+    'pre-flight-final-model': {
+      cat: 'ship', catLabel: 'SHIP · THE GATE',
+      lede: 'Verify the deliverable contract.',
+      body: 'Checks that <code>final-model/</code> matches the brief — required files present (<code>predict.py</code>, <code>manifest.json</code>, <code>REPORT.md</code>), clean import, configured callable resolves, signature accepts <code>(sim_df, platform)</code>, dry-run returns the right shape with no NaN. <b>Pass/fail per check — never raises.</b>',
+      when: 'Last. After you think the bundle is done, before declaring shipped.'
+    }
+  };
+
+  const invDetail = document.getElementById('invDetail');
+  const dCat   = document.getElementById('dCat');
+  const dName  = document.getElementById('dName');
+  const dLede  = document.getElementById('dLede');
+  const dBody  = document.getElementById('dBody');
+  const dWhen  = document.getElementById('dWhen');
+  const invChips = document.querySelectorAll('.inv-chip');
+
+  function selectSkill(id) {
+    const s = skillsCatalogue[id];
+    if (!s) return;
+    invChips.forEach(c => c.classList.toggle('active', c.dataset.skill === id));
+    if (invDetail) {
+      invDetail.classList.remove('oracle','diagnose','prep','ship');
+      invDetail.classList.add(s.cat);
+    }
+    if (dCat)  dCat.textContent  = s.catLabel;
+    if (dName) dName.textContent = id;
+    if (dLede) dLede.textContent = s.lede;
+    if (dBody) dBody.innerHTML   = s.body;
+    if (dWhen) dWhen.textContent = s.when;
+  }
+
+  invChips.forEach(chip => {
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      selectSkill(chip.dataset.skill);
+    });
+  });
+  // start with score-model selected
+  selectSkill('score-model');
+
+  // deck-chain: this is a deep-dive off the ladder — both ends return to it,
+  // positioned on the L2 (Skills) rung that opened this dive
+  const __ladder = '../02-ladder/definitive/index.html#climb-3';
+  function next() {
+    if (i === DIAGRAM_SLIDE && frame < TOTAL_FRAMES) { frame++; paintDiagram(); return; }
+    if (i === REFS_SLIDE && c < cards.length - 1)    { c++; paintCarousel(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+      if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function prev() {
+    if (i === DIAGRAM_SLIDE && frame > 1) { frame--; paintDiagram(); return; }
+    if (i === REFS_SLIDE && c > 0)        { c--; paintCarousel(); return; }
+    if (i > 0) {
+      i--;
+      if (i === DIAGRAM_SLIDE) { frame = TOTAL_FRAMES;    paintDiagram(); }
+      if (i === REFS_SLIDE)    { c = cards.length - 1;    paintCarousel(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+    if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+    if (e.key === 'Escape') { e.preventDefault(); window.location.href = __ladder; }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, .ref-link, .ref-takeaways, .code-card, .annotations, .inv-grid, .inv-detail, .agents-file, .agents-explain')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+  dots.forEach((d, idx) => d.addEventListener('click', e => {
+    e.stopPropagation();
+    c = idx; paintCarousel();
+  }));
+
+  paintSlide();
+  paintCarousel();
+  paintDiagram();
+</script>
+</body>
+</html>

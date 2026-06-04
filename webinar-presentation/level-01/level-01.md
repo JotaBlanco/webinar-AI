@@ -1,0 +1,158 @@
+# Level 01 — Agentic AI
+
+---
+
+## Slide 1 — Section opener
+
+**01**
+
+**LEVEL 01**
+
+**AGENTIC AI**
+
+---
+
+## Slide 2 — Definition
+
+**AI Agent** *(noun)*
+
+An AI agent is a system that pairs a language model with three things: an environment to act in, a set of tools to act with, and a system prompt that defines the job. It runs them in a loop until the task is completed.
+
+*Source: Barry Zhang, Anthropic — How We Build Effective Agents, AI Engineer World's Fair 2025.*
+
+---
+
+## Slide 3 — The loop, built up
+
+Animated diagram. Each frame adds one element to the previous frame. Reference: the Anthropic *Building Effective Agents* diagram (Schluntz & Zhang, Dec 2024).
+
+**Frame 1 — Human.**
+A single box on the left of the canvas: **Human**. The audience starts where they already are.
+
+**Frame 2 — LLM Call appears.**
+A **LLM Call** box appears centre-left. A dashed bidirectional arrow connects **Human** and **LLM Call**. *Caption (optional):* "the model takes the job."
+
+**Frame 3 — The loop arrows appear.**
+Two curved arrows appear to the right of **LLM Call**, in empty space — the upper arrow labelled **Action** (going right), the lower arrow labelled **Feedback** (coming back). The loop is visible but has nothing to act on yet. *Caption (optional):* "this is the loop."
+
+**Frame 4 — Environment appears.**
+The **Environment** box materialises on the right, terminating both arrows. The loop is now complete: LLM Call → Action → Environment → Feedback → LLM Call.
+
+**Frame 5 — The environment fills in.**
+Inside the **Environment** box, two child elements appear: **data** and **code**. *Caption (optional):* "the environment is whatever the agent can touch — the files, the codebase, the running system."
+
+**Frame 6 — Tools appears on the action arrow.**
+A **tools** label appears on (or alongside) the **Action** arrow. *Caption (optional):* "tools are how the model reaches into the environment."
+
+**Frame 7 — Stop appears.**
+A **Stop** box appears below **LLM Call**, connected by a dashed downward arrow. *Caption (optional):* "the loop ends when the model decides the job is done."
+
+### Final state — matches the dictionary entry on slide 2
+
+The fully assembled diagram is the picture of slide 2's words:
+- **Human** ↔ **LLM Call** — the job is given (the system prompt + the request).
+- **LLM Call** → **Action** (**tools**) → **Environment** (**data**, **code**) — the model acts.
+- **Environment** → **Feedback** → **LLM Call** — the loop closes.
+- **LLM Call** → **Stop** — until the model says it's done.
+
+*Source: Schluntz & Zhang, Building Effective Agents, Anthropic Engineering, Dec 2024 — https://www.anthropic.com/research/building-effective-agents*
+
+---
+
+## Slide 4 — References (carousel)
+
+Carousel of four cards. Each card: thumbnail + title + author/venue + 2–3 takeaway bullets. Card content below.
+
+### Card 1 — *How We Build Effective Agents*
+
+**Author / venue.** Barry Zhang (Anthropic) — AI Engineer World's Fair, mid-2025.
+**Link.** https://www.youtube.com/watch?v=D7_ipDqhtwk
+**Thumbnail.** [level-01/thinklikeagents.jpg](level-01/thinklikeagents.jpg)
+**Takeaways.**
+- The minimal agent is just three things: **environment + tools + system prompt**. Everything else (memory, planners, sub-agents) is downstream optimisation — add it only when you've felt the pain it solves.
+- Three rules for builders: *don't build agents for everything*; *keep it simple*; *think like your agent* — get inside its head before debugging the prompt.
+
+---
+
+### Card 2 — *ReAct: Synergizing Reasoning and Acting in Language Models*
+
+**Author / venue.** Yao et al. (Princeton + Google) — ICLR 2023.
+**Link.** https://arxiv.org/abs/2210.03629
+**Takeaways.**
+- Interleaving *reasoning traces* with *tool actions* beats either alone on reasoning, QA, and decision-making benchmarks — and it makes the model's behaviour interpretable along the way.
+- This is the foundational pattern every modern "agent framework" is implementing. When you strip a 2026 agent product down to its core, this loop is what's left.
+- Published as an **arXiv preprint in October 2022** — before ChatGPT shipped. The agentic loop was a research idea two months before the "agent" buzzword existed, and it has held up across every model generation since.
+
+---
+
+### Card 3 — *Pelicans on Bicycles*
+
+**Author / venue.** Simon Willison (Django co-creator, simonwillison.net) — AI Engineer World's Fair June 2025 (Best Speaker).
+**Link.** https://www.youtube.com/watch?v=YpY83-kA7Bo&t=227s
+**Thumbnail.** [level-01/pelicans.jpg](level-01/pelicans.jpg)
+**Takeaways.**
+- *"Tools + reasoning is the most powerful technique in AI engineering right now."* The one-line thesis for everything that follows in this webinar.
+
+---
+
+## Slide 5 — The loop on your laptop vs. at work
+
+**The loop is already on your laptop. At work, it's the harder problem.**
+
+**On your laptop**
+- **Claude Desktop** — chat + MCP tools + filesystem
+- **VS Code + Claude / Copilot / Continue** — agent mode
+- **Cursor** — Composer / Agent
+
+The environment (filesystem, terminal, browser) and the tools to act in it ship with the OS. One user, one machine, no auth.
+
+**In production**
+The same loop, but the environment doesn't exist yet:
+- **Tools** — internal databases, queues, APIs, SaaS apps all need adapters
+- **Auth & identity** — who does the agent act as, what can it touch
+- **Data** — governed, siloed, rarely LLM-shaped
+- **Operations** — observability, evals, cost, reliability
+
+> The model is the easy part. The **environment** is the work.
+
+---
+
+## Slide 6 — The minimal agent, anatomically
+
+Same loop as slide 3, now grounded in `env-template-LV01`. The animation re-runs the build-up of slide 3, but each frame swaps the abstract label for its concrete counterpart in our template. Same shape, filled in.
+
+**Frame 1 — Human.**
+Unchanged. The person who kicks the agent off.
+
+**Frame 2 — LLM Call becomes the model + harness.**
+The **LLM Call** box relabels to **Claude (Opus / Sonnet 4.x) — VS Code via Claude Code**.
+
+**Frame 3 — Specification appears above LLM Call.**
+A **`TASK.md`** banner appears above **LLM Call**, with a downward arrow into it. *Caption (optional):* "the job, the deliverable contract, the grading criteria."
+
+**Frame 4 — Action arrow names the tools.**
+The **tools** label on the action arrow resolves to **Read · Write · Bash · Python** — Claude Code's built-in tool layer.
+
+**Frame 5 — Environment becomes the working directory.**
+The **Environment** box relabels to **`module-1/agent-XX/`**. A thin dashed border appears around it. *Caption (optional):* "permissions — sandboxed to this directory; can launch processes, install packages, write to `final-model/`."
+
+**Frame 6 — data and code fill in concretely.**
+Inside the environment box, the child elements relabel: **`data/`** (F1 segments, `sim.csv`, V0 baseline predictions) and **`code/`** (V0 model + helpers).
+
+**Frame 7 — Stop becomes the deliverable check.**
+The **Stop** box relabels to **`final-model/` written → grader runs**.
+
+### Final state — the six concrete things
+
+- **Specification** — `TASK.md` (job, deliverable contract, grading criteria)
+- **Model + harness** — Claude Opus / Sonnet 4.x in VS Code via Claude Code
+- **Tools** — Read · Write · Bash · Python (Claude Code's built-in layer)
+- **Environment** — `module-1/agent-XX/` working directory (`data/` + `code/`)
+- **Permissions** — sandboxed to the working directory; may launch processes, install packages, write to `final-model/`
+- **Loop** — Claude reasons → calls a tool → reads the result → reasons again. Until the deliverable lands.
+
+> The minimal agent — six concrete things, no more. This is the floor of the agentic spectrum. The principles that name each piece follow.
+
+*Working directory: `webinar-AI/module-1/agent-{01..10}/`. Template: `webinar-meta/env-template-LV01/`.*
+
+---

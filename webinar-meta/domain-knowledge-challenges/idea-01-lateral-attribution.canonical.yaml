@@ -1,0 +1,154 @@
+---
+idea_id: idea-01-lateral-attribution
+description: |
+  Canonical evaluation spec for idea-01 (lateral fidelity). Each agent's
+  "favourite" yaw-rate model is reconstructed from their `final-model/`
+  bundle and re-run against this fixed held-out validation pool under
+  identical conditions. The resulting RMSE replaces the agent's
+  self-reported headline for cross-agent comparison.
+
+  Defence-in-depth notes:
+  - eval_set.segment_globs target sim-only/ — the agent-facing schema, no
+    truth columns. The truth lives in a parallel sim/ tree (see
+    truth_dir_name); the grader reads it but predict() never sees it.
+  - eval_data_root points at KB003/data/val-data, NOT at webinar-AI/data.
+    Val-data is held out by file-system construction.
+
+# Absolute path to the validation data root. eval_set.segment_globs are
+# resolved relative to this. NEITHER agents NOR the parent assistant have
+# this in their workspace; only the grader script reads from it.
+eval_data_root: /Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data
+
+eval_set:
+  description: |
+    All Ford + Hyundai IONIQ-5 sim segments under <eval_data_root>/sim-only/segments/.
+    Inputs (what predict() sees) come from sim-only/; truth columns for
+    scoring come from the parallel sim/ tree at the same per-segment path.
+  segment_globs:
+    - sim-only/segments/FORD_MUSTANG_MACH_E_MK1/**/sim.csv
+    - sim-only/segments/FORD_F_150_LIGHTNING_MK1/**/sim.csv
+    - sim-only/segments/HYUNDAI_IONIQ_5/**/sim.csv
+  # The path prefix to swap to translate sim-only paths -> sim/ paths.
+  # e.g. <root>/sim-only/segments/.../sim.csv -> <root>/sim/segments/.../sim.csv
+  input_dir_name: sim-only/segments
+  truth_dir_name: sim/segments
+  sample_filter: "v_mps > 2.0"
+  truth_channel: yaw_rate_meas_rads
+
+baseline:
+  name: V0 (unmodified KS model)
+  source: |
+    The sim.csv files in sim-only/ contain the V0 prediction in the column
+    `yaw_rate_pred_rads` — output of `simulate_ks(clamp_v_to_measured=True)`
+    with the unmodified model. The corresponding sim/ files contain V0 PLUS
+    the truth channel (yaw_rate_meas_rads) for RMSE computation.
+  computed_once: true
+  cache_location: webinar-meta/skills/grade-cohort-reports/baselines/idea-01-lateral-attribution.baseline.json
+
+# Operating contract — column allowlist for what predict(sim_df, platform) sees.
+#
+# This is enforced at TWO layers:
+#   (a) the val-data sim-only/ files are physically constructed to contain only
+#       these columns (defence-in-depth, file-system layer)
+#   (b) the grader's worker.py strips sim_df to this allowlist before calling
+#       predict() (defence-in-depth, application layer; redundant but harmless)
+#   (c) the local score-model/ skill in each template strips identically,
+#       so agents' dev RMSE matches their canonical RMSE.
+operating_contract:
+  allowed_input_columns:
+    - t_s
+    - delta_wheel_deg
+    - delta_road_rad
+    - v_mps
+    - a_long_mps2
+    - accel_pedal_pct
+    - brake_pressed
+    - yaw_rate_pred_rads        # V0 baseline reference — the column predict() REPLACES
+  denied_columns_rationale:
+    yaw_rate_meas_rads:   "Truth channel the eval scores against."
+    a_lat_meas_mps2:      "In this dataset, computed kinematically from truth yaw rate (a_lat = v * yaw_rate); using it is equivalent to peeking at truth up to a v factor."
+    yaw_rate_resid_rads:  "V0_pred - truth; direct truth leak."
+    a_y_resid_mps2:       "Lateral version of the residual; direct truth leak."
+    x_m:                  "Simulator's integrated trajectory (depends on truth integration)."
+    y_m:                  "Same as x_m."
+    psi_rad:              "Same — integrated heading."
+    v_state_mps:          "Simulator internal state."
+    delta_state_rad:      "Simulator internal state."
+    a_y_pred_mps2:        "V0 lateral acc prediction; unused by current contract — stripped for cleanliness."
+
+# Two primary KPIs. Neither dominates; the cohort report shows both side-by-side.
+# A model that wins on yaw_rate but loses on cte has a systematic bias
+# accumulating in trajectory; a model that wins on both is a real improvement.
+metrics:
+  - id: yaw_rate_rmse
+    name: pooled-sample yaw-rate RMSE
+    unit: rad/s
+    formula: sqrt(mean((agent_pred - truth)**2)) over all qualifying samples
+    sample_filter: "v_mps > 2.0"          # in-motion only
+    truth_channel: yaw_rate_meas_rads
+    pred_channel_v0: yaw_rate_pred_rads
+    improvement_formula: (baseline_rmse - agent_rmse) / baseline_rmse * 100  # positive = better
+
+  - id: cte_rmse
+    name: distance-resampled cross-track-error RMSE
+    unit: meters
+    formula: |
+      For each segment, integrate both predicted and truth trajectories from
+      (0,0,0) using v_meas. Resample the displacement |pred - truth| onto a
+      uniform distance grid (every 1m along the truth path). Pool sums-of-
+      squares and bins across segments, then take sqrt(sum_sq / n_bins).
+    grid_step_m: 1.0
+    min_segment_distance_m: 20.0
+    truth_channel: yaw_rate_meas_rads
+    pred_channel_v0: yaw_rate_pred_rads
+    improvement_formula: (baseline_cte_rmse - agent_cte_rmse) / baseline_cte_rmse * 100
+    note: |
+      Under the operating contract (clamp_v_to_measured=True), v is the same
+      for predicted and truth trajectories, so cumulative distance s is the
+      same in both. The Euclidean displacement |pred - truth| at matched s is
+      therefore equivalent to |signed cross-track error|. Implementation in
+      grade-cohort-reports/traj_metrics.py.
+
+# Flat per-metric config blocks — readable by the skill's minimal YAML parser
+# (which does not recurse into list items). These duplicate the values
+# declared in `metrics:` above; `metrics:` remains the human-readable source
+# of truth.
+
+cte_metric:
+  grid_step_m: 1.0
+  min_segment_distance_m: 20.0
+  truth_channel: yaw_rate_meas_rads
+  pred_channel_v0: yaw_rate_pred_rads
+
+# Legacy single-metric field — kept for backward compatibility with older
+# grading pipelines that read `metric:`. Mirrors the yaw_rate entry above.
+metric:
+  name: pooled-sample yaw-rate RMSE
+  unit: rad/s
+  formula: sqrt(mean((agent_pred - truth)**2)) over all qualifying samples
+  improvement_formula: (baseline_rmse - agent_rmse) / baseline_rmse * 100
+
+reconstruction_priority:
+  - Read fitted coefficients / parameters from the agent's `final-model/coeffs.json` (or similar) and call their `predict.py:predict` directly — the contract path
+  - If predict.py is missing or broken, mark the agent status="failed" with reason — do NOT attempt to reconstruct from the REPORT text
+
+failure_action: |
+  If reconstruction is infeasible — agent didn't ship a valid final-model/,
+  predict.py raises on import, model is restricted to a non-Ford platform —
+  return status="failed" with a one-sentence reason. Do not fabricate numbers.
+
+split_note: |
+  This eval set is held out from every agent. Agents see and train against
+  the data under webinar-AI/data/sim/ + sim-only/ (the train pool, copied
+  from KB003/data/ on 2026-05-31). The val pool lives at
+  KB003/data/val-data/ and exists only on disk for the grader to reach —
+  it is not symlinked or copied into webinar-AI/data. An agent's score here
+  is its generalisation, not its in-sample fit.
+
+  Per-segment overfitting tricks (e.g. fitting a bias against truth on each
+  val segment at inference time) cannot fire under this design — predict()
+  receives a sim_df sourced from sim-only/, which contains no truth columns.
+  An attempt to read `yaw_rate_meas_rads` raises `KeyError`. The same
+  contract is enforced in the local score-model/ skill that agents use
+  during dev, so what passes locally will pass at grading and vice-versa.
+---

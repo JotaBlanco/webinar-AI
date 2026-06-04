@@ -1,0 +1,68 @@
+title: Idea 01 — Lateral attribution
+slug: idea-01-lateral-attribution
+domain: vehicle-dynamics
+tests:
+  - attribution-discipline
+  - regime-segmentation
+  - operating-contract
+  - metric-selection
+  - truth-channel-discovery
+best-fit-angles: [01-accretion, 04-author, 05-experiment]
+weak-fit-angles: [02-empathy, 03-harness-as-product]
+
+evaluation:
+  spec: idea-01-lateral-attribution.canonical.yaml
+  primary-kpis: [yaw_rate_rmse, cte_rmse]
+  pool: held-out validation set (route-stratified, never seen by agents)
+
+deliverable:
+  directory: final-model/
+  required:
+    - predict.py
+    - manifest.json
+    - REPORT.md
+  optional:
+    - coeffs.json
+    - any other artefacts the agent's predict() depends on
+  predict-signature: |
+    def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
+        """Returns a DataFrame aligned with sim_df.index, with columns:
+        - yaw_rate_pred_rads  (required, rad/s)
+        - x_m, y_m            (optional, m) — if omitted, the grader integrates
+                              them from the predicted yaw_rate using the
+                              measured velocity.
+        platform is one of FORD_MUSTANG_MACH_E_MK1, FORD_F_150_LIGHTNING_MK1.
+        """
+  failed-shape-policy: |
+    If predict.py fails to import, raises, or returns an unusable shape, the
+    cohort report marks the submission status="failed". No partial credit.
+
+success-metrics:
+  # Outcome KPIs — graded programmatically against the held-out val pool.
+  # See evaluation.spec (canonical.yaml) for definitions.
+  - id: yaw_rate_rmse-improvement-pct
+    type: numeric
+    rubric: improvement_pct on KPI 1 (yaw-rate RMSE) vs V0 baseline
+    evidence: programmatic — grading skill computes this from predict.py
+  - id: cte_rmse-improvement-pct
+    type: numeric
+    rubric: improvement_pct on KPI 2 (distance-resampled CTE RMSE) vs V0 baseline
+    evidence: programmatic — grading skill computes this from predict.py
+  # Hygiene rubric — assessed from REPORT.md.
+  - id: regime-breakdown-present
+    type: binary
+    rubric: the report breaks out error by regime (straight / cornering / transient), not only an aggregate
+    evidence-in-report: a per-regime table or chart of either KPI
+  - id: methodology-consistent
+    type: binary
+    rubric: same segment list and same metric definition across every variant on the ladder
+    evidence-in-report: variant table shares a fixed segment-set / regime-mask declaration in its header or caption
+  - id: attribution-coherent
+    type: numeric
+    rubric: "|Σ marginal KPI drops − total drop| / total drop (no double-counting)"
+    threshold: "< 0.15"
+    evidence-in-report: marginal-improvement column and total-drop value both present and reconcilable
+  - id: honest-regression-flagged
+    type: binary
+    rubric: any variant that worsened either KPI is reported as a regression with a physical reason; vacuous if no regression occurred
+    evidence-in-report: variant table includes regression rows with a physical-cause column, OR an explicit "no regressions observed" statement

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ladder · 04 Constellation · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · Ladder · 04 Constellation
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     The 5 modules as a star map being charted.
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --cyan: #58e2ff;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 6% 55%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 92% 50%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 50% 4%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.2px 1.2px at 22% 92%, rgba(255,255,255,0.5), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.cyan { color: var(--cyan); }
+  .eyebrow.cyan::before { background: var(--cyan); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 60ch;
+    line-height: 1.55;
+  }
+
+  /* ============== SLIDE 1 — cover ============== */
+  .cover {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .cover .eyebrow-tag {
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--cyan);
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .cover .eyebrow-tag::before {
+    content: ''; width: 36px; height: 1px; background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .cover h1 {
+    font-size: clamp(4.5rem, 13vw, 11rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-top: 1.25rem;
+  }
+  .cover h1 .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 45%, var(--orange-l) 80%, var(--cyan) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cover .subline {
+    margin-top: 1.75rem;
+    font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+    color: var(--ink-soft);
+    max-width: 56ch;
+    line-height: 1.55;
+  }
+  .cover .footer-strip {
+    margin-top: 2.5rem;
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1.25rem;
+  }
+  .cover .footer-strip::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.18), transparent);
+    max-width: 320px;
+  }
+
+  /* ============== CONSTELLATION (slides 2 & 3) ============== */
+  .map-wrap {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    justify-content: center;
+  }
+  .map-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+  .map-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .map-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .map {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 60vh;
+    max-height: 72vh;
+  }
+  .map svg {
+    width: 100%; height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  .map-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 64ch;
+    margin: 0.4rem auto 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* ============== STAR + CONSTELLATION SVG STYLING ============== */
+  /* dotted "future" outline shown before stars ignite */
+  .map svg .ghost-path {
+    fill: none;
+    stroke: rgba(255,255,255,0.18);
+    stroke-width: 1.2;
+    stroke-dasharray: 2 8;
+    stroke-linecap: round;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .map svg.show-ghost .ghost-path { opacity: 0.9; }
+
+  .map svg .ghost-node {
+    fill: rgba(255,255,255,0.08);
+    stroke: rgba(255,255,255,0.22);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .map svg.show-ghost .ghost-node { opacity: 1; }
+
+  /* connection lines between stars */
+  .map svg .link {
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px currentColor);
+    transition:
+      opacity 0.25s ease,
+      stroke-dashoffset 1.05s cubic-bezier(.45,.05,.2,1) 0.05s;
+  }
+  .map svg .link.show {
+    opacity: 0.95;
+    stroke-dashoffset: 0;
+  }
+
+  /* star container */
+  .map svg .star {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0.35);
+    transition:
+      opacity 0.7s cubic-bezier(.2,.7,.2,1),
+      transform 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+  .map svg .star.show { opacity: 1; transform: scale(1); }
+
+  /* star core layers (no scaling here — handled at .star level) */
+  .map svg .star-bloom {
+    opacity: 0.55;
+    animation: pulseBloom 4s ease-in-out infinite;
+  }
+  .map svg .star-halo {
+    opacity: 0.85;
+    animation: pulseHalo 4s ease-in-out infinite;
+  }
+  .map svg .star-core {
+    fill: #ffffff;
+  }
+  .map svg .star-pinprick {
+    fill: #ffffff;
+    opacity: 0;
+  }
+  @keyframes pulseHalo {
+    0%, 100% { opacity: 0.85; transform: scale(1); transform-origin: center; transform-box: fill-box; }
+    50%      { opacity: 1;    transform: scale(1.08); transform-origin: center; transform-box: fill-box; }
+  }
+  @keyframes pulseBloom {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 0.7; }
+  }
+
+  /* the ignition flare — born when the star ignites, then dies */
+  .map svg .star-flare {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0);
+  }
+  .map svg .star.show .star-flare {
+    animation: flareBurst 1.1s cubic-bezier(.18,.7,.3,1) 0.05s forwards;
+  }
+  @keyframes flareBurst {
+    0%   { opacity: 0;   transform: scale(0); }
+    25%  { opacity: 0.95; }
+    100% { opacity: 0;   transform: scale(2.6); }
+  }
+
+  /* labels */
+  .map svg .label {
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(.2,.7,.2,1);
+  }
+  .map svg .label.show { opacity: 1; }
+  .map svg .label .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    fill: var(--ink-mute);
+  }
+  .map svg .label .name {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.012em;
+    fill: var(--ink);
+  }
+  .map svg .label .desc {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 400;
+    fill: rgba(255,255,255,0.72);
+    font-style: italic;
+  }
+  /* small tick line linking label to star */
+  .map svg .label-tick {
+    stroke-width: 1;
+    stroke-linecap: round;
+    opacity: 0.55;
+  }
+
+  /* ============== SLIDE 3 — closing ============== */
+  .closing-overlay {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    padding: 0 4vw 1vh;
+    text-align: center;
+    pointer-events: none;
+  }
+  .closing-overlay .tag {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.85rem;
+  }
+  .closing-overlay .tagline {
+    font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0 auto;
+    max-width: 36ch;
+  }
+  .closing-overlay .tagline .pol {
+    background: linear-gradient(120deg, var(--blue-l), var(--purple-l));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .closing-overlay .tagline .lamp {
+    background: linear-gradient(120deg, var(--green), var(--cyan));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .closing-overlay .attrib {
+    margin-top: 0.85rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange), var(--green), var(--cyan));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Ladder · 04 Constellation</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — cover ===== -->
+  <section class="slide active" data-i="1">
+    <div class="cover">
+      <span class="eyebrow-tag reveal">The Ladder</span>
+      <h1 class="reveal-d1">Mapped <span class="grad">the sky.</span></h1>
+      <p class="subline reveal-d2">Five modules, five stars. We chart the constellation an agent climbs — from a bare model in the dark to a fully harnessed system burning at the top.</p>
+      <div class="footer-strip reveal-d3">Star map · 01 → 05</div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — animated constellation ===== -->
+  <section class="slide" data-i="2">
+    <div class="map-wrap">
+      <div class="map-head reveal">
+        <span class="eyebrow purple">Constellation · being charted</span>
+        <span class="counter"><b id="dCur">01</b> / 06</span>
+      </div>
+      <div class="map reveal-d1">
+        <!--
+          viewBox is 1000 x 620.
+          Stars positioned diagonally bottom-left → top-right.
+          Coords (cx, cy):
+            S1 BLUE   (135, 540)    bottom-left  — label LEFT
+            S2 PURPLE (315, 430)                  — label RIGHT
+            S3 ORANGE (500, 320)    centre        — label LEFT
+            S4 GREEN  (685, 200)                  — label RIGHT
+            S5 CYAN   (870, 95)     top-right     — label LEFT
+        -->
+        <svg id="constellation" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <!-- per-star glow filters for soft outer bloom -->
+            <filter id="glow-blue" x="-150%" y="-150%" width="400%" height="400%">
+              <feGaussianBlur stdDeviation="10" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+
+            <!-- gradient strokes for each connecting line (colour blends between adjacent stars) -->
+            <linearGradient id="g-12" x1="135" y1="540" x2="315" y2="430" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#3d89ff"/>
+              <stop offset="100%" stop-color="#ca5fff"/>
+            </linearGradient>
+            <linearGradient id="g-23" x1="315" y1="430" x2="500" y2="320" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#ca5fff"/>
+              <stop offset="100%" stop-color="#fe9353"/>
+            </linearGradient>
+            <linearGradient id="g-34" x1="500" y1="320" x2="685" y2="200" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#fe9353"/>
+              <stop offset="100%" stop-color="#00dd81"/>
+            </linearGradient>
+            <linearGradient id="g-45" x1="685" y1="200" x2="870" y2="95" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#00dd81"/>
+              <stop offset="100%" stop-color="#58e2ff"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ghost outline shown on frame 1: dotted path + empty node markers where stars will land -->
+          <path class="ghost-path" d="M 135 540 L 315 430 L 500 320 L 685 200 L 870 95"/>
+          <circle class="ghost-node" cx="135" cy="540" r="6"/>
+          <circle class="ghost-node" cx="315" cy="430" r="6"/>
+          <circle class="ghost-node" cx="500" cy="320" r="6"/>
+          <circle class="ghost-node" cx="685" cy="200" r="6"/>
+          <circle class="ghost-node" cx="870" cy="95"  r="6"/>
+
+          <!-- ============ CONNECTION LINES ============
+               drawn from previous star to new star, dashoffset animates 1 → 0.
+               pathLength="1" makes the dash math trivial. -->
+          <line class="link" data-from="3" x1="135" y1="540" x2="315" y2="430"
+                stroke="url(#g-12)" pathLength="1" style="color:#8c7aff"/>
+          <line class="link" data-from="4" x1="315" y1="430" x2="500" y2="320"
+                stroke="url(#g-23)" pathLength="1" style="color:#cc7aa9"/>
+          <line class="link" data-from="5" x1="500" y1="320" x2="685" y2="200"
+                stroke="url(#g-34)" pathLength="1" style="color:#7fb86a"/>
+          <line class="link" data-from="6" x1="685" y1="200" x2="870" y2="95"
+                stroke="url(#g-45)" pathLength="1" style="color:#2fe2b0"/>
+
+          <!-- ============ STARS ============ -->
+
+          <!-- S1 · BLUE · Module 01 — appears frame 2 -->
+          <g class="star" data-from="2" style="--c: #3d89ff">
+            <circle class="star-flare" cx="135" cy="540" r="42"
+                    fill="none" stroke="#3d89ff" stroke-width="1.4"/>
+            <circle class="star-bloom" cx="135" cy="540" r="36"
+                    fill="#3d89ff" filter="url(#glow-blue)" opacity="0.55"/>
+            <circle class="star-halo"  cx="135" cy="540" r="14"
+                    fill="#3d89ff" opacity="0.85"/>
+            <circle class="star-core"  cx="135" cy="540" r="5"/>
+            <circle class="star-pinprick" cx="135" cy="540" r="1.5"/>
+          </g>
+          <!-- label LEFT of star — anchored to right edge so text reads toward star -->
+          <g class="label" data-from="2">
+            <line class="label-tick" x1="120" y1="540" x2="92" y2="540" stroke="#3d89ff"/>
+            <text class="num"  x="86" y="528" text-anchor="end">Module 01</text>
+            <text class="name" x="86" y="552" text-anchor="end">The Bare Agent</text>
+            <text class="desc" x="86" y="572" text-anchor="end">Model + tools + system prompt + a sandbox. The floor.</text>
+          </g>
+
+          <!-- S2 · PURPLE · Module 02 — appears frame 3 -->
+          <g class="star" data-from="3" style="--c: #ca5fff">
+            <circle class="star-flare" cx="315" cy="430" r="40"
+                    fill="none" stroke="#ca5fff" stroke-width="1.4"/>
+            <circle class="star-bloom" cx="315" cy="430" r="34"
+                    fill="#ca5fff" filter="url(#glow-blue)" opacity="0.55"/>
+            <circle class="star-halo"  cx="315" cy="430" r="13"
+                    fill="#ca5fff" opacity="0.85"/>
+            <circle class="star-core"  cx="315" cy="430" r="4.5"/>
+          </g>
+          <!-- label RIGHT of star -->
+          <g class="label" data-from="3">
+            <line class="label-tick" x1="330" y1="430" x2="358" y2="430" stroke="#ca5fff"/>
+            <text class="num"  x="364" y="418" text-anchor="start">Module 02</text>
+            <text class="name" x="364" y="442" text-anchor="start">Skills</text>
+            <text class="desc" x="364" y="462" text-anchor="start">Procedural recipes, loaded by progressive disclosure.</text>
+          </g>
+
+          <!-- S3 · ORANGE · Module 03 — appears frame 4 -->
+          <g class="star" data-from="4" style="--c: #fe9353">
+            <circle class="star-flare" cx="500" cy="320" r="42"
+                    fill="none" stroke="#fe9353" stroke-width="1.4"/>
+            <circle class="star-bloom" cx="500" cy="320" r="36"
+                    fill="#fe9353" filter="url(#glow-blue)" opacity="0.55"/>
+            <circle class="star-halo"  cx="500" cy="320" r="14"
+                    fill="#fe9353" opacity="0.85"/>
+            <circle class="star-core"  cx="500" cy="320" r="5"/>
+          </g>
+          <!-- label LEFT -->
+          <g class="label" data-from="4">
+            <line class="label-tick" x1="485" y1="320" x2="457" y2="320" stroke="#fe9353"/>
+            <text class="num"  x="451" y="308" text-anchor="end">Module 03</text>
+            <text class="name" x="451" y="332" text-anchor="end">Domain Knowledge</text>
+            <text class="desc" x="451" y="352" text-anchor="end">The hard-won expertise the model doesn't have on its own.</text>
+          </g>
+
+          <!-- S4 · GREEN · Module 04 — appears frame 5 -->
+          <g class="star" data-from="5" style="--c: #00dd81">
+            <circle class="star-flare" cx="685" cy="200" r="40"
+                    fill="none" stroke="#00dd81" stroke-width="1.4"/>
+            <circle class="star-bloom" cx="685" cy="200" r="34"
+                    fill="#00dd81" filter="url(#glow-blue)" opacity="0.55"/>
+            <circle class="star-halo"  cx="685" cy="200" r="13"
+                    fill="#00dd81" opacity="0.85"/>
+            <circle class="star-core"  cx="685" cy="200" r="4.5"/>
+          </g>
+          <!-- label RIGHT -->
+          <g class="label" data-from="5">
+            <line class="label-tick" x1="700" y1="200" x2="728" y2="200" stroke="#00dd81"/>
+            <text class="num"  x="734" y="188" text-anchor="start">Module 04</text>
+            <text class="name" x="734" y="212" text-anchor="start">Ops Layer</text>
+            <text class="desc" x="734" y="232" text-anchor="start">Managed pipelines. The runtime substrate.</text>
+          </g>
+
+          <!-- S5 · CYAN · Module 05 — appears frame 6 -->
+          <g class="star" data-from="6" style="--c: #58e2ff">
+            <circle class="star-flare" cx="870" cy="95" r="46"
+                    fill="none" stroke="#58e2ff" stroke-width="1.4"/>
+            <circle class="star-bloom" cx="870" cy="95" r="40"
+                    fill="#58e2ff" filter="url(#glow-blue)" opacity="0.6"/>
+            <circle class="star-halo"  cx="870" cy="95" r="16"
+                    fill="#58e2ff" opacity="0.9"/>
+            <circle class="star-core"  cx="870" cy="95" r="5.5"/>
+          </g>
+          <!-- label LEFT (cluster of 5 modules don't crash — this one sits below-left) -->
+          <g class="label" data-from="6">
+            <line class="label-tick" x1="855" y1="95" x2="827" y2="95" stroke="#58e2ff"/>
+            <text class="num"  x="821" y="83" text-anchor="end">Module 05</text>
+            <text class="name" x="821" y="107" text-anchor="end">Eval + Security</text>
+            <text class="desc" x="821" y="127" text-anchor="end">Custom judges, production traces, the lethal trifecta cut.</text>
+          </g>
+        </svg>
+        <p class="map-caption" id="mapCaption">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — final state ===== -->
+  <section class="slide" data-i="3">
+    <div class="map-wrap">
+      <div class="map-head reveal">
+        <span class="eyebrow cyan">Constellation · charted</span>
+        <span class="counter">05 / 05 stars</span>
+      </div>
+      <div class="map reveal-d1" style="min-height: 56vh; max-height: 64vh;">
+        <svg id="constellation-final" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <filter id="glow-final" x="-150%" y="-150%" width="400%" height="400%">
+              <feGaussianBlur stdDeviation="10" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="gf-12" x1="135" y1="540" x2="315" y2="430" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#3d89ff"/><stop offset="100%" stop-color="#ca5fff"/>
+            </linearGradient>
+            <linearGradient id="gf-23" x1="315" y1="430" x2="500" y2="320" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#ca5fff"/><stop offset="100%" stop-color="#fe9353"/>
+            </linearGradient>
+            <linearGradient id="gf-34" x1="500" y1="320" x2="685" y2="200" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#fe9353"/><stop offset="100%" stop-color="#00dd81"/>
+            </linearGradient>
+            <linearGradient id="gf-45" x1="685" y1="200" x2="870" y2="95" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#00dd81"/><stop offset="100%" stop-color="#58e2ff"/>
+            </linearGradient>
+          </defs>
+
+          <!-- all 4 lines, drawn -->
+          <line class="link show" x1="135" y1="540" x2="315" y2="430" stroke="url(#gf-12)" pathLength="1"/>
+          <line class="link show" x1="315" y1="430" x2="500" y2="320" stroke="url(#gf-23)" pathLength="1"/>
+          <line class="link show" x1="500" y1="320" x2="685" y2="200" stroke="url(#gf-34)" pathLength="1"/>
+          <line class="link show" x1="685" y1="200" x2="870" y2="95"  stroke="url(#gf-45)" pathLength="1"/>
+
+          <!-- 5 stars (always visible, gently pulsing) -->
+          <g class="star show">
+            <circle class="star-bloom" cx="135" cy="540" r="36" fill="#3d89ff" filter="url(#glow-final)" opacity="0.55"/>
+            <circle class="star-halo"  cx="135" cy="540" r="14" fill="#3d89ff" opacity="0.85"/>
+            <circle class="star-core"  cx="135" cy="540" r="5"/>
+          </g>
+          <g class="label show">
+            <line class="label-tick" x1="120" y1="540" x2="92" y2="540" stroke="#3d89ff"/>
+            <text class="num"  x="86" y="528" text-anchor="end">Module 01</text>
+            <text class="name" x="86" y="552" text-anchor="end">The Bare Agent</text>
+            <text class="desc" x="86" y="572" text-anchor="end">Model + tools + system prompt + a sandbox.</text>
+          </g>
+
+          <g class="star show">
+            <circle class="star-bloom" cx="315" cy="430" r="34" fill="#ca5fff" filter="url(#glow-final)" opacity="0.55"/>
+            <circle class="star-halo"  cx="315" cy="430" r="13" fill="#ca5fff" opacity="0.85"/>
+            <circle class="star-core"  cx="315" cy="430" r="4.5"/>
+          </g>
+          <g class="label show">
+            <line class="label-tick" x1="330" y1="430" x2="358" y2="430" stroke="#ca5fff"/>
+            <text class="num"  x="364" y="418" text-anchor="start">Module 02</text>
+            <text class="name" x="364" y="442" text-anchor="start">Skills</text>
+            <text class="desc" x="364" y="462" text-anchor="start">Procedural recipes, progressive disclosure.</text>
+          </g>
+
+          <g class="star show">
+            <circle class="star-bloom" cx="500" cy="320" r="36" fill="#fe9353" filter="url(#glow-final)" opacity="0.55"/>
+            <circle class="star-halo"  cx="500" cy="320" r="14" fill="#fe9353" opacity="0.85"/>
+            <circle class="star-core"  cx="500" cy="320" r="5"/>
+          </g>
+          <g class="label show">
+            <line class="label-tick" x1="485" y1="320" x2="457" y2="320" stroke="#fe9353"/>
+            <text class="num"  x="451" y="308" text-anchor="end">Module 03</text>
+            <text class="name" x="451" y="332" text-anchor="end">Domain Knowledge</text>
+            <text class="desc" x="451" y="352" text-anchor="end">The expertise the model doesn't have alone.</text>
+          </g>
+
+          <g class="star show">
+            <circle class="star-bloom" cx="685" cy="200" r="34" fill="#00dd81" filter="url(#glow-final)" opacity="0.55"/>
+            <circle class="star-halo"  cx="685" cy="200" r="13" fill="#00dd81" opacity="0.85"/>
+            <circle class="star-core"  cx="685" cy="200" r="4.5"/>
+          </g>
+          <g class="label show">
+            <line class="label-tick" x1="700" y1="200" x2="728" y2="200" stroke="#00dd81"/>
+            <text class="num"  x="734" y="188" text-anchor="start">Module 04</text>
+            <text class="name" x="734" y="212" text-anchor="start">Ops Layer</text>
+            <text class="desc" x="734" y="232" text-anchor="start">Managed pipelines. The runtime substrate.</text>
+          </g>
+
+          <g class="star show">
+            <circle class="star-bloom" cx="870" cy="95" r="40" fill="#58e2ff" filter="url(#glow-final)" opacity="0.6"/>
+            <circle class="star-halo"  cx="870" cy="95" r="16" fill="#58e2ff" opacity="0.9"/>
+            <circle class="star-core"  cx="870" cy="95" r="5.5"/>
+          </g>
+          <g class="label show">
+            <line class="label-tick" x1="855" y1="95" x2="827" y2="95" stroke="#58e2ff"/>
+            <text class="num"  x="821" y="83" text-anchor="end">Module 05</text>
+            <text class="name" x="821" y="107" text-anchor="end">Eval + Security</text>
+            <text class="desc" x="821" y="127" text-anchor="end">Custom judges, traces, the lethal trifecta cut.</text>
+          </g>
+        </svg>
+
+        <div class="closing-overlay reveal-d2">
+          <div class="tag">The climb, in one line</div>
+          <div class="tagline">
+            <span class="pol">Module 1 is a poltergeist.</span><br>
+            <span class="lamp">Module 5 is the lamp.</span>
+          </div>
+          <div class="attrib">Poltergeist / genie metaphor — Cassie Kozyrkov</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">3</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+
+  const svg     = document.getElementById('constellation');
+  const stars   = svg.querySelectorAll('.star');
+  const links   = svg.querySelectorAll('.link');
+  const labels  = svg.querySelectorAll('.label');
+  const cap     = document.getElementById('mapCaption');
+
+  const cur  = document.getElementById('cur');
+  const tot  = document.getElementById('tot');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+
+  const MAP_SLIDE    = 1;   // zero-based — slide 2 is the animated constellation
+  const TOTAL_FRAMES = 6;
+  tot.textContent = slides.length;
+
+  let i = 0;
+  let frame = 1;
+
+  // captions per frame — cosmic, crisp.
+  const captions = {
+    1: 'an empty sky. the chart is blank, the climb begins here.',
+    2: 'the first star ignites — module 01. the bare agent.',
+    3: 'a line is drawn. skills enter the chart.',
+    4: 'domain knowledge — the expertise that doesn’t come from training.',
+    5: 'the ops layer lights up. runtime gives the constellation a floor.',
+    6: 'the last star. eval and security close the lamp around the model.'
+  };
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+
+  function paintMap() {
+    // frame 1 = empty sky + ghost outline
+    svg.classList.toggle('show-ghost', frame === 1);
+
+    // stars: ignite when frame >= their data-from
+    stars.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+
+    // lines: draw connection when frame >= data-from
+    // line data-from N means: drawn at frame N (connecting star N-1 to star N).
+    links.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+
+    // labels: fade in alongside their star
+    labels.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+
+    dCur.textContent = String(frame).padStart(2, '0');
+    cap.textContent = captions[frame] || ' ';
+  }
+
+  function next() {
+    if (i === MAP_SLIDE && frame < TOTAL_FRAMES) { frame++; paintMap(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === MAP_SLIDE) { frame = 1; paintMap(); }
+      paintSlide();
+    }
+  }
+  function prev() {
+    if (i === MAP_SLIDE && frame > 1) { frame--; paintMap(); return; }
+    if (i > 0) {
+      i--;
+      if (i === MAP_SLIDE) { frame = TOTAL_FRAMES; paintMap(); }
+      paintSlide();
+    }
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === MAP_SLIDE) { frame = 1; paintMap(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+
+  paintSlide();
+  paintMap();
+</script>
+</body>
+</html>

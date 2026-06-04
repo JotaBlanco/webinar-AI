@@ -1,0 +1,88 @@
+{
+  "agent_id": "m2-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-2/agent-02/final-model/REPORT.md",
+  "items": [
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Per-regime yaw-rate RMSE (V5):\n- straight (|delta|<0.01 rad): 0.00633 (V0 0.00945)\n- steady (cornering, low rate): 0.01160 (V0 0.02812)\n- transient (cornering, high rate): 0.01778 (V0 0.03825)"],
+      "reasoning": "The report explicitly breaks out yaw-rate RMSE by three regimes (straight, steady cornering, transient) with V0 vs V5 values."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Scored on all 415 qualifying Ford segments (full `data/sim/segments/FORD_*/**/sim.csv`),\nsample-pooled with v > 2 m/s for yaw rate and 1 m distance grid for CTE."],
+      "reasoning": "A single segment-set and metric definition (v>2 m/s pool for yaw, 1 m distance grid for CTE) is declared upfront and the variant table uses a consistent 70/30 dev-split RMSE across all variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": false,
+      "value": null,
+      "threshold_met": false,
+      "evidence": ["| V0 (KS, precomputed)                        | 0.01538    | 0.01440       |\n| V2 — fit K_us only                          | 0.01658    | 0.00765       |\n| V3 — V2 + (a_scale, b_off)                  | 0.01104    | 0.00609       |\n| V4 — V3 + free L                            | 0.01104    | 0.00609 (degenerate with `a`) |\n| V5 — V3 + first-order lag tau               | **0.01041**| **0.00530**   |"],
+      "reasoning": "The variant ladder shows sequential RMSE values but there is no explicit marginal-improvement column nor a reconciliation of Σ marginal drops vs total drop; headline total drop is on the full set while ladder is on dev split, so they are not reconcilable."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Note: V2 by itself is worse than V0 on Mach-E because K_us alone over-compensates\nwhen steering scale is uncorrected. Adding (a_scale, b_off) in V3 lets each term\ndo its real job."],
+      "reasoning": "The agent explicitly flags V2 on Mach-E as a regression (0.01658 vs V0 0.01538) and gives a physical cause — over-compensation when steering scale is uncorrected."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Yaw-rate RMSE (rad/s)",
+    "platform": "all 415 qualifying Ford segments (full `data/sim/segments/FORD_*/**/sim.csv`)",
+    "baseline_value": "0.014794",
+    "final_value": "0.007770",
+    "improvement": "-47.5%",
+    "top_contributor": "V5 — V3 + first-order lag tau",
+    "baseline_numeric": 0.014794,
+    "final_numeric": 0.007770,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 47.5,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on both canonical Ford platforms using the measured yaw_rate_meas_rads truth channel, sample-pooled per the rubric expectation."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V2 — fit K_us only",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 — V2 + (a_scale, b_off)",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 — V3 + free L",
+      "contribution_pct": 0.0,
+      "contribution_abs": 0.0,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V5 — V3 + first-order lag tau",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

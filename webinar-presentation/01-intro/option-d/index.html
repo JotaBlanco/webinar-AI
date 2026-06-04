@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro · Option D — 3D Parallax / Constellation · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Intro · Option D — 3D Parallax / Constellation
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     Differentiator: real CSS perspective + Z-translated parallax
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* typography */
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3rem, 7vw, 6.4rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+    font-weight: 400;
+    max-width: 60ch;
+    line-height: 1.55;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.30s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.60s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* ============================================================
+     3D STAGE — shared
+     ============================================================ */
+  .stage3d {
+    position: absolute; inset: 0;
+    perspective: 1400px;
+    perspective-origin: 50% 50%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .stage3d-inner {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+  }
+  .layer {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+
+  /* foreground content gets its own 3D context above the stage */
+  .content-wrap {
+    position: relative; z-index: 4;
+    max-width: 60ch;
+  }
+
+  /* ============================================================
+     SLIDE 1 — "Coding is not engineering"
+     Background: layered node-graph schematic
+     Foreground: bright "coding" node that shrinks as graph swells forward
+     ============================================================ */
+
+  /* SVG node graph in background */
+  .graph-bg {
+    position: absolute; inset: 0;
+    transform: translateZ(-600px) scale(1);
+    opacity: 0;
+    transition: none;
+  }
+  .graph-bg svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .graph-bg .edge {
+    stroke: rgba(61,137,255,0.28);
+    stroke-width: 1;
+    fill: none;
+    stroke-dasharray: 4 6;
+    animation: edge-drift 9s linear infinite;
+  }
+  .graph-bg .edge.purple { stroke: rgba(189,46,255,0.28); }
+  .graph-bg .edge.orange { stroke: rgba(255,120,40,0.28); }
+  .graph-bg .edge.green  { stroke: rgba(0,221,129,0.28); }
+  @keyframes edge-drift { to { stroke-dashoffset: -120; } }
+
+  .graph-bg .node {
+    fill: rgba(10,11,22,0.85);
+    stroke: rgba(61,137,255,0.55);
+    stroke-width: 1.2;
+  }
+  .graph-bg .node.purple { stroke: rgba(189,46,255,0.55); }
+  .graph-bg .node.orange { stroke: rgba(255,120,40,0.55); }
+  .graph-bg .node.green  { stroke: rgba(0,221,129,0.55); }
+  .graph-bg .node-label {
+    fill: rgba(255,255,255,0.55);
+    font-family: 'JetBrains Mono','IBM Plex Mono','Consolas',monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .graph-bg .node-pulse {
+    fill: none;
+    stroke: rgba(61,137,255,0.6);
+    stroke-width: 1;
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: node-pulse 3.2s ease-in-out infinite;
+  }
+  @keyframes node-pulse {
+    0%   { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 0;   transform: scale(2.4); }
+  }
+
+  /* the bright foreground "coding" node */
+  .coding-node {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 280px; height: 180px;
+    margin-left: -140px; margin-top: -90px;
+    transform: translateZ(280px) scale(1);
+    opacity: 0;
+    background: linear-gradient(160deg, rgba(0,100,255,0.18), rgba(189,46,255,0.10));
+    border: 1px solid rgba(61,137,255,0.55);
+    border-radius: 14px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.05),
+      0 30px 90px rgba(0,100,255,0.45),
+      0 0 60px rgba(61,137,255,0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 1rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.78rem; line-height: 1.65;
+    color: var(--ink);
+    pointer-events: none;
+  }
+  .coding-node .tab {
+    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue-l); margin-bottom: 0.6rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .coding-node .tab::after {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+  }
+  .coding-node .kw  { color: var(--purple-l); }
+  .coding-node .fn  { color: var(--blue-l); }
+  .coding-node .str { color: var(--green); }
+  .coding-node .cmt { color: var(--ink-mute); font-style: italic; }
+
+  /* the signature pull-back animation: foreground recedes, background swells */
+  .slide.active .coding-node {
+    animation: coding-recede 3.2s cubic-bezier(.4,.0,.2,1) 0.4s both;
+  }
+  .slide.active .graph-bg {
+    animation: graph-rise 3.2s cubic-bezier(.4,.0,.2,1) 0.4s both;
+  }
+  @keyframes coding-recede {
+    0%   { transform: translateZ(280px) scale(1.0);   opacity: 0;   }
+    18%  { transform: translateZ(280px) scale(1.05);  opacity: 1;   }
+    55%  { transform: translateZ(60px)  scale(0.6);   opacity: 0.95;}
+    100% { transform: translateZ(-120px) scale(0.28); opacity: 0.85;}
+  }
+  @keyframes graph-rise {
+    0%   { transform: translateZ(-900px) scale(0.4); opacity: 0;    }
+    35%  {                                            opacity: 0.55; }
+    100% { transform: translateZ(-50px)  scale(1.0); opacity: 1;    }
+  }
+
+  /* tiny floating depth particles */
+  .depth-mote {
+    position: absolute;
+    width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    box-shadow: 0 0 8px rgba(61,137,255,0.7);
+  }
+
+  /* coding-node label badge (hovering tag) */
+  .coding-tag {
+    position: absolute;
+    left: calc(50% + 160px); top: calc(50% - 100px);
+    transform: translateZ(260px);
+    font-family: var(--mono);
+    font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue-l);
+    padding: 0.3rem 0.55rem;
+    border: 1px solid rgba(61,137,255,0.5);
+    background: rgba(0,100,255,0.08);
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .slide.active .coding-tag {
+    animation: tag-fade 3.2s cubic-bezier(.4,.0,.2,1) 0.6s both;
+  }
+  @keyframes tag-fade {
+    0%   { opacity: 0; }
+    25%  { opacity: 1; }
+    65%  { opacity: 0.7; }
+    100% { opacity: 0; }
+  }
+
+  /* engineering big-label that emerges from depth */
+  .engineering-label {
+    position: absolute;
+    left: 50%; top: 12%;
+    transform: translate(-50%, 0) translateZ(-200px);
+    font-family: var(--mono);
+    font-size: 0.78rem; letter-spacing: 0.45em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .slide.active .engineering-label {
+    animation: eng-emerge 3.2s cubic-bezier(.4,.0,.2,1) 1.4s both;
+  }
+  @keyframes eng-emerge {
+    from { opacity: 0; letter-spacing: 0.2em; }
+    to   { opacity: 1; letter-spacing: 0.5em; }
+  }
+
+  /* slide 1 text panel — bottom-left grounded */
+  .s1-panel {
+    position: absolute;
+    left: 9vw; bottom: 12vh; right: 9vw;
+    z-index: 6;
+    max-width: 64ch;
+  }
+  .s1-panel .kicker {
+    display: inline-block;
+    padding: 0.32rem 0.7rem;
+    background: rgba(0,100,255,0.12);
+    border: 1px solid rgba(61,137,255,0.4);
+    border-radius: 999px;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue-l);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ============================================================
+     SLIDE 2 — "The patterns are emerging"
+     40 floating dots → snap into 3 labelled clusters → lines draw
+     ============================================================ */
+
+  .constellation {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+  }
+  .dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    --x: 0px; --y: 0px; --z: 0px;
+    --tx: 0px; --ty: 0px; --tz: 0px;
+    transform: translate3d(var(--x), var(--y), var(--z));
+    will-change: transform, background;
+  }
+  .dot.b1 { background: var(--blue-l);   box-shadow: 0 0 12px rgba(61,137,255,0.7); }
+  .dot.b2 { background: var(--purple-l); box-shadow: 0 0 12px rgba(189,46,255,0.7); }
+  .dot.b3 { background: var(--orange-l); box-shadow: 0 0 12px rgba(255,120,40,0.7); }
+  .dot.small { width: 5px; height: 5px; }
+
+  /* jitter animation runs by default */
+  .dot {
+    animation: jitter 6s ease-in-out infinite alternate;
+  }
+  @keyframes jitter {
+    0%   { transform: translate3d(var(--x), var(--y), var(--z)); }
+    50%  { transform: translate3d(calc(var(--x) + 12px), calc(var(--y) - 8px), calc(var(--z) + 30px)); }
+    100% { transform: translate3d(calc(var(--x) - 6px), calc(var(--y) + 10px), calc(var(--z) - 20px)); }
+  }
+
+  /* signature snap: dots transform to cluster positions */
+  .slide.active .dot {
+    animation: dot-snap 4s cubic-bezier(.5,.0,.2,1) 0.6s forwards;
+  }
+  @keyframes dot-snap {
+    0% {
+      transform: translate3d(var(--x), var(--y), var(--z));
+      opacity: 1;
+    }
+    30% {
+      transform: translate3d(var(--x), var(--y), var(--z));
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(var(--tx), var(--ty), var(--tz));
+      opacity: 1;
+    }
+  }
+
+  /* cluster labels */
+  .cluster-label {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 0.78rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--ink);
+    padding: 0.45rem 0.85rem;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    white-space: nowrap;
+    transform: translate3d(-50%, 0, 60px);
+  }
+  .cluster-label small {
+    display: block; margin-top: 0.25rem;
+    font-size: 0.62rem; letter-spacing: 0.18em;
+    color: var(--ink-mute);
+  }
+  .cluster-label.c1 { border-color: rgba(61,137,255,0.6);   box-shadow: 0 0 30px rgba(61,137,255,0.25); }
+  .cluster-label.c2 { border-color: rgba(189,46,255,0.6);   box-shadow: 0 0 30px rgba(189,46,255,0.25); }
+  .cluster-label.c3 { border-color: rgba(255,120,40,0.6);   box-shadow: 0 0 30px rgba(255,120,40,0.25); }
+  .cluster-label .swatch {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 0.55rem; vertical-align: middle;
+  }
+  .cluster-label.c1 .swatch { background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l); }
+  .cluster-label.c2 .swatch { background: var(--purple-l); box-shadow: 0 0 8px var(--purple-l); }
+  .cluster-label.c3 .swatch { background: var(--orange-l); box-shadow: 0 0 8px var(--orange-l); }
+
+  .slide.active .cluster-label {
+    animation: label-pop 1s cubic-bezier(.2,.7,.2,1) 4.0s both;
+  }
+  @keyframes label-pop {
+    from { opacity: 0; transform: translate3d(-50%, 12px, 60px); }
+    to   { opacity: 1; transform: translate3d(-50%, 0, 60px); }
+  }
+
+  /* speed-lines accent on F1 cluster */
+  .speedlines {
+    position: absolute;
+    width: 220px; height: 80px;
+    transform: translate(-50%, -50%) translateZ(20px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .speedlines span {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue-l), transparent);
+    left: 0; right: 0;
+    transform-origin: left center;
+  }
+  .speedlines span:nth-child(1) { top: 12%; opacity: 0.7; }
+  .speedlines span:nth-child(2) { top: 32%; opacity: 0.5; }
+  .speedlines span:nth-child(3) { top: 52%; opacity: 0.85; }
+  .speedlines span:nth-child(4) { top: 72%; opacity: 0.45; }
+  .speedlines span:nth-child(5) { top: 92%; opacity: 0.6; }
+  .slide.active .speedlines {
+    animation: speed-fade 1.6s ease-out 4.2s both;
+  }
+  @keyframes speed-fade {
+    0%   { opacity: 0; transform: translate(-50%, -50%) translateZ(20px) scaleX(0.2); }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; transform: translate(-50%, -50%) translateZ(20px) scaleX(1); }
+  }
+
+  /* connecting lines SVG between clusters */
+  .pattern-lines {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    transform: translateZ(40px);
+  }
+  .pattern-lines svg {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+  }
+  .pattern-lines path {
+    fill: none;
+    stroke: url(#gradLine);
+    stroke-width: 1.5;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    filter: drop-shadow(0 0 6px rgba(189,46,255,0.6));
+  }
+  .slide.active .pattern-lines path {
+    animation: line-draw 2.2s cubic-bezier(.4,.0,.2,1) 5.0s forwards;
+  }
+  .slide.active .pattern-lines path:nth-child(2) {
+    animation-delay: 5.3s;
+  }
+  .slide.active .pattern-lines path:nth-child(3) {
+    animation-delay: 5.6s;
+  }
+  @keyframes line-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* PATTERNS EMERGING label */
+  .patterns-emerging {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%) translateZ(120px);
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 8;
+  }
+  .patterns-emerging .tag {
+    font-family: var(--mono);
+    font-size: 0.72rem; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.6rem;
+  }
+  .patterns-emerging .ttl {
+    font-size: clamp(1.4rem, 2.2vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    background: linear-gradient(120deg, var(--blue-l), var(--purple), var(--orange));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .slide.active .patterns-emerging {
+    animation: pe-fade 1.2s cubic-bezier(.2,.7,.2,1) 6.4s both;
+  }
+  @keyframes pe-fade {
+    from { opacity: 0; transform: translate(-50%, -45%) translateZ(120px); filter: blur(8px); }
+    to   { opacity: 1; transform: translate(-50%, -50%) translateZ(120px); filter: blur(0); }
+  }
+
+  /* slide 2 grounded text panel */
+  .s2-panel {
+    position: absolute;
+    left: 9vw; top: 14vh; right: 9vw;
+    z-index: 6;
+    max-width: 56ch;
+  }
+  .s2-panel .kicker {
+    display: inline-block;
+    padding: 0.32rem 0.7rem;
+    background: rgba(189,46,255,0.10);
+    border: 1px solid rgba(189,46,255,0.4);
+    border-radius: 999px;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--purple-l);
+    margin-bottom: 1.25rem;
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.7rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta" id="metaLabel">Intro · 01</span>
+</div>
+
+<div class="deck">
+
+  <!-- =====================================================
+       SLIDE 1 — Coding is not engineering
+       ===================================================== -->
+  <section class="slide active" data-i="1" data-meta="Intro · 01">
+
+    <!-- 3D stage with parallax layers -->
+    <div class="stage3d">
+      <div class="stage3d-inner">
+
+        <!-- engineering label (far back) -->
+        <div class="engineering-label">— THE ENGINEERING SYSTEM —</div>
+
+        <!-- background node graph schematic -->
+        <div class="graph-bg">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+            <!-- edges -->
+            <g>
+              <path class="edge"        d="M 180 220 L 360 260 L 520 200 L 720 240"/>
+              <path class="edge purple" d="M 360 260 L 420 420 L 600 460"/>
+              <path class="edge"        d="M 720 240 L 880 320 L 1040 280"/>
+              <path class="edge orange" d="M 600 460 L 800 520 L 980 480 L 1180 520"/>
+              <path class="edge green"  d="M 880 320 L 980 480"/>
+              <path class="edge"        d="M 1040 280 L 1240 240 L 1380 320"/>
+              <path class="edge purple" d="M 1180 520 L 1340 560 L 1420 460"/>
+              <path class="edge"        d="M 220 600 L 380 640 L 540 600"/>
+              <path class="edge orange" d="M 540 600 L 720 720 L 880 700"/>
+              <path class="edge green"  d="M 880 700 L 1060 740 L 1240 700"/>
+              <path class="edge purple" d="M 420 420 L 220 600"/>
+              <path class="edge"        d="M 1240 700 L 1380 620 L 1420 460"/>
+              <path class="edge orange" d="M 1380 320 L 1420 460"/>
+              <path class="edge"        d="M 720 240 L 600 460"/>
+              <path class="edge purple" d="M 360 260 L 220 600"/>
+            </g>
+
+            <!-- nodes -->
+            <g>
+              <rect class="node"        x="160"  y="200" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="184"  y="222" text-anchor="middle">api</text>
+
+              <rect class="node purple" x="340"  y="240" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="364"  y="262" text-anchor="middle">auth</text>
+
+              <rect class="node"        x="500"  y="180" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="524"  y="202" text-anchor="middle">cdn</text>
+
+              <rect class="node orange" x="700"  y="220" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="724"  y="242" text-anchor="middle">ingress</text>
+
+              <rect class="node"        x="860"  y="300" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="884"  y="322" text-anchor="middle">queue</text>
+
+              <rect class="node green"  x="1020" y="260" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1044" y="282" text-anchor="middle">cache</text>
+
+              <rect class="node purple" x="400"  y="400" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="424"  y="422" text-anchor="middle">jobs</text>
+
+              <rect class="node"        x="580"  y="440" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="604"  y="462" text-anchor="middle">db</text>
+
+              <rect class="node orange" x="780"  y="500" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="804"  y="522" text-anchor="middle">stream</text>
+
+              <rect class="node"        x="960"  y="460" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="984"  y="482" text-anchor="middle">store</text>
+
+              <rect class="node green"  x="1160" y="500" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1184" y="522" text-anchor="middle">log</text>
+
+              <rect class="node"        x="1220" y="220" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1244" y="242" text-anchor="middle">edge</text>
+
+              <rect class="node purple" x="1360" y="300" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1384" y="322" text-anchor="middle">obs</text>
+
+              <rect class="node"        x="1400" y="440" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1424" y="462" text-anchor="middle">trace</text>
+
+              <rect class="node orange" x="200"  y="580" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="224"  y="602" text-anchor="middle">etl</text>
+
+              <rect class="node"        x="360"  y="620" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="384"  y="642" text-anchor="middle">vec</text>
+
+              <rect class="node purple" x="520"  y="580" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="544"  y="602" text-anchor="middle">eval</text>
+
+              <rect class="node"        x="700"  y="700" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="724"  y="722" text-anchor="middle">guard</text>
+
+              <rect class="node green"  x="860"  y="680" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="884"  y="702" text-anchor="middle">slo</text>
+
+              <rect class="node orange" x="1040" y="720" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1064" y="742" text-anchor="middle">audit</text>
+
+              <rect class="node"        x="1220" y="680" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1244" y="702" text-anchor="middle">ops</text>
+
+              <rect class="node"        x="1360" y="600" width="48" height="36" rx="4"/>
+              <text class="node-label"  x="1384" y="622" text-anchor="middle">sec</text>
+
+              <!-- pulse rings on a few -->
+              <rect class="node-pulse"        x="160"  y="200" width="48" height="36" rx="4"/>
+              <rect class="node-pulse"        x="860"  y="300" width="48" height="36" rx="4" style="stroke: rgba(189,46,255,0.6); animation-delay: -1.2s;"/>
+              <rect class="node-pulse"        x="1160" y="500" width="48" height="36" rx="4" style="stroke: rgba(0,221,129,0.6); animation-delay: -2.4s;"/>
+              <rect class="node-pulse"        x="780"  y="500" width="48" height="36" rx="4" style="stroke: rgba(255,120,40,0.6); animation-delay: -0.6s;"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- floating depth motes (extra parallax layer) -->
+        <div class="layer" style="transform: translateZ(-200px);">
+          <span class="depth-mote" style="left: 22%; top: 30%;"></span>
+          <span class="depth-mote" style="left: 76%; top: 24%;"></span>
+          <span class="depth-mote" style="left: 64%; top: 70%;"></span>
+          <span class="depth-mote" style="left: 32%; top: 78%;"></span>
+        </div>
+        <div class="layer" style="transform: translateZ(100px);">
+          <span class="depth-mote" style="left: 18%; top: 42%; background: rgba(189,46,255,0.8);"></span>
+          <span class="depth-mote" style="left: 82%; top: 58%; background: rgba(255,120,40,0.8);"></span>
+        </div>
+
+        <!-- foreground "coding" node — the hero -->
+        <div class="coding-node">
+          <div class="tab">coding.py · main</div>
+<pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;color:inherit;"><span class="kw">def</span> <span class="fn">handle</span>(req):
+    user = <span class="fn">get_user</span>(req.id)
+    <span class="kw">return</span> {<span class="str">"ok"</span>: <span class="kw">True</span>}
+<span class="cmt"># a single function</span></pre>
+        </div>
+
+        <div class="coding-tag">↑ this is "coding"</div>
+
+      </div>
+    </div>
+
+    <!-- grounded text panel -->
+    <div class="s1-panel">
+      <span class="kicker reveal">Intro · the premise</span>
+      <h1 class="display reveal-d1">Coding is not <span class="grad">engineering</span>.</h1>
+      <p class="subtitle reveal-d2">Most AI advice optimises for shipping a function. Engineering is a different shape — services, queues, datastores, observability, all wired together. The patterns that work for one don't transfer to the other.</p>
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       SLIDE 2 — The patterns are emerging
+       ===================================================== -->
+  <section class="slide" data-i="2" data-meta="Intro · 02">
+
+    <div class="stage3d">
+      <div class="stage3d-inner">
+
+        <!-- 40 jittering dots that snap into 3 clusters -->
+        <div class="constellation" id="constellation"><!-- JS-populated --></div>
+
+        <!-- F1 speed-lines accent -->
+        <div class="speedlines" id="speedlines">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <!-- cluster labels -->
+        <div class="cluster-label c1" id="lbl-c1"><span class="swatch"></span>F1 Teams<small>Telemetry · pit-wall · sub-second decisions</small></div>
+        <div class="cluster-label c2" id="lbl-c2"><span class="swatch"></span>Top Contributors<small>Patterns that actually stick in production</small></div>
+        <div class="cluster-label c3" id="lbl-c3"><span class="swatch"></span>Quix AI Research<small>Continuous customer feedback in production</small></div>
+
+        <!-- connecting lines drawn between clusters -->
+        <div class="pattern-lines" id="patternLines">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="gradLine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%"   stop-color="#3d89ff"/>
+                <stop offset="50%"  stop-color="#bd2eff"/>
+                <stop offset="100%" stop-color="#ff7828"/>
+              </linearGradient>
+            </defs>
+            <!-- lines drawn between cluster centres (set via JS to ensure alignment) -->
+            <path id="line1" d=""/>
+            <path id="line2" d=""/>
+            <path id="line3" d=""/>
+          </svg>
+        </div>
+
+        <!-- patterns emerging center label -->
+        <div class="patterns-emerging">
+          <div class="tag">— Order out of chaos —</div>
+          <div class="ttl">Patterns emerging</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- grounded text panel -->
+    <div class="s2-panel">
+      <span class="kicker reveal">Intro · the patterns</span>
+      <h1 class="display reveal-d1">The patterns are <span class="grad">emerging</span>.</h1>
+      <p class="subtitle reveal-d2">It's still a chaotic landscape. But three sources keep producing what works for AI in engineering — F1 teams, top contributors to the field, and Quix's own research with customers in production.</p>
+    </div>
+
+  </section>
+
+</div>
+
+<div class="hint">←  →  navigate</div>
+
+<div class="footer">
+  <span>Quix · 2026 · Intro · Option D</span>
+  <span><span id="cur">1</span> / <span id="tot">2</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  // ============================================================
+  // SLIDE 2 — populate the constellation
+  // 40 dots: each gets a chaotic start (--x/--y/--z) and a
+  // target position in one of 3 clusters (--tx/--ty/--tz).
+  // ============================================================
+  const VW = () => window.innerWidth;
+  const VH = () => window.innerHeight;
+
+  // cluster centre positions, as % of viewport
+  const CLUSTERS = [
+    { cx: 0.26, cy: 0.62, klass: 'b1' },  // F1 Teams (left)
+    { cx: 0.52, cy: 0.70, klass: 'b2' },  // Top Contributors (centre-bottom)
+    { cx: 0.78, cy: 0.55, klass: 'b3' },  // Quix AI Research (right)
+  ];
+
+  function buildConstellation() {
+    const host = document.getElementById('constellation');
+    if (!host) return;
+    host.innerHTML = '';
+    const N = 42;
+
+    // distribute dots roughly evenly across the 3 clusters
+    for (let i = 0; i < N; i++) {
+      const cIdx = i % 3;
+      const c = CLUSTERS[cIdx];
+      const dot = document.createElement('span');
+      dot.className = 'dot ' + c.klass + (Math.random() > 0.5 ? ' small' : '');
+
+      // chaotic start anywhere on the viewport
+      const sx = (Math.random() - 0.5) * VW() * 0.95;
+      const sy = (Math.random() - 0.5) * VH() * 0.85;
+      const sz = (Math.random() - 0.5) * 600;
+
+      // target: cluster centre + small offset (radial scatter)
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 30 + Math.random() * 90;
+      const tx = (c.cx - 0.5) * VW() + Math.cos(angle) * radius;
+      const ty = (c.cy - 0.5) * VH() + Math.sin(angle) * radius;
+      const tz = (Math.random() - 0.5) * 80;
+
+      // anchor at viewport centre
+      dot.style.left = '50%';
+      dot.style.top = '50%';
+      dot.style.setProperty('--x',  sx + 'px');
+      dot.style.setProperty('--y',  sy + 'px');
+      dot.style.setProperty('--z',  sz + 'px');
+      dot.style.setProperty('--tx', tx + 'px');
+      dot.style.setProperty('--ty', ty + 'px');
+      dot.style.setProperty('--tz', tz + 'px');
+      dot.style.animationDelay = (Math.random() * -6) + 's';
+
+      host.appendChild(dot);
+    }
+
+    // position cluster labels (just below cluster centres)
+    const labels = ['lbl-c1','lbl-c2','lbl-c3'];
+    labels.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const c = CLUSTERS[idx];
+      el.style.left = (c.cx * 100) + '%';
+      el.style.top  = ((c.cy * 100) + 12) + '%';
+    });
+
+    // position speed-lines at F1 cluster
+    const sl = document.getElementById('speedlines');
+    if (sl) {
+      sl.style.left = (CLUSTERS[0].cx * 100) + '%';
+      sl.style.top  = (CLUSTERS[0].cy * 100) + '%';
+    }
+
+    // draw pattern-lines between cluster centres (in 1600x900 SVG coords)
+    const W = 1600, H = 900;
+    const p = i => ({ x: CLUSTERS[i].cx * W, y: CLUSTERS[i].cy * H });
+    const a = p(0), b = p(1), c = p(2);
+    // bezier curves between pairs
+    const mk = (from, to, bow) => {
+      const mx = (from.x + to.x) / 2;
+      const my = (from.y + to.y) / 2 + bow;
+      return `M ${from.x} ${from.y} Q ${mx} ${my} ${to.x} ${to.y}`;
+    };
+    const l1 = document.getElementById('line1');
+    const l2 = document.getElementById('line2');
+    const l3 = document.getElementById('line3');
+    if (l1) l1.setAttribute('d', mk(a, b, -120));
+    if (l2) l2.setAttribute('d', mk(b, c, -120));
+    if (l3) l3.setAttribute('d', mk(a, c, -260));
+  }
+
+  // ============================================================
+  // Deck navigation — adapted from cosmic template
+  // ============================================================
+  const slides = document.querySelectorAll('.slide');
+  const cur  = document.getElementById('cur');
+  const tot  = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  const metaLabel = document.getElementById('metaLabel');
+  tot.textContent = slides.length;
+  let i = 0;
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => {
+      const wasActive = s.classList.contains('active');
+      const willBeActive = idx === i;
+      if (willBeActive && !wasActive) {
+        // re-fire animations: yank `active`, force reflow, restore
+        s.classList.remove('active');
+        // eslint-disable-next-line no-unused-expressions
+        void s.offsetWidth;
+      }
+      s.classList.toggle('active', willBeActive);
+    });
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+    const active = slides[i];
+    if (metaLabel && active && active.dataset.meta) {
+      metaLabel.textContent = active.dataset.meta;
+    }
+    // rebuild constellation when slide 2 becomes active (uses fresh viewport size)
+    if (i === 1) buildConstellation();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+
+  // rebuild constellation on window resize (if currently on slide 2)
+  window.addEventListener('resize', () => {
+    if (i === 1) buildConstellation();
+  });
+
+  // initial build (so constellation is ready if user keys to slide 2)
+  buildConstellation();
+  go(0);
+</script>
+</body>
+</html>

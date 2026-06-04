@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ladder — Option C (Individual → Team → Org)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f1f1f3;
+  color: #222229;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  padding: 2rem 0;
+}
+.deck-header { max-width: 1280px; margin: 0 auto 1.5rem; padding: 0 2rem; }
+.deck-header h1 { color: #0a0b24; font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; }
+.deck-header p { color: #646471; font-size: 0.92rem; margin-top: 0.35rem; line-height: 1.55; }
+
+.slide {
+  width: 1280px; max-width: calc(100% - 2rem);
+  aspect-ratio: 16 / 9;
+  margin: 0 auto 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(10, 11, 36, 0.08);
+  padding: 2.75rem 3.25rem 3.25rem;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.slide::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #0064ff, #bd2eff, #ff7828); }
+.slide-tag { position: absolute; top: 1.25rem; right: 1.5rem;
+  background: #f5f5fa; color: #646471; font-size: 0.7rem; font-weight: 700;
+  padding: 5px 11px; border-radius: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.slide h2 { color: #0a0b24; font-weight: 800; font-size: 1.95rem;
+  letter-spacing: -0.02em; line-height: 1.15; }
+.slide .subtitle { color: #0064ff; font-weight: 500; font-size: 1rem;
+  margin-top: 0.45rem; margin-bottom: 1.75rem; max-width: 78ch; }
+.slide-logo { position: absolute; bottom: 1.1rem; left: 1.5rem; height: 14px; opacity: 0.45; }
+.footnote { position: absolute; bottom: 1.2rem; right: 1.6rem; font-size: 0.75rem;
+  color: #a2a2b0; font-style: italic; }
+
+/* === C1: growing halos === */
+.c1-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;
+  align-items: end; flex: 1; padding-bottom: 0.5rem; }
+.c1-col { display: flex; flex-direction: column; align-items: center; text-align: center;
+  height: 100%; justify-content: flex-end; }
+.c1-halo { border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #0a0b24; margin-bottom: 1rem; }
+.c1-halo.l0 { width: 50px; height: 50px; background: #e6f0ff; font-size: 0.85rem; }
+.c1-halo.l1 { width: 72px; height: 72px; background: #cce0ff; font-size: 0.95rem; }
+.c1-halo.l2 { width: 108px; height: 108px; background: #99c2ff; font-size: 1.1rem; }
+.c1-halo.l3 { width: 148px; height: 148px; background: #5d97f7; color: #fff; font-size: 1.3rem; }
+.c1-halo.l4 { width: 196px; height: 196px; background: #0064ff; color: #fff; font-size: 1.5rem; }
+.c1-tag { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+.c1-title { color: #0a0b24; font-weight: 700; font-size: 1.02rem; margin-bottom: 0.35rem; }
+.c1-desc { color: #646471; font-size: 0.82rem; line-height: 1.45; max-width: 200px; }
+
+/* === C2: staircase === */
+.c2-stairs { display: flex; flex: 1; align-items: stretch; gap: 0.55rem; padding-top: 0.5rem; }
+.c2-step { flex: 1; background: #ffffff; border: 1px solid #eeeef3; border-top: 3px solid;
+  border-radius: 10px; padding: 1.1rem 0.95rem; display: flex; flex-direction: column;
+  box-shadow: 0 2px 12px rgba(10, 11, 36, 0.04); }
+.c2-step.s0 { margin-top: 55%; border-top-color: #c8d4e8; background: #fafbfd; }
+.c2-step.s1 { margin-top: 41%; border-top-color: #99c2ff; }
+.c2-step.s2 { margin-top: 27%; border-top-color: #0064ff; }
+.c2-step.s3 { margin-top: 13%; border-top-color: #bd2eff; }
+.c2-step.s4 { margin-top: 0; border-top-color: #ff7828; }
+.c2-step .rung { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem; }
+.c2-step .ttl { color: #0a0b24; font-weight: 700; font-size: 0.98rem; margin-bottom: 0.5rem; line-height: 1.25; }
+.c2-step .desc { color: #646471; font-size: 0.78rem; line-height: 1.5; }
+
+/* === C3: concentric === */
+.c3-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem;
+  flex: 1; align-items: center; }
+.c3-diagram { display: flex; align-items: center; justify-content: center; height: 100%; }
+.c3-list { display: flex; flex-direction: column; gap: 0.55rem; }
+.c3-card { display: flex; align-items: center; gap: 0.95rem;
+  padding: 0.7rem 1rem; background: #fafafa; border-radius: 10px; border-left: 4px solid;
+  border-top: 1px solid #eeeef3; border-right: 1px solid #eeeef3; border-bottom: 1px solid #eeeef3; }
+.c3-card.l0 { border-left-color: #c8d4e8; }
+.c3-card.l1 { border-left-color: #99c2ff; }
+.c3-card.l2 { border-left-color: #0064ff; }
+.c3-card.l3 { border-left-color: #bd2eff; }
+.c3-card.l4 { border-left-color: #ff7828; }
+.c3-card .rung { font-weight: 800; font-size: 0.95rem; color: #0a0b24; min-width: 30px; }
+.c3-card .body { display: flex; flex-direction: column; }
+.c3-card .ttl { color: #0a0b24; font-weight: 700; font-size: 0.92rem; }
+.c3-card .desc { color: #646471; font-size: 0.78rem; line-height: 1.4; }
+
+/* === C4: stat-card grid === */
+.c4-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.9rem;
+  flex: 1; align-items: stretch; padding-top: 0.25rem; }
+.c4-card { background: #ffffff; border: 1px solid #eeeef3; border-radius: 12px;
+  padding: 1.25rem 1.1rem; display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(10, 11, 36, 0.04); }
+.c4-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.c4-card.l0::before { background: linear-gradient(90deg, #a2a2b0, rgba(162,162,176,0.25)); }
+.c4-card.l1::before { background: linear-gradient(90deg, #0064ff, rgba(0,100,255,0.25)); }
+.c4-card.l2::before { background: linear-gradient(90deg, #0064ff, rgba(0,100,255,0.25)); }
+.c4-card.l3::before { background: linear-gradient(90deg, #bd2eff, rgba(189,46,255,0.25)); }
+.c4-card.l4::before { background: linear-gradient(90deg, #ff7828, rgba(255,120,40,0.25)); }
+.c4-card .rung { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.08em; text-transform: uppercase; }
+.c4-card .big { font-size: 2.4rem; font-weight: 800; color: #0a0b24;
+  line-height: 1.05; margin-top: 0.5rem; letter-spacing: -0.03em; }
+.c4-card .unit { font-size: 0.78rem; font-weight: 500; color: #0064ff; margin-top: 0.15rem; }
+.c4-card .ttl { font-size: 0.92rem; font-weight: 700; color: #0a0b24; margin-top: 0.95rem; }
+.c4-card .desc { font-size: 0.77rem; color: #646471; line-height: 1.45; margin-top: 0.35rem; }
+
+/* === C5: actual ladder / step-line going up === */
+.c5-row { display: grid; grid-template-columns: repeat(5, 1fr);
+  align-items: end; flex: 1; padding-top: 0.5rem; padding-bottom: 0.25rem; position: relative; }
+.c5-step { position: relative; display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 0 0.45rem; min-width: 0; }
+.c5-step.s0 { margin-bottom: 0; }
+.c5-step.s1 { margin-bottom: 52px; }
+.c5-step.s2 { margin-bottom: 104px; }
+.c5-step.s3 { margin-bottom: 156px; }
+.c5-step.s4 { margin-bottom: 208px; }
+/* risers: vertical line at the left edge of each step (except s0), extending down to meet previous tread */
+.c5-step:not(.s0)::before {
+  content: ''; position: absolute;
+  left: -2px; bottom: -52px;
+  width: 4px; height: 52px;
+  background: #0a0b24; border-radius: 1px; z-index: 1;
+}
+.c5-card {
+  background: #fff; border: 1px solid #eeeef3; border-radius: 10px;
+  padding: 0.85rem 0.95rem 0.95rem; margin-bottom: 0.55rem;
+  border-top: 3px solid;
+  box-shadow: 0 2px 12px rgba(10, 11, 36, 0.05);
+  display: flex; flex-direction: column;
+}
+.c5-card.l0 { border-top-color: #c8d4e8; }
+.c5-card.l1 { border-top-color: #99c2ff; }
+.c5-card.l2 { border-top-color: #0064ff; }
+.c5-card.l3 { border-top-color: #bd2eff; }
+.c5-card.l4 { border-top-color: #ff7828; }
+.c5-card .rung { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.08em; text-transform: uppercase; }
+.c5-card .ttl { color: #0a0b24; font-weight: 700; font-size: 0.95rem;
+  margin-top: 0.3rem; margin-bottom: 0.3rem; line-height: 1.2; }
+.c5-card .desc { color: #646471; font-size: 0.76rem; line-height: 1.45; }
+.c5-tread { height: 6px; background: #0a0b24; border-radius: 3px; }
+.c5-arrow {
+  position: absolute; top: 1.5rem; right: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  color: #646471; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.c5-arrow svg { width: 90px; height: 36px; }
+
+@media print {
+  body { background: #fff; padding: 0; }
+  .deck-header { display: none; }
+  .slide { box-shadow: none; margin: 0; max-width: none; border-radius: 0; page-break-after: always; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <h1>The AI-Assisted Engineering Ladder — Option C</h1>
+  <p>Framing: <strong>Individual → Team → Org</strong>. Four design treatments of the same slide — pick a favourite to take forward.</p>
+</div>
+
+<!-- ============== C1: Growing halos ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 1 · Growing halos</span>
+  <h2>The AI-Assisted Engineering Ladder</h2>
+  <p class="subtitle">Each rung doesn't make the AI smarter — it expands who in your organisation benefits.</p>
+  <div class="c1-grid">
+    <div class="c1-col">
+      <div class="c1-halo l0"><span>L0</span></div>
+      <div class="c1-tag">Chatbot</div>
+      <div class="c1-title">Personal productivity</div>
+      <div class="c1-desc">One user, one window, one question at a time.</div>
+    </div>
+    <div class="c1-col">
+      <div class="c1-halo l1"><span>L1</span></div>
+      <div class="c1-tag">Agentic AI</div>
+      <div class="c1-title">Personal autopilot</div>
+      <div class="c1-desc">One developer, but the AI executes whole tasks instead of suggesting.</div>
+    </div>
+    <div class="c1-col">
+      <div class="c1-halo l2"><span>L2</span></div>
+      <div class="c1-tag">+ Skills</div>
+      <div class="c1-title">Team conventions</div>
+      <div class="c1-desc">Procedures encode how this team works — shared practice, not one-off prompting.</div>
+    </div>
+    <div class="c1-col">
+      <div class="c1-halo l3"><span>L3</span></div>
+      <div class="c1-tag">+ Knowledge Base</div>
+      <div class="c1-title">Team intelligence</div>
+      <div class="c1-desc">Every agent run starts with the team's collective domain knowledge.</div>
+    </div>
+    <div class="c1-col">
+      <div class="c1-halo l4"><span>L4</span></div>
+      <div class="c1-tag">AI Harness</div>
+      <div class="c1-title">Org infrastructure</div>
+      <div class="c1-desc">Governed, scheduled, observable — how the company operates, not how one dev codes.</div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+  <span class="footnote">Visual metaphor: each halo's area = reach across the org.</span>
+</section>
+
+<!-- ============== C2: Staircase ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 2 · Staircase</span>
+  <h2>Five rungs, one direction: outward.</h2>
+  <p class="subtitle">From a developer's pocket tool to the company's operating system.</p>
+  <div class="c2-stairs">
+    <div class="c2-step s0">
+      <div class="rung">L0 · Chatbot</div>
+      <div class="ttl">Personal productivity</div>
+      <div class="desc">One user. One window. One question at a time. The AI is a smart pair of eyes you walk over to.</div>
+    </div>
+    <div class="c2-step s1">
+      <div class="rung">L1 · Agentic AI</div>
+      <div class="ttl">Personal autopilot</div>
+      <div class="desc">One developer, now with hands. The AI reads files, runs commands, opens PRs — but still works in one head.</div>
+    </div>
+    <div class="c2-step s2">
+      <div class="rung">L2 · + Skills</div>
+      <div class="ttl">Team conventions</div>
+      <div class="desc">Reusable procedures capture how the team actually works. Every agent run inherits team practice, not one person's prompts.</div>
+    </div>
+    <div class="c2-step s3">
+      <div class="rung">L3 · + Knowledge Base</div>
+      <div class="ttl">Team intelligence</div>
+      <div class="desc">Shared context the whole team contributes to and draws from. The blank-slate problem disappears.</div>
+    </div>
+    <div class="c2-step s4">
+      <div class="rung">L4 · AI Harness</div>
+      <div class="ttl">Org infrastructure</div>
+      <div class="desc">Governed, scheduled, multi-agent, audited. AI runs in CI, on rotations, across services — woven into how the company operates.</div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== C3: Concentric rings ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 3 · Concentric reach</span>
+  <h2>Climbing the ladder = widening the blast radius.</h2>
+  <p class="subtitle">Same model at every level. What changes is how many people benefit.</p>
+  <div class="c3-row">
+    <div class="c3-diagram">
+      <svg viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg" style="width: 90%; max-width: 380px;">
+        <circle cx="190" cy="190" r="180" fill="#fff6f0" stroke="#ff7828" stroke-width="1.5"/>
+        <circle cx="190" cy="190" r="142" fill="#faf0ff" stroke="#bd2eff" stroke-width="1.5"/>
+        <circle cx="190" cy="190" r="105" fill="#e6f0ff" stroke="#0064ff" stroke-width="1.5"/>
+        <circle cx="190" cy="190" r="68" fill="#f0f7ff" stroke="#5d97f7" stroke-width="1.5"/>
+        <circle cx="190" cy="190" r="32" fill="#ffffff" stroke="#646471" stroke-width="1.5"/>
+        <text x="190" y="195" text-anchor="middle" font-family="Geist, sans-serif" font-weight="800" font-size="16" fill="#0a0b24">L0</text>
+        <text x="190" y="135" text-anchor="middle" font-family="Geist, sans-serif" font-weight="700" font-size="13" fill="#0a0b24">L1</text>
+        <text x="190" y="98" text-anchor="middle" font-family="Geist, sans-serif" font-weight="700" font-size="13" fill="#0a0b24">L2</text>
+        <text x="190" y="60" text-anchor="middle" font-family="Geist, sans-serif" font-weight="700" font-size="13" fill="#0a0b24">L3</text>
+        <text x="190" y="22" text-anchor="middle" font-family="Geist, sans-serif" font-weight="700" font-size="13" fill="#0a0b24">L4</text>
+      </svg>
+    </div>
+    <div class="c3-list">
+      <div class="c3-card l0">
+        <div class="rung">L0</div>
+        <div class="body"><div class="ttl">Chatbot — one user</div><div class="desc">A smart resource you walk over to and ask.</div></div>
+      </div>
+      <div class="c3-card l1">
+        <div class="rung">L1</div>
+        <div class="body"><div class="ttl">Agentic AI — one developer's autopilot</div><div class="desc">Still one head, but the AI now does the work, not just describes it.</div></div>
+      </div>
+      <div class="c3-card l2">
+        <div class="rung">L2</div>
+        <div class="body"><div class="ttl">+ Skills — team conventions</div><div class="desc">Reusable procedures encode how the team works.</div></div>
+      </div>
+      <div class="c3-card l3">
+        <div class="rung">L3</div>
+        <div class="body"><div class="ttl">+ Knowledge Base — team intelligence</div><div class="desc">Shared context the team builds and draws from.</div></div>
+      </div>
+      <div class="c3-card l4">
+        <div class="rung">L4</div>
+        <div class="body"><div class="ttl">AI Harness — org infrastructure</div><div class="desc">Governed, scheduled, multi-agent — woven into how the company runs.</div></div>
+      </div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== C4: Stat-card grid ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 4 · By the numbers</span>
+  <h2>How many people does the AI help?</h2>
+  <p class="subtitle">Each rung multiplies the number of humans whose work is shaped by the system.</p>
+  <div class="c4-grid">
+    <div class="c4-card l0">
+      <div class="rung">L0 · Chatbot</div>
+      <div class="big">1</div>
+      <div class="unit">user, ad hoc</div>
+      <div class="ttl">Personal productivity</div>
+      <div class="desc">A resource you walk over to and ask. No access to your systems.</div>
+    </div>
+    <div class="c4-card l1">
+      <div class="rung">L1 · Agentic AI</div>
+      <div class="big">1</div>
+      <div class="unit">developer, autonomous</div>
+      <div class="ttl">Personal autopilot</div>
+      <div class="desc">The AI now executes whole tasks — but still inside one person's workflow.</div>
+    </div>
+    <div class="c4-card l2">
+      <div class="rung">L2 · + Skills</div>
+      <div class="big">~10</div>
+      <div class="unit">people, one team</div>
+      <div class="ttl">Team conventions</div>
+      <div class="desc">Encoded procedures spread how the team works to every agent run.</div>
+    </div>
+    <div class="c4-card l3">
+      <div class="rung">L3 · + Knowledge Base</div>
+      <div class="big">~10</div>
+      <div class="unit">people, one team</div>
+      <div class="ttl">Team intelligence</div>
+      <div class="desc">Shared context the team contributes to and draws from.</div>
+    </div>
+    <div class="c4-card l4">
+      <div class="rung">L4 · AI Harness</div>
+      <div class="big">100s</div>
+      <div class="unit">across the org</div>
+      <div class="ttl">Org infrastructure</div>
+      <div class="desc">Governed, scheduled, multi-agent — operating model, not personal tool.</div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== C5: Actual ladder / step-line going up ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 5 · The climb</span>
+  <h2>Five rungs. One direction.</h2>
+  <p class="subtitle">Each step lifts the AI's reach across the org. Same model every step — what rises is everything around it.</p>
+  <div class="c5-arrow">
+    <svg viewBox="0 0 90 36" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 30 L36 24 L36 28 L84 6" stroke="#0064ff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M78 4 L84 6 L82 12" stroke="#0064ff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>reach grows</span>
+  </div>
+  <div class="c5-row">
+    <div class="c5-step s0">
+      <div class="c5-card l0">
+        <div class="rung">L0 · Chatbot</div>
+        <div class="ttl">Personal productivity</div>
+        <div class="desc">One user, one window, one question at a time.</div>
+      </div>
+      <div class="c5-tread"></div>
+    </div>
+    <div class="c5-step s1">
+      <div class="c5-card l1">
+        <div class="rung">L1 · Agentic AI</div>
+        <div class="ttl">Personal autopilot</div>
+        <div class="desc">One developer, but the AI executes whole tasks instead of suggesting.</div>
+      </div>
+      <div class="c5-tread"></div>
+    </div>
+    <div class="c5-step s2">
+      <div class="c5-card l2">
+        <div class="rung">L2 · + Skills</div>
+        <div class="ttl">Team conventions</div>
+        <div class="desc">Procedures encode how this team works — shared practice, not solo prompting.</div>
+      </div>
+      <div class="c5-tread"></div>
+    </div>
+    <div class="c5-step s3">
+      <div class="c5-card l3">
+        <div class="rung">L3 · + Knowledge Base</div>
+        <div class="ttl">Team intelligence</div>
+        <div class="desc">Every run starts with the team's collective domain knowledge.</div>
+      </div>
+      <div class="c5-tread"></div>
+    </div>
+    <div class="c5-step s4">
+      <div class="c5-card l4">
+        <div class="rung">L4 · AI Harness</div>
+        <div class="ttl">Org infrastructure</div>
+        <div class="desc">Governed, scheduled, observable — how the company operates.</div>
+      </div>
+      <div class="c5-tread"></div>
+    </div>
+  </div>
+  <span class="footnote">The model is flat. The ladder isn't.</span>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+</body>
+</html>

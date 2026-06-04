@@ -1,0 +1,4432 @@
+{
+  "agent_id": "module-4.v1_agent-02",
+  "agent_folder": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-4.v1/agent-02/final-model",
+  "format_checks": {
+    "agent_folder_exists": true,
+    "has_manifest_json": true,
+    "manifest_parsable": true,
+    "manifest_declares_predict_callable": true,
+    "manifest_declares_platform_support": true,
+    "has_predict_py": true,
+    "has_coeffs_json": true,
+    "has_report": false
+  },
+  "manifest": {
+    "name": "v1-plus-bias",
+    "description": "V1 (kinematic single-track + understeer + 1st-order lag + per-segment delta_0) plus a per-platform additive bias correction on Mach-E and IONIQ-5. Lightning ships V1 unchanged (at noise floor). Tesla falls through to V0 passthrough.",
+    "platform_support": [
+      "FORD_F_150_LIGHTNING_MK1",
+      "FORD_MUSTANG_MACH_E_MK1",
+      "HYUNDAI_IONIQ_5",
+      "TESLA_MODEL_3"
+    ],
+    "predict_callable": "predict.py:predict",
+    "inputs_used": [
+      "t_s",
+      "delta_road_rad",
+      "v_mps",
+      "yaw_rate_pred_rads"
+    ],
+    "outputs": [
+      "yaw_rate_pred_rads"
+    ],
+    "trajectory": "integrated from yaw_rate_pred + measured v by the grader",
+    "files": [
+      "predict.py",
+      "coeffs.json",
+      "manifest.json"
+    ],
+    "parent": "v1_baseline",
+    "rung": "rung-0 refinement (per-platform bias) \u2014 orthogonal candidate (residual-learner ridge head) tested and rejected due to CTE degradation"
+  },
+  "execution": {
+    "status": "ok",
+    "reason": null,
+    "n_segments_attempted": 534,
+    "n_segments_succeeded": 534,
+    "n_segments_skipped_unsupported_platform": 0,
+    "n_segments_runtime_error": 0,
+    "first_runtime_error": null,
+    "wall_time_seconds": 2.77
+  },
+  "yaw_rate": {
+    "baseline_rmse": 0.016273561137607036,
+    "agent_rmse": 0.007115123555750154,
+    "improvement_pct": 56.27801748132673,
+    "n_samples": 1353874
+  },
+  "cte": {
+    "baseline_rmse_meters": 254.2605409293065,
+    "agent_rmse_meters": 72.64214230783422,
+    "improvement_pct": 71.43003706263988,
+    "n_distance_bins": 502632,
+    "n_segments_used": 517,
+    "n_segments_short": 17
+  },
+  "per_platform": {
+    "FORD_F_150_LIGHTNING_MK1": {
+      "n_segments": 55,
+      "n_segments_ok": 55,
+      "n_segments_runtime_error": 0,
+      "yaw_rate": {
+        "agent_rmse": 0.012548910242869988,
+        "n_samples": 123651
+      },
+      "cte": {
+        "agent_rmse_meters": 71.84054021019807,
+        "n_distance_bins": 37663,
+        "n_segments_used": 48
+      }
+    },
+    "FORD_MUSTANG_MACH_E_MK1": {
+      "n_segments": 75,
+      "n_segments_ok": 75,
+      "n_segments_runtime_error": 0,
+      "yaw_rate": {
+        "agent_rmse": 0.006181501180353153,
+        "n_samples": 195109
+      },
+      "cte": {
+        "agent_rmse_meters": 88.74989305665041,
+        "n_distance_bins": 79987,
+        "n_segments_used": 74
+      }
+    },
+    "HYUNDAI_IONIQ_5": {
+      "n_segments": 404,
+      "n_segments_ok": 404,
+      "n_segments_runtime_error": 0,
+      "yaw_rate": {
+        "agent_rmse": 0.006340423527330923,
+        "n_samples": 1035114
+      },
+      "cte": {
+        "agent_rmse_meters": 68.90634383764522,
+        "n_distance_bins": 384982,
+        "n_segments_used": 395
+      }
+    }
+  },
+  "per_segment": [
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/42/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.6404382401576272,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 36,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/53/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.009055125956321092,
+      "cte_rmse_m": 71.14255260271152,
+      "n_yaw_samples": 2748,
+      "n_cte_bins": 606
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/56/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004822363085665671,
+      "cte_rmse_m": 26.030715331146403,
+      "n_yaw_samples": 2647,
+      "n_cte_bins": 644
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000004--2a4eb3a6f3/58/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004882567958223485,
+      "cte_rmse_m": 7.397014667752797,
+      "n_yaw_samples": 1837,
+      "n_cte_bins": 372
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/12/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004916651771015013,
+      "cte_rmse_m": 6.336635513275018,
+      "n_yaw_samples": 2171,
+      "n_cte_bins": 470
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/24/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004153783571299541,
+      "cte_rmse_m": 38.482705201521966,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 617
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/28/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000035--bed8fb06b5/9/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0029157550003656094,
+      "cte_rmse_m": 0.18707647595831575,
+      "n_yaw_samples": 858,
+      "n_cte_bins": 90
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000046--9812a7c627/8/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006033223946160272,
+      "cte_rmse_m": 28.170152421551737,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 515
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/00000070--972d29d2d0/11/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006233656107774036,
+      "cte_rmse_m": 48.10121594169922,
+      "n_yaw_samples": 2455,
+      "n_cte_bins": 482
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/0b2c0bec9a28eb0f/000000ca--94c80b8ae7/11/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.009063623964785755,
+      "cte_rmse_m": 92.37161426251966,
+      "n_yaw_samples": 2650,
+      "n_cte_bins": 623
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000003--25e4b9455f/3/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.002521486363014229,
+      "cte_rmse_m": 10.700085202392952,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1209
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000004--fa32c24557/12/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.006076142206377562,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 227,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000004--fa32c24557/22/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.011506509377869945,
+      "cte_rmse_m": 117.59866851311958,
+      "n_yaw_samples": 2623,
+      "n_cte_bins": 782
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000008--805450550d/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004278955810423205,
+      "cte_rmse_m": 12.612188128288274,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1196
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000000f--bbbb407e6f/23/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000000f--bbbb407e6f/32/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0024889434160536737,
+      "cte_rmse_m": 1.7301238389416895,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1221
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000018--7cd862e1d6/17/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.00493521625641375,
+      "cte_rmse_m": 31.117199229183107,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1443
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000018--7cd862e1d6/21/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004687201166071718,
+      "cte_rmse_m": 17.602289345954144,
+      "n_yaw_samples": 2772,
+      "n_cte_bins": 844
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000018--7cd862e1d6/27/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004006783454628029,
+      "cte_rmse_m": 2.268456414096904,
+      "n_yaw_samples": 2211,
+      "n_cte_bins": 839
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000001a--aa6cdda7f6/13/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004245497626081707,
+      "cte_rmse_m": 27.05983267981595,
+      "n_yaw_samples": 2488,
+      "n_cte_bins": 920
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000001a--aa6cdda7f6/23/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0062369426499782775,
+      "cte_rmse_m": 15.680491974713439,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1316
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000001a--aa6cdda7f6/34/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0039925070482531065,
+      "cte_rmse_m": 13.112896444068639,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1217
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/00000023--bf3e56a594/3/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005210963496376957,
+      "cte_rmse_m": 82.32751328728705,
+      "n_yaw_samples": 2330,
+      "n_cte_bins": 790
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/112e4d6e0cad05e1/0000002d--b34ccbd48a/6/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005037346821028398,
+      "cte_rmse_m": 8.693476290840556,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1124
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/0/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0069287189793995054,
+      "cte_rmse_m": 116.38385523693329,
+      "n_yaw_samples": 2030,
+      "n_cte_bins": 289
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/10/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.003082584570751008,
+      "cte_rmse_m": 11.569465884846633,
+      "n_yaw_samples": 2842,
+      "n_cte_bins": 413
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/7/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005278440095313768,
+      "cte_rmse_m": 5.922409614578746,
+      "n_yaw_samples": 1639,
+      "n_cte_bins": 336
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/8/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004613057846060093,
+      "cte_rmse_m": 19.69770156973673,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 655
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000000--8fc840ef72/9/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0034512236792921874,
+      "cte_rmse_m": 13.77494709271889,
+      "n_yaw_samples": 2792,
+      "n_cte_bins": 482
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/0/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.00577693171461284,
+      "cte_rmse_m": 28.9698642522004,
+      "n_yaw_samples": 2844,
+      "n_cte_bins": 479
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005695927690694984,
+      "cte_rmse_m": 26.552294333982374,
+      "n_yaw_samples": 2715,
+      "n_cte_bins": 561
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/11/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007895581034425817,
+      "cte_rmse_m": 120.22452965434513,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1511
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/12/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005642112065720844,
+      "cte_rmse_m": 49.61094735407055,
+      "n_yaw_samples": 2728,
+      "n_cte_bins": 1064
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/4/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.010163146855004506,
+      "cte_rmse_m": 135.12600345667278,
+      "n_yaw_samples": 2763,
+      "n_cte_bins": 963
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/6/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.008793012621208013,
+      "cte_rmse_m": 120.8639839725969,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1094
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000001--78b1a37248/9/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007055466597313545,
+      "cte_rmse_m": 138.3910052559404,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1527
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000002--4679c2eed3/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0072740325533150844,
+      "cte_rmse_m": 20.83410850535143,
+      "n_yaw_samples": 2562,
+      "n_cte_bins": 464
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000002--4679c2eed3/6/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0049050904359472765,
+      "cte_rmse_m": 9.380160107173264,
+      "n_yaw_samples": 1899,
+      "n_cte_bins": 436
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000002--7f2db42420/4/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.01008220518189687,
+      "cte_rmse_m": 26.669498624524167,
+      "n_yaw_samples": 2566,
+      "n_cte_bins": 508
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/00000007--75718ec57b/2/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005871525459613627,
+      "cte_rmse_m": 31.37875627248626,
+      "n_yaw_samples": 2748,
+      "n_cte_bins": 561
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/0000000a--736400223b/5/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005220515364367245,
+      "cte_rmse_m": 49.14333523148092,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1031
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/2eb001918aefbb1e/0000000a--736400223b/7/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.003422497512911635,
+      "cte_rmse_m": 8.750982004354682,
+      "n_yaw_samples": 1847,
+      "n_cte_bins": 389
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/3b1f3f2a42d70b76/00000000--50f6e13002/3/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.005614680308972449,
+      "cte_rmse_m": 0.4534167432428255,
+      "n_yaw_samples": 2081,
+      "n_cte_bins": 470
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/3b1f3f2a42d70b76/00000001--0f1d18d568/1/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.009788363299289336,
+      "cte_rmse_m": 73.51793311030467,
+      "n_yaw_samples": 2897,
+      "n_cte_bins": 868
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/3b1f3f2a42d70b76/00000001--0f1d18d568/2/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.007119691039108643,
+      "cte_rmse_m": 182.3517428295351,
+      "n_yaw_samples": 2902,
+      "n_cte_bins": 1731
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/18/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004414626916353535,
+      "cte_rmse_m": 9.688247535685097,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 566
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/22/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.009948187554347176,
+      "cte_rmse_m": 0.15416308282365893,
+      "n_yaw_samples": 767,
+      "n_cte_bins": 64
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/32/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/33/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/57/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0057507942576094555,
+      "cte_rmse_m": 1.5932232542265465,
+      "n_yaw_samples": 2783,
+      "n_cte_bins": 569
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/58/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004815286266701041,
+      "cte_rmse_m": 20.01596067874306,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 970
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/00000005--6086a5f078/7/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/0000006a--9ddc7690f2/53/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.0038870172187051473,
+      "cte_rmse_m": 16.27344820502309,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1272
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_F_150_LIGHTNING_MK1/4580d36e7617c224/0000006a--9ddc7690f2/61/sim.csv",
+      "platform": "FORD_F_150_LIGHTNING_MK1",
+      "yaw_rmse": 0.004597812664574609,
+      "cte_rmse_m": 65.07720835246936,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1070
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/08ec7b9afc6b766e/00000000--40c362baa3/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.012167380809021413,
+      "cte_rmse_m": 48.15323979428737,
+      "n_yaw_samples": 2690,
+      "n_cte_bins": 365
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/08ec7b9afc6b766e/00000000--40c362baa3/10/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005101901902050566,
+      "cte_rmse_m": 82.8693625387144,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1404
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000052--6dc60bf161/14/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006284145796476152,
+      "cte_rmse_m": 59.94564209612945,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1148
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000052--6dc60bf161/6/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0075959796507408806,
+      "cte_rmse_m": 12.00233135303152,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1545
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000052--6dc60bf161/8/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0035600204079099147,
+      "cte_rmse_m": 15.157764434521235,
+      "n_yaw_samples": 2587,
+      "n_cte_bins": 1003
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/0000005a--449dc75417/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0028022484332425575,
+      "cte_rmse_m": 9.002294738689441,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1136
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000071--8e1585394a/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003954028438334363,
+      "cte_rmse_m": 16.937992502079315,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1668
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000072--65a4345461/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008735574647117775,
+      "cte_rmse_m": 19.568106485238552,
+      "n_yaw_samples": 1971,
+      "n_cte_bins": 429
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000080--129cd7e602/13/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006778881436952969,
+      "cte_rmse_m": 22.071195758625695,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 874
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000080--129cd7e602/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00609586211053963,
+      "cte_rmse_m": 7.235558762794681,
+      "n_yaw_samples": 1376,
+      "n_cte_bins": 357
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/42f08a29af3699f4/00000082--086cca9558/9/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0033783753524953557,
+      "cte_rmse_m": 16.628341563801058,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1670
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/103/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0048821484309191174,
+      "cte_rmse_m": 72.14479102999069,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1461
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/113/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006133817625465599,
+      "cte_rmse_m": 43.69265974965619,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 553
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/115/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007497653472175506,
+      "cte_rmse_m": 37.642193554674634,
+      "n_yaw_samples": 2816,
+      "n_cte_bins": 488
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/58/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003813782162494057,
+      "cte_rmse_m": 11.147530989194552,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 852
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/64/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003501667137319415,
+      "cte_rmse_m": 11.553620634943544,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1067
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/67/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008138851883091089,
+      "cte_rmse_m": 166.04892639542885,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1580
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/74/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006899083208381773,
+      "cte_rmse_m": 74.49274161605724,
+      "n_yaw_samples": 2248,
+      "n_cte_bins": 587
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/79/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0060524084754866835,
+      "cte_rmse_m": 116.55047867076303,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1467
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/80/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0057554714543937915,
+      "cte_rmse_m": 71.60223529273712,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1488
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/86/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006256227338720388,
+      "cte_rmse_m": 113.08593253249946,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1401
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/90/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005986205291299287,
+      "cte_rmse_m": 55.66124144840607,
+      "n_yaw_samples": 2475,
+      "n_cte_bins": 1029
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/95/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005633147648299688,
+      "cte_rmse_m": 94.9785499664804,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1413
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/97/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008651354982616485,
+      "cte_rmse_m": 154.37914500997658,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1481
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/782e2a95dc911de8/00000003--4a20fc81fe/98/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.009954196774902535,
+      "cte_rmse_m": 197.46753035328322,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1520
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/7f43d35a57b60ac3/00000020--a45e6dbe1a/14/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006862631026738051,
+      "cte_rmse_m": 28.41293799794964,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 800
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/20/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006046052557734852,
+      "cte_rmse_m": 1.0536020661001944,
+      "n_yaw_samples": 503,
+      "n_cte_bins": 59
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/22/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.019669037241250072,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 76,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/34/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007864379569472528,
+      "cte_rmse_m": 13.37692299088764,
+      "n_yaw_samples": 2322,
+      "n_cte_bins": 508
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000000--fc9bdde8cc/36/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004335206900668347,
+      "cte_rmse_m": 25.7380714652616,
+      "n_yaw_samples": 2183,
+      "n_cte_bins": 475
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000001--b3f79ef70c/38/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0041400995914177155,
+      "cte_rmse_m": 28.367879293923636,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1116
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000001--b3f79ef70c/45/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0021470901065376697,
+      "cte_rmse_m": 3.8460436150225408,
+      "n_yaw_samples": 1407,
+      "n_cte_bins": 370
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000002--44b7373c00/33/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003444444509158919,
+      "cte_rmse_m": 38.43741664991908,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1705
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000007--8659b23f20/25/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005848338738525631,
+      "cte_rmse_m": 105.75179057646623,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1614
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000007--8659b23f20/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005659604587032707,
+      "cte_rmse_m": 118.9490575860945,
+      "n_yaw_samples": 1867,
+      "n_cte_bins": 185
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000007--8659b23f20/6/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007689918959895044,
+      "cte_rmse_m": 47.31813594722428,
+      "n_yaw_samples": 2528,
+      "n_cte_bins": 584
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/00000010--33840d4f7a/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00583775066244812,
+      "cte_rmse_m": 47.52263791016302,
+      "n_yaw_samples": 2557,
+      "n_cte_bins": 756
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0024845325510030585,
+      "cte_rmse_m": 6.662402702351386,
+      "n_yaw_samples": 2576,
+      "n_cte_bins": 700
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/3/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006487493518964798,
+      "cte_rmse_m": 65.01184255288752,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 904
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/5/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.002403349390280386,
+      "cte_rmse_m": 2.4787437414396667,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 677
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/a5865b5a25a5f95b/0000002b--6c3478ed52/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.013937382012629328,
+      "cte_rmse_m": 14.833442487353446,
+      "n_yaw_samples": 1887,
+      "n_cte_bins": 269
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000006--fe9d2dbea8/4/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0066879601328202545,
+      "cte_rmse_m": 38.97549949681095,
+      "n_yaw_samples": 2770,
+      "n_cte_bins": 567
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000013--c67db227b6/13/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00594903968935717,
+      "cte_rmse_m": 48.36010796857219,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 731
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000019--fc0fa0c893/23/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005985863903732551,
+      "cte_rmse_m": 73.76250307784933,
+      "n_yaw_samples": 1759,
+      "n_cte_bins": 599
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000019--fc0fa0c893/39/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006404913912635097,
+      "cte_rmse_m": 1.7815902904412253,
+      "n_yaw_samples": 996,
+      "n_cte_bins": 140
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000019--fc0fa0c893/48/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005881756935998948,
+      "cte_rmse_m": 61.69392321335624,
+      "n_yaw_samples": 2770,
+      "n_cte_bins": 839
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/00000032--4f9db5b503/18/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00705993304577373,
+      "cte_rmse_m": 20.145350582109266,
+      "n_yaw_samples": 658,
+      "n_cte_bins": 154
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/d3c87dabe00b1184/0000003e--5d0cedc936/95/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.006551265800256187,
+      "cte_rmse_m": 157.12082458329792,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1788
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/00000000--ace0e90f67/1/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0033528992372067823,
+      "cte_rmse_m": 18.529218242687502,
+      "n_yaw_samples": 2716,
+      "n_cte_bins": 587
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/0000005c--4ca389d3fb/4/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004721830867186898,
+      "cte_rmse_m": 23.449252014219375,
+      "n_yaw_samples": 2296,
+      "n_cte_bins": 472
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/00000062--fd938a6c36/17/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.002762146509849197,
+      "cte_rmse_m": 43.925818404469105,
+      "n_yaw_samples": 2902,
+      "n_cte_bins": 1274
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/0000006c--71a7cd5177/7/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005583011950634387,
+      "cte_rmse_m": 20.546106079006577,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 703
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/0000006e--27027f8fae/9/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004182428448146122,
+      "cte_rmse_m": 71.4711791094321,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1473
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/00000079--bfe6af6bc0/6/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.005571941685222686,
+      "cte_rmse_m": 84.62994687551958,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1399
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/12/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004248262879503941,
+      "cte_rmse_m": 22.077581237352653,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1638
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/13/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00487648994246818,
+      "cte_rmse_m": 92.54617193855229,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/14/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0035775236110840887,
+      "cte_rmse_m": 39.57596101102869,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1661
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/15/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003836105070351738,
+      "cte_rmse_m": 59.67071706661341,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/16/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.008405741796649581,
+      "cte_rmse_m": 170.7706347493631,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/17/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0071815194201158665,
+      "cte_rmse_m": 134.87706243563366,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/18/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004044579919953636,
+      "cte_rmse_m": 24.0884211141938,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1660
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/19/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003477027064097864,
+      "cte_rmse_m": 7.8584192690133285,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/20/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007999950083414344,
+      "cte_rmse_m": 185.0790995564368,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/21/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007125760997287664,
+      "cte_rmse_m": 97.46164261341974,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1662
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/22/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.00405673215930439,
+      "cte_rmse_m": 80.96184867034536,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/23/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003408842802579358,
+      "cte_rmse_m": 4.729259539144471,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1661
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/24/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0059541576582552115,
+      "cte_rmse_m": 100.90639500292846,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1660
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/25/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0053189056108810745,
+      "cte_rmse_m": 83.10907528899719,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1660
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/26/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.003994893938337624,
+      "cte_rmse_m": 25.434233122247324,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1658
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/27/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.004072461291540029,
+      "cte_rmse_m": 58.87356488096257,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/28/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.010557370799846342,
+      "cte_rmse_m": 199.23734221599892,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1659
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/29/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.011085922675845161,
+      "cte_rmse_m": 84.32423338856141,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 979
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/30/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.007690588277648431,
+      "cte_rmse_m": 11.945938842762608,
+      "n_yaw_samples": 2349,
+      "n_cte_bins": 303
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/31/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0044154930543902045,
+      "cte_rmse_m": 17.56351117295392,
+      "n_yaw_samples": 2794,
+      "n_cte_bins": 522
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/FORD_MUSTANG_MACH_E_MK1/e353ed44ddfe5e54/000000a0--30ae230164/32/sim.csv",
+      "platform": "FORD_MUSTANG_MACH_E_MK1",
+      "yaw_rmse": 0.0025570082868828607,
+      "cte_rmse_m": 14.36591336107246,
+      "n_yaw_samples": 2757,
+      "n_cte_bins": 565
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/02884e2dffb36902/00000053--149a022629/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008195164997156413,
+      "cte_rmse_m": 22.933485209063203,
+      "n_yaw_samples": 2798,
+      "n_cte_bins": 564
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/02884e2dffb36902/0000005a--a01d16691f/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0020957853170332067,
+      "cte_rmse_m": 1.9962047566139232,
+      "n_yaw_samples": 2421,
+      "n_cte_bins": 738
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/05a8f0197fdac372/0000006e--bc082ae107/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004219541794713014,
+      "cte_rmse_m": 8.303440020655646,
+      "n_yaw_samples": 2046,
+      "n_cte_bins": 428
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/05a8f0197fdac372/00000077--fe1c611348/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005059886050098547,
+      "cte_rmse_m": 32.58998477156557,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1785
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/05a8f0197fdac372/000000b8--f1c473745c/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00450694696557741,
+      "cte_rmse_m": 33.98098668841734,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1000
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/05a8f0197fdac372/00000110--3f9d5a4355/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0075155517846473155,
+      "cte_rmse_m": 25.260502031239387,
+      "n_yaw_samples": 2423,
+      "n_cte_bins": 504
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/05a8f0197fdac372/0000012b--011ab4b3fb/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004964530093106611,
+      "cte_rmse_m": 2.2802233082838668,
+      "n_yaw_samples": 1952,
+      "n_cte_bins": 520
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0a7f2b1e1c3a3076/000000ab--fd1d001725/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00414524494895203,
+      "cte_rmse_m": 2.610454219447554,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 725
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0a7f2b1e1c3a3076/000000e1--21f6c20194/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004789434287431599,
+      "cte_rmse_m": 10.20490397197876,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1040
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0a7f2b1e1c3a3076/000001a2--a2fd543d25/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.013745438944010474,
+      "cte_rmse_m": 33.86483538706246,
+      "n_yaw_samples": 1350,
+      "n_cte_bins": 392
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000190--586fcc5e9b/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004848644628469196,
+      "cte_rmse_m": 8.821278358320779,
+      "n_yaw_samples": 2896,
+      "n_cte_bins": 494
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000190--586fcc5e9b/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005156103577481489,
+      "cte_rmse_m": 7.712843515706606,
+      "n_yaw_samples": 1838,
+      "n_cte_bins": 266
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000190--586fcc5e9b/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004414104025450265,
+      "cte_rmse_m": 0.4445778512368755,
+      "n_yaw_samples": 626,
+      "n_cte_bins": 64
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000190--586fcc5e9b/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00804545730854231,
+      "cte_rmse_m": 114.06505909034463,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1207
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000191--600d5dd2e5/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0028549932141437215,
+      "cte_rmse_m": 1.1512687117317775,
+      "n_yaw_samples": 2114,
+      "n_cte_bins": 376
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000194--848bfb0bef/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004570296680149068,
+      "cte_rmse_m": 26.8072004566803,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1140
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000194--848bfb0bef/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007081489405045642,
+      "cte_rmse_m": 29.16384342819756,
+      "n_yaw_samples": 2686,
+      "n_cte_bins": 705
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0ae611e9d275bd2d/00000194--848bfb0bef/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004478782143145432,
+      "cte_rmse_m": 6.534950700465992,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 398
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/0c8443518d3d85f7/00000036--63ccd87ae9/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005500305780534953,
+      "cte_rmse_m": 14.345889108643386,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1078
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/10fc8ce98559dc2e/0000001f--6db1bc28f8/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0028805395233333776,
+      "cte_rmse_m": 1.427977214120122,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 695
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/10fc8ce98559dc2e/000000a3--0e9d1bc008/25/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005680945833165597,
+      "cte_rmse_m": 75.46778186143906,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1729
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/11c1f1909ca37bca/0000002f--a061848833/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003923594407855761,
+      "cte_rmse_m": 478.91849561429586,
+      "n_yaw_samples": 2083,
+      "n_cte_bins": 432
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/11c1f1909ca37bca/00000052--a82955d9cc/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005396647915916589,
+      "cte_rmse_m": 47.822403708935596,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1488
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/11c1f1909ca37bca/00000053--979aaa4e34/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005085933558945474,
+      "cte_rmse_m": 38.467123501505384,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1013
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/100/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00598298166203198,
+      "cte_rmse_m": 50.64039255448131,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1734
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/108/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004305363479341388,
+      "cte_rmse_m": 13.279353527788233,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1934
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/110/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0043453353402785385,
+      "cte_rmse_m": 8.247214553345176,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1780
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/112/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005477552332788788,
+      "cte_rmse_m": 41.445337590373136,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1776
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/113/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004076882114466485,
+      "cte_rmse_m": 50.549101384788884,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1775
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/115/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003965515928230503,
+      "cte_rmse_m": 6.785948734263108,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1778
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/119/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0046840240806688485,
+      "cte_rmse_m": 58.4953241670015,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1778
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/135/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004461217412792569,
+      "cte_rmse_m": 14.992804436249399,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1932
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/143/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0038434896839595126,
+      "cte_rmse_m": 6.360336002548737,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1788
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/145/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004163773197895387,
+      "cte_rmse_m": 18.69988187082196,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1762
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/147/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004889532184619957,
+      "cte_rmse_m": 7.209469292814815,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1943
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/148/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0063647607560369445,
+      "cte_rmse_m": 108.7386200212771,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1935
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/160/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0034413551897700353,
+      "cte_rmse_m": 36.56421976518136,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1832
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/162/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003715605077912724,
+      "cte_rmse_m": 44.53257404039584,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1810
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/167/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003976040441596165,
+      "cte_rmse_m": 35.05826434625364,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1682
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/168/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007315580027446325,
+      "cte_rmse_m": 97.90262466637516,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1775
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/169/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004888108998242778,
+      "cte_rmse_m": 7.867864586346367,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1671
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/170/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003269681699731156,
+      "cte_rmse_m": 4.898763666503657,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1110
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/172/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006947933795527786,
+      "cte_rmse_m": 13.220348410034083,
+      "n_yaw_samples": 1599,
+      "n_cte_bins": 396
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/173/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0042000778007902665,
+      "cte_rmse_m": 10.113491297203447,
+      "n_yaw_samples": 1129,
+      "n_cte_bins": 374
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/174/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002353283052763591,
+      "cte_rmse_m": 1.2939500655138123,
+      "n_yaw_samples": 1182,
+      "n_cte_bins": 287
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/175/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00440519533500079,
+      "cte_rmse_m": 0.8100158266346366,
+      "n_yaw_samples": 2291,
+      "n_cte_bins": 664
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/176/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0032880974368756505,
+      "cte_rmse_m": 5.445628296300163,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1150
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/177/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003285544721563824,
+      "cte_rmse_m": 22.31556205509886,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1262
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/178/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002850022946601007,
+      "cte_rmse_m": 8.006911061021741,
+      "n_yaw_samples": 2167,
+      "n_cte_bins": 791
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/179/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005991286292235566,
+      "cte_rmse_m": 5.7681203149434,
+      "n_yaw_samples": 2416,
+      "n_cte_bins": 677
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/180/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004211361058820328,
+      "cte_rmse_m": 5.915587787125483,
+      "n_yaw_samples": 1505,
+      "n_cte_bins": 386
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/181/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003833781214561903,
+      "cte_rmse_m": 10.570284380462125,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1095
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/182/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003673549557429964,
+      "cte_rmse_m": 1.1371911970858766,
+      "n_yaw_samples": 2266,
+      "n_cte_bins": 585
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/183/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007437919753761806,
+      "cte_rmse_m": 0.5084224133012101,
+      "n_yaw_samples": 1504,
+      "n_cte_bins": 153
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/184/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/185/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/186/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004292989196827916,
+      "cte_rmse_m": 0.24864765439068964,
+      "n_yaw_samples": 289,
+      "n_cte_bins": 25
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/187/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005625255391521514,
+      "cte_rmse_m": 1.2032236074345113,
+      "n_yaw_samples": 644,
+      "n_cte_bins": 57
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/188/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004151081661993259,
+      "cte_rmse_m": 26.82892821064913,
+      "n_yaw_samples": 2380,
+      "n_cte_bins": 889
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/189/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006860529063564337,
+      "cte_rmse_m": 12.035948874971517,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 764
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/92/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004500167149653798,
+      "cte_rmse_m": 14.511637494909113,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1486
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/94/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006276973219802198,
+      "cte_rmse_m": 30.81846500450849,
+      "n_yaw_samples": 2821,
+      "n_cte_bins": 1206
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/95/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004466227806710433,
+      "cte_rmse_m": 12.797806542698591,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1623
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/13452033639f3ac2/00000023--8d748e9cb6/99/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.023103960860673987,
+      "cte_rmse_m": 429.83080832293734,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1909
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/00000000--7297293b74/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005523443010676508,
+      "cte_rmse_m": 16.76625995481202,
+      "n_yaw_samples": 2803,
+      "n_cte_bins": 543
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/00000002--4126021d0a/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00966344508016469,
+      "cte_rmse_m": 54.25637843215704,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 724
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/00000009--83fd0adc79/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.001919840329275857,
+      "cte_rmse_m": 1.2351943903525069,
+      "n_yaw_samples": 2828,
+      "n_cte_bins": 948
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/00000082--e73d50a744/17/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.009766850820607745,
+      "cte_rmse_m": 65.68716530248945,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1911
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/0000008c--5b9381301e/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0061003364985863185,
+      "cte_rmse_m": 58.8527440520329,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1758
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/0000008c--5b9381301e/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005678091228452484,
+      "cte_rmse_m": 8.146992804820721,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1109
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17b629a57688957e/00000097--5afbd84e21/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.012165117680256647,
+      "cte_rmse_m": 61.857034790413586,
+      "n_yaw_samples": 2177,
+      "n_cte_bins": 684
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/17e1d36a917e75be/00000138--4f06424ff1/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005659008782770441,
+      "cte_rmse_m": 28.775021207275568,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22901377be496047/0000035f--60ae17ad1a/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22901377be496047/0000035f--60ae17ad1a/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004926872796624002,
+      "cte_rmse_m": 34.32012196193456,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 837
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22901377be496047/000003a8--e5a8dca1d7/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00979400912781489,
+      "cte_rmse_m": 21.288685697681846,
+      "n_yaw_samples": 1391,
+      "n_cte_bins": 435
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22901377be496047/000003c5--3c57a6143c/42/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004824179003660024,
+      "cte_rmse_m": 13.458805330931552,
+      "n_yaw_samples": 2736,
+      "n_cte_bins": 550
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22901377be496047/000003e4--b72fc29bd3/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005380135740600875,
+      "cte_rmse_m": 41.45898048852719,
+      "n_yaw_samples": 2888,
+      "n_cte_bins": 995
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/00000264--d758be34d0/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006259431841056932,
+      "cte_rmse_m": 18.019672435066997,
+      "n_yaw_samples": 2772,
+      "n_cte_bins": 541
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/000002a0--a00b20ecff/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006951586031143959,
+      "cte_rmse_m": 12.380101448772773,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1037
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/000002c9--f9b8c0ccd7/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008576042887425068,
+      "cte_rmse_m": 46.324278477382265,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 654
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/000002c9--f9b8c0ccd7/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007604670019445516,
+      "cte_rmse_m": 28.899342068036493,
+      "n_yaw_samples": 2716,
+      "n_cte_bins": 615
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/000002c9--f9b8c0ccd7/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.01268857341306212,
+      "cte_rmse_m": 46.2637164789596,
+      "n_yaw_samples": 2670,
+      "n_cte_bins": 415
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/000002c9--f9b8c0ccd7/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.014351524680284796,
+      "cte_rmse_m": 63.53614883539136,
+      "n_yaw_samples": 2757,
+      "n_cte_bins": 493
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/22c7b09b1c95a2c2/000002c9--f9b8c0ccd7/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0061548417333444,
+      "cte_rmse_m": 3.2056275172283764,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 909
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025a--99ddba8d58/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006313648649455408,
+      "cte_rmse_m": 28.07289696924202,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 528
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025a--99ddba8d58/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00402924360492859,
+      "cte_rmse_m": 7.132102610155716,
+      "n_yaw_samples": 2266,
+      "n_cte_bins": 650
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025a--99ddba8d58/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003765771337906634,
+      "cte_rmse_m": 8.23329935927133,
+      "n_yaw_samples": 2379,
+      "n_cte_bins": 519
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025f--8df7b9ed81/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0038854404847297277,
+      "cte_rmse_m": 9.902775761997901,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 956
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025f--8df7b9ed81/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005535338421193528,
+      "cte_rmse_m": 9.398636630492412,
+      "n_yaw_samples": 1605,
+      "n_cte_bins": 320
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025f--8df7b9ed81/23/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004650006170183699,
+      "cte_rmse_m": 3.8204691135954434,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 496
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025f--8df7b9ed81/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0040245686331387065,
+      "cte_rmse_m": 26.095345582185928,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1115
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025f--8df7b9ed81/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005976995924661767,
+      "cte_rmse_m": 54.834940224027456,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1172
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/25f793c5fe3a07ab/0000025f--8df7b9ed81/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00505161034342392,
+      "cte_rmse_m": 16.00422626163467,
+      "n_yaw_samples": 1828,
+      "n_cte_bins": 738
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/00000005--19883e2ba6/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.02042750120284463,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 204,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/00000005--19883e2ba6/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/00000005--19883e2ba6/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005623564670264756,
+      "cte_rmse_m": 16.811459023591354,
+      "n_yaw_samples": 2798,
+      "n_cte_bins": 641
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/00000005--19883e2ba6/27/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0039579627923222145,
+      "cte_rmse_m": 12.301491891145993,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 603
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/00000005--19883e2ba6/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0028412393015684947,
+      "cte_rmse_m": 3.6131167352502263,
+      "n_yaw_samples": 2591,
+      "n_cte_bins": 846
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/0000000c--201cf885ea/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.009052326619482097,
+      "cte_rmse_m": 13.567201029804906,
+      "n_yaw_samples": 1798,
+      "n_cte_bins": 548
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2a61a6186e261ee1/0000000c--201cf885ea/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004766321262152662,
+      "cte_rmse_m": 36.30837790940999,
+      "n_yaw_samples": 2697,
+      "n_cte_bins": 987
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2ef077734d699a25/0000002d--9df4b143e0/31/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008946323556643867,
+      "cte_rmse_m": 27.333259579667885,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1706
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/2ef077734d699a25/0000002d--9df4b143e0/39/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.009143330313331144,
+      "cte_rmse_m": 20.271003533378373,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1585
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/331f2aa45a426cca/0000002e--b6f60cd333/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004163212060863068,
+      "cte_rmse_m": 1.3803400859167596,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1064
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/331f2aa45a426cca/0000002f--f9d9a01af7/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0052951845595261915,
+      "cte_rmse_m": 19.1900036562641,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1023
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/331f2aa45a426cca/0000003d--84903b635d/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0066641213426749946,
+      "cte_rmse_m": 4.861318468533508,
+      "n_yaw_samples": 2237,
+      "n_cte_bins": 502
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/331f2aa45a426cca/0000003d--84903b635d/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002639041551117063,
+      "cte_rmse_m": 5.090000635992949,
+      "n_yaw_samples": 2772,
+      "n_cte_bins": 1083
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/331f2aa45a426cca/0000003d--84903b635d/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0020964740309050876,
+      "cte_rmse_m": 10.106467605116306,
+      "n_yaw_samples": 2152,
+      "n_cte_bins": 748
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/3542af9102dda52e/00000039--51eeeeb58a/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005112495971392264,
+      "cte_rmse_m": 10.29568195048554,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 753
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/3542af9102dda52e/00000039--51eeeeb58a/18/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002209634900326232,
+      "cte_rmse_m": 6.0116504585881145,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 704
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/356e2e7f9158ceb6/0000004b--558f544d91/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00608682472082385,
+      "cte_rmse_m": 15.31450725344941,
+      "n_yaw_samples": 2819,
+      "n_cte_bins": 481
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/3916e669763440d2/000001c0--183151363d/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.015201427102575384,
+      "cte_rmse_m": 277.242848811695,
+      "n_yaw_samples": 2495,
+      "n_cte_bins": 408
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/3916e669763440d2/00000274--05be76d1d7/81/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0047967974317139755,
+      "cte_rmse_m": 3.5598536968373744,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 843
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/47f3b94ef34b5601/0000000c--67fb5cc8d5/25/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/47f3b94ef34b5601/00000020--81bd2eb4df/23/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004232830073250304,
+      "cte_rmse_m": 7.309474922084729,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1321
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/47f3b94ef34b5601/0000004d--d732c40726/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00480528573772251,
+      "cte_rmse_m": 13.987532198368633,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 912
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/47f3b94ef34b5601/00000057--747772276e/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005168028263387087,
+      "cte_rmse_m": 30.701712011080765,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1224
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/47f3b94ef34b5601/000000a4--aee7963d1a/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00403025554831943,
+      "cte_rmse_m": 0.27006491197616767,
+      "n_yaw_samples": 1720,
+      "n_cte_bins": 356
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000012--24d6a8e0bc/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.022321007293667986,
+      "cte_rmse_m": 10.324436156550021,
+      "n_yaw_samples": 1158,
+      "n_cte_bins": 326
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000023--008dc4ba7c/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0026459728716841427,
+      "cte_rmse_m": 14.718303562658587,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 623
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000023--008dc4ba7c/18/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006033552954151427,
+      "cte_rmse_m": 17.31881035202387,
+      "n_yaw_samples": 2816,
+      "n_cte_bins": 503
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000023--008dc4ba7c/35/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0077292553645199056,
+      "cte_rmse_m": 21.973953269831327,
+      "n_yaw_samples": 2313,
+      "n_cte_bins": 270
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000034--cb9aa28c39/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007809609269759071,
+      "cte_rmse_m": 65.47550923985088,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 945
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000052--5cabc0605e/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005130779701228173,
+      "cte_rmse_m": 73.8539098908026,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1420
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4d998b8f9926f551/00000055--ca6878062e/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005878862060617409,
+      "cte_rmse_m": 9.712512690786212,
+      "n_yaw_samples": 2723,
+      "n_cte_bins": 497
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000011--eea536c977/22/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.03716111319821912,
+      "cte_rmse_m": 113.22260287199505,
+      "n_yaw_samples": 2017,
+      "n_cte_bins": 414
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000011--eea536c977/24/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006584368773894114,
+      "cte_rmse_m": 6.109141235727921,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 528
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000011--eea536c977/25/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006113848096804468,
+      "cte_rmse_m": 14.834486494473895,
+      "n_yaw_samples": 2459,
+      "n_cte_bins": 477
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000011--eea536c977/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0063617466923887095,
+      "cte_rmse_m": 113.13549307145546,
+      "n_yaw_samples": 2895,
+      "n_cte_bins": 1396
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000011--eea536c977/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005999904441964627,
+      "cte_rmse_m": 93.92829876207813,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 1353
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000015--2e5cc2b6eb/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008619656487729336,
+      "cte_rmse_m": 66.70046974368823,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1366
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000015--2e5cc2b6eb/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0063963888204405656,
+      "cte_rmse_m": 10.337619074097775,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1408
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000015--2e5cc2b6eb/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002441814394364572,
+      "cte_rmse_m": 3.063980171491894,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1216
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/00000015--2e5cc2b6eb/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0021968784842223217,
+      "cte_rmse_m": 13.227446104801738,
+      "n_yaw_samples": 2893,
+      "n_cte_bins": 1285
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/0000001e--49e3ca9377/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.013733244521384639,
+      "cte_rmse_m": 29.361515033069328,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 309
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/0000001e--49e3ca9377/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.001700212928261897,
+      "cte_rmse_m": 5.0416240550473495,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 748
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/0000001e--49e3ca9377/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0035587594656727437,
+      "cte_rmse_m": 25.417181444125806,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 587
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4ebe10b046496093/0000001e--49e3ca9377/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.009469468228889907,
+      "cte_rmse_m": 28.797884799444525,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1454
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4fe43046b8286b77/0000006a--ffb59cec28/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.009587172051229505,
+      "cte_rmse_m": 13.409785300122918,
+      "n_yaw_samples": 1574,
+      "n_cte_bins": 487
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4fe43046b8286b77/00000097--d42681864d/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005940928602288798,
+      "cte_rmse_m": 8.643579201479742,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 772
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/4fe43046b8286b77/00000097--d42681864d/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004313118358115261,
+      "cte_rmse_m": 7.480235811749294,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1809
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5b9e290e3742036d/0000015b--7a5f585fa8/18/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002726506310330739,
+      "cte_rmse_m": 12.87109518186872,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 929
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5b9e290e3742036d/0000015b--7a5f585fa8/26/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004151009655468306,
+      "cte_rmse_m": 29.652951529194095,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 736
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5b9e290e3742036d/00000214--2faccc93a9/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004664185398150073,
+      "cte_rmse_m": 8.621180612063036,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 620
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5b9e290e3742036d/0000024f--8f825c67c7/36/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0037456099664895655,
+      "cte_rmse_m": 11.484636421286893,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1707
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5b9e290e3742036d/00000291--e440f69384/24/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004840881160480508,
+      "cte_rmse_m": 21.014785092636757,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1936
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5b9e290e3742036d/000002da--cd0f61c5dd/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004332482269807714,
+      "cte_rmse_m": 4.169478359363509,
+      "n_yaw_samples": 2808,
+      "n_cte_bins": 661
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5c3790043d36c3fa/00000000--88e3a1f51e/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004258356772248351,
+      "cte_rmse_m": 4.755645072117277,
+      "n_yaw_samples": 2253,
+      "n_cte_bins": 597
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5edb897a0ec7a477/000004d1--896fa7aa2c/32/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002275989361304706,
+      "cte_rmse_m": 11.446737858828095,
+      "n_yaw_samples": 2639,
+      "n_cte_bins": 369
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5edb897a0ec7a477/00000513--7e40c1375a/21/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008912382934419687,
+      "cte_rmse_m": 4.942611048835223,
+      "n_yaw_samples": 2802,
+      "n_cte_bins": 592
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/5edb897a0ec7a477/0000051a--a38ceadf8e/24/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.05874700124253094,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 156,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/605a5ace6144a000/000000d6--7b704ff5f9/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003329373896063307,
+      "cte_rmse_m": 12.94063756818147,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 744
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/67f0b21af3afe763/00000115--9eb91c20c4/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004661037192926759,
+      "cte_rmse_m": 5.759716788308858,
+      "n_yaw_samples": 2746,
+      "n_cte_bins": 426
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/69e9b4af996a8ded/00000001--f3ce36f278/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0045267752490129156,
+      "cte_rmse_m": 24.382238707986822,
+      "n_yaw_samples": 2863,
+      "n_cte_bins": 531
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6e6e24283399ad17/00000085--1bb9e9e53b/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00522258996561266,
+      "cte_rmse_m": 79.07783542128807,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1565
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6e6e24283399ad17/00000085--1bb9e9e53b/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006620414726564284,
+      "cte_rmse_m": 9.153694367940515,
+      "n_yaw_samples": 1432,
+      "n_cte_bins": 286
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6e6e24283399ad17/000000b0--ed0ef5c10c/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004117992873972029,
+      "cte_rmse_m": 5.965713042145233,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1479
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6e6e24283399ad17/000000c6--92ff75b943/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0050328248039826695,
+      "cte_rmse_m": 123.76130366572944,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1718
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6e6e24283399ad17/0000020f--ec8dd05460/66/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006110833956862788,
+      "cte_rmse_m": 65.5752922925855,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1165
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00822965919570451,
+      "cte_rmse_m": 8.3436998813598,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 973
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0045181966810605035,
+      "cte_rmse_m": 23.92134721343293,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 1608
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00710239470553365,
+      "cte_rmse_m": 18.43247410163922,
+      "n_yaw_samples": 1998,
+      "n_cte_bins": 417
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0035846575291620204,
+      "cte_rmse_m": 12.234935625950616,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1608
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0025057433206451688,
+      "cte_rmse_m": 2.6831425404150857,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1186
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002641943418376243,
+      "cte_rmse_m": 1.3447341047260557,
+      "n_yaw_samples": 2447,
+      "n_cte_bins": 1000
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/6ee2bd29b78079f7/00000001--7dbbf39b8a/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002182689923812651,
+      "cte_rmse_m": 10.098780396737263,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1287
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/746ab23948234b41/0000000b--b6e4991ddc/111/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0059916377780877385,
+      "cte_rmse_m": 7.112076617910522,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 399
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/00000014--b62bc73414/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006360365150957134,
+      "cte_rmse_m": 28.74945049290099,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 706
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/00000017--22ccc2a2cd/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.010775670268615664,
+      "cte_rmse_m": 39.63744342730201,
+      "n_yaw_samples": 2597,
+      "n_cte_bins": 534
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/00000017--22ccc2a2cd/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006112769101363228,
+      "cte_rmse_m": 44.9671625666522,
+      "n_yaw_samples": 2818,
+      "n_cte_bins": 663
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/00000017--22ccc2a2cd/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0023523906702263174,
+      "cte_rmse_m": 3.5161574237630275,
+      "n_yaw_samples": 1535,
+      "n_cte_bins": 520
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/00000017--22ccc2a2cd/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006221404482152611,
+      "cte_rmse_m": 17.803000513061768,
+      "n_yaw_samples": 2101,
+      "n_cte_bins": 712
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/0000001f--4a3346c83b/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00711631761156951,
+      "cte_rmse_m": 90.06585763388965,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1887
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/0000001f--4a3346c83b/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003399657539036007,
+      "cte_rmse_m": 11.185765949120007,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1815
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/0000001f--4a3346c83b/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0036408039278306623,
+      "cte_rmse_m": 24.606529779678404,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1811
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/0000001f--4a3346c83b/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006848263892238046,
+      "cte_rmse_m": 57.432157991127745,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1862
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/0000001f--4a3346c83b/27/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006739569223705393,
+      "cte_rmse_m": 26.633257063977968,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1065
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/74ae5a530beab3d2/0000001f--4a3346c83b/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007329653018828105,
+      "cte_rmse_m": 71.92950218644977,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1542
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/37/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007290736131951985,
+      "cte_rmse_m": 137.36369851436356,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1354
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/39/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0051131588497359765,
+      "cte_rmse_m": 72.25742624573523,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1345
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0035231984552061535,
+      "cte_rmse_m": 9.805881773039623,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1025
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/40/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007008348775108981,
+      "cte_rmse_m": 116.2020617579303,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1338
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/52/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029496892632761233,
+      "cte_rmse_m": 21.556726823222423,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1344
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/53/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003006546151658482,
+      "cte_rmse_m": 19.56538799977073,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1423
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/56/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0037652785527895983,
+      "cte_rmse_m": 53.35218580186232,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1344
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/57/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004304610628854837,
+      "cte_rmse_m": 57.92293825334448,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1340
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/58/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004269575020906585,
+      "cte_rmse_m": 62.50171297827187,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1337
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/59/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002922775957213918,
+      "cte_rmse_m": 30.060578923445828,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1352
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.016286371678464535,
+      "cte_rmse_m": 274.2933636459735,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 1348
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/60/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.010841305405923238,
+      "cte_rmse_m": 159.53345354991802,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1350
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/61/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005109010321612365,
+      "cte_rmse_m": 100.45827810412514,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1342
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/79b3f1ea6d1003dd/000000c9--1951ef71c9/63/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006715158057766072,
+      "cte_rmse_m": 97.74941757562773,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1236
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/82b3d45e3f15ef20/00000001--ccad7629b8/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.010908785240683954,
+      "cte_rmse_m": 33.892402554686456,
+      "n_yaw_samples": 2621,
+      "n_cte_bins": 370
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/82b3d45e3f15ef20/00000057--c2a51b6c64/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004452181494821586,
+      "cte_rmse_m": 6.683856903778066,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 757
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/8379b28e51ceb3b1/0000023d--709ae94061/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.012781464211415582,
+      "cte_rmse_m": 6.988554292346561,
+      "n_yaw_samples": 1222,
+      "n_cte_bins": 114
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/8379b28e51ceb3b1/000002fb--2edf127a7f/29/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008659131439273679,
+      "cte_rmse_m": 153.95866211677807,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1546
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/94e73877219c0bb0/00000002--6a9220c909/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0062988064721637696,
+      "cte_rmse_m": 14.471139876057682,
+      "n_yaw_samples": 1950,
+      "n_cte_bins": 468
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/94e73877219c0bb0/00000002--6a9220c909/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007139306408482845,
+      "cte_rmse_m": 6.347843909554889,
+      "n_yaw_samples": 2853,
+      "n_cte_bins": 765
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/94e73877219c0bb0/00000002--6a9220c909/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004640055790352751,
+      "cte_rmse_m": 37.94214599669896,
+      "n_yaw_samples": 2793,
+      "n_cte_bins": 739
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/94fb5be27a4b67b0/0000030b--6ca1413e20/33/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0038262159661654888,
+      "cte_rmse_m": 12.57956103206069,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1136
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/94fb5be27a4b67b0/0000030b--6ca1413e20/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00232335725411058,
+      "cte_rmse_m": 13.435039917879879,
+      "n_yaw_samples": 2144,
+      "n_cte_bins": 555
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/94fb5be27a4b67b0/00000320--cd54c282e8/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005893365756608686,
+      "cte_rmse_m": 43.772363740737205,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 938
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/95cee227fe89b4ab/000000a3--ec57546f89/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0063038937237939125,
+      "cte_rmse_m": 29.87986191928576,
+      "n_yaw_samples": 2726,
+      "n_cte_bins": 786
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/95cee227fe89b4ab/000000a3--ec57546f89/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003908660336899722,
+      "cte_rmse_m": 4.168856544956201,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1859
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/95cee227fe89b4ab/000000a3--ec57546f89/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003871751895092985,
+      "cte_rmse_m": 9.04075902084855,
+      "n_yaw_samples": 1913,
+      "n_cte_bins": 772
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003254162687777909,
+      "cte_rmse_m": 6.9564410781992905,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1040
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004461884711366745,
+      "cte_rmse_m": 42.70565850600814,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1334
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007540712453385107,
+      "cte_rmse_m": 20.86939065450044,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1042
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004970836796416806,
+      "cte_rmse_m": 23.720819318825093,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1197
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006496401291388355,
+      "cte_rmse_m": 16.152588401894825,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 778
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003629095568648447,
+      "cte_rmse_m": 8.501970402067828,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 510
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005044778375197638,
+      "cte_rmse_m": 5.407363673762475,
+      "n_yaw_samples": 2328,
+      "n_cte_bins": 779
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0036888563815345144,
+      "cte_rmse_m": 41.6015218499933,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1270
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0028793377099534147,
+      "cte_rmse_m": 2.1863559625738427,
+      "n_yaw_samples": 1891,
+      "n_cte_bins": 584
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0024616087594424322,
+      "cte_rmse_m": 0.40332044577353704,
+      "n_yaw_samples": 2113,
+      "n_cte_bins": 587
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029832429749694594,
+      "cte_rmse_m": 3.165933358217089,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 927
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/96ae62c9bb21484d/00000000--75815d26df/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0028532409341035596,
+      "cte_rmse_m": 15.726441468945632,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 979
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a2c825d42a01f04/000001f4--dc81087fb1/42/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00871726405818578,
+      "cte_rmse_m": 33.23016862625356,
+      "n_yaw_samples": 2388,
+      "n_cte_bins": 420
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a2c825d42a01f04/000001fa--854368c2d2/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008989996597316842,
+      "cte_rmse_m": 8.272281843551825,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 377
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a2c825d42a01f04/000001fa--854368c2d2/32/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004675818934272114,
+      "cte_rmse_m": 15.129292332504939,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1693
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a2c825d42a01f04/0000020c--77df94054f/17/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0041367726162541765,
+      "cte_rmse_m": 21.200833994430717,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1737
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a2c825d42a01f04/00000242--10bf4acec2/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00460672932570805,
+      "cte_rmse_m": 21.041117190824778,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 443
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/0000021c--bf0a17f721/49/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029541732082633445,
+      "cte_rmse_m": 2.6878749798286887,
+      "n_yaw_samples": 1584,
+      "n_cte_bins": 158
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/0000022b--c221d89ba3/50/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0021216175255379154,
+      "cte_rmse_m": 2.191590003505273,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1152
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/00000253--656138ccce/30/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0027220295611422,
+      "cte_rmse_m": 23.212453630444898,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1268
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/00000253--656138ccce/35/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005796766987745703,
+      "cte_rmse_m": 23.903660219850508,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 701
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/00000263--7c15ac2ec5/31/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006766109790156284,
+      "cte_rmse_m": 108.38234420690274,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1165
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/00000283--9efc79696c/70/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029482611455874624,
+      "cte_rmse_m": 26.890962586998445,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1100
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/000002d4--d39c9f61d9/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0019185880145304003,
+      "cte_rmse_m": 1.4070601856667408,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1154
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9a8a4bb2455a202e/000002d4--d39c9f61d9/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0026805622333310295,
+      "cte_rmse_m": 41.1420795109278,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1345
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9e5213791a5adec4/00000033--02c782d0e9/22/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0034082918729245477,
+      "cte_rmse_m": 63.51088467886084,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1767
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9e5213791a5adec4/00000034--8fbb1a883c/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007260853505009592,
+      "cte_rmse_m": 4.691716428794702,
+      "n_yaw_samples": 2779,
+      "n_cte_bins": 571
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9e5213791a5adec4/00000098--e8967799c4/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006015539968333784,
+      "cte_rmse_m": 19.0328395958125,
+      "n_yaw_samples": 1924,
+      "n_cte_bins": 727
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/9e5213791a5adec4/000000a8--4bba109e0e/25/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005162118448103273,
+      "cte_rmse_m": 5.067650627348426,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1087
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a075376978f75293/00000010--10673bd994/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005174219242824308,
+      "cte_rmse_m": 18.000252770460115,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 540
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a075376978f75293/00000016--0b202ea9b8/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004442435116595069,
+      "cte_rmse_m": 11.353324572680858,
+      "n_yaw_samples": 2252,
+      "n_cte_bins": 329
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a075376978f75293/00000016--0b202ea9b8/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.01000806973116217,
+      "cte_rmse_m": 36.72170542061179,
+      "n_yaw_samples": 2509,
+      "n_cte_bins": 450
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a075376978f75293/00000016--0b202ea9b8/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.012174098247419435,
+      "cte_rmse_m": 3.142779799893835,
+      "n_yaw_samples": 2403,
+      "n_cte_bins": 328
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a075376978f75293/00000056--1bf144946f/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.009778778508982575,
+      "cte_rmse_m": 22.336461768491347,
+      "n_yaw_samples": 2220,
+      "n_cte_bins": 333
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a2a5380808907e8a/0000001e--1cdb895840/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005007684342410832,
+      "cte_rmse_m": 22.66015294441467,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 2011
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a2a5380808907e8a/0000001e--1cdb895840/41/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029457636064573064,
+      "cte_rmse_m": 58.44117299520296,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 2238
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a2a5380808907e8a/0000001e--1cdb895840/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004653298743640897,
+      "cte_rmse_m": 29.663821569755008,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1813
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a2a5380808907e8a/000000ab--0c8ac8a21a/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029779317897995184,
+      "cte_rmse_m": 13.80283955850383,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 630
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a2a5380808907e8a/00000104--50051f048c/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006912985877208611,
+      "cte_rmse_m": 7.323662671077534,
+      "n_yaw_samples": 2609,
+      "n_cte_bins": 341
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/18/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0077154060186302486,
+      "cte_rmse_m": 83.11326760697337,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1672
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004118716807206097,
+      "cte_rmse_m": 10.4561855847962,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1686
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/25/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004199862843584233,
+      "cte_rmse_m": 23.88506938948373,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1424
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/30/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006967710659897914,
+      "cte_rmse_m": 59.328878831810066,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1688
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/34/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0074829963280795015,
+      "cte_rmse_m": 146.5432587351962,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1717
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/35/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005623075015197184,
+      "cte_rmse_m": 48.04105836644309,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1683
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/37/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.011921674548010935,
+      "cte_rmse_m": 288.04819587322487,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1717
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/44/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005356030534900827,
+      "cte_rmse_m": 38.955877828302604,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1699
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a4e377321b7f0e9c/00000050--33686b38e7/45/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0036904749414194073,
+      "cte_rmse_m": 47.94825375451593,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1664
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a5a6b8676d08ff1f/0000029c--8ec3a11865/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003582078867354239,
+      "cte_rmse_m": 3.906946911304969,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1575
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9bb30d693e9008d/0000003e--dbb585aee8/73/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006222540353510823,
+      "cte_rmse_m": 18.585512776948075,
+      "n_yaw_samples": 2190,
+      "n_cte_bins": 324
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9bb30d693e9008d/00000041--9f3eb5cc09/21/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9bb30d693e9008d/00000050--96335f883e/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004487141230300024,
+      "cte_rmse_m": 12.260411559527226,
+      "n_yaw_samples": 2759,
+      "n_cte_bins": 1069
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9bb30d693e9008d/0000005e--24c2639e2d/28/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004214570217843662,
+      "cte_rmse_m": 26.640286902088807,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1735
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9bb30d693e9008d/0000005e--24c2639e2d/35/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0058479874572510615,
+      "cte_rmse_m": 75.03737452963306,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1418
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/32/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0039577934153754765,
+      "cte_rmse_m": 65.28037929210369,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1594
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/37/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004471881196613796,
+      "cte_rmse_m": 38.01770151342118,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1664
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/43/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0026745802233565847,
+      "cte_rmse_m": 10.465210644586573,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1842
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/46/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005831077298249526,
+      "cte_rmse_m": 83.19852279320602,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1801
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/47/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005639011811523288,
+      "cte_rmse_m": 128.9357107618635,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1801
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/54/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004353740615861834,
+      "cte_rmse_m": 50.82672391163462,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1699
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/56/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0050568091374535605,
+      "cte_rmse_m": 7.04925029041558,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1178
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/70/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007266060607931191,
+      "cte_rmse_m": 64.1689496002685,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1510
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/72/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.011589094433815054,
+      "cte_rmse_m": 49.28837177772964,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1545
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/a9efdbbe65e2bd99/00000159--6382379322/73/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007083812511546693,
+      "cte_rmse_m": 75.73794795567744,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1543
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00817958586035783,
+      "cte_rmse_m": 28.65129510897281,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 604
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.014112839423816874,
+      "cte_rmse_m": 244.37218758223463,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1857
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0046264465096941395,
+      "cte_rmse_m": 2.3467411471687325,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1890
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00553559638520178,
+      "cte_rmse_m": 132.31756923218606,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1845
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003824708836173882,
+      "cte_rmse_m": 40.99028482145097,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1894
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/17/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0027125904019530012,
+      "cte_rmse_m": 2.6032223368502443,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1541
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0030384986992259347,
+      "cte_rmse_m": 26.648364709391522,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1590
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0050592734862339,
+      "cte_rmse_m": 3.803810901477127,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1399
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000b--e792267789/22/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0030259848604050183,
+      "cte_rmse_m": 14.05925718390223,
+      "n_yaw_samples": 2861,
+      "n_cte_bins": 628
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aa734c6d16e0a186/0000000e--d5effb05e3/26/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0044403494617804885,
+      "cte_rmse_m": 9.474956067660923,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1344
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aac227ef9c5efb95/00000367--7ad3494c90/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007249201743531718,
+      "cte_rmse_m": 6.6490712651493205,
+      "n_yaw_samples": 1684,
+      "n_cte_bins": 261
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aac227ef9c5efb95/00000369--9ee359acd8/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005697273900526309,
+      "cte_rmse_m": 17.61141888081522,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 856
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/aac227ef9c5efb95/0000037c--d1e3234fb2/46/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004943859346633817,
+      "cte_rmse_m": 0.15109961042300035,
+      "n_yaw_samples": 817,
+      "n_cte_bins": 155
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b5032897bb936a27/00000002--40fad80769/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006015123826437839,
+      "cte_rmse_m": 9.997933966149368,
+      "n_yaw_samples": 2197,
+      "n_cte_bins": 360
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b5032897bb936a27/00000002--40fad80769/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007373925931873478,
+      "cte_rmse_m": 26.821714776425914,
+      "n_yaw_samples": 2811,
+      "n_cte_bins": 494
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b5032897bb936a27/00000002--40fad80769/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003118280360730251,
+      "cte_rmse_m": 7.959078689441088,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 980
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/00000012--1fa2ad03c6/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003914690921180607,
+      "cte_rmse_m": 2.81315920203593,
+      "n_yaw_samples": 2552,
+      "n_cte_bins": 468
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/00000028--4a18fe51e0/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004226115132939146,
+      "cte_rmse_m": 0.9331810398897663,
+      "n_yaw_samples": 1208,
+      "n_cte_bins": 224
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/0000008d--804c2d1469/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0026672606343444466,
+      "cte_rmse_m": 1.6747754149392493,
+      "n_yaw_samples": 1869,
+      "n_cte_bins": 358
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/000000c0--cc5c45003f/29/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004132373785187641,
+      "cte_rmse_m": 9.945454771610573,
+      "n_yaw_samples": 2371,
+      "n_cte_bins": 443
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/000000cd--e1c1b02f02/128/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0046738946471249635,
+      "cte_rmse_m": 3.4812113460712717,
+      "n_yaw_samples": 2417,
+      "n_cte_bins": 480
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/000000df--08fd2d6b55/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004777690966334314,
+      "cte_rmse_m": 19.622993930015785,
+      "n_yaw_samples": 2480,
+      "n_cte_bins": 571
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b547ed24ce4401f5/000000fa--6adc5f9c18/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0036047934226989347,
+      "cte_rmse_m": 2.4822584995928176,
+      "n_yaw_samples": 2498,
+      "n_cte_bins": 407
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.010430904511906789,
+      "cte_rmse_m": 150.32336010228232,
+      "n_yaw_samples": 1801,
+      "n_cte_bins": 301
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.013321285287587234,
+      "cte_rmse_m": 5.6392098335589615,
+      "n_yaw_samples": 2059,
+      "n_cte_bins": 305
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005462022023713721,
+      "cte_rmse_m": 25.371786609768282,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1171
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003084615286928457,
+      "cte_rmse_m": 9.856258647671867,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 757
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004502679063102788,
+      "cte_rmse_m": 22.631018904965707,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 887
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0030309340138290836,
+      "cte_rmse_m": 8.413103628425882,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 899
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004899627658411913,
+      "cte_rmse_m": 8.561516856208735,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1090
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0059941148847817505,
+      "cte_rmse_m": 81.55232569956452,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 1191
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004710054855751527,
+      "cte_rmse_m": 13.037438398434603,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1285
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007192283936429667,
+      "cte_rmse_m": 90.07739385912683,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1271
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006684410683352249,
+      "cte_rmse_m": 37.19847068951866,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1408
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000001--fb4e269e02/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004725552352658831,
+      "cte_rmse_m": 33.254328879084454,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1389
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000015--b0c755b3d6/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005299305850513404,
+      "cte_rmse_m": 64.42193221665838,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1448
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000018--56c5fb64c1/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002519997850370812,
+      "cte_rmse_m": 5.8314901594484905,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 667
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/b65075fcba5feb16/00000026--74300303e2/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0051046391117920455,
+      "cte_rmse_m": 41.93470212573703,
+      "n_yaw_samples": 2898,
+      "n_cte_bins": 793
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ba9951252624f37d/00000540--846580b506/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0024039841606763044,
+      "cte_rmse_m": 1.8361117831311864,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1264
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ba9951252624f37d/00000540--846580b506/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0030832130933286742,
+      "cte_rmse_m": 7.002031190367072,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 718
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ba9951252624f37d/000005b0--29e9481e03/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.010529549972126033,
+      "cte_rmse_m": 3.7411286825919134,
+      "n_yaw_samples": 1008,
+      "n_cte_bins": 96
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bb2a563364b5dacc/0000080b--ab20e951ef/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006894983604510974,
+      "cte_rmse_m": 103.9430171365051,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1244
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bb2a563364b5dacc/0000085a--dd752ed414/68/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005097077099928916,
+      "cte_rmse_m": 63.665275088592786,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1805
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bb2a563364b5dacc/00000901--1171acffc5/49/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.011831388681461665,
+      "cte_rmse_m": 2.2818253029584543,
+      "n_yaw_samples": 2752,
+      "n_cte_bins": 400
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bb2a563364b5dacc/00000ab2--90d523db7b/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006561448452294598,
+      "cte_rmse_m": 69.53350642112372,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1307
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000010--f7b379176b/34/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004817524105369018,
+      "cte_rmse_m": 59.98489493697588,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000010--f7b379176b/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0038293562761038506,
+      "cte_rmse_m": 7.950602932114005,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 434
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000010--f7b379176b/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0035521293304593853,
+      "cte_rmse_m": 15.471368386388594,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 569
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000018--f3a711101a/26/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007417067474324213,
+      "cte_rmse_m": 57.15515826195947,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1579
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000018--f3a711101a/31/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.010156656662369874,
+      "cte_rmse_m": 134.56756950848282,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1657
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000028--f254a27592/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006461120109834135,
+      "cte_rmse_m": 53.137667482431425,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1830
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000028--f254a27592/21/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007871756285609417,
+      "cte_rmse_m": 15.193356531258347,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1808
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/00000028--f254a27592/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006777642590561761,
+      "cte_rmse_m": 54.79335486060285,
+      "n_yaw_samples": 2621,
+      "n_cte_bins": 763
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/0000002d--acc8205a5a/28/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00831255980649335,
+      "cte_rmse_m": 49.50090398196017,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1971
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/bc38e652f5c95d83/0000002d--acc8205a5a/31/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004628707182936306,
+      "cte_rmse_m": 28.217137678377398,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1095
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004785083064636184,
+      "cte_rmse_m": 3.245958541668452,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 820
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007286884014582259,
+      "cte_rmse_m": 89.33403078894004,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1537
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00664394107130316,
+      "cte_rmse_m": 30.295994320557384,
+      "n_yaw_samples": 2138,
+      "n_cte_bins": 854
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005558005283918583,
+      "cte_rmse_m": 14.419635965458355,
+      "n_yaw_samples": 2454,
+      "n_cte_bins": 576
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005793446907994637,
+      "cte_rmse_m": 51.76662716766173,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 806
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004990073494993452,
+      "cte_rmse_m": 5.647713186841111,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 818
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00619805052421359,
+      "cte_rmse_m": 40.0419761635566,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 748
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0034255029272512783,
+      "cte_rmse_m": 23.135530515890885,
+      "n_yaw_samples": 2647,
+      "n_cte_bins": 754
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00707629986495032,
+      "cte_rmse_m": 30.650916656184343,
+      "n_yaw_samples": 2879,
+      "n_cte_bins": 1055
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c1bae460535bd625/00000003--b9fd7c53e0/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0050897244051536965,
+      "cte_rmse_m": 30.665176724058576,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1668
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c49a426f2e2e65d8/00000001--a67a4fb56b/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004999177376033905,
+      "cte_rmse_m": 4.895138831214773,
+      "n_yaw_samples": 2874,
+      "n_cte_bins": 444
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c49a426f2e2e65d8/00000001--a67a4fb56b/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00719806396382791,
+      "cte_rmse_m": 22.447027651854846,
+      "n_yaw_samples": 2306,
+      "n_cte_bins": 572
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/000000b7--0f3744bc81/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0038039044326439934,
+      "cte_rmse_m": 18.467669826972184,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1562
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/00000110--30fcfc556d/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0046566497897704085,
+      "cte_rmse_m": 13.976178213559995,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 544
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/00000119--362570df91/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005905003436216396,
+      "cte_rmse_m": 22.860218014380813,
+      "n_yaw_samples": 2811,
+      "n_cte_bins": 616
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/0000011a--66d0823d16/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008152271953222497,
+      "cte_rmse_m": 5.302735226251383,
+      "n_yaw_samples": 1322,
+      "n_cte_bins": 138
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/0000011a--66d0823d16/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00538217215267543,
+      "cte_rmse_m": 6.940248805703148,
+      "n_yaw_samples": 2325,
+      "n_cte_bins": 626
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/0000011a--66d0823d16/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007493444174059086,
+      "cte_rmse_m": 53.56713427699812,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 856
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/c864c421caa9ec6f/00000175--180af40b71/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007010458593215248,
+      "cte_rmse_m": 6.215879064142283,
+      "n_yaw_samples": 2849,
+      "n_cte_bins": 377
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/da72ccd7e8458342/00000003--75eb111aab/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005235749503142288,
+      "cte_rmse_m": 21.29180376535469,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1072
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/da72ccd7e8458342/00000003--75eb111aab/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005270789223387935,
+      "cte_rmse_m": 30.559969847906675,
+      "n_yaw_samples": 2602,
+      "n_cte_bins": 626
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/da72ccd7e8458342/00000003--75eb111aab/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005399298446228342,
+      "cte_rmse_m": 9.216576955452846,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1422
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/da72ccd7e8458342/000000b1--53826f7b8c/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003990032846742372,
+      "cte_rmse_m": 4.582140443048266,
+      "n_yaw_samples": 1709,
+      "n_cte_bins": 302
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/da72ccd7e8458342/00000111--c3eb62cf69/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005645095888507731,
+      "cte_rmse_m": 86.99617750970252,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1655
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/da72ccd7e8458342/00000120--e4defa1d70/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007577701728509229,
+      "cte_rmse_m": 111.5652214935819,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1360
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/dab2ee943375ae1f/00000022--957da6d4c6/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006736556822725306,
+      "cte_rmse_m": 94.3127362069651,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1828
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/00000005--812cb82f75/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0024783429374347177,
+      "cte_rmse_m": 22.491607821985482,
+      "n_yaw_samples": 2563,
+      "n_cte_bins": 916
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/00000005--812cb82f75/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0030445177678744845,
+      "cte_rmse_m": 13.556536697966322,
+      "n_yaw_samples": 2495,
+      "n_cte_bins": 782
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/00000005--812cb82f75/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003553360644924894,
+      "cte_rmse_m": 40.17951294655573,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 1028
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/00000006--22295131de/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.01204641532940882,
+      "cte_rmse_m": 158.98048976272412,
+      "n_yaw_samples": 1943,
+      "n_cte_bins": 312
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000001b--aced00c863/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003840492967347884,
+      "cte_rmse_m": 20.8737035877271,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 841
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000001b--aced00c863/18/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002651766779085481,
+      "cte_rmse_m": 0.48915723441064046,
+      "n_yaw_samples": 1211,
+      "n_cte_bins": 176
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000001b--aced00c863/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.00401804658262218,
+      "cte_rmse_m": 29.087009628652936,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 773
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000001b--aced00c863/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008362414208564551,
+      "cte_rmse_m": 17.681408709000603,
+      "n_yaw_samples": 2217,
+      "n_cte_bins": 278
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000002f--50a3d37214/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002710353462191525,
+      "cte_rmse_m": 22.699759245383394,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 942
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000004b--3eaf94fa3c/52/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.011944671176268266,
+      "cte_rmse_m": 185.91712236076032,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1262
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/de513a04494ea953/0000004b--3eaf94fa3c/76/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002676359728191037,
+      "cte_rmse_m": 46.154969678996146,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1778
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/df8202df0f0dea66/00000026--2bb2e29f6a/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006740766654148997,
+      "cte_rmse_m": 7.3031178092416,
+      "n_yaw_samples": 2901,
+      "n_cte_bins": 504
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003900877245914176,
+      "cte_rmse_m": 2.687128241229599,
+      "n_yaw_samples": 1791,
+      "n_cte_bins": 476
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0031258910664694,
+      "cte_rmse_m": 8.84598366585871,
+      "n_yaw_samples": 1835,
+      "n_cte_bins": 511
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0034335286610620726,
+      "cte_rmse_m": 2.422279460804667,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 758
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003858055697933543,
+      "cte_rmse_m": 20.129735218787076,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 877
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/14/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002602117967742624,
+      "cte_rmse_m": 12.593102651153917,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1016
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/15/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0037520008045147596,
+      "cte_rmse_m": 11.869874206712044,
+      "n_yaw_samples": 2708,
+      "n_cte_bins": 776
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": null,
+      "cte_rmse_m": null,
+      "n_yaw_samples": 0,
+      "n_cte_bins": 0
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/17/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003644419184653932,
+      "cte_rmse_m": 4.040529603569037,
+      "n_yaw_samples": 1113,
+      "n_cte_bins": 303
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/18/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.002318530734172253,
+      "cte_rmse_m": 4.9021232328011735,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 1002
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003323970922244174,
+      "cte_rmse_m": 3.5872509440843925,
+      "n_yaw_samples": 1934,
+      "n_cte_bins": 438
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/20/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003236561854917543,
+      "cte_rmse_m": 0.8650787914104979,
+      "n_yaw_samples": 1092,
+      "n_cte_bins": 164
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/21/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004312496569563667,
+      "cte_rmse_m": 1.2956268136869085,
+      "n_yaw_samples": 974,
+      "n_cte_bins": 222
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/22/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029738587441984197,
+      "cte_rmse_m": 2.088451219016172,
+      "n_yaw_samples": 2152,
+      "n_cte_bins": 530
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/23/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0029796734430179227,
+      "cte_rmse_m": 9.30354986538516,
+      "n_yaw_samples": 1467,
+      "n_cte_bins": 467
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/24/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0019143484654162968,
+      "cte_rmse_m": 0.41463205771910505,
+      "n_yaw_samples": 1134,
+      "n_cte_bins": 279
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/4/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0031332804190887043,
+      "cte_rmse_m": 6.454696602378358,
+      "n_yaw_samples": 2112,
+      "n_cte_bins": 465
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/5/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003516647869711997,
+      "cte_rmse_m": 12.263341576807216,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 702
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0035308569175309967,
+      "cte_rmse_m": 3.7516390262140122,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 898
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0026241997246209373,
+      "cte_rmse_m": 0.11724957267000255,
+      "n_yaw_samples": 609,
+      "n_cte_bins": 114
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/8/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0026488513220513125,
+      "cte_rmse_m": 13.074695966180798,
+      "n_yaw_samples": 2457,
+      "n_cte_bins": 769
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000005--7f669f3c86/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0030732521750335717,
+      "cte_rmse_m": 10.44676943254032,
+      "n_yaw_samples": 1673,
+      "n_cte_bins": 542
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000012--2cdf5a3eda/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0038128369891136174,
+      "cte_rmse_m": 4.454628798928023,
+      "n_yaw_samples": 1518,
+      "n_cte_bins": 395
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000012--2cdf5a3eda/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0032859284654518247,
+      "cte_rmse_m": 4.091410056752495,
+      "n_yaw_samples": 2547,
+      "n_cte_bins": 537
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/e3a0c1d2ac034212/00000015--19ee57962c/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.001858448908495366,
+      "cte_rmse_m": 4.083557690533767,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1155
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ed5922e0b15e5e98/00000002--3e2e5d2b7b/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008258116377362752,
+      "cte_rmse_m": 14.297479770861582,
+      "n_yaw_samples": 1694,
+      "n_cte_bins": 428
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ed5922e0b15e5e98/00000002--3e2e5d2b7b/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004275390663400873,
+      "cte_rmse_m": 19.54652070662497,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1565
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ed5922e0b15e5e98/00000002--3e2e5d2b7b/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004711024792258704,
+      "cte_rmse_m": 2.8434108701685097,
+      "n_yaw_samples": 1966,
+      "n_cte_bins": 740
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/eef44e375ce40f65/00000000--84b8eb2b34/0/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008797153315923227,
+      "cte_rmse_m": 307.0338842377076,
+      "n_yaw_samples": 1652,
+      "n_cte_bins": 380
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/eef44e375ce40f65/00000000--84b8eb2b34/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005143070953916321,
+      "cte_rmse_m": 2.3812656758823496,
+      "n_yaw_samples": 2244,
+      "n_cte_bins": 479
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/eef44e375ce40f65/00000000--84b8eb2b34/2/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.004300165051023873,
+      "cte_rmse_m": 9.91321113985625,
+      "n_yaw_samples": 2743,
+      "n_cte_bins": 429
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/eef44e375ce40f65/00000000--84b8eb2b34/3/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.008364068541782836,
+      "cte_rmse_m": 27.34252772957395,
+      "n_yaw_samples": 2809,
+      "n_cte_bins": 457
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/eef44e375ce40f65/00000000--c5a21370b1/1/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0052565716600216994,
+      "cte_rmse_m": 4.981291595955197,
+      "n_yaw_samples": 2885,
+      "n_cte_bins": 415
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/fb8682276907ba7b/00000026--1499c152ba/84/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0024857562175792953,
+      "cte_rmse_m": 6.97703324223018,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1720
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/fcc3d04787beada0/00000007--4d84f7560f/10/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0027563369050964083,
+      "cte_rmse_m": 35.837339720405396,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1577
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/fcc3d04787beada0/00000046--44d7ae9a99/11/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.003224340448663132,
+      "cte_rmse_m": 8.299422140908566,
+      "n_yaw_samples": 2585,
+      "n_cte_bins": 323
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/fcc3d04787beada0/00000097--c3b0cfd047/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.0036788229266335303,
+      "cte_rmse_m": 16.56636933581985,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 374
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/fcc3d04787beada0/00000097--c3b0cfd047/16/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.007175996920673216,
+      "cte_rmse_m": 108.34265748527524,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 1211
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/fcc3d04787beada0/00000097--c3b0cfd047/9/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006464966611696603,
+      "cte_rmse_m": 45.74801611249098,
+      "n_yaw_samples": 2614,
+      "n_cte_bins": 1012
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ffe33e1a6c2ba99d/0000000e--5c13f7eece/12/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005263635232097224,
+      "cte_rmse_m": 4.8007106452141155,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 952
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ffe33e1a6c2ba99d/0000000e--5c13f7eece/13/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005319776155197073,
+      "cte_rmse_m": 21.185958234753627,
+      "n_yaw_samples": 2900,
+      "n_cte_bins": 936
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ffe33e1a6c2ba99d/0000000e--5c13f7eece/19/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.01086064990560857,
+      "cte_rmse_m": 27.396488696782463,
+      "n_yaw_samples": 2035,
+      "n_cte_bins": 386
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ffe33e1a6c2ba99d/0000000e--5c13f7eece/6/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.006594084682704546,
+      "cte_rmse_m": 3.5492843130945477,
+      "n_yaw_samples": 2809,
+      "n_cte_bins": 448
+    },
+    {
+      "segment": "/Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data/sim-only/segments/HYUNDAI_IONIQ_5/ffe33e1a6c2ba99d/0000000e--5c13f7eece/7/sim.csv",
+      "platform": "HYUNDAI_IONIQ_5",
+      "yaw_rmse": 0.005205967891702999,
+      "cte_rmse_m": 15.522595264533683,
+      "n_yaw_samples": 2899,
+      "n_cte_bins": 531
+    }
+  ],
+  "coefficients": {
+    "biases": {
+      "FORD_F_150_LIGHTNING_MK1": 0.0,
+      "FORD_MUSTANG_MACH_E_MK1": 0.00166878555886186,
+      "HYUNDAI_IONIQ_5": 0.0006550693453793075
+    },
+    "ridges": {},
+    "feature_names": [
+      "delta",
+      "delta*v",
+      "v",
+      "v^2",
+      "ddelta",
+      "ddelta*v",
+      "yr_v1",
+      "yr_v1*v",
+      "a_long",
+      "ped",
+      "brake"
+    ],
+    "variant_per_platform": {
+      "FORD_F_150_LIGHTNING_MK1": "V1",
+      "FORD_MUSTANG_MACH_E_MK1": "V1+bias",
+      "HYUNDAI_IONIQ_5": "V1+bias"
+    }
+  },
+  "contract": {
+    "allowed_input_columns": [
+      "a_long_mps2",
+      "accel_pedal_pct",
+      "brake_pressed",
+      "delta_road_rad",
+      "delta_wheel_deg",
+      "t_s",
+      "v_mps",
+      "yaw_rate_pred_rads"
+    ],
+    "stripped_columns_per_segment": [],
+    "leak_scan": {
+      "scan_ok": true,
+      "hits_in_predict_body": {},
+      "hits_in_helpers": {},
+      "hits_elsewhere": {},
+      "helpers_called_from_predict": [
+        "_predict_v1"
+      ]
+    }
+  }
+}

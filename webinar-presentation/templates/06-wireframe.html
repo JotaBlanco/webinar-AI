@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template 06 — Wireframe</title>
+<style>
+  /* =========================================================
+     TEMPLATE 06 — WIREFRAME
+     Vibe: hairline geometry, stroke-only display type, dotted
+     grid, line-drawing reveals via stroke-dashoffset. Reads as
+     a CAD model in motion — confident engineering minimalism
+     with neon punctuation.
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0b16;
+    --bg-deep: #06070f;
+    --ink: #f3f4f8;
+    --ink-soft: rgba(243,244,248,0.72);
+    --ink-mute: rgba(243,244,248,0.4);
+    --hair: rgba(243,244,248,0.12);
+    --hair-strong: rgba(243,244,248,0.25);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* dotted grid background */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(243,244,248,0.1) 1px, transparent 1.2px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse 80% 80% at center, #000, transparent 90%);
+  }
+
+  /* very subtle scanline */
+  body::after {
+    content: ''; position: fixed; inset: 0; z-index: 4; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(255,255,255,0.012) 2px 3px);
+  }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 10vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* top bar */
+  .topbar {
+    position: fixed; top: 3vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar svg.logo { height: 22px; opacity: 0.85; }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+
+  /* corner markers — small geometric */
+  .corner {
+    position: fixed; z-index: 4; pointer-events: none;
+    width: 24px; height: 24px;
+  }
+  .corner svg { width: 100%; height: 100%; }
+  .corner svg path { stroke: var(--blue-l); stroke-width: 1; fill: none; opacity: 0.7; }
+  .c-tl { top: 3vh; left: 3vw; }
+  .c-tr { top: 3vh; right: 3vw; transform: rotate(90deg); }
+  .c-bl { bottom: 3vh; left: 3vw; transform: rotate(-90deg); }
+  .c-br { bottom: 3vh; right: 3vw; transform: rotate(180deg); }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .index {
+    font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--blue-l);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .index::before {
+    content: ''; width: 24px; height: 1px; background: var(--blue-l);
+    box-shadow: 0 0 6px var(--blue-l);
+  }
+
+  /* outlined display type */
+  h1.outline {
+    font-size: clamp(3.5rem, 9vw, 8.5rem);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-bottom: 1.75rem;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--ink);
+    text-stroke: 1px var(--ink);
+  }
+  h1.outline .filled {
+    -webkit-text-stroke: 0;
+    color: var(--ink);
+  }
+  h1.outline .neon {
+    -webkit-text-stroke: 0;
+    color: var(--blue-l);
+    text-shadow:
+      0 0 12px rgba(61,137,255,0.45),
+      0 0 30px rgba(61,137,255,0.25);
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.55vw, 1.35rem);
+    line-height: 1.55;
+    max-width: 58ch;
+    font-weight: 400;
+  }
+
+  /* section divider — big stroked number */
+  .section-num {
+    font-size: clamp(8rem, 22vw, 20rem);
+    font-weight: 900;
+    line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--ink);
+    letter-spacing: -0.06em;
+    margin-bottom: 0.5rem;
+  }
+  h2.section {
+    color: var(--ink);
+    font-size: clamp(2rem, 4.5vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+  h2.section .underline {
+    background-image: linear-gradient(90deg, var(--blue-l), var(--purple));
+    background-size: 100% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 4px;
+  }
+
+  h3.heading {
+    color: var(--ink);
+    font-size: clamp(1.55rem, 2.3vw, 1.95rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin-bottom: 1rem;
+    display: flex; align-items: baseline; gap: 0.75rem;
+  }
+  h3.heading::before {
+    content: '◇'; color: var(--blue-l);
+    font-size: 0.7em;
+    text-shadow: 0 0 8px var(--blue-l);
+  }
+
+  p.body {
+    color: var(--ink-soft);
+    font-size: 1.05rem; line-height: 1.7;
+    max-width: 62ch;
+    margin-bottom: 1rem;
+  }
+
+  /* wireframe chip */
+  .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+  .chip {
+    font-family: var(--mono); font-size: 0.78rem;
+    padding: 0.4rem 0.85rem;
+    color: var(--ink);
+    border: 1px solid var(--hair-strong);
+    background: transparent;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    position: relative;
+  }
+  .chip::before, .chip::after {
+    content: ''; position: absolute; width: 5px; height: 5px;
+    border: 1px solid var(--blue-l);
+  }
+  .chip::before { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+  .chip::after  { bottom: -3px; right: -3px; border-left: none; border-top: none; }
+  .chip.purple::before, .chip.purple::after { border-color: var(--purple); }
+  .chip.orange::before, .chip.orange::after { border-color: var(--orange); }
+  .chip.green::before,  .chip.green::after  { border-color: var(--green); }
+
+  /* data card with animated stroke border */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.5rem; }
+  .data-card {
+    position: relative;
+    padding: 2rem 1.5rem 1.5rem;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid var(--hair);
+  }
+  .data-card svg.border {
+    position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px);
+    pointer-events: none;
+  }
+  .data-card svg.border rect {
+    fill: none; stroke: var(--blue-l); stroke-width: 1;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  .slide.active .data-card.reveal-d2 svg.border rect { animation: drawRect 1.4s 0.4s cubic-bezier(.2,.7,.2,1) forwards; }
+  .slide.active .data-card.reveal-d3 svg.border rect { animation: drawRect 1.4s 0.6s cubic-bezier(.2,.7,.2,1) forwards; }
+  .slide.active .data-card.reveal-d4 svg.border rect { animation: drawRect 1.4s 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
+  @keyframes drawRect { to { stroke-dashoffset: 0; } }
+
+  .data-card .k {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.22em;
+    color: var(--ink-mute); text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .data-card .v {
+    font-size: 2.6rem; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.03em; line-height: 1;
+  }
+  .data-card .v small { font-size: 0.45em; color: var(--ink-mute); font-weight: 400; margin-left: 0.2em; }
+  .data-card .delta {
+    margin-top: 0.6rem; font-family: var(--mono); font-size: 0.78rem;
+    color: var(--green);
+  }
+
+  /* geometric decoration — animated line */
+  .deco-line {
+    margin: 2rem 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    transform-origin: left;
+    animation: stretchX 1.2s cubic-bezier(.2,.7,.2,1) 0.4s both;
+    box-shadow: 0 0 8px rgba(61,137,255,0.3);
+  }
+  @keyframes stretchX { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
+
+  /* quote */
+  .quote {
+    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    max-width: 28ch;
+  }
+  .quote .neon {
+    color: var(--blue-l);
+    text-shadow: 0 0 16px rgba(61,137,255,0.5);
+  }
+  .quote-attrib {
+    margin-top: 2rem; font-family: var(--mono);
+    font-size: 0.75rem; letter-spacing: 0.26em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+
+  /* entrance */
+  .slide.active .reveal    { animation: riseFade 0.85s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1 { animation: riseFade 0.85s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2 { animation: riseFade 0.85s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3 { animation: riseFade 0.85s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4 { animation: riseFade 0.85s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  @keyframes riseFade {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* footer */
+  .footer {
+    position: fixed; bottom: 3vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 1px;
+    background: var(--hair); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), var(--orange));
+    box-shadow: 0 0 8px var(--blue-l);
+    transition: width 0.6s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <svg class="logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Template 06 · Wireframe</span>
+</div>
+
+<div class="corner c-tl"><svg viewBox="0 0 24 24"><path d="M0 8 L0 0 L8 0"/></svg></div>
+<div class="corner c-tr"><svg viewBox="0 0 24 24"><path d="M0 8 L0 0 L8 0"/></svg></div>
+<div class="corner c-bl"><svg viewBox="0 0 24 24"><path d="M0 8 L0 0 L8 0"/></svg></div>
+<div class="corner c-br"><svg viewBox="0 0 24 24"><path d="M0 8 L0 0 L8 0"/></svg></div>
+
+<div class="deck">
+
+  <!-- cover -->
+  <section class="slide active" data-i="1">
+    <div class="index reveal">QX · 06 / wireframe</div>
+    <h1 class="outline reveal-d1">
+      <span class="filled">Build the</span><br>
+      <span>system</span> <span class="neon">visibly.</span>
+    </h1>
+    <p class="subtitle reveal-d2">Outline display type, hairline grids, animated stroke borders that draw themselves on slide-in. For decks where the architecture should feel as deliberate as the talk.</p>
+    <div class="deco-line reveal-d3"></div>
+  </section>
+
+  <!-- section divider -->
+  <section class="slide" data-i="2">
+    <div class="index reveal">section · 02</div>
+    <div class="section-num reveal-d1">02</div>
+    <h2 class="section reveal-d2">The <span class="underline">topology</span> of failure.</h2>
+    <p class="subtitle reveal-d3">Three pipelines, three rewrites, one persistent shape — the place backpressure breaks first is the place nobody looks last.</p>
+  </section>
+
+  <!-- content -->
+  <section class="slide" data-i="3">
+    <div class="index reveal">finding · 03.a</div>
+    <h3 class="heading reveal-d1">State outlives compute.</h3>
+    <p class="body reveal-d2">Compute is elastic — you can buy more. State is not. Every system that scaled past ten engineers eventually rediscovers that the hard problems live in the keyspace, not the CPU graph.</p>
+    <p class="body reveal-d3">This template uses outline type and hairline grids to keep visual weight low so the reasoning carries the slide.</p>
+    <div class="chips reveal-d4">
+      <span class="chip">stateful</span>
+      <span class="chip purple">partitioned</span>
+      <span class="chip orange">elastic</span>
+      <span class="chip green">durable</span>
+    </div>
+  </section>
+
+  <!-- data -->
+  <section class="slide" data-i="4">
+    <div class="index reveal">results · prod · 14d</div>
+    <h3 class="heading reveal-d1" style="margin-bottom: 2rem;">After the rewrite, by the numbers.</h3>
+    <div class="grid3">
+      <div class="data-card reveal-d2">
+        <svg class="border"><rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" pathLength="1000"/></svg>
+        <div class="k">latency p99</div>
+        <div class="v">42<small>ms</small></div>
+        <div class="delta">↓ 78% vs. v0</div>
+      </div>
+      <div class="data-card reveal-d3">
+        <svg class="border"><rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" pathLength="1000"/></svg>
+        <div class="k">cost / 1M evt</div>
+        <div class="v">$0.18</div>
+        <div class="delta">↓ 64% vs. v0</div>
+      </div>
+      <div class="data-card reveal-d4">
+        <svg class="border"><rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" pathLength="1000"/></svg>
+        <div class="k">recovery</div>
+        <div class="v">7.2<small>s</small></div>
+        <div class="delta">↓ 91% vs. v0</div>
+      </div>
+    </div>
+    <div class="deco-line"></div>
+  </section>
+
+  <!-- quote -->
+  <section class="slide" data-i="5">
+    <div class="index reveal">closing · note</div>
+    <p class="quote reveal-d1">If you can draw it, you can build it. If you can't <span class="neon">draw it</span>, you don't understand it yet.</p>
+    <div class="quote-attrib reveal-d2">— field notebook · 2026.06</div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>quix · eng · 2026</span>
+  <span>frame <span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = slides.length;
+  let i = 0;
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp') go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+  go(0);
+</script>
+</body>
+</html>

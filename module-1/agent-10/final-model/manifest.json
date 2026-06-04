@@ -1,0 +1,13 @@
+{
+  "name": "agent-10-bicycle-understeer-v1",
+  "version": "1.0.0",
+  "predict_callable": "predict.py:predict",
+  "platform_support": [
+    "FORD_MUSTANG_MACH_E_MK1",
+    "FORD_F_150_LIGHTNING_MK1",
+    "HYUNDAI_IONIQ_5",
+    "TESLA_MODEL_3"
+  ],
+  "description": "Steady-state bicycle with understeer gradient (K_us) plus optional first-order yaw and steering low-pass lags. Per-platform L_eff, K_us, d0, tau_yaw, tau_steer fit by least squares on data/sim/segments truth (v*delta = L*yaw + K_us*yaw*v^2 + v*d0). TESLA_MODEL_3 has no truth in the workshop set and falls back to passing through the supplied V0 yaw_rate_pred_rads. Trajectory (x_m, y_m, psi_rad) integrated from predicted yaw and measured v_mps with trapezoidal rule.",
+  "depends": ["coeffs.json"]
+}

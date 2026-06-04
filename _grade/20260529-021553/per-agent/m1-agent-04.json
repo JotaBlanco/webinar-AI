@@ -1,0 +1,89 @@
+{
+  "agent_id": "m1-agent-04",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/agent-04/final-model/REPORT.md",
+  "items": [
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "Report breaks numbers out by platform (F-150 vs Mach-E) but never by regime (straight/cornering/transient); no per-regime table or chart present."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "All four parameters jointly fit per platform via Nelder-Mead on yaw-rate MSE over the train split. No leakage: val routes are entirely disjoint from train routes.",
+        "XTE is distance-resampled at ds = 1 m, RMSE over all distance samples in all val segments."
+      ],
+      "reasoning": "Variant ladder reports the same KPI (yaw-rate RMSE on val) for every step with a fixed train/val split declaration in the header, and XTE definition is fixed once."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.0,
+      "threshold_met": true,
+      "evidence": [
+        "V1 \u2014 `a * (v/L) tan(delta) / (1 + b v^2)`. Two-param understeer fit. Biggest single jump on Lightning (val 0.01391 -> 0.00659).",
+        "V2 \u2014 add constant `delta_off`. Helped Lightning slightly (0.00659 -> 0.00535); Mach-E offset fits to noise.",
+        "V3 (shipped) \u2014 V2 + first-order lag `tau` on the steering. Helped both; Lightning val 0.00535 -> 0.00490, Mach-E val 0.01583 -> 0.01541."
+      ],
+      "reasoning": "Sequential marginal drops on Lightning (0.00732 + 0.00124 + 0.00045 = 0.00901) reconcile exactly with the total drop (0.01391 - 0.00490 = 0.00901); ratio is 0.0, well below 0.15."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No variant in the ladder worsened either KPI, but the report contains no explicit 'no regressions observed' statement, so the item is not addressed."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Yaw RMSE",
+    "platform": "FORD_F_150_LIGHTNING_MK1",
+    "baseline_value": "0.01391 rad/s",
+    "final_value": "0.00490 rad/s",
+    "improvement": "-64.8%",
+    "top_contributor": "V1",
+    "baseline_numeric": 0.01391,
+    "final_numeric": 0.0049,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 64.8,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on a canonical Ford platform (F-150 Lightning) using the measured yaw_rate_meas_rads channel on a held-out route-stratified validation split."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1",
+      "contribution_pct": 81.2,
+      "contribution_abs": 0.00732,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2",
+      "contribution_pct": 13.8,
+      "contribution_abs": 0.00124,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3",
+      "contribution_pct": 5.0,
+      "contribution_abs": 0.00045,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

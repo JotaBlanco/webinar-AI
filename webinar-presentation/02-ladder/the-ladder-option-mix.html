@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ladder — A/B Mix (Gap Closed)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f1f1f3; color: #222229;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; padding: 2rem 0; }
+.deck-header { max-width: 1280px; margin: 0 auto 1.5rem; padding: 0 2rem; }
+.deck-header h1 { color: #0a0b24; font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; }
+.deck-header p { color: #646471; font-size: 0.92rem; margin-top: 0.35rem; line-height: 1.55; }
+.slide { width: 1280px; max-width: calc(100% - 2rem); aspect-ratio: 16/9;
+  margin: 0 auto 2rem; background: #fff; border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(10, 11, 36, 0.08);
+  padding: 2.5rem 3rem 3rem; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; }
+.slide::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #0064ff, #bd2eff, #ff7828); }
+.slide-tag { position: absolute; top: 1.25rem; right: 1.5rem;
+  background: #f5f5fa; color: #646471; font-size: 0.7rem; font-weight: 700;
+  padding: 5px 11px; border-radius: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.slide h2 { color: #0a0b24; font-weight: 800; font-size: 1.9rem; letter-spacing: -0.02em; line-height: 1.15; }
+.slide .subtitle { color: #0064ff; font-weight: 500; font-size: 0.98rem;
+  margin-top: 0.45rem; margin-bottom: 1.5rem; max-width: 85ch; }
+.slide-logo { position: absolute; bottom: 1.1rem; left: 1.5rem; height: 14px; opacity: 0.45; }
+.footnote { position: absolute; bottom: 1.2rem; right: 1.6rem; font-size: 0.78rem; color: #646471; font-style: italic; }
+
+/* === M1: comparison table === */
+.m1-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; flex: 1;
+  border-radius: 10px; overflow: hidden; border: 1px solid #eeeef3; }
+.m1-table th { background: #0a0b24; color: #fff; font-weight: 600; font-size: 0.82rem;
+  padding: 0.7rem 1rem; text-align: left; letter-spacing: 0.04em; }
+.m1-table th.center { text-align: center; }
+.m1-table td { padding: 0.7rem 1rem; border-bottom: 1px solid #eeeef3; vertical-align: middle; }
+.m1-table tr:last-child td { border-bottom: none; }
+.m1-table tr.l0 td:first-child { border-left: 4px solid #a2a2b0; }
+.m1-table tr.l1 td:first-child { border-left: 4px solid #0064ff; }
+.m1-table tr.l2 td:first-child { border-left: 4px solid #0064ff; }
+.m1-table tr.l3 td:first-child { border-left: 4px solid #bd2eff; }
+.m1-table tr.l4 td:first-child { border-left: 4px solid #ff7828; }
+.m1-table td.rung { font-weight: 800; color: #0a0b24; font-size: 0.92rem; width: 175px; }
+.m1-table td.rung .name { display: block; font-size: 0.75rem; color: #646471; font-weight: 500; margin-top: 0.15rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.m1-table td.gap { color: #a2a2b0; font-style: italic; }
+.m1-table td.unlock { color: #0a0b24; font-weight: 600; }
+.m1-table td.unlock .body { color: #646471; font-weight: 400; font-style: normal; font-size: 0.82rem; margin-top: 0.15rem; }
+
+/* === M2: bridge === */
+.m2-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;
+  flex: 1; align-items: stretch; padding-top: 0.5rem; }
+.m2-rung { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.m2-rung .rung { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.m2-arch { position: relative; width: 100%; height: 110px;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
+.m2-arch svg { width: 100%; height: 100%; }
+.m2-add { color: #0a0b24; font-weight: 700; font-size: 0.93rem; line-height: 1.2; margin-bottom: 0.3rem; }
+.m2-gap { color: #a2a2b0; font-style: italic; font-size: 0.76rem; line-height: 1.4; }
+
+/* === M3: before/after pairs === */
+.m3-stack { display: flex; flex-direction: column; gap: 0.55rem; flex: 1; padding-top: 0.25rem; }
+.m3-row { display: grid; grid-template-columns: 90px 1fr 30px 1fr;
+  gap: 0.7rem; align-items: stretch; }
+.m3-rung-cell { display: flex; flex-direction: column; justify-content: center;
+  padding: 0.5rem 0.7rem; background: #fafafa; border-radius: 8px; border-left: 3px solid; }
+.m3-rung-cell.l0 { border-left-color: #a2a2b0; }
+.m3-rung-cell.l1 { border-left-color: #0064ff; }
+.m3-rung-cell.l2 { border-left-color: #0064ff; }
+.m3-rung-cell.l3 { border-left-color: #bd2eff; }
+.m3-rung-cell.l4 { border-left-color: #ff7828; }
+.m3-rung-cell .r { font-weight: 800; font-size: 0.95rem; color: #0a0b24; }
+.m3-rung-cell .n { font-size: 0.7rem; font-weight: 600; color: #646471;
+  letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.1rem; }
+.m3-missing, .m3-added { padding: 0.55rem 0.85rem; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; }
+.m3-missing { background: #f5f5fa; border: 1px dashed #d0d0da; }
+.m3-missing .lbl { color: #a2a2b0; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.15rem; }
+.m3-missing .txt { color: #a2a2b0; font-size: 0.8rem; font-style: italic; line-height: 1.35; }
+.m3-added { background: #f0f7ff; border: 1px solid #cce0ff; }
+.m3-added .lbl { color: #0064ff; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.15rem; }
+.m3-added .txt { color: #0a0b24; font-size: 0.8rem; font-weight: 600; line-height: 1.35; }
+.m3-added .body { color: #646471; font-weight: 400; font-size: 0.76rem; margin-top: 0.15rem; }
+.m3-arrow { display: flex; align-items: center; justify-content: center; color: #0064ff; font-size: 1.3rem; font-weight: 700; }
+
+/* === M4: stacked layers === */
+.m4-wrap { display: grid; grid-template-columns: 1fr 1fr; flex: 1; gap: 1.5rem; align-items: stretch; }
+.m4-stack { display: flex; flex-direction: column-reverse; gap: 4px; padding-top: 0.5rem; }
+.m4-layer { padding: 0.7rem 1rem; border-radius: 8px; color: #0a0b24;
+  font-weight: 600; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: space-between; }
+.m4-layer .l { font-weight: 800; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.9; }
+.m4-layer .add { font-weight: 600; }
+.m4-layer.l0 { background: #ebebeb; color: #646471; }
+.m4-layer.l1 { background: #cce0ff; }
+.m4-layer.l2 { background: #99c2ff; }
+.m4-layer.l3 { background: #e3c2ff; }
+.m4-layer.l4 { background: #ffd1b4; }
+.m4-label { display: flex; flex-direction: column; gap: 0.55rem; padding-top: 0.5rem; }
+.m4-row { padding: 0.6rem 0.85rem; border-radius: 8px; background: #fafafa;
+  border-left: 4px solid; }
+.m4-row.l0 { border-left-color: #a2a2b0; }
+.m4-row.l1 { border-left-color: #0064ff; }
+.m4-row.l2 { border-left-color: #0064ff; }
+.m4-row.l3 { border-left-color: #bd2eff; }
+.m4-row.l4 { border-left-color: #ff7828; }
+.m4-row .h { color: #0a0b24; font-weight: 700; font-size: 0.86rem; margin-bottom: 0.1rem; }
+.m4-row .b { color: #646471; font-size: 0.76rem; line-height: 1.4; }
+.m4-section-h { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem; padding-bottom: 0.3rem; border-bottom: 1px solid #eeeef3; }
+
+@media print {
+  body { background: #fff; padding: 0; }
+  .deck-header { display: none; }
+  .slide { box-shadow: none; margin: 0; max-width: none; border-radius: 0; page-break-after: always; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <h1>The AI-Assisted Engineering Ladder — A/B Mix</h1>
+  <p>Framing: <strong>what each rung adds, and what gap it closes</strong>. Four design treatments of the same slide.</p>
+</div>
+
+<!-- ============== M1: Comparison table ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 1 · Comparison table</span>
+  <h2>What each rung adds — and the gap it closes.</h2>
+  <p class="subtitle">Climbing isn't about a smarter model. It's about closing a specific gap between raw AI and a productive teammate.</p>
+  <table class="m1-table">
+    <thead>
+      <tr>
+        <th>Rung</th>
+        <th>What's still missing</th>
+        <th>What this rung adds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="l0">
+        <td class="rung">L0<span class="name">Chatbot</span></td>
+        <td class="gap">Your world. Generic knowledge, no tools, no context.</td>
+        <td class="unlock">Conversation. <div class="body">Answers questions in a vacuum — copy-paste is the integration.</div></td>
+      </tr>
+      <tr class="l1">
+        <td class="rung">L1<span class="name">Agentic AI</span></td>
+        <td class="gap">Knowledge of how <em>you</em> work.</td>
+        <td class="unlock">Hands. <div class="body">Reads your files, runs commands, opens PRs. Acts inside your environment.</div></td>
+      </tr>
+      <tr class="l2">
+        <td class="rung">L2<span class="name">+ Skills</span></td>
+        <td class="gap">Knowledge of what <em>you</em> know.</td>
+        <td class="unlock">Muscle memory. <div class="body">Reusable team procedures — the agent acts like someone who's done this before.</div></td>
+      </tr>
+      <tr class="l3">
+        <td class="rung">L3<span class="name">+ Knowledge Base</span></td>
+        <td class="gap">A defined role in the org.</td>
+        <td class="unlock">Institutional memory. <div class="body">Domain facts, past decisions, customer context — like a veteran teammate.</div></td>
+      </tr>
+      <tr class="l4">
+        <td class="rung">L4<span class="name">AI Harness</span></td>
+        <td class="gap">—</td>
+        <td class="unlock">The workplace itself. <div class="body">Governance, scheduling, sub-agents, audit. AI as infrastructure, not a tool.</div></td>
+      </tr>
+    </tbody>
+  </table>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== M2: Bridge ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 2 · Bridges over the gap</span>
+  <h2>Five bridges over the model-to-teammate gap.</h2>
+  <p class="subtitle">Each rung builds a new bridge across a specific shortfall. The model stays the same — the crossings get easier.</p>
+  <div class="m2-grid">
+    <div class="m2-rung">
+      <div class="rung">L0 · Chatbot</div>
+      <div class="m2-arch">
+        <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <line x1="10" y1="90" x2="80" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <line x1="120" y1="90" x2="190" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <path d="M80 90 L100 100 L120 90" stroke="#a2a2b0" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+      <div class="m2-add">Conversation only.</div>
+      <div class="m2-gap">No crossing. You bring the file over yourself.</div>
+    </div>
+    <div class="m2-rung">
+      <div class="rung">L1 · Agentic AI</div>
+      <div class="m2-arch">
+        <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <line x1="10" y1="90" x2="80" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <line x1="120" y1="90" x2="190" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <path d="M80 90 Q100 50 120 90" stroke="#0064ff" stroke-width="3" fill="none"/>
+          <line x1="100" y1="64" x2="100" y2="90" stroke="#0064ff" stroke-width="1" stroke-dasharray="2 3" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="m2-add">Hands.</div>
+      <div class="m2-gap">Still doesn't know how <em>you</em> work.</div>
+    </div>
+    <div class="m2-rung">
+      <div class="rung">L2 · + Skills</div>
+      <div class="m2-arch">
+        <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <line x1="10" y1="90" x2="80" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <line x1="120" y1="90" x2="190" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <path d="M80 90 Q100 35 120 90" stroke="#0064ff" stroke-width="3" fill="none"/>
+          <line x1="92" y1="50" x2="92" y2="90" stroke="#0064ff" stroke-width="1.5" opacity="0.4"/>
+          <line x1="108" y1="50" x2="108" y2="90" stroke="#0064ff" stroke-width="1.5" opacity="0.4"/>
+          <line x1="100" y1="42" x2="100" y2="90" stroke="#0064ff" stroke-width="1.5" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="m2-add">Muscle memory.</div>
+      <div class="m2-gap">Still doesn't know what <em>you</em> know.</div>
+    </div>
+    <div class="m2-rung">
+      <div class="rung">L3 · + KB</div>
+      <div class="m2-arch">
+        <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <line x1="10" y1="90" x2="80" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <line x1="120" y1="90" x2="190" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <path d="M80 90 Q100 28 120 90" stroke="#bd2eff" stroke-width="3.5" fill="none"/>
+          <path d="M80 90 L120 90" stroke="#bd2eff" stroke-width="6" opacity="0.2"/>
+          <line x1="88" y1="55" x2="88" y2="90" stroke="#bd2eff" stroke-width="1.5" opacity="0.4"/>
+          <line x1="112" y1="55" x2="112" y2="90" stroke="#bd2eff" stroke-width="1.5" opacity="0.4"/>
+          <line x1="100" y1="34" x2="100" y2="90" stroke="#bd2eff" stroke-width="1.5" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="m2-add">Institutional memory.</div>
+      <div class="m2-gap">Still has no defined role in the org.</div>
+    </div>
+    <div class="m2-rung">
+      <div class="rung">L4 · Harness</div>
+      <div class="m2-arch">
+        <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <line x1="10" y1="90" x2="80" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <line x1="120" y1="90" x2="190" y2="90" stroke="#646471" stroke-width="2.5"/>
+          <rect x="78" y="60" width="44" height="30" fill="#ff7828" rx="2"/>
+          <path d="M80 90 Q100 20 120 90" stroke="#ff7828" stroke-width="3.5" fill="none"/>
+          <line x1="90" y1="60" x2="90" y2="90" stroke="#ff7828" stroke-width="2"/>
+          <line x1="100" y1="60" x2="100" y2="90" stroke="#ff7828" stroke-width="2"/>
+          <line x1="110" y1="60" x2="110" y2="90" stroke="#ff7828" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="m2-add">The workplace itself.</div>
+      <div class="m2-gap">The crossing is now infrastructure.</div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== M3: Before/after pairs ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 3 · Missing → unlocked</span>
+  <h2>Each rung turns a missing piece into a capability.</h2>
+  <p class="subtitle">Left: what's still missing at this level. Right: the new capability the rung unlocks.</p>
+  <div class="m3-stack">
+    <div class="m3-row">
+      <div class="m3-rung-cell l0"><div class="r">L0</div><div class="n">Chatbot</div></div>
+      <div class="m3-missing"><div class="lbl">Missing</div><div class="txt">Your world. No tools, no context.</div></div>
+      <div class="m3-arrow">→</div>
+      <div class="m3-added"><div class="lbl">Unlocks</div><div class="txt">Conversation.<div class="body">Answers in a vacuum; copy-paste is the integration.</div></div></div>
+    </div>
+    <div class="m3-row">
+      <div class="m3-rung-cell l1"><div class="r">L1</div><div class="n">Agentic AI</div></div>
+      <div class="m3-missing"><div class="lbl">Missing</div><div class="txt">Knowledge of how <em>you</em> work.</div></div>
+      <div class="m3-arrow">→</div>
+      <div class="m3-added"><div class="lbl">Unlocks</div><div class="txt">Hands.<div class="body">Reads, runs, commits, deploys — acts inside your environment.</div></div></div>
+    </div>
+    <div class="m3-row">
+      <div class="m3-rung-cell l2"><div class="r">L2</div><div class="n">+ Skills</div></div>
+      <div class="m3-missing"><div class="lbl">Missing</div><div class="txt">Knowledge of what <em>you</em> know.</div></div>
+      <div class="m3-arrow">→</div>
+      <div class="m3-added"><div class="lbl">Unlocks</div><div class="txt">Muscle memory.<div class="body">Reusable team procedures — acts like someone who's done it before.</div></div></div>
+    </div>
+    <div class="m3-row">
+      <div class="m3-rung-cell l3"><div class="r">L3</div><div class="n">+ Knowledge Base</div></div>
+      <div class="m3-missing"><div class="lbl">Missing</div><div class="txt">A defined role in the org.</div></div>
+      <div class="m3-arrow">→</div>
+      <div class="m3-added"><div class="lbl">Unlocks</div><div class="txt">Institutional memory.<div class="body">Domain facts, decisions, customer context — like a veteran teammate.</div></div></div>
+    </div>
+    <div class="m3-row">
+      <div class="m3-rung-cell l4"><div class="r">L4</div><div class="n">AI Harness</div></div>
+      <div class="m3-missing"><div class="lbl">Missing</div><div class="txt">—</div></div>
+      <div class="m3-arrow">→</div>
+      <div class="m3-added"><div class="lbl">Unlocks</div><div class="txt">The workplace itself.<div class="body">Governance, scheduling, sub-agents, audit. AI as infrastructure.</div></div></div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== M4: Stacked layers ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 4 · Layers, not levels</span>
+  <h2>Every rung is a new layer on top of the model.</h2>
+  <p class="subtitle">The model never changes. What you stack around it does — and each layer unlocks new value.</p>
+  <div class="m4-wrap">
+    <div>
+      <div class="m4-section-h">System capability — stacked layers</div>
+      <div class="m4-stack">
+        <div class="m4-layer l0"><span class="l">L0 · Base model</span><span class="add">Conversation</span></div>
+        <div class="m4-layer l1"><span class="l">L1 · + Tools &amp; loop</span><span class="add">+ Hands</span></div>
+        <div class="m4-layer l2"><span class="l">L2 · + Skills</span><span class="add">+ Muscle memory</span></div>
+        <div class="m4-layer l3"><span class="l">L3 · + Knowledge base</span><span class="add">+ Institutional memory</span></div>
+        <div class="m4-layer l4"><span class="l">L4 · + Harness</span><span class="add">+ Operating model</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="m4-section-h">What each layer adds — and the gap it closes</div>
+      <div class="m4-label">
+        <div class="m4-row l0"><div class="h">L0 — Base model.</div><div class="b">Gap: your world. Generic knowledge, no tools, no context.</div></div>
+        <div class="m4-row l1"><div class="h">L1 — Hands.</div><div class="b">Gap closed: action. Still doesn't know how <em>you</em> work.</div></div>
+        <div class="m4-row l2"><div class="h">L2 — Muscle memory.</div><div class="b">Gap closed: how. Still doesn't know what <em>you</em> know.</div></div>
+        <div class="m4-row l3"><div class="h">L3 — Institutional memory.</div><div class="b">Gap closed: what. Still has no role in the org.</div></div>
+        <div class="m4-row l4"><div class="h">L4 — Operating model.</div><div class="b">Gap closed: workplace. AI is now infrastructure, not a tool.</div></div>
+      </div>
+    </div>
+  </div>
+  <span class="footnote">Same model from L0 to L4. The product is everything you stack around it.</span>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+</body>
+</html>

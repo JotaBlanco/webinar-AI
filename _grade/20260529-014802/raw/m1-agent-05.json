@@ -1,0 +1,70 @@
+{
+  "agent_id": "m1-agent-05",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/agent-05/final-model/REPORT.md",
+  "items": [
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "Report only shows aggregate per-platform RMSE; no per-regime (straight/cornering/transient) breakdown table or chart."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "Only V0 vs V1 reported with same KPI definitions, but no explicit segment-set / regime-mask declaration is given; not addressed."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": false,
+      "value": null,
+      "threshold_met": false,
+      "evidence": [],
+      "reasoning": "Only a single variant V1 is shipped; no marginal-improvement column across multiple variants is provided to reconcile against a total drop."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "No explicit 'no regressions observed' statement and no variant ladder with regression rows; not addressed."
+    }
+  ],
+  "headline": {
+    "primary_metric": "Yaw-rate RMSE (rad/s)",
+    "platform": "FORD_F_150_LIGHTNING_MK1",
+    "baseline_value": "0.01269",
+    "final_value": "0.00694",
+    "improvement": "-45.3%",
+    "top_contributor": "V1 shipped: `psi_dot = gain * v * (delta - delta_offset) / (L + Kus * v^2)`",
+    "baseline_numeric": 0.01269,
+    "final_numeric": 0.00694,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 45.3,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Reported on canonical Ford platform using measured yaw_rate_meas_rads as truth channel on held-out validation split."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 linear-bicycle / understeer-gradient",
+      "contribution_pct": 100.0,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

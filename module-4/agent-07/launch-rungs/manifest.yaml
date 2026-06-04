@@ -1,0 +1,179 @@
+# launch-rungs — parallel divergent subagent manifest (m4.v1.01 + physics catalog)
+#
+# Each entry below fans out as an isolated Claude Code session (or other harness)
+# at the start of the run, constrained to a different STRUCTURAL PHYSICS MODEL
+# (not just a different rung tag). Five of the six slots are bound to a
+# concrete catalog model under `physics-catalog/<name>/`; the sixth runs the
+# orthogonal residual-learner head that lives outside the physics catalog.
+#
+# Why bind each slot to a catalog model: the m4.v1 cohort showed that ~80% of
+# agents converged on V1-with-different-coefficients even when the manifest
+# *asked* for rung-1 in prose. The bottleneck was that no rung-1+ code was on
+# disk. m4.v1.01 ships five working catalog models — each subagent now starts
+# by `cp -r physics-catalog/<model> models/<name>` and iterates from there,
+# instead of scaffolding from `_shared/rung1_starter.py`.
+#
+# m4.v1.01 changes from m4.v1:
+#   - Orchestrator budget: 45 → 90 min.
+#   - Subagent budgets: 25–30 → 45–60 min.
+#   - Subagent count: 4 → 6, with each pointing at a specific catalog starter.
+#   - Catalog binding makes structural diversity mechanical, not aspirational —
+#     a subagent cannot "refine away" from its catalog start because the
+#     subagent's prompt names the catalog model by directory.
+
+orchestrator:
+  model: claude-opus-4-7
+  budget_minutes: 90
+  # The orchestrator reads RESEARCH.md + PLAN.md, picks the winner via dev-CV
+  # pooled score, and decides whether to run a 2nd round on the leader's
+  # neighbourhood.
+
+subagents:
+  - name: rung-0-orth-residual-learner
+    rung: orthogonal
+    starting_model: v1
+    catalog_starter: null  # NOT in physics-catalog — this is the residual head
+    prompt_hint: |
+      Orthogonal residual learner — ridge or GB head on V1's residual.
+      Cohort §4 evidence: +1-5% CTE reliably across model shapes.
+
+      Steps:
+      1. Run skills/residual-structure on V1 to verify the residual is at noise
+         floor on physics levers and high-rank-but-smooth in input space.
+      2. Fit a 7-feature ridge head on (delta, abs_delta, v, delta·v, delta²,
+         delta·abs_delta, sign(delta)·v) against V1's yaw residual. Use
+         skills/score-model/cv.py:score_cv for route-grouped k-fold CV.
+      3. If ridge dev-CV R² > 0.2 on the residual, also try a small GB head
+         (depth 3-4, lr 0.03, early stopping on dev fold).
+      4. If you add any per-platform offset to the ridge intercept, the
+         bias_without_route_cv gate applies — write route_cv_sigma into
+         coeffs.json for that platform.
+
+      Budget: ~45 min.
+    budget_minutes: 45
+
+  - name: rung-1-linear-dynamic-st
+    rung: 1
+    starting_model: v1
+    catalog_starter: physics-catalog/dst_lin
+    prompt_hint: |
+      Use the physics-catalog dst_lin model (linear-tyre dynamic single-track).
+
+      Steps:
+      1. cp -r physics-catalog/dst_lin models/rung-1-linear-dynamic-st
+      2. python -m physics-catalog.dst_lin.fit
+         (writes coeffs.json + route_cv_sigma; takes a couple minutes)
+      3. cp physics-catalog/dst_lin/coeffs.json models/rung-1-linear-dynamic-st/coeffs.json
+      4. python -m skills.iterate.iterate models/rung-1-linear-dynamic-st
+
+      Cohort §1 + §7: every prior rung-1 attempt failed because nobody fit
+      C_αf/C_αr/Iz — dst_lin's fit.py does exactly that under route-grouped
+      CV. If the fitter flags `stuck_on_bound`, inspect identifiability —
+      data may lack the excitation to separate front/rear cornering stiffness.
+
+      Budget: ~50 min.
+    budget_minutes: 50
+
+  - name: rung-2-nonlinear-tyre
+    rung: 2
+    starting_model: v1
+    catalog_starter: physics-catalog/dst_nl
+    prompt_hint: |
+      Use the physics-catalog dst_nl model (Pacejka-lite saturating tyre on
+      dst_lin's state-space).
+
+      Steps:
+      1. cp -r physics-catalog/dst_nl models/rung-2-nonlinear-tyre
+      2. python -m physics-catalog.dst_nl.fit
+      3. cp physics-catalog/dst_nl/coeffs.json models/rung-2-nonlinear-tyre/coeffs.json
+      4. python -m skills.iterate.iterate models/rung-2-nonlinear-tyre
+
+      Cohort §8 motivation: V1's lag-τ is mis-modelling a non-linear structure.
+      dst_nl tests whether that structure is tyre saturation specifically
+      (vs the relaxation interpretation in dst_relax — a different subagent).
+
+      If the fitter pegs μ to 1.3 or C_pacejka to 1.8 (upper bound), the data
+      doesn't contain saturation regimes; shelve and report.
+
+      Budget: ~50 min.
+    budget_minutes: 50
+
+  - name: rung-1-regime-switched
+    rung: 1
+    starting_model: v1
+    catalog_starter: physics-catalog/dst_regime
+    prompt_hint: |
+      Use the physics-catalog dst_regime model (smooth-blend kinematic ↔
+      dst_lin gated on |v · ψ̇_v0|).
+
+      Steps:
+      1. cp -r physics-catalog/dst_regime models/rung-1-regime-switched
+      2. python -m physics-catalog.dst_regime.fit
+      3. cp physics-catalog/dst_regime/coeffs.json models/rung-1-regime-switched/coeffs.json
+      4. python -m skills.iterate.iterate models/rung-1-regime-switched
+
+      This subagent's job is specifically to test whether the cohort §1 worry
+      ("rung-1 hurts at low speed") is real. If theta_v_psi pegs to its lower
+      bound, dst_lin is preferred unconditionally and dst_regime adds nothing;
+      report that.
+
+      Budget: ~45 min.
+    budget_minutes: 45
+
+  - name: rung-2-tyre-relaxation
+    rung: 2
+    starting_model: v1
+    catalog_starter: physics-catalog/dst_relax
+    prompt_hint: |
+      Use the physics-catalog dst_relax model (dst_lin + per-axle tyre
+      relaxation length σ).
+
+      Steps:
+      1. cp -r physics-catalog/dst_relax models/rung-2-tyre-relaxation
+      2. python -m physics-catalog.dst_relax.fit
+      3. cp physics-catalog/dst_relax/coeffs.json models/rung-2-tyre-relaxation/coeffs.json
+      4. python -m skills.iterate.iterate models/rung-2-tyre-relaxation
+
+      This is the other §8 interpretation: V1's lag-τ is the v-dependent
+      relaxation that the carcass dynamics naturally produce. dst_nl tests
+      saturation; dst_relax tests carcass timing. If both lift over dst_lin
+      on disjoint segment sets, they may compose in a later iteration.
+
+      Budget: ~50 min.
+    budget_minutes: 50
+
+  - name: rung-3-lightning-load-transfer
+    rung: 3
+    starting_model: v1
+    catalog_starter: physics-catalog/dst_load
+    prompt_hint: |
+      Use the physics-catalog dst_load model (dst_lin + a_long-induced axle
+      load transfer modulating per-axle cornering stiffness).
+
+      Steps:
+      1. cp -r physics-catalog/dst_load models/rung-3-lightning-load-transfer
+      2. python -m physics-catalog.dst_load.fit
+      3. cp physics-catalog/dst_load/coeffs.json models/rung-3-lightning-load-transfer/coeffs.json
+      4. python -m skills.iterate.iterate models/rung-3-lightning-load-transfer
+
+      Cohort §2 + §9: Lightning ran +21% yaw vs +55% on the other two
+      platforms. h_cg=0.85 m (vs 0.55 on sedans) means load transfer per unit
+      a_long is much larger; brake-into-corner and accel-out-of-corner
+      segments should show the biggest dst_load lift on Lightning.
+
+      Per-platform: if h_cg pegs to the upper bound (1.2 m), the data either
+      has very strong load-transfer signature OR the fit is compensating for
+      something dst_load can't actually model. Inspect on Lightning first.
+
+      Budget: ~60 min.
+    budget_minutes: 60
+
+# Convergence: after all subagents return their final models/<name>/predict.py,
+# the orchestrator runs `iterate` on each, reads MODELS.md + TREE.json, and
+# either ships the leader or seeds a 2nd round of subagents focused on the
+# leading branch.
+#
+# The 6-way fan-out guarantees that MODELS.md ends up with 6 STRUCTURALLY
+# DIFFERENT candidates (1 orthogonal residual learner + 5 distinct physics
+# models from the catalog). This satisfies the m4.v1.01 `models_md_has_min_candidates`
+# gate (≥6 with ≥2 structurally-different) mechanically — no honor system.

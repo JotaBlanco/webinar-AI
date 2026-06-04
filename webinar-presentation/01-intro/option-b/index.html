@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro · Option B — Telemetry / Pit-wall · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Intro · Option B — Telemetry / Pit-wall
+     Built on the Cosmic master (see /templates/01-cosmic.html)
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --ink-dim:  rgba(255,255,255,0.25);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --red: #ff3d5a;
+    --amber: #ffb627;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+    --grid: rgba(255,255,255,0.04);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* dimmed cosmic nebula — telemetry has to dominate */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.18), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.13), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.10), transparent 65%);
+    filter: blur(50px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.10), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.12), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* grid + scanlines — pit-wall feel */
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 40%, transparent 100%);
+  }
+  .scanlines {
+    position: fixed; inset: 0; z-index: 6; pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.018) 0px,
+      rgba(255,255,255,0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+  }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 6vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 6vw; right: 6vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar .meta .live {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    color: var(--green);
+  }
+  .topbar .meta .live::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 0.5; transform: scale(0.9); }
+    50%     { opacity: 1;   transform: scale(1.15); }
+  }
+
+  /* footer */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 6vw; right: 6vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono);
+    font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* eyebrow */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+
+  /* ============== SLIDE 1 — coding is not engineering ============== */
+
+  .s1 {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 2vh;
+  }
+  .s1-head { display: flex; flex-direction: column; gap: 0.9rem; }
+  .s1-head h1 {
+    color: var(--ink);
+    font-size: clamp(2.4rem, 4.6vw, 4.4rem);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.03em;
+    max-width: 22ch;
+  }
+  .s1-head h1 .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 60%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .s1-head .sub {
+    font-family: var(--mono); font-size: 0.85rem;
+    color: var(--ink-mute); letter-spacing: 0.06em;
+    max-width: 60ch;
+  }
+
+  /* canvas / stage */
+  .s1-stage {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 0;
+  }
+
+  .schematic {
+    position: relative;
+    width: min(1100px, 92%);
+    height: min(520px, 60vh);
+  }
+  .schematic svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  /* central code window */
+  .code-window {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(340px, 38%, 460px);
+    background: rgba(10,11,22,0.85);
+    border: 1px solid rgba(61,137,255,0.35);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 0 40px rgba(61,137,255,0.15),
+      0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 3;
+  }
+  .code-window::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue-l), transparent);
+  }
+  .code-window .cw-head {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--mono);
+    font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .code-window .cw-head .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.18);
+  }
+  .code-window .cw-head .dot.r { background: rgba(255,61,90,0.55); }
+  .code-window .cw-head .dot.y { background: rgba(255,182,39,0.55); }
+  .code-window .cw-head .dot.g { background: rgba(0,221,129,0.55); }
+  .code-window .cw-head .title { margin-left: 0.5rem; color: var(--ink-mute); }
+
+  .code-window pre {
+    padding: 1rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--ink);
+    white-space: pre;
+  }
+  .code-window .typed { color: var(--ink); }
+  .code-window .kw  { color: var(--purple-l); }
+  .code-window .fn  { color: var(--blue-l); }
+  .code-window .str { color: var(--green); }
+  .code-window .num { color: var(--orange-l); }
+  .code-window .cmt { color: var(--ink-mute); font-style: italic; }
+  .code-window .caret {
+    display: inline-block; width: 0.55ch; height: 1.05em;
+    background: var(--blue-l);
+    vertical-align: text-bottom;
+    margin-left: 1px;
+    animation: blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .code-label {
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    bottom: calc(50% + clamp(170px, 22vh, 230px));
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--orange);
+    opacity: 0; transition: opacity 0.6s ease;
+    white-space: nowrap;
+  }
+  .code-label.show { opacity: 1; }
+
+  /* schematic nodes around the code */
+  .node {
+    position: absolute;
+    padding: 0.55rem 0.85rem;
+    background: rgba(10,11,22,0.82);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    font-family: var(--mono);
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink);
+    white-space: nowrap;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(.2,.7,.2,1);
+    z-index: 4;
+  }
+  .node .tag {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.6rem; color: var(--ink-mute);
+    letter-spacing: 0.16em;
+  }
+  .node.show { opacity: 1; transform: scale(1); }
+
+  .node.n1 { top: 6%;  left: 6%;  border-color: rgba(61,137,255,0.45); box-shadow: 0 0 24px rgba(61,137,255,0.18); }
+  .node.n2 { top: 6%;  right: 6%; border-color: rgba(189,46,255,0.45); box-shadow: 0 0 24px rgba(189,46,255,0.18); }
+  .node.n3 { bottom: 6%; left: 4%; border-color: rgba(255,120,40,0.45); box-shadow: 0 0 24px rgba(255,120,40,0.18); }
+  .node.n4 { bottom: 6%; right: 4%; border-color: rgba(0,221,129,0.45); box-shadow: 0 0 24px rgba(0,221,129,0.18); }
+  .node.n5 { top: 50%; left: 2%; transform: translateY(-50%) scale(0.85); border-color: rgba(255,182,39,0.45); box-shadow: 0 0 24px rgba(255,182,39,0.16); }
+  .node.n5.show { transform: translateY(-50%) scale(1); }
+  .node.n6 { top: 50%; right: 2%; transform: translateY(-50%) scale(0.85); border-color: rgba(255,61,90,0.45); box-shadow: 0 0 24px rgba(255,61,90,0.16); }
+  .node.n6.show { transform: translateY(-50%) scale(1); }
+
+  .node .swatch {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 0.55rem; vertical-align: middle;
+    background: var(--blue-l);
+  }
+  .node.n2 .swatch { background: var(--purple-l); }
+  .node.n3 .swatch { background: var(--orange-l); }
+  .node.n4 .swatch { background: var(--green); }
+  .node.n5 .swatch { background: var(--amber); }
+  .node.n6 .swatch { background: var(--red); }
+
+  /* connector lines — drawn via stroke-dasharray animation */
+  .schematic svg .line {
+    fill: none;
+    stroke: rgba(255,255,255,0.22);
+    stroke-width: 1;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    transition: stroke-dashoffset 0.9s cubic-bezier(.4,0,.2,1);
+  }
+  .schematic.draw svg .line { stroke-dashoffset: 0; }
+  .schematic svg .line.b { stroke: rgba(61,137,255,0.45); }
+  .schematic svg .line.p { stroke: rgba(189,46,255,0.45); }
+  .schematic svg .line.o { stroke: rgba(255,120,40,0.45); }
+  .schematic svg .line.g { stroke: rgba(0,221,129,0.45); }
+  .schematic svg .line.y { stroke: rgba(255,182,39,0.45); }
+  .schematic svg .line.r { stroke: rgba(255,61,90,0.45); }
+
+  /* engineering bracket caption */
+  .bracket-cap {
+    position: absolute;
+    bottom: -1.6rem; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--ink-mute);
+    opacity: 0; transition: opacity 0.6s ease;
+  }
+  .bracket-cap.show { opacity: 1; }
+  .bracket-cap b { color: var(--ink); font-weight: 600; }
+
+  .s1-foot {
+    display: flex; justify-content: space-between; align-items: end;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .s1-foot .stack { display: flex; flex-direction: column; gap: 0.3rem; }
+  .s1-foot .stack b { color: var(--ink); letter-spacing: 0.18em; }
+
+  /* ============== SLIDE 2 — patterns are emerging ============== */
+
+  .s2 {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 2.2vh;
+  }
+  .s2-head h1 {
+    color: var(--ink);
+    font-size: clamp(2.4rem, 4.6vw, 4.4rem);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.03em;
+    max-width: 24ch;
+  }
+  .s2-head h1 .grad {
+    background: linear-gradient(120deg, var(--green) 0%, var(--blue-l) 50%, var(--purple) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .s2-head .sub {
+    margin-top: 0.7rem;
+    font-family: var(--mono); font-size: 0.82rem;
+    color: var(--ink-mute); letter-spacing: 0.06em;
+    max-width: 70ch;
+  }
+
+  .pitwall {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 1.4vw;
+    min-height: 0;
+  }
+
+  .feed {
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .feed::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue-l), transparent);
+  }
+  .feed.f2::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+  .feed.f3::before { background: linear-gradient(90deg, transparent, var(--orange), transparent); }
+
+  .feed-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .feed-head .name { color: var(--ink); letter-spacing: 0.22em; }
+  .feed-head .name .swatch {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--blue-l); margin-right: 0.5rem; vertical-align: middle;
+    box-shadow: 0 0 8px var(--blue-l);
+  }
+  .feed.f2 .feed-head .name .swatch { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+  .feed.f3 .feed-head .name .swatch { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+  .feed-head .stat { color: var(--green); display: inline-flex; align-items: center; gap: 0.4rem; }
+  .feed-head .stat::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .feed-body {
+    flex: 1; min-height: 0;
+    padding: 0.6rem 0.85rem;
+    font-family: var(--mono); font-size: 0.78rem;
+    line-height: 1.55;
+    overflow: hidden;
+    position: relative;
+  }
+  .feed-body .row {
+    display: grid; grid-template-columns: 4.5rem 1fr;
+    gap: 0.75rem;
+    padding: 0.28rem 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+    color: var(--ink-soft);
+    animation: rowin 0.45s cubic-bezier(.2,.7,.2,1);
+  }
+  .feed-body .row:last-child { border-bottom: none; }
+  .feed-body .row .t {
+    color: var(--ink-mute); font-size: 0.72rem; letter-spacing: 0.06em;
+  }
+  .feed-body .row .v {
+    color: var(--ink); font-size: 0.78rem;
+  }
+  .feed-body .row .v .tag {
+    display: inline-block;
+    padding: 1px 6px; margin-right: 0.4rem;
+    background: rgba(61,137,255,0.12);
+    border: 1px solid rgba(61,137,255,0.35);
+    border-radius: 3px;
+    font-size: 0.62rem; letter-spacing: 0.14em;
+    color: var(--blue-l);
+  }
+  .feed.f2 .feed-body .row .v .tag {
+    background: rgba(189,46,255,0.12);
+    border-color: rgba(189,46,255,0.35);
+    color: var(--purple-l);
+  }
+  .feed.f3 .feed-body .row .v .tag {
+    background: rgba(255,120,40,0.12);
+    border-color: rgba(255,120,40,0.35);
+    color: var(--orange-l);
+  }
+  @keyframes rowin {
+    from { opacity: 0; transform: translateX(8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* center — patterns panel */
+  .patterns {
+    background: rgba(10,11,22,0.85);
+    border: 1px solid rgba(0,221,129,0.3);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0,221,129,0.08);
+  }
+  .patterns::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+  .patterns-head {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(0,221,129,0.04);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .patterns-head .label {
+    font-family: var(--mono);
+    font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--green);
+  }
+  .patterns-head .lap {
+    font-family: var(--mono); font-size: 0.65rem;
+    color: var(--ink-mute); letter-spacing: 0.18em;
+  }
+  .patterns-head .lap b { color: var(--ink); }
+
+  .patterns-counter {
+    text-align: center;
+    padding: 1.4rem 1rem 0.8rem;
+  }
+  .patterns-counter .num {
+    font-family: var(--mono);
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, var(--ink) 30%, rgba(255,255,255,0.25) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0,221,129,0.2);
+  }
+  .patterns-counter .lbl {
+    margin-top: 0.4rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  .patterns-list {
+    flex: 1; min-height: 0;
+    padding: 0.6rem 1rem 0.9rem;
+    overflow: hidden;
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .pattern-row {
+    display: grid; grid-template-columns: 1.2rem 1fr auto;
+    align-items: center; gap: 0.7rem;
+    padding: 0.45rem 0.6rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    font-family: var(--mono); font-size: 0.78rem;
+    color: var(--ink-soft);
+    transition: border-color 0.6s ease, background 0.6s ease, color 0.6s ease;
+  }
+  .pattern-row .mark {
+    width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    color: var(--ink-mute);
+    transition: all 0.5s ease;
+  }
+  .pattern-row .conf {
+    font-size: 0.66rem; letter-spacing: 0.14em;
+    color: var(--ink-mute);
+  }
+  .pattern-row.confirmed {
+    border-color: rgba(0,221,129,0.4);
+    background: rgba(0,221,129,0.04);
+    color: var(--ink);
+  }
+  .pattern-row.confirmed .mark {
+    background: var(--green);
+    border-color: var(--green);
+    color: #002a18;
+  }
+  .pattern-row.confirmed .conf { color: var(--green); }
+
+  /* sector strip */
+  .sectors {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+    padding: 0 1rem 0.9rem;
+  }
+  .sectors .sector {
+    height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    position: relative;
+  }
+  .sectors .sector::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    transform: translateX(-100%);
+    animation: sweep 2.4s linear infinite;
+  }
+  .sectors .sector:nth-child(2)::after { animation-delay: 0.8s; }
+  .sectors .sector:nth-child(3)::after { animation-delay: 1.6s; }
+  @keyframes sweep {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* s2 footer strip — ticker */
+  .s2-footer-strip {
+    position: fixed; left: 0; right: 0;
+    bottom: 4.6vh;
+    height: 26px;
+    background: rgba(10,11,22,0.7);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+    z-index: 4;
+    display: none;
+    backdrop-filter: blur(6px);
+  }
+  .slide[data-i="2"].active ~ .s2-footer-strip { display: block; }
+  .ticker-track {
+    white-space: nowrap;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-mute);
+    line-height: 26px;
+    will-change: transform;
+    animation: scroll-left 60s linear infinite;
+  }
+  .ticker-track b { color: var(--ink); letter-spacing: 0.16em; }
+  .ticker-track .sep {
+    display: inline-block; width: 10px; height: 1px;
+    background: var(--ink-dim); margin: 0 1.2rem; vertical-align: middle;
+  }
+  .ticker-track .up { color: var(--green); }
+  .ticker-track .dn { color: var(--red); }
+  @keyframes scroll-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.6vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.68rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink2 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink2 { 0%,100% { opacity: 0.25; } 50% { opacity: 0.7; } }
+
+  /* basic reveal */
+  .slide.active .reveal      { animation: rise 0.8s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.8s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.8s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.8s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+<div class="scanlines"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta" id="meta-label">
+    INTRO · <span id="intro-idx">01</span>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <span class="live">PIT-WALL LIVE</span>
+  </span>
+</div>
+
+<div class="deck">
+
+  <!-- ========== SLIDE 1 — Coding is not engineering ========== -->
+  <section class="slide active s1" data-i="1">
+
+    <div class="s1-head">
+      <span class="eyebrow reveal">Pit-wall · Module 00 · Frame</span>
+      <h1 class="reveal-d1">Coding is not <span class="grad">engineering</span>.</h1>
+      <p class="sub reveal-d2">// Most AI guidance optimises for code generation. Engineering requires a different toolset — for AI to be useful here, the surroundings have to be in the loop.</p>
+    </div>
+
+    <div class="s1-stage">
+      <div class="schematic" id="schematic">
+
+        <svg viewBox="0 0 1100 520" preserveAspectRatio="none">
+          <!-- lines from code window (center ~550,260) to each node -->
+          <path class="line b" d="M 440,220 C 340,180 260,140 170,90"/>
+          <path class="line p" d="M 660,220 C 760,180 840,140 930,90"/>
+          <path class="line o" d="M 440,320 C 340,360 250,400 140,430"/>
+          <path class="line g" d="M 660,320 C 760,360 850,400 960,430"/>
+          <path class="line y" d="M 410,260 C 320,260 220,260 80,260"/>
+          <path class="line r" d="M 690,260 C 780,260 880,260 1020,260"/>
+
+          <!-- outer engineering bracket -->
+          <path class="line" d="M 60,40 L 30,40 L 30,480 L 60,480" stroke-width="1.2"/>
+          <path class="line" d="M 1040,40 L 1070,40 L 1070,480 L 1040,480" stroke-width="1.2"/>
+        </svg>
+
+        <!-- nodes -->
+        <div class="node n1"><span class="swatch"></span>DEPLOY<span class="tag">ci · rollout · canary</span></div>
+        <div class="node n2"><span class="swatch"></span>BLAST RADIUS<span class="tag">who breaks if this breaks</span></div>
+        <div class="node n3"><span class="swatch"></span>ROLLBACK<span class="tag">recovery &lt; 60s</span></div>
+        <div class="node n4"><span class="swatch"></span>TELEMETRY<span class="tag">traces · metrics · logs</span></div>
+        <div class="node n5"><span class="swatch"></span>ONCALL<span class="tag">runbook · pager</span></div>
+        <div class="node n6"><span class="swatch"></span>CONTRACTS<span class="tag">schemas · slos · deps</span></div>
+
+        <!-- the code window — center of universe -->
+        <div class="code-window">
+          <div class="cw-head">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="title">pipeline.py</span>
+          </div>
+          <pre><span id="typed-code" class="typed"></span><span class="caret"></span></pre>
+        </div>
+
+        <div class="code-label" id="code-label">// this is coding</div>
+
+        <div class="bracket-cap" id="bracket-cap">
+          everything outside the editor is <b>engineering</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="s1-foot">
+      <div class="stack reveal-d3">
+        <span>SCOPE</span>
+        <b>CODE → SYSTEM</b>
+      </div>
+      <div class="stack reveal-d3" style="text-align:center;">
+        <span>FOCUS</span>
+        <b>TOOLING FOR ENGINEERING</b>
+      </div>
+      <div class="stack reveal-d3" style="text-align:right;">
+        <span>STATUS</span>
+        <b style="color:var(--green);">FRAME LOCKED</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SLIDE 2 — The patterns are emerging ========== -->
+  <section class="slide s2" data-i="2">
+
+    <div class="s2-head">
+      <span class="eyebrow reveal">Pit-wall · Module 00 · Signal</span>
+      <h1 class="reveal-d1">The patterns are <span class="grad">emerging</span>.</h1>
+      <p class="sub reveal-d2">// Landscape still volatile — but three feeds keep converging on the same playbook: F1 race-day ops, top AI-engineering contributors, and Quix production telemetry.</p>
+    </div>
+
+    <div class="pitwall">
+
+      <!-- LEFT FEED — F1 race-day -->
+      <div class="feed f1 reveal-d2">
+        <div class="feed-head">
+          <span class="name"><span class="swatch"></span>F1_RACEDAY</span>
+          <span class="stat">LIVE</span>
+        </div>
+        <div class="feed-body" id="feed-1"></div>
+      </div>
+
+      <!-- CENTER — PATTERNS panel -->
+      <div class="patterns reveal-d1">
+        <div class="patterns-head">
+          <span class="label">PATTERNS DETECTED</span>
+          <span class="lap">LAP <b id="lap-num">14</b> / 57</span>
+        </div>
+        <div class="patterns-counter">
+          <div class="num" id="pattern-count">00</div>
+          <div class="lbl">SIGNALS CONFIRMED</div>
+        </div>
+        <div class="patterns-list" id="patterns-list">
+          <div class="pattern-row" data-i="0">
+            <span class="mark">·</span>
+            <span class="name">Telemetry before code</span>
+            <span class="conf">87%</span>
+          </div>
+          <div class="pattern-row" data-i="1">
+            <span class="mark">·</span>
+            <span class="name">Humans on the pit-wall</span>
+            <span class="conf">91%</span>
+          </div>
+          <div class="pattern-row" data-i="2">
+            <span class="mark">·</span>
+            <span class="name">Sub-second feedback loops</span>
+            <span class="conf">82%</span>
+          </div>
+          <div class="pattern-row" data-i="3">
+            <span class="mark">·</span>
+            <span class="name">Evals as the new tests</span>
+            <span class="conf">79%</span>
+          </div>
+          <div class="pattern-row" data-i="4">
+            <span class="mark">·</span>
+            <span class="name">Context lives in the system</span>
+            <span class="conf">88%</span>
+          </div>
+          <div class="pattern-row" data-i="5">
+            <span class="mark">·</span>
+            <span class="name">Small specialist agents</span>
+            <span class="conf">76%</span>
+          </div>
+        </div>
+        <div class="sectors">
+          <div class="sector"></div>
+          <div class="sector"></div>
+          <div class="sector"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT FEED — Contributors + Quix prod (we'll alternate two columns of feeds) -->
+      <div class="feed f2 reveal-d2">
+        <div class="feed-head">
+          <span class="name"><span class="swatch"></span>CONTRIB_FEED</span>
+          <span class="stat">LIVE</span>
+        </div>
+        <div class="feed-body" id="feed-2"></div>
+      </div>
+
+    </div>
+
+    <!-- second row of right side — Quix prod feed -->
+    <!-- (kept inside grid via secondary container below) -->
+  </section>
+
+</div>
+
+<div class="s2-footer-strip" id="ticker">
+  <div class="ticker-track" id="ticker-track"></div>
+</div>
+
+<div class="hint">←  →   navigate</div>
+
+<div class="footer">
+  <span>QUIX · WEBINAR · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">2</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  /* ============================================================
+     Deck navigation (matches level-01 / cosmic template pattern)
+     ============================================================ */
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  const introIdx = document.getElementById('intro-idx');
+  tot.textContent = slides.length;
+  let i = 0;
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    introIdx.textContent = String(i + 1).padStart(2, '0');
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+    onSlideEnter(i + 1);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input,.code-window,.feed,.patterns')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+
+  /* ============================================================
+     SLIDE 1 — typed code, then schematic wraps around
+     ============================================================ */
+  const codeLines = [
+    "def predict(x):",
+    "    return model(x)"
+  ];
+  const fullCode = codeLines.join("\n");
+
+  let s1Started = false;
+  let s1Timers = [];
+
+  function clearS1Timers() {
+    s1Timers.forEach(t => clearTimeout(t));
+    s1Timers = [];
+  }
+
+  function startSlide1() {
+    if (s1Started) return;
+    s1Started = true;
+
+    const typed = document.getElementById('typed-code');
+    const codeLabel = document.getElementById('code-label');
+    const schem = document.getElementById('schematic');
+    const nodes = document.querySelectorAll('#schematic .node');
+    const cap = document.getElementById('bracket-cap');
+
+    typed.textContent = '';
+    let k = 0;
+
+    function type() {
+      if (k <= fullCode.length) {
+        typed.textContent = fullCode.slice(0, k);
+        k++;
+        s1Timers.push(setTimeout(type, 55 + Math.random()*40));
+      } else {
+        // show "this is coding" label
+        s1Timers.push(setTimeout(() => codeLabel.classList.add('show'), 250));
+        // begin wrapping: draw schematic
+        s1Timers.push(setTimeout(() => schem.classList.add('draw'), 950));
+        // reveal nodes in sequence
+        const order = [0,1,2,3,4,5];
+        order.forEach((n, idx) => {
+          s1Timers.push(setTimeout(() => {
+            nodes[n].classList.add('show');
+          }, 1200 + idx * 280));
+        });
+        // bracket caption
+        s1Timers.push(setTimeout(() => cap.classList.add('show'), 1200 + order.length * 280 + 200));
+      }
+    }
+    type();
+  }
+
+  function resetSlide1() {
+    clearS1Timers();
+    s1Started = false;
+    const typed = document.getElementById('typed-code');
+    if (typed) typed.textContent = '';
+    document.getElementById('code-label').classList.remove('show');
+    document.getElementById('schematic').classList.remove('draw');
+    document.querySelectorAll('#schematic .node').forEach(n => n.classList.remove('show'));
+    document.getElementById('bracket-cap').classList.remove('show');
+  }
+
+  /* ============================================================
+     SLIDE 2 — three feeds + central patterns counter
+     ============================================================ */
+  const feed1Pool = [
+    { t: "T+00:02.341", tag: "PIT",     msg: "box this lap · soft → med" },
+    { t: "T+00:02.418", tag: "TYRE",    msg: "rear-left δ -3.2°C · trend↓" },
+    { t: "T+00:02.512", tag: "FUEL",    msg: "lap target -0.18kg · ok" },
+    { t: "T+00:02.604", tag: "STRAT",   msg: "undercut window 2 laps" },
+    { t: "T+00:02.717", tag: "RADIO",   msg: "driver: front locking T6" },
+    { t: "T+00:02.842", tag: "SECTOR",  msg: "S2 purple · +0.214 vs LH44" },
+    { t: "T+00:02.961", tag: "ENG",     msg: "mode SO5 → SO4 · save 1.2%" },
+    { t: "T+00:03.088", tag: "WX",      msg: "rain 38% · 9 min window" },
+    { t: "T+00:03.205", tag: "GAP",     msg: "front +1.8s · stable" },
+    { t: "T+00:03.331", tag: "DRS",     msg: "armed · zone 2 active" },
+    { t: "T+00:03.452", tag: "BRAKE",   msg: "front-right wear 41%" },
+    { t: "T+00:03.581", tag: "PIT",     msg: "crew set · 2.4s target" }
+  ];
+
+  const feed2Pool = [
+    { t: "[arxiv]",  tag: "PAPER",  msg: "evals > unit-tests in agent loops" },
+    { t: "[blog]",   tag: "PATTERN",msg: "context engineering as a discipline" },
+    { t: "[repo]",   tag: "TOOL",   msg: "harness/v3 · trace-first stdout" },
+    { t: "[talk]",   tag: "OBS",    msg: "telemetry before fine-tune" },
+    { t: "[paper]",  tag: "EVAL",   msg: "self-consistency on prod traffic" },
+    { t: "[thread]", tag: "OPS",    msg: "agent runbooks > prompts" },
+    { t: "[blog]",   tag: "ARCH",   msg: "small specialists beat one giant" },
+    { t: "[note]",   tag: "FEEDBK", msg: "humans on the wall, not the loop" },
+    { t: "[repo]",   tag: "BENCH",  msg: "regression set updated · 412 cases" },
+    { t: "[paper]",  tag: "MEMORY", msg: "state in the system, not the prompt" },
+    { t: "[blog]",   tag: "GUARD",  msg: "graceful degradation by design" },
+    { t: "[talk]",   tag: "LADDER", msg: "ladder of autonomy stays valid" }
+  ];
+
+  const feed3Pool = [
+    { t: "prod-eu-1", tag: "CUST",  msg: "telemetry topic up · 18.4k msg/s" },
+    { t: "prod-us-2", tag: "AGENT", msg: "router/v2 → fallback path 0.4%" },
+    { t: "prod-eu-1", tag: "EVAL",  msg: "nightly 94.1% · +1.3pp" },
+    { t: "prod-ap-1", tag: "DEPLOY",msg: "rollout 25% · slo green" },
+    { t: "prod-us-2", tag: "ROLL",  msg: "auto-rollback v441 · 38s mttr" },
+    { t: "prod-eu-1", tag: "DRIFT", msg: "feature-3 p95 +12ms · watch" },
+    { t: "prod-eu-1", tag: "CUST",  msg: "5 prod patterns confirmed" },
+    { t: "prod-us-2", tag: "TRACE", msg: "tool-call depth 4 · within slo" },
+    { t: "prod-ap-1", tag: "PIT",   msg: "operator override · safe stop" },
+    { t: "prod-eu-1", tag: "AGENT", msg: "context-window hits -23% wow" },
+    { t: "prod-us-2", tag: "EVAL",  msg: "regression caught pre-merge" },
+    { t: "prod-ap-1", tag: "SCALE", msg: "+2 workers · queue normalised" }
+  ];
+
+  let s2Timers = [];
+  let s2Intervals = [];
+  let patternCount = 0;
+  let confirmedSet = new Set();
+
+  function pushRow(containerId, pool, idxRef) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const entry = pool[idxRef.i % pool.length];
+    idxRef.i++;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<span class="t">${entry.t}</span><span class="v"><span class="tag">${entry.tag}</span>${entry.msg}</span>`;
+    el.insertBefore(row, el.firstChild);
+    // limit visible rows
+    while (el.children.length > 8) el.removeChild(el.lastChild);
+  }
+
+  function bumpPattern() {
+    const list = document.querySelectorAll('#patterns-list .pattern-row');
+    if (!list.length) return;
+    // find next un-confirmed
+    const remaining = Array.from(list).filter(r => !r.classList.contains('confirmed'));
+    if (!remaining.length) return;
+    const next = remaining[Math.floor(Math.random() * remaining.length)];
+    next.classList.add('confirmed');
+    next.querySelector('.mark').textContent = '✓';
+    patternCount = document.querySelectorAll('#patterns-list .pattern-row.confirmed').length;
+    document.getElementById('pattern-count').textContent = String(patternCount).padStart(2, '0');
+  }
+
+  function bumpLap() {
+    const el = document.getElementById('lap-num');
+    if (!el) return;
+    let v = parseInt(el.textContent, 10);
+    v = Math.min(57, v + 1);
+    el.textContent = v;
+  }
+
+  function startSlide2() {
+    if (s2Intervals.length) return; // already running
+
+    // seed rows so they don't start empty
+    const r1 = { i: 0 }, r2 = { i: 0 }, r3 = { i: 0 };
+    for (let n = 0; n < 4; n++) {
+      pushRow('feed-1', feed1Pool, r1);
+      pushRow('feed-2', feed2Pool, r2);
+    }
+    // staggered intervals so they don't tick in lockstep
+    s2Intervals.push(setInterval(() => pushRow('feed-1', feed1Pool, r1), 1500));
+    s2Intervals.push(setInterval(() => pushRow('feed-2', feed2Pool, r2), 1700));
+
+    // patterns tick
+    s2Intervals.push(setInterval(bumpPattern, 2200));
+    // lap counter
+    s2Intervals.push(setInterval(bumpLap, 4200));
+
+    // build ticker
+    buildTicker();
+  }
+
+  function resetSlide2() {
+    s2Intervals.forEach(t => clearInterval(t));
+    s2Intervals = [];
+    s2Timers.forEach(t => clearTimeout(t));
+    s2Timers = [];
+    ['feed-1','feed-2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
+    document.querySelectorAll('#patterns-list .pattern-row').forEach(r => {
+      r.classList.remove('confirmed');
+      const m = r.querySelector('.mark');
+      if (m) m.textContent = '·';
+    });
+    patternCount = 0;
+    document.getElementById('pattern-count').textContent = '00';
+  }
+
+  function buildTicker() {
+    const t = document.getElementById('ticker-track');
+    if (!t) return;
+    const items = [
+      "F1_RACEDAY <b>S2 PURPLE</b> +0.214",
+      "CONTRIB_FEED <b>EVALS &gt; UNIT TESTS</b>",
+      "QUIX_PROD <b>MTTR 38s</b> <span class='up'>↓</span>",
+      "F1_RACEDAY <b>UNDERCUT 2 LAPS</b>",
+      "PATTERN <b>CONFIRMED</b> <span class='up'>+1</span>",
+      "CONTRIB_FEED <b>SMALL SPECIALISTS</b>",
+      "QUIX_PROD <b>SLO GREEN</b>",
+      "F1_RACEDAY <b>RAIN 38% / 9 MIN</b>",
+      "CONTRIB_FEED <b>CTX IN SYSTEM</b>",
+      "QUIX_PROD <b>ROLLOUT 25%</b>",
+      "PATTERN <b>HUMANS-ON-WALL</b> <span class='up'>+1</span>",
+      "F1_RACEDAY <b>DRS ARMED</b>"
+    ];
+    const block = items.join('<span class="sep"></span>');
+    // duplicate for seamless scroll
+    t.innerHTML = block + '<span class="sep"></span>' + block;
+  }
+
+  /* ============================================================
+     Hook slide transitions
+     ============================================================ */
+  function onSlideEnter(n) {
+    if (n === 1) {
+      resetSlide2();
+      // allow CSS reveal to land first, then start typing
+      setTimeout(startSlide1, 700);
+    } else if (n === 2) {
+      resetSlide1();
+      setTimeout(startSlide2, 500);
+    }
+  }
+
+  go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+{
+  "agent_id": "m1-agent-01",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/agent-01/final-model/REPORT.md",
+  "items": [
+    {
+      "id": "yaw_rate_rmse-improvement-pct",
+      "type": "numeric",
+      "result": true,
+      "value": 33.05,
+      "threshold_met": null,
+      "evidence": [
+        "| F-150 Lightning (51 files held out) | yaw RMSE [rad/s] | 0.01849 | 0.01225 | 33.7% |",
+        "| Mach-E (71 files held out) | yaw RMSE [rad/s] | 0.01506 | 0.01018 | 32.4% |"
+      ],
+      "reasoning": "Report states ~33% yaw-rate RMSE reduction vs V0 on both platforms, on a held-out split."
+    },
+    {
+      "id": "cte_rmse-improvement-pct",
+      "type": "numeric",
+      "result": true,
+      "value": 40.0,
+      "threshold_met": null,
+      "evidence": [
+        "| | CTE mean [m] | 74.51 | 30.03 | 60% |",
+        "| | CTE mean [m] | 78.40 | 62.98 | 20% |"
+      ],
+      "reasoning": "Report gives CTE mean improvements of 60% (F-150) and 20% (Mach-E); pooled approx 40%."
+    },
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "| platform | KPI | V0 | ours | reduction |"
+      ],
+      "reasoning": "Report breaks results by platform only; no straight/cornering/transient regime split is shown anywhere."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": true,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "fit per platform on 70% of the shipped Ford sim segments and evaluated on the 30% held out"
+      ],
+      "reasoning": "Ladder uses the same yaw-RMSE metric across V0..V4 with a consistent 70/30 per-platform split declared up front; segment-set is implicitly fixed."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": true,
+      "value": 0.02,
+      "threshold_met": true,
+      "evidence": [
+        "V1 \u2014 add K_us. F-150 0.0144 -> 0.0077; Mach-E barely moves.",
+        "V2 \u2014 add alpha (effective steering-ratio scale). Mach-E 0.0166 -> 0.0110.",
+        "V3 \u2014 add beta (steering offset). F-150 0.0076 -> 0.0061.",
+        "V4 (shipped) \u2014 add tau first-order lag. F-150 0.0061 -> 0.0052;\n                 Mach-E 0.0110 -> 0.0104."
+      ],
+      "reasoning": "Sequential marginal drops on F-150 (0.0067+0.0001+0.0015+0.0009=0.0092) reconcile with total V0->V4 drop of 0.0092; same on Mach-E."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [
+        "V1 \u2014 add K_us. F-150 0.0144 -> 0.0077; Mach-E barely moves."
+      ],
+      "reasoning": "Ladder is monotonic but the report contains no explicit 'no regressions observed' statement and no regression-cause column; the rubric requires one or the other."
+    }
+  ],
+  "headline": {
+    "primary_metric": "yaw RMSE [rad/s]",
+    "platform": "F-150 Lightning (51 files held out) and Mach-E (71 files held out)",
+    "baseline_value": "0.01849 (F-150), 0.01506 (Mach-E)",
+    "final_value": "0.01225 (F-150), 0.01018 (Mach-E)",
+    "improvement": "33.7% (F-150), 32.4% (Mach-E)",
+    "top_contributor": "V1 (K_us understeer gradient) for F-150; V2 (alpha effective steering-ratio scale) for Mach-E",
+    "baseline_numeric": 0.01849,
+    "final_numeric": 0.01225,
+    "unit_normalized": "rad/s",
+    "improvement_pct_numeric": 33.7,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Agent scored on the canonical Ford platforms (Mustang Mach-E and F-150 Lightning) using yaw_rate_meas_rads as the measured truth channel on a held-out split; Tesla was explicitly declined due to missing truth."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V1 (add K_us)",
+      "contribution_pct": 72.8,
+      "contribution_abs": 0.0067,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 (add alpha)",
+      "contribution_pct": 1.1,
+      "contribution_abs": 0.0001,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 (add beta)",
+      "contribution_pct": 16.3,
+      "contribution_abs": 0.0015,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V4 (add tau lag)",
+      "contribution_pct": 9.8,
+      "contribution_abs": 0.0009,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 3,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

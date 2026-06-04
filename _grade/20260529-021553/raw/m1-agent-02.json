@@ -1,0 +1,88 @@
+{
+  "agent_id": "m1-agent-02",
+  "report_path": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-1/agent-02/final-model/REPORT.md",
+  "items": [
+    {
+      "id": "regime-breakdown-present",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["| FORD_F_150_LIGHTNING_MK1 (n=70) | 0.01225 rad/s | 0.00547 rad/s (-55%) | 71.8 m | 34.5 m (-52%) |"],
+      "reasoning": "Headline table only breaks down by platform, not by regime (straight/cornering/transient); no per-regime table or chart is present."
+    },
+    {
+      "id": "methodology-consistent",
+      "type": "binary",
+      "result": false,
+      "value": null,
+      "threshold_met": null,
+      "evidence": ["Coefficients fit on a random 60% of segments per platform with scipy.optimize.least_squares; the other 40% are the held-out pool above."],
+      "reasoning": "The fidelity ladder lists V0-V3 variants but no variant table with shared segment-set/regime-mask declaration is provided to verify methodology consistency across variants."
+    },
+    {
+      "id": "attribution-coherent",
+      "type": "numeric",
+      "result": false,
+      "value": null,
+      "threshold_met": false,
+      "evidence": ["- V0 - pure KS (baseline in yaw_rate_pred_rads): yr = v*tan(delta)/L.", "- V1 - linear-tire understeer: yr_ss = v*delta / (L + K_us*v^2).", "- V2 - steering scale + offset: delta_eff = s*delta_road - delta_0.", "- V3 - 1st-order yaw lag (tau ~ 50 ms) on yr_ss."],
+      "reasoning": "No marginal-improvement column is reported for V1/V2/V3; only total V0->Final drop is given, so attribution sum cannot be reconciled."
+    },
+    {
+      "id": "honest-regression-flagged",
+      "type": "binary",
+      "result": null,
+      "value": null,
+      "threshold_met": null,
+      "evidence": [],
+      "reasoning": "not addressed in report"
+    }
+  ],
+  "headline": {
+    "primary_metric": "Yaw RMSE",
+    "platform": "FORD_F_150_LIGHTNING_MK1 (n=70)",
+    "baseline_value": "0.01225 rad/s",
+    "final_value": "0.00547 rad/s",
+    "improvement": "-55%",
+    "top_contributor": null,
+    "baseline_numeric": 12.25,
+    "final_numeric": 5.47,
+    "unit_normalized": "mrad/s",
+    "improvement_pct_numeric": 55.0,
+    "lower_is_better": true,
+    "comparable_to_canonical": true,
+    "comparable_to_canonical_reason": "Scored on canonical Ford platform using measured yaw_rate truth channel on a held-out 40% segment split, matching the rubric's canonical evaluation."
+  },
+  "attribution_breakdown": [
+    {
+      "variant_name": "V0 - pure KS",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V1 - linear-tire understeer",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V2 - steering scale + offset",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    },
+    {
+      "variant_name": "V3 - 1st-order yaw lag",
+      "contribution_pct": null,
+      "contribution_abs": null,
+      "scheme": "sequential"
+    }
+  ],
+  "honesty_flags": {
+    "declared_limitations": 1,
+    "named_data_gap_or_missing_truth_channel": true,
+    "fabricated_truth_or_proxy_undeclared": false
+  }
+}

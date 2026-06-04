@@ -1,0 +1,62 @@
+{
+  "agent_id": "m3-agent-05",
+  "agent_folder": "/Users/javiquix/Desktop/quixdev/webinar-AI/module-3/agent-05/final-model",
+  "format_checks": {
+    "agent_folder_exists": true,
+    "has_manifest_json": true,
+    "manifest_parsable": true,
+    "manifest_declares_predict_callable": true,
+    "manifest_declares_platform_support": true,
+    "has_predict_py": true,
+    "has_coeffs_json": false,
+    "has_report": false
+  },
+  "manifest": {
+    "platform_support": [
+      "FORD_F_150_LIGHTNING_MK1",
+      "FORD_MUSTANG_MACH_E_MK1",
+      "HYUNDAI_IONIQ_5"
+    ],
+    "predict_callable": "predict.py:predict",
+    "model": "kinematic-single-track + per-segment delta0 + steering lag tau",
+    "agent": "module-3/agent-05",
+    "notes": "Per-platform fitted (g, L_eff, K_us, tau); delta0 chosen per-platform between input-derived per-segment median and global. Unknown platforms fall through to V0 yaw_rate_pred_rads in sim_df."
+  },
+  "execution": {
+    "status": "failed",
+    "reason": "import_failed",
+    "n_segments_attempted": 0,
+    "n_segments_succeeded": 0,
+    "n_segments_skipped_unsupported_platform": 0,
+    "n_segments_runtime_error": 0,
+    "first_runtime_error": "FileNotFoundError: [Errno 2] No such file or directory: '/Users/javiquix/Desktop/quixdev/webinar-AI/module-3/agent-05/final-model/coeffs.json'",
+    "wall_time_seconds": 0.0
+  },
+  "yaw_rate": null,
+  "cte": null,
+  "per_platform": {},
+  "per_segment": [],
+  "coefficients": null,
+  "contract": {
+    "allowed_input_columns": [
+      "a_long_mps2",
+      "accel_pedal_pct",
+      "brake_pressed",
+      "delta_road_rad",
+      "delta_wheel_deg",
+      "t_s",
+      "v_mps",
+      "yaw_rate_pred_rads"
+    ],
+    "stripped_columns_per_segment": null,
+    "leak_scan": {
+      "scan_ok": true,
+      "hits_in_predict_body": {},
+      "hits_in_helpers": {},
+      "hits_elsewhere": {},
+      "helpers_called_from_predict": [
+        "_predict_with_params"
+      ]
+    }
+  }
+}
