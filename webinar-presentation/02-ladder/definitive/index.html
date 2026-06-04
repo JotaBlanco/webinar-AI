@@ -283,6 +283,71 @@
     font-style: italic;
   }
 
+  /* ====== results CTA pill ======
+     Only L1/L2/L3 plates carry one; it reveals when the plate is in focus. */
+  .plate .results-cta {
+    position: absolute;
+    top: 1.25rem; right: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 0.55rem 1rem 0.55rem 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    background: color-mix(in srgb, var(--accent) 14%, rgba(255,255,255,0.04));
+    border: 1px solid color-mix(in srgb, var(--accent) 42%, rgba(255,255,255,0.14));
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    pointer-events: none;
+    transition:
+      opacity 0.55s cubic-bezier(.2,.7,.2,1) 0.25s,
+      transform 0.55s cubic-bezier(.2,.7,.2,1) 0.25s,
+      box-shadow 0.3s ease,
+      background 0.3s ease,
+      border-color 0.3s ease;
+    z-index: 3;
+  }
+  .plate .results-cta .rc-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent), 0 0 18px var(--accent);
+  }
+  .plate .results-cta .rc-arrow {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(.2,.7,.2,1);
+  }
+  /* reveal on focus + start the pulse so it never animates while invisible */
+  .stack[data-focus="2"] .plate[data-r="2"] .results-cta,
+  .stack[data-focus="3"] .plate[data-r="3"] .results-cta,
+  .stack[data-focus="4"] .plate[data-r="4"] .results-cta {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .stack[data-focus="2"] .plate[data-r="2"] .results-cta .rc-dot,
+  .stack[data-focus="3"] .plate[data-r="3"] .results-cta .rc-dot,
+  .stack[data-focus="4"] .plate[data-r="4"] .results-cta .rc-dot {
+    animation: rc-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes rc-pulse {
+    0%, 100% { transform: scale(1);   opacity: 1;   }
+    50%      { transform: scale(1.55); opacity: 0.6; }
+  }
+  .plate .results-cta:hover {
+    background: color-mix(in srgb, var(--accent) 26%, rgba(255,255,255,0.06));
+    border-color: color-mix(in srgb, var(--accent) 70%, rgba(255,255,255,0.18));
+    box-shadow:
+      0 10px 28px color-mix(in srgb, var(--accent) 28%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+      0 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .plate .results-cta:hover .rc-arrow { transform: translateX(4px); }
+
   /* ====== focus states driven by data-focus on .stack ====== */
   /* default — every plate dimmed */
   .plate {
@@ -563,6 +628,11 @@
             <h3>Knowledge base.</h3>
             <p>Retrieval over docs, incidents, customer context, decisions. Two-way: the agent both reads from and writes to it.</p>
           </div>
+          <a class="results-cta" href="../../modules-results/level-3.html" data-results-for="4">
+            <span class="rc-dot"></span>
+            <span class="rc-label">See real results</span>
+            <span class="rc-arrow">→</span>
+          </a>
         </div>
 
         <div class="plate" data-r="3" style="--y: 2; --accent: var(--rung-3);">
@@ -571,6 +641,11 @@
             <h3>Skills.</h3>
             <p>Reusable, on-demand procedures: the team's playbooks encoded so the agent stops re-deriving the workflow.</p>
           </div>
+          <a class="results-cta" href="../../modules-results/level-2.html" data-results-for="3">
+            <span class="rc-dot"></span>
+            <span class="rc-label">See real results</span>
+            <span class="rc-arrow">→</span>
+          </a>
         </div>
 
         <div class="plate" data-r="2" style="--y: 3; --accent: var(--rung-2);">
@@ -579,6 +654,11 @@
             <h3>Agentic AI.</h3>
             <p>Tool use, file access, action loops. The agent operates inside your systems, iterating until the job is done.</p>
           </div>
+          <a class="results-cta" href="../../modules-results/level-1.html" data-results-for="2">
+            <span class="rc-dot"></span>
+            <span class="rc-label">See real results</span>
+            <span class="rc-arrow">→</span>
+          </a>
         </div>
 
         <!-- rung 1 — bottom of the stack (largest y) -->
@@ -697,7 +777,10 @@
       i++;
       if (i === CLIMB_SLIDE) { frame = 1; }
       paintSlide();
+      return;
     }
+    // deck-chain: at the last slide, going forward continues to the thank-you slide
+    window.location.href = '../../thank-you/index.html';
   }
   function prev() {
     if (i === CLIMB_SLIDE && frame > 1) { frame--; paintClimb(); return; }
@@ -731,10 +814,12 @@
   // L1 (Agentic AI)    = plate data-r="2" → level-01
   // L2 (Skills)        = plate data-r="3" → level-02
   // L3 (Knowledge base)= plate data-r="4" → level-03
+  // L4 (Harness)       = plate data-r="5" → level-04
   const __plateLinks = {
     '2': '../../level-01/index.html',
     '3': '../../level-02/index.html',
     '4': '../../level-03/index.html',
+    '5': '../../level-04/index.html',
   };
   Object.entries(__plateLinks).forEach(([r, href]) => {
     const plate = document.querySelector('.plate[data-r="' + r + '"]');
@@ -742,6 +827,8 @@
     plate.style.cursor = 'pointer';
     plate.title = 'Open deep dive →';
     plate.addEventListener('click', ev => {
+      // let the results CTA navigate on its own (it's an <a>; document handler skips <a> too)
+      if (ev.target.closest('.results-cta')) return;
       ev.preventDefault();
       ev.stopImmediatePropagation(); // suppress the document-level click-zone next/prev
       window.location.href = href;
@@ -755,6 +842,12 @@
     const f = Math.max(1, Math.min(TOTAL_FRAMES, parseInt(__hashMatch[1], 10)));
     i = CLIMB_SLIDE;
     frame = f;
+  }
+  // deck-chain return: #end lands on the climb slide at the top rung (L4)
+  // — used when coming back from the thank-you slide
+  if (window.location.hash === '#end') {
+    i = slides.length - 1;
+    if (i === CLIMB_SLIDE) { frame = TOTAL_FRAMES; }
   }
 
   // initial camera position (so plate 1 is centered before we land on the climb slide)

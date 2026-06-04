@@ -712,41 +712,13 @@
   .anatomy-wrap {
     position: relative;
     display: grid;
-    grid-template-columns: 1.05fr 1fr;
-    gap: 5.5rem;
+    grid-template-columns: 1.7fr 0.85fr;
+    gap: 3.5rem;
     align-items: start;
     height: 100%;
   }
-  /* connector overlay — spans both columns */
-  .connector-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 3;
-    overflow: visible;
-  }
-  .connector-svg path {
-    fill: none;
-    stroke-width: 1.4;
-    stroke-linecap: round;
-    opacity: 0;
-    stroke-dasharray: 800;
-    stroke-dashoffset: 800;
-    transition: opacity 0.4s ease, stroke-dashoffset 1.1s cubic-bezier(.2,.7,.2,1);
-  }
-  .connector-svg path.show {
-    opacity: 0.85;
-    stroke-dashoffset: 0;
-  }
-  .connector-svg path.purple { stroke: var(--purple-l); filter: drop-shadow(0 0 6px rgba(202,95,255,0.4)); }
-  .connector-svg path.orange { stroke: var(--orange-l); filter: drop-shadow(0 0 6px rgba(254,147,83,0.4)); }
-  .connector-svg path.green  { stroke: var(--green);    filter: drop-shadow(0 0 6px rgba(0,221,129,0.4)); }
-  .connector-svg circle { opacity: 0; transition: opacity 0.4s ease 0.6s; }
-  .connector-svg circle.show { opacity: 0.9; }
-  .connector-svg circle.purple { fill: var(--purple-l); }
-  .connector-svg circle.orange { fill: var(--orange-l); }
-  .connector-svg circle.green  { fill: var(--green); }
+  /* connector overlay disabled — boxes now toggle on click, no lines */
+  .connector-svg { display: none; }
 
   .anatomy-head {
     grid-column: 1 / -1;
@@ -808,22 +780,52 @@
   .code-card pre .hl-not  { background: rgba(254,147,83,0.12); padding: 0 3px; border-radius: 3px; }
   .code-card pre .hl-cost { background: rgba(0,221,129,0.14); padding: 0 3px; border-radius: 3px; }
 
-  /* annotations column — positioned to align with YAML fields */
+  /* clickable YAML fields — invite interaction + active highlight */
+  .code-card pre .yaml-clickable { cursor: pointer; transition: background 0.25s ease, box-shadow 0.25s ease; }
+  .code-card pre .yaml-clickable:hover { filter: brightness(1.18); }
+  .code-card pre .hl-desc.is-active {
+    background: rgba(202,95,255,0.32);
+    box-shadow: 0 0 0 1px rgba(202,95,255,0.55), 0 0 14px rgba(202,95,255,0.25);
+  }
+  .code-card pre .hl-not.is-active  {
+    background: rgba(254,147,83,0.32);
+    box-shadow: 0 0 0 1px rgba(254,147,83,0.55), 0 0 14px rgba(254,147,83,0.25);
+  }
+  .code-card pre .hl-cost.is-active {
+    background: rgba(0,221,129,0.34);
+    box-shadow: 0 0 0 1px rgba(0,221,129,0.55), 0 0 14px rgba(0,221,129,0.25);
+  }
+  .code-card pre .k.is-active { filter: brightness(1.3); }
+
+  /* annotations column — single-box-on-click reveal */
   .annotations {
     position: relative;
     height: 66vh;
     min-height: 460px;
+    display: flex;
+    align-items: center;
   }
   .annotation {
     position: absolute;
     left: 0; right: 0;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 0.85rem 1.05rem 0.95rem;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    top: 50%;
+    background: rgba(10,11,22,0.6);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 1.2rem 1.35rem 1.4rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     overflow: hidden;
+    opacity: 0;
+    transform: translateY(-50%) translateX(14px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+  .annotation.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
   }
   .annotation::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
@@ -832,26 +834,47 @@
   .annotation.purple::before { background: linear-gradient(90deg, var(--purple), transparent); }
   .annotation.orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
   .annotation.green::before  { background: linear-gradient(90deg, var(--green), transparent); }
+  .annotation.purple { border-color: rgba(202,95,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(202,95,255,0.15); }
+  .annotation.orange { border-color: rgba(254,147,83,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(254,147,83,0.15); }
+  .annotation.green  { border-color: rgba(0,221,129,0.40);  box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,221,129,0.15); }
 
-  /* left-pointing arrow tab on each annotation */
-  .annotation .a-arrow {
-    position: absolute;
-    left: -10px; top: 1.1rem;
-    width: 0; height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-right: 10px solid;
-    border-right-color: rgba(255,255,255,0.6);
-    filter: drop-shadow(-1px 0 0 rgba(255,255,255,0.15));
+  /* close affordance in top-right of annotation */
+  .annotation .a-close {
+    position: absolute; top: 0.6rem; right: 0.75rem;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    color: var(--ink-mute);
+    font-family: var(--mono); font-size: 0.85rem; line-height: 1;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: background 0.2s ease, color 0.2s ease;
   }
-  .annotation.purple .a-arrow { border-right-color: var(--purple-l); }
-  .annotation.orange .a-arrow { border-right-color: var(--orange-l); }
-  .annotation.green  .a-arrow { border-right-color: var(--green); }
+  .annotation .a-close:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
 
-  /* vertical placement aligned with YAML fields */
-  .annotation.a-desc { top: 0%; }
-  .annotation.a-not  { top: 48%; }
-  .annotation.a-cost { top: 80%; }
+  /* hint shown when no annotation is active */
+  .anno-hint {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 0 1rem;
+    opacity: 0.7;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .anno-hint.hidden { opacity: 0; }
+  .anno-hint .ah-arrow {
+    display: inline-block;
+    margin-right: 0.6rem;
+    color: var(--purple-l);
+  }
 
   .annotation .a-tag {
     display: flex; align-items: center; gap: 0.6rem;
@@ -934,6 +957,328 @@
     z-index: 5;
   }
   @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+
+  /* ============== SLIDE 6 — skills inventory ============== */
+  .inv-wrap {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    height: 100%;
+  }
+  .inv-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .inv-head h3 {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .inv-head .file-meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  .inv-grid {
+    display: flex; flex-direction: column;
+    gap: 1.1rem;
+    max-height: 70vh;
+    overflow: auto;
+    padding-right: 0.5rem;
+  }
+  .inv-group .inv-cat {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.55rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .inv-group .inv-cat::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .inv-group.oracle   .inv-cat { color: var(--blue-l); }
+  .inv-group.diagnose .inv-cat { color: var(--purple-l); }
+  .inv-group.prep     .inv-cat { color: var(--orange-l); }
+  .inv-group.ship     .inv-cat { color: var(--green); }
+
+  .inv-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+  }
+  .inv-chip {
+    cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .inv-chip:hover {
+    background: rgba(255,255,255,0.06);
+    transform: translateY(-1px);
+  }
+  .inv-chip .chip-name {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .inv-chip .chip-tag {
+    font-size: 0.7rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+  }
+  .inv-group.oracle   .inv-chip.active { background: rgba(61,137,255,0.16);  border-color: rgba(61,137,255,0.65);  box-shadow: 0 0 0 1px rgba(61,137,255,0.4), 0 0 24px rgba(61,137,255,0.18); }
+  .inv-group.diagnose .inv-chip.active { background: rgba(202,95,255,0.16);  border-color: rgba(202,95,255,0.65);  box-shadow: 0 0 0 1px rgba(202,95,255,0.4), 0 0 24px rgba(202,95,255,0.18); }
+  .inv-group.prep     .inv-chip.active { background: rgba(254,147,83,0.16);  border-color: rgba(254,147,83,0.65);  box-shadow: 0 0 0 1px rgba(254,147,83,0.4), 0 0 24px rgba(254,147,83,0.18); }
+  .inv-group.ship     .inv-chip.active { background: rgba(0,221,129,0.16);   border-color: rgba(0,221,129,0.65);   box-shadow: 0 0 0 1px rgba(0,221,129,0.4), 0 0 24px rgba(0,221,129,0.18); }
+  .inv-chip.active .chip-name { color: var(--ink); }
+
+  .inv-detail {
+    position: sticky;
+    top: 0;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 1.5rem 1.6rem 1.6rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    min-height: 380px;
+  }
+  .inv-detail::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), transparent);
+  }
+  .inv-detail.oracle   { border-color: rgba(61,137,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(61,137,255,0.18); }
+  .inv-detail.diagnose { border-color: rgba(202,95,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(202,95,255,0.18); }
+  .inv-detail.prep     { border-color: rgba(254,147,83,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(254,147,83,0.18); }
+  .inv-detail.ship     { border-color: rgba(0,221,129,0.40);  box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,221,129,0.18); }
+
+  .inv-detail .d-tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.85rem;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+  }
+  .inv-detail.oracle   .d-tag .d-cat { color: var(--blue-l); }
+  .inv-detail.diagnose .d-tag .d-cat { color: var(--purple-l); }
+  .inv-detail.prep     .d-tag .d-cat { color: var(--orange-l); }
+  .inv-detail.ship     .d-tag .d-cat { color: var(--green); }
+
+  .inv-detail .d-name {
+    font-family: var(--mono);
+    font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    margin-bottom: 0.45rem;
+  }
+  .inv-detail .d-lede {
+    font-size: 1rem;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.45;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+  .inv-detail .d-body {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .inv-detail .d-body b { color: var(--ink); font-weight: 600; }
+  .inv-detail .d-when {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    line-height: 1.55;
+  }
+  .inv-detail .d-when .d-when-label {
+    display: block;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.3rem;
+    font-size: 0.66rem;
+  }
+
+  /* ============== SLIDE 7 — AGENTS.md ============== */
+  .agents-wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 3.5rem;
+    align-items: start;
+    height: 100%;
+  }
+  .agents-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .agents-head h3 {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .agents-head .file-meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  .agents-file {
+    position: relative;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(61,137,255,0.2);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem 1.6rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    max-height: 70vh;
+    overflow: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .agents-file::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--cyan), var(--blue-l), var(--purple), transparent);
+  }
+  .agents-file .file-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.7rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .agents-file .file-bar .file-name { color: var(--cyan); }
+
+  .agents-file .am-section {
+    position: relative;
+    padding: 0.65rem 0.85rem 0.75rem 1rem;
+    border-left: 2px solid;
+    margin-bottom: 0.65rem;
+    border-radius: 0 8px 8px 0;
+    background: rgba(255,255,255,0.025);
+    transition: background 0.25s ease;
+  }
+  .agents-file .am-section:hover { background: rgba(255,255,255,0.05); }
+  .agents-file .am-section .am-h {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+    display: flex; align-items: center; gap: 0.55rem;
+  }
+  .agents-file .am-section .am-h .am-hash {
+    color: var(--ink-mute); font-weight: 400;
+  }
+  .agents-file .am-section .am-p {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .agents-file .am-section .am-p code {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--cyan);
+    background: rgba(88,226,255,0.08);
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+  .agents-file .am-section.layout   { border-color: var(--cyan);     }
+  .agents-file .am-section.layout   .am-h .am-hash { color: var(--cyan); }
+  .agents-file .am-section.inv      { border-color: var(--purple-l); }
+  .agents-file .am-section.inv      .am-h .am-hash { color: var(--purple-l); }
+  .agents-file .am-section.loop     { border-color: var(--blue-l);   }
+  .agents-file .am-section.loop     .am-h .am-hash { color: var(--blue-l); }
+  .agents-file .am-section.warning  { border-color: var(--orange-l); }
+  .agents-file .am-section.warning  .am-h .am-hash { color: var(--orange-l); }
+  .agents-file .am-section.clay     { border-color: var(--green);    }
+  .agents-file .am-section.clay     .am-h .am-hash { color: var(--green); }
+
+  /* explanation column */
+  .agents-explain {
+    display: flex; flex-direction: column;
+    gap: 1.1rem;
+  }
+  .agents-explain .lede {
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    color: var(--ink);
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    margin-bottom: 0.5rem;
+  }
+  .agents-explain .lede em { color: var(--cyan); font-style: normal; font-family: var(--mono); }
+  .agents-explain .lede b  { color: var(--ink); font-weight: 700; }
+
+  .agents-explain .ax-point {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: start;
+    padding: 0.65rem 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .agents-explain .ax-point:first-of-type { border-top: 0; padding-top: 0; }
+  .agents-explain .ax-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    padding-top: 0.15rem;
+    min-width: 1.6rem;
+  }
+  .agents-explain .ax-body h5 {
+    color: var(--ink);
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.005em;
+  }
+  .agents-explain .ax-body p {
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+  .agents-explain .ax-body p b    { color: var(--ink); font-weight: 600; }
+  .agents-explain .ax-body p code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--cyan);
+    background: rgba(88,226,255,0.08);
+    padding: 0 4px; border-radius: 4px;
+  }
+  .agents-explain .ax-point.c-cyan    .ax-num { color: var(--cyan); }
+  .agents-explain .ax-point.c-purple  .ax-num { color: var(--purple-l); }
+  .agents-explain .ax-point.c-blue    .ax-num { color: var(--blue-l); }
+  .agents-explain .ax-point.c-orange  .ax-num { color: var(--orange-l); }
+  .agents-explain .ax-point.c-green   .ax-num { color: var(--green); }
 </style>
 </head>
 <body>
@@ -955,7 +1300,7 @@
         <span class="big-num">02</span>
       </div>
       <h1 class="reveal-d2"><span class="grad">Skills.</span></h1>
-      <div class="subline reveal-d3">A working definition · The shelf, built up · Further reading · Anatomy of a SKILL.md</div>
+      <div class="subline reveal-d3">A working definition · The shelf, built up · Further reading · Anatomy of a SKILL.md · The toolkit · AGENTS.md</div>
     </div>
   </section>
 
@@ -1289,37 +1634,212 @@
       </div>
 
       <div class="annotations">
-        <div class="annotation purple a-desc reveal-d2" id="anno-desc">
-          <div class="a-arrow"></div>
+        <p class="anno-hint" id="annoHint"><span class="ah-arrow">←</span> Click a highlighted YAML field</p>
+
+        <div class="annotation purple" id="anno-desc">
+          <span class="a-close" data-close>×</span>
           <div class="a-tag">A · <span class="a-key">description</span></div>
           <h4>Carries judgement, not mechanics.</h4>
           <p>Names the <b>verdict</b> the skill produces — and the failure mode it prevents — not the function it calls. Where your organisation's expertise lives.</p>
         </div>
 
-        <div class="annotation orange a-not reveal-d3" id="anno-not">
-          <div class="a-arrow"></div>
+        <div class="annotation orange" id="anno-not">
+          <span class="a-close" data-close>×</span>
           <div class="a-tag">B · <span class="a-key">when-NOT-to-invoke</span></div>
           <h4>Routes the agent.</h4>
           <p>Three explicit redirects. Without them the agent guesses which skill to load; with them, it <b>routes</b>.</p>
         </div>
 
-        <div class="annotation green a-cost reveal-d4" id="anno-cost">
-          <div class="a-arrow"></div>
+        <div class="annotation green" id="anno-cost">
+          <span class="a-close" data-close>×</span>
           <div class="a-tag">C · <span class="a-key">load-cost</span></div>
           <h4>Prices the abstraction.</h4>
           <p>Metadata is paid every turn; body only when this skill activates. Without the receipt, you can't budget the eleventh skill.</p>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- connector overlay — drawn from each YAML field anchor to its annotation -->
-      <svg class="connector-svg" id="connectorSvg" xmlns="http://www.w3.org/2000/svg">
-        <path class="purple" id="conn-desc"></path>
-        <path class="orange" id="conn-not"></path>
-        <path class="green"  id="conn-cost"></path>
-        <circle class="purple" id="dot-desc" r="3"></circle>
-        <circle class="orange" id="dot-not"  r="3"></circle>
-        <circle class="green"  id="dot-cost" r="3"></circle>
-      </svg>
+  <!-- ===== SLIDE 6 — skills inventory (interactive) ===== -->
+  <section class="slide" data-i="6">
+    <div class="inv-wrap" id="invWrap">
+      <div class="inv-head reveal">
+        <h3>The toolkit — <span style="color:var(--cyan); font-family: var(--mono);">10 skills</span></h3>
+        <span class="file-meta">06 · env-template-LV02 / skills/</span>
+      </div>
+
+      <div class="inv-grid reveal-d1">
+
+        <div class="inv-group oracle">
+          <div class="inv-cat">Oracle · inner loop</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="score-model">
+              <span class="chip-name">score-model</span>
+              <span class="chip-tag">KPIs + diagnostics for any predict().</span>
+            </div>
+            <div class="inv-chip" data-skill="fit-model">
+              <span class="chip-name">fit-model</span>
+              <span class="chip-tag">Tune per-platform coefficients with scipy.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-group diagnose">
+          <div class="inv-cat">Diagnose · what's left</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="residual-structure">
+              <span class="chip-name">residual-structure</span>
+              <span class="chip-tag">Verdict — noise floor or more to model?</span>
+            </div>
+            <div class="inv-chip" data-skill="route-bias">
+              <span class="chip-name">route-bias</span>
+              <span class="chip-tag">Rank routes by share of pooled error.</span>
+            </div>
+            <div class="inv-chip" data-skill="inspect-residuals">
+              <span class="chip-name">inspect-residuals</span>
+              <span class="chip-tag">Plot residual vs 1 or 2 input features.</span>
+            </div>
+            <div class="inv-chip" data-skill="compare-models">
+              <span class="chip-name">compare-models</span>
+              <span class="chip-tag">Diff two predict()s segment-by-segment.</span>
+            </div>
+            <div class="inv-chip" data-skill="visualise-segment">
+              <span class="chip-name">visualise-segment</span>
+              <span class="chip-tag">3-panel PNG: trajectory · yaw · residual.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-group prep">
+          <div class="inv-cat">Prep · data plumbing</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="load-segments">
+              <span class="chip-name">load-segments</span>
+              <span class="chip-tag">sim.csv → DataFrames with provenance.</span>
+            </div>
+            <div class="inv-chip" data-skill="make-train-dev-split">
+              <span class="chip-name">make-train-dev-split</span>
+              <span class="chip-tag">Route-grouped split — no leakage.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-group ship">
+          <div class="inv-cat">Ship · the gate</div>
+          <div class="inv-chips">
+            <div class="inv-chip" data-skill="pre-flight-final-model">
+              <span class="chip-name">pre-flight-final-model</span>
+              <span class="chip-tag">Verify the final-model/ bundle contract.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="inv-detail oracle reveal-d2" id="invDetail">
+        <div class="d-tag"><span class="d-cat" id="dCat">ORACLE · INNER LOOP</span></div>
+        <div class="d-name" id="dName">score-model</div>
+        <div class="d-lede" id="dLede">The inner-loop oracle.</div>
+        <p class="d-body" id="dBody">
+          Runs any <b>predict()</b> over the segments and returns one structured bundle —
+          pooled <b>yaw + CTE RMSE</b>, per-segment / per-platform / per-route / per-regime
+          tables, residual stats, worst-N outliers, and a <b>signed-bias warning block</b>
+          at the top. Schema-aware: resolves the ground-truth column per platform, so Tesla
+          (and any non-default schema) scores instead of being silently skipped.
+        </p>
+        <div class="d-when">
+          <span class="d-when-label">when to invoke</span>
+          <span id="dWhen">Every iteration. This is the oracle — read its bias-warnings block before deciding anything else.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 7 — AGENTS.md ===== -->
+  <section class="slide" data-i="7">
+    <div class="agents-wrap">
+      <div class="agents-head reveal">
+        <h3>The orientation file — <span style="color:var(--cyan); font-family: var(--mono);">AGENTS.md</span></h3>
+        <span class="file-meta">07 · env-template-LV02 / AGENTS.md</span>
+      </div>
+
+      <div class="agents-file reveal-d1">
+        <div class="file-bar">
+          <span class="file-name">env-template-LV02/AGENTS.md</span>
+          <span>markdown · project root</span>
+        </div>
+
+        <div class="am-section layout">
+          <div class="am-h"><span class="am-hash">##</span> Working directory layout</div>
+          <p class="am-p">Maps the workspace — <code>skills/</code>, <code>_shared/</code>, <code>data/</code>, <code>code/</code>, <code>final-model/</code>. So the agent knows <b>where</b> things live before it touches anything.</p>
+        </div>
+
+        <div class="am-section inv">
+          <div class="am-h"><span class="am-hash">##</span> Skills inventory</div>
+          <p class="am-p">One paragraph per skill — what it returns, what to read first, the cohort lesson baked in. The agent learns the toolkit <b>without</b> opening ten <code>SKILL.md</code> files.</p>
+        </div>
+
+        <div class="am-section loop">
+          <div class="am-h"><span class="am-hash">##</span> Suggested loop</div>
+          <p class="am-p">Score → fit → diagnose → iterate the model, not the fit. Encodes <b>how skills chain</b> — the workflow the cohort discovered, frozen as instructions.</p>
+        </div>
+
+        <div class="am-section warning">
+          <div class="am-h"><span class="am-hash">##</span> Don't ship V1</div>
+          <p class="am-p">The specific failure mode that ceiling-ed the v2 cohort. <b>"After your first fit, run residual-structure and build a second candidate."</b> Hard-won lesson, written down once.</p>
+        </div>
+
+        <div class="am-section clay">
+          <div class="am-h"><span class="am-hash">##</span> Working with skills</div>
+          <p class="am-p"><em>"Skills are clay, not library."</em> If a skill is in the way — delete it. The only obligation is to lower the canonical KPIs.</p>
+        </div>
+      </div>
+
+      <div class="agents-explain reveal-d2">
+        <p class="lede">
+          <em>AGENTS.md</em> is the project's <b>orientation file</b> — the agent reads it once at startup, before any skill metadata is even scanned. It's the manifest that turns a folder into a workspace.
+        </p>
+
+        <div class="ax-point c-cyan">
+          <span class="ax-num">01</span>
+          <div class="ax-body">
+            <h5>Always in context.</h5>
+            <p>Loaded every turn — unlike skill bodies. So it has to be <b>tight</b>. Anything you put here is paid for forever; anything you leave for a <code>SKILL.md</code> body only enters when needed.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-purple">
+          <span class="ax-num">02</span>
+          <div class="ax-body">
+            <h5>Names the toolkit.</h5>
+            <p>The agent doesn't have to <code>ls skills/</code> and guess. AGENTS.md lists every skill with its judgement — same writing discipline as a SKILL.md description, just one level up.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-blue">
+          <span class="ax-num">03</span>
+          <div class="ax-body">
+            <h5>Encodes the loop.</h5>
+            <p>Tells the agent <b>how the skills chain</b> — score → fit → diagnose → iterate. Without this, the agent picks an arbitrary order and burns turns rediscovering the workflow.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-orange">
+          <span class="ax-num">04</span>
+          <div class="ax-body">
+            <h5>Carries the hard-won lessons.</h5>
+            <p><b>"Don't ship V1"</b> is not advice — it's a recorded failure mode. AGENTS.md is where the cohort's institutional memory lives, so the next agent doesn't repeat the same ceiling.</p>
+          </div>
+        </div>
+
+        <div class="ax-point c-green">
+          <span class="ax-num">05</span>
+          <div class="ax-body">
+            <h5>Sets the contract.</h5>
+            <p>Skills are <b>clay, not library</b>. The agent has permission to modify, extend, or delete any skill. The only obligation is the KPI. AGENTS.md is where that permission is granted.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1350,6 +1870,7 @@
   const DIAGRAM_SLIDE = 2;   // zero-based — slide 3
   const REFS_SLIDE    = 3;   // zero-based — slide 4
   const ANATOMY_SLIDE = 4;   // zero-based — slide 5
+  const INV_SLIDE     = 5;   // zero-based — slide 6
   const TOTAL_FRAMES  = 7;
   tot.textContent = slides.length;
 
@@ -1371,7 +1892,7 @@
     slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
     cur.textContent = i + 1;
     prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
-    refreshConnectors();
+    resetAnatomy();
   }
   function paintCarousel() {
     cards.forEach((card, idx) => {
@@ -1391,67 +1912,146 @@
     cap.textContent = captions[frame] || ' ';
   }
 
-  /* slide 5 — draw connectors from each YAML field to its annotation card */
-  const wrap = document.getElementById('anatomyWrap');
-  const connectors = [
-    { anchor: 'anchor-desc', anno: 'anno-desc', path: 'conn-desc', dot: 'dot-desc' },
-    { anchor: 'anchor-not',  anno: 'anno-not',  path: 'conn-not',  dot: 'dot-not'  },
-    { anchor: 'anchor-cost', anno: 'anno-cost', path: 'conn-cost', dot: 'dot-cost' }
+  /* slide 5 — click-to-reveal annotation per YAML field */
+  const annoHint = document.getElementById('annoHint');
+  const fields = [
+    { anchor: 'anchor-desc', highlight: 'hl-desc', anno: 'anno-desc' },
+    { anchor: 'anchor-not',  highlight: 'hl-not',  anno: 'anno-not'  },
+    { anchor: 'anchor-cost', highlight: 'hl-cost', anno: 'anno-cost' }
   ];
 
-  function drawConnectors() {
-    if (!wrap) return;
-    const wrapRect = wrap.getBoundingClientRect();
-    connectors.forEach(({ anchor, anno, path, dot }) => {
-      const a = document.getElementById(anchor);
-      const b = document.getElementById(anno);
-      const p = document.getElementById(path);
-      const d = document.getElementById(dot);
-      if (!a || !b || !p) return;
+  let activeField = null;
 
-      const aRect = a.getBoundingClientRect();
-      const bRect = b.getBoundingClientRect();
-
-      // start: right edge of the YAML field name + ":"
-      const x1 = aRect.right - wrapRect.left + 6;
-      const y1 = aRect.top + aRect.height / 2 - wrapRect.top;
-      // end: left edge of annotation (tip of the arrow)
-      const x2 = bRect.left - wrapRect.left - 10;
-      const y2 = bRect.top - wrapRect.top + 19;
-
-      const dx = Math.max(40, (x2 - x1) * 0.5);
-      p.setAttribute('d', `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
-      if (d) {
-        d.setAttribute('cx', x1);
-        d.setAttribute('cy', y1);
-      }
+  function setActiveField(annoId) {
+    activeField = annoId;
+    fields.forEach(f => {
+      const on = f.anno === annoId;
+      const anno = document.getElementById(f.anno);
+      if (anno) anno.classList.toggle('visible', on);
+      const k = document.getElementById(f.anchor);
+      if (k) k.classList.toggle('is-active', on);
+      document.querySelectorAll('.' + f.highlight).forEach(el => el.classList.toggle('is-active', on));
     });
+    if (annoHint) annoHint.classList.toggle('hidden', !!annoId);
   }
 
-  function showConnectors(on) {
-    connectors.forEach(({ path, dot }) => {
-      const p = document.getElementById(path);
-      const d = document.getElementById(dot);
-      if (p) p.classList.toggle('show', on);
-      if (d) d.classList.toggle('show', on);
+  function toggleField(annoId) {
+    setActiveField(activeField === annoId ? null : annoId);
+  }
+
+  fields.forEach(f => {
+    const k = document.getElementById(f.anchor);
+    if (k) {
+      k.classList.add('yaml-clickable');
+      k.addEventListener('click', e => { e.stopPropagation(); toggleField(f.anno); });
+    }
+    document.querySelectorAll('.' + f.highlight).forEach(el => {
+      el.classList.add('yaml-clickable');
+      el.addEventListener('click', e => { e.stopPropagation(); toggleField(f.anno); });
     });
+  });
+
+  document.querySelectorAll('.annotation [data-close]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); setActiveField(null); });
+  });
+
+  function resetAnatomy() { setActiveField(null); }
+
+  /* slide 6 — skills inventory */
+  const skillsCatalogue = {
+    'score-model': {
+      cat: 'oracle', catLabel: 'ORACLE · INNER LOOP',
+      lede: 'The inner-loop oracle.',
+      body: 'Runs any <b>predict()</b> over the segments and returns one structured bundle — pooled <b>yaw + CTE RMSE</b>, per-segment / per-platform / per-route / per-regime tables, residual stats, worst-N outliers, and a <b>signed-bias warning block</b> at the top. Schema-aware: resolves ground-truth per platform, so Tesla (and any non-default schema) scores instead of being silently skipped.',
+      when: 'Every iteration. Read the bias-warnings block first — CTE is bias-dominated.'
+    },
+    'fit-model': {
+      cat: 'oracle', catLabel: 'ORACLE · INNER LOOP',
+      lede: 'Auto-tune coefficients against the KPI.',
+      body: 'Optimise per-platform coefficient dicts of an opaque model via scipy. You supply a <b>predict_factory(platform, coeffs)</b>; the fitter steps the vector against yaw RMSE, CTE RMSE, or a blend. Summary opens with <b>fit warnings</b> (co-collapse, overfit, stuck-on-bound) and shows the <b>train/dev gap inline</b>.',
+      when: 'When scoring shows systematic per-platform bias. Pass bounds if you have physical intuition.'
+    },
+    'residual-structure': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Noise floor — or is there more to model?',
+      body: 'After a fit, characterises what\'s LEFT in the residual: temporal autocorrelation at multiple lags, correlation with each input feature and its time-derivative, sign-asymmetry. Returns a <b>verdict</b> — <code>noise_floor</code> (stop) or <code>structure_detected</code> with a specific reason ("autocorrelated at lag 6 → try a τ·d(δ)/dt term").',
+      when: 'After fit-model and score-model, when yaw RMSE has stalled and you need to decide whether to ship or keep iterating.'
+    },
+    'route-bias': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Find the routes that dominate the drift.',
+      body: 'Groups residuals by <b>(platform, route)</b> and ranks routes by their share of the platform\'s pooled error — so you see the biggest opportunity, not just the noisiest. Includes per-route means of input features so you can correlate route bias against an <b>observable</b> feature to add to your model.',
+      when: 'When per-platform bias is squeezed out but residual CTE drift is still uncomfortable. Cohort evidence says it\'s route-level.'
+    },
+    'inspect-residuals': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Plot residual vs one or two input features.',
+      body: '1-D mode: scatter coloured by platform + binned mean ± σ band. <b>2-D mode</b>: per-platform heatmap with diverging colour scale so signed bias jumps out — use it when the residual depends on two axes at once (understeer is <code>v² × δ</code>, neither axis alone tells the story).',
+      when: 'After scoring surfaces a per-platform bias or unusually wide CTE — to discover which input dimension the residual depends on.'
+    },
+    'compare-models': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'Diff two predict()s segment-by-segment.',
+      body: 'Returns a per-segment table with yaw/CTE RMSE for both, signed deltas, and regime fractions. Exposes <code>top_regressions</code> and <code>top_improvements</code> ranked views, plus a per-platform summary. <b>Negative deltas mean B is better.</b>',
+      when: 'When you have V1 and V2 and need to see <em>where</em> each one wins — not just which one has the lower scalar.'
+    },
+    'visualise-segment': {
+      cat: 'diagnose', catLabel: 'DIAGNOSE · WHAT\'S LEFT',
+      lede: 'See where a model diverges on one segment.',
+      body: 'Renders a 3-panel PNG of a single segment — bird\'s-eye trajectory (x vs y), yaw rate time series, yaw residual — with truth overlaid against one or more prediction callables.',
+      when: 'After scoring flags a problematic segment or route. Confirm by eye.'
+    },
+    'load-segments': {
+      cat: 'prep', catLabel: 'PREP · DATA PLUMBING',
+      lede: 'sim.csv → DataFrames with provenance.',
+      body: 'Resolves a set of <code>sim.csv</code> files (by paths, glob, platform, or default to all FORD) and returns them as a sorted list of DataFrames with consistent dtypes and <code>df.attrs</code> populated with <b>platform / device / route / idx</b>. Saves ~30 lines of boilerplate per script.',
+      when: 'Before any per-segment analysis (custom plots, custom scoring, feature extraction).'
+    },
+    'make-train-dev-split': {
+      cat: 'prep', catLabel: 'PREP · DATA PLUMBING',
+      lede: 'Route-grouped split — no leakage.',
+      body: 'Splits segment paths into <b>train</b> and <b>dev</b>, holding out whole <b>routes</b> so adjacent (and highly correlated) samples never straddle the partition. Ships with <code>validate_split</code> that raises on route leakage, path collisions, or per-platform imbalance.',
+      when: 'Before any fit you plan to evaluate on held-out data. Per-sample random splits leak.'
+    },
+    'pre-flight-final-model': {
+      cat: 'ship', catLabel: 'SHIP · THE GATE',
+      lede: 'Verify the deliverable contract.',
+      body: 'Checks that <code>final-model/</code> matches the brief — required files present (<code>predict.py</code>, <code>manifest.json</code>, <code>REPORT.md</code>), clean import, configured callable resolves, signature accepts <code>(sim_df, platform)</code>, dry-run returns the right shape with no NaN. <b>Pass/fail per check — never raises.</b>',
+      when: 'Last. After you think the bundle is done, before declaring shipped.'
+    }
+  };
+
+  const invDetail = document.getElementById('invDetail');
+  const dCat   = document.getElementById('dCat');
+  const dName  = document.getElementById('dName');
+  const dLede  = document.getElementById('dLede');
+  const dBody  = document.getElementById('dBody');
+  const dWhen  = document.getElementById('dWhen');
+  const invChips = document.querySelectorAll('.inv-chip');
+
+  function selectSkill(id) {
+    const s = skillsCatalogue[id];
+    if (!s) return;
+    invChips.forEach(c => c.classList.toggle('active', c.dataset.skill === id));
+    if (invDetail) {
+      invDetail.classList.remove('oracle','diagnose','prep','ship');
+      invDetail.classList.add(s.cat);
+    }
+    if (dCat)  dCat.textContent  = s.catLabel;
+    if (dName) dName.textContent = id;
+    if (dLede) dLede.textContent = s.lede;
+    if (dBody) dBody.innerHTML   = s.body;
+    if (dWhen) dWhen.textContent = s.when;
   }
 
-  let connectorTimer = null;
-  function refreshConnectors() {
-    showConnectors(false);
-    if (connectorTimer) clearTimeout(connectorTimer);
-    if (i !== ANATOMY_SLIDE) return;
-    // wait for the code-card and annotation reveal animations to settle
-    // before measuring positions (they animate translateY which would offset
-    // getBoundingClientRect mid-flight).
-    connectorTimer = setTimeout(() => {
-      drawConnectors();
-      showConnectors(true);
-    }, 1600);
-  }
-
-  window.addEventListener('resize', () => { if (i === ANATOMY_SLIDE) drawConnectors(); });
+  invChips.forEach(chip => {
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      selectSkill(chip.dataset.skill);
+    });
+  });
+  // start with score-model selected
+  selectSkill('score-model');
 
   // deck-chain: this is a deep-dive off the ladder — both ends return to it,
   // positioned on the L2 (Skills) rung that opened this dive
@@ -1495,7 +2095,7 @@
     if (e.key === 'Escape') { e.preventDefault(); window.location.href = __ladder; }
   });
   document.addEventListener('click', e => {
-    if (e.target.closest('a, button, .ref-link, .ref-takeaways, .code-card, .annotations')) return;
+    if (e.target.closest('a, button, .ref-link, .ref-takeaways, .code-card, .annotations, .inv-grid, .inv-detail, .agents-file, .agents-explain')) return;
     if (e.clientX > window.innerWidth / 2) next(); else prev();
   });
   dots.forEach((d, idx) => d.addEventListener('click', e => {

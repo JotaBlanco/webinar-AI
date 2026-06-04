@@ -541,6 +541,14 @@
     width: 60%; height: auto; opacity: 0.16;
     z-index: 0;
   }
+  .ref-thumb.has-image { padding: 0; }
+  .ref-thumb.has-image::before { display: none; }
+  .ref-thumb.has-image img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
 
   .ref-body {
     display: flex; flex-direction: column; justify-content: center;
@@ -631,7 +639,7 @@
   .anatomy-panel {
     position: absolute; inset: 0;
     display: grid;
-    grid-template-columns: 0.95fr 1.05fr;
+    grid-template-columns: 1.25fr 0.75fr;
     gap: 2.25rem;
     align-items: center;
     opacity: 0;
@@ -956,68 +964,65 @@
 
           <!-- ============ FRAME 2 — references/ folder appears ============ -->
           <g class="dia-el dia-box box-orange" data-from="2">
-            <rect class="bg" x="864" y="60" width="236" height="58" rx="12"/>
-            <text class="lbl" x="982" y="89" fill="var(--orange-l)">references/</text>
+            <rect class="bg" x="860" y="60" width="240" height="142" rx="12"/>
+            <text class="lbl-header" x="980" y="82" fill="var(--orange-l)">references/</text>
           </g>
 
           <!-- ============ FRAME 3 — six reference cards populate ============ -->
           <g class="dia-el" data-from="3">
             <g class="ref-card" id="ref-1">
-              <rect x="880" y="140" width="100" height="26" rx="5"/>
-              <text x="930" y="153">anti-patterns</text>
+              <rect x="864" y="100" width="112" height="24" rx="5"/>
+              <text x="920" y="112">anti-patterns</text>
             </g>
             <g class="ref-card" id="ref-2">
-              <rect x="988" y="140" width="100" height="26" rx="5"/>
-              <text x="1038" y="153">approach-menu</text>
+              <rect x="984" y="100" width="112" height="24" rx="5"/>
+              <text x="1040" y="112">approach-menu</text>
             </g>
             <g class="ref-card" id="ref-3">
-              <rect x="880" y="174" width="100" height="26" rx="5"/>
-              <text x="930" y="187">two-kpi-tradeoff</text>
+              <rect x="864" y="130" width="112" height="24" rx="5"/>
+              <text x="920" y="142">two-kpi-tradeoff</text>
             </g>
             <g class="ref-card" id="ref-4">
-              <rect x="988" y="174" width="100" height="26" rx="5"/>
-              <text x="1038" y="187">exploration-disc.</text>
+              <rect x="984" y="130" width="112" height="24" rx="5"/>
+              <text x="1040" y="142">exploration-disc</text>
             </g>
             <g class="ref-card" id="ref-5">
-              <rect x="880" y="208" width="100" height="26" rx="5"/>
-              <text x="930" y="221">dynamics-form.</text>
+              <rect x="864" y="160" width="112" height="24" rx="5"/>
+              <text x="920" y="172">dynamics-form</text>
             </g>
             <g class="ref-card" id="ref-6">
-              <rect x="988" y="208" width="100" height="26" rx="5"/>
-              <text x="1038" y="221">ceiling-moves</text>
+              <rect x="984" y="160" width="112" height="24" rx="5"/>
+              <text x="1040" y="172">ceiling-moves</text>
             </g>
           </g>
 
           <!-- ============ FRAME 4 — metadata dashed lines flow to System Prompt ============ -->
           <g class="dia-el dia-arrow dashed" data-from="4">
-            <path class="draw-stroke" d="M 880 154 Q 800 100, 720 92"/>
-            <path class="draw-stroke" d="M 988 154 Q 880 105, 760 95"/>
-            <path class="draw-stroke" d="M 880 188 Q 810 130, 720 100"/>
-            <path class="draw-stroke" d="M 988 188 Q 890 135, 780 105"/>
+            <path d="M 920 100 Q 870 78, 822 82"/>
+            <path d="M 1040 100 Q 920 60, 822 78"/>
+            <path d="M 920 160 Q 860 120, 822 94"/>
+            <path d="M 1040 160 Q 930 110, 822 90"/>
           </g>
           <g class="dia-el" data-from="4">
-            <text class="arrow-label" x="822" y="50" fill="var(--orange-l)">metadata · every turn</text>
+            <text class="arrow-label" x="660" y="42" fill="var(--orange-l)">metadata · every turn</text>
           </g>
 
           <!-- ============ FRAME 5 — one reference activates; body slides into SP ============ -->
-          <!-- highlight ref-1 in active state via class on group below -->
           <g class="dia-el" data-from="5">
-            <!-- ring around the active ref -->
-            <rect x="876" y="136" width="108" height="34" rx="7"
+            <!-- ring around the active ref (ref-1) -->
+            <rect x="860" y="96" width="120" height="32" rx="6"
                   fill="none" stroke="var(--orange-l)" stroke-width="2"
                   filter="drop-shadow(0 0 6px var(--orange-l))"/>
           </g>
           <g class="dia-el dia-arrow" data-from="5">
-            <path class="draw-stroke" d="M 930 138 Q 800 70, 700 88" marker-end="url(#arr)"/>
-            <text class="arrow-label" x="780" y="155" fill="var(--orange-l)">body · on demand</text>
+            <path class="draw-stroke" d="M 864 110 Q 800 100, 720 82" marker-end="url(#arr)"/>
+            <text class="arrow-label" x="700" y="145" fill="var(--orange-l)">body · on demand</text>
           </g>
 
           <!-- ============ FRAME 6 — ratchet loop from Feedback back to active reference ============ -->
           <g class="dia-el dia-arrow green dashed" data-from="6">
-            <path class="draw-stroke"
-                  d="M 720 425 Q 850 470, 940 285 Q 950 220, 930 175"
-                  marker-end="url(#arr-green)"/>
-            <text class="arrow-label" x="900" y="460" fill="var(--green)">a new line per failure</text>
+            <path d="M 720 410 Q 850 200, 920 132" marker-end="url(#arr-green)"/>
+            <text class="arrow-label" x="680" y="200" fill="var(--green)">a new line per failure</text>
           </g>
         </svg>
         <p class="diagram-caption" id="diaCaption">&nbsp;</p>
@@ -1032,30 +1037,8 @@
       <span class="counter">01 / 01</span>
     </div>
     <div class="single-ref reveal-d1">
-      <div class="ref-thumb">
-        <svg class="glyph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="1.4">
-          <!-- ratchet wheel glyph -->
-          <circle cx="100" cy="100" r="58" stroke-dasharray="6 4"/>
-          <circle cx="100" cy="100" r="20"/>
-          <g stroke-linecap="round">
-            <path d="M100 30 L100 50"/>
-            <path d="M100 150 L100 170"/>
-            <path d="M30 100 L50 100"/>
-            <path d="M150 100 L170 100"/>
-            <path d="M50 50 L65 65"/>
-            <path d="M135 135 L150 150"/>
-            <path d="M150 50 L135 65"/>
-            <path d="M65 135 L50 150"/>
-          </g>
-        </svg>
-        <div class="gen-top">
-          <span>Essay · mitchellh.com</span>
-          <span class="gen-mark">⚙</span>
-        </div>
-        <div>
-          <div class="gen-headline">The<br>ratchet<br>method.</div>
-          <div class="gen-meta" style="margin-top: 0.5rem;">Feb 2026 · Hashimoto</div>
-        </div>
+      <div class="ref-thumb has-image">
+        <img src="1702608898-mitchell-reflects-departure.webp" alt="Mitchell Hashimoto — My AI Adoption Journey" />
       </div>
       <div class="ref-body">
         <span class="ref-tag">Essay · February 2026</span>

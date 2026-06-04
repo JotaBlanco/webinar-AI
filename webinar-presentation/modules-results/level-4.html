@@ -146,15 +146,37 @@ p.body{color:var(--ink-soft);font-size:1.02rem;line-height:1.65;max-width:64ch;m
 .row{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;}
 .row-tight{display:grid;grid-template-columns:1.3fr 1fr;gap:2rem;align-items:center;}
 .section-h{margin-bottom:.6rem;}
+/* comparison scatter */
+.scat-row{display:grid;grid-template-columns:1.45fr 1fr;gap:1.8rem;align-items:center;}
+.toggles{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+.toggles .toggles-h{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.25rem;}
+.toggles button{display:inline-flex;align-items:center;gap:.55rem;
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;
+  padding:.5rem .8rem;border-radius:8px;cursor:pointer;width:100%;text-align:left;
+  background:rgba(255,255,255,.03);color:var(--ink-mute);
+  border:1px solid rgba(255,255,255,.08);
+  transition:background .25s,color .25s,border-color .25s;}
+.toggles button .sw{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.toggles button:hover{background:rgba(255,255,255,.06);color:var(--ink-soft);}
+.toggles button.on{background:rgba(255,255,255,.08);color:var(--ink);border-color:rgba(255,255,255,.25);}
+.toggles button.current{background:rgba(61,137,255,.18);color:var(--ink);border-color:rgba(61,137,255,.5);cursor:default;}
+.scatter-wrap svg circle.pt{transition:opacity .55s ease, r .35s ease;}
+.scatter-wrap.ready svg circle.pt{transition:cx .8s cubic-bezier(.2,.7,.2,1),cy .8s cubic-bezier(.2,.7,.2,1),opacity .5s ease,r .35s ease,fill-opacity .35s ease;}
+.scatter-wrap svg text.axis-text, .scatter-wrap svg line.grid-line{transition:opacity .25s ease;}
+/* bar reveal & sort */
+.bar-row{transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .5s ease;will-change:transform,opacity;}
+.bar-row.hidden{opacity:0;pointer-events:none;}
+.bar-row.hidden .fill{width:0!important;}
+.bars-hint{margin-top:.9rem;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute);font-family:var(--mono);}
 </style></head><body>
 <div class="stars"></div>
 <div class="topbar"><svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg><span class="meta">Quix · Level 4 results</span></div>
 <div class="deck">
 
 <section class="slide" data-i="1">
-  <span class="eyebrow reveal">Level 4 · Production Polish</span>
-  <h1 class="display reveal-d1">11 agents, <span class="grad">one brief.</span></h1>
-  <p class="subtitle reveal-d2">Per-platform priors, relaxation length, fail-safes — the last 10% of polish.</p>
+  <span class="eyebrow reveal">Level 04 · AI Harness</span>
+  <h1 class="display reveal-d1"><span class="grad">Results.</span></h1>
+  <p class="subtitle reveal-d2">Holds the level 03 gains while adding fail-safes and per-platform priors — the harness pays off.</p>
   <div class="pills reveal-d3">
     <span class="pill">cohort = 11</span>
     <span class="pill purple">avg yaw ↑ 56.4%</span>
@@ -163,106 +185,49 @@ p.body{color:var(--ink-soft);font-size:1.02rem;line-height:1.65;max-width:64ch;m
   </div>
 </section>
 
-<section class="slide" data-i="2">
-  <span class="eyebrow reveal">Cohort</span>
-  <h3 class="heading reveal-d1 section-h">All 11 agents in Level 4.</h3>
-  <p class="subtitle reveal-d2" style="margin-bottom:.4rem;">Same prompt, same data, same scoring — different intuitions about how a car turns.</p>
-  <div class="roster reveal-d3">
-    <div class="card"><div class="h"><span class="id">A01</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A02</span><span class="imp">+55.7% yaw · +72.3% cte</span></div><div class="nm">m4-relaxation-length</div></div><div class="card"><div class="h"><span class="id">A03</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A04</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A05</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A06</span><span class="imp">+56.7% yaw · +72.3% cte</span></div><div class="nm">fitted-v1</div></div><div class="card"><div class="h"><span class="id">A07</span><span class="imp">+55.7% yaw · +72.3% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A08</span><span class="imp">+55.7% yaw · +72.3% cte</span></div><div class="nm">m4_relaxation_length</div></div><div class="card"><div class="h"><span class="id">A09</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A10</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A11</span><span class="imp">+56.7% yaw · +72.3% cte</span></div><div class="nm">v1-loadtransfer-correction</div></div>
+<section class="slide" data-i="2" data-substeps="0">
+  <span class="eyebrow reveal">Scatter · KPI space</span>
+  <h3 class="heading reveal-d1 section-h">Yaw RMSE vs CTE RMSE — this level vs the previous.</h3>
+  <p class="subtitle reveal-d2" style="margin-bottom:.8rem;">Bottom-left is better. By default we compare to the immediately prior level; toggle to expand the comparison and the axes adapt to what's shown.</p>
+  <div class="scat-row reveal-d3">
+    <div class="scatter-wrap">
+      <svg id="scat" viewBox="0 0 720 520"><defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g id="scat-axes"></g><g id="scat-pts"></g></svg>
+      <div class="legend" id="scat-legend"></div>
+    </div>
+    <div>
+      <div class="toggles">
+        <div class="toggles-h">Compare against</div>
+        <div id="scat-toggles"></div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="slide" data-i="3">
-  <span class="eyebrow reveal">Per-segment KPIs</span>
-  <h3 class="heading reveal-d1 section-h">RMSE by platform · cohort mean and best.</h3>
-  <p class="subtitle reveal-d2" style="margin-bottom:1rem;">V0 = no-op baseline. Mean is the cohort centre; best is the single agent’s number on that platform.</p>
-  <div class="reveal-d3" style="max-width:980px;"><table class="tbl">
-<thead><tr><th class="l">Platform</th><th>Segments</th>
-<th>Yaw RMSE (mean)</th><th>Yaw RMSE (best)</th>
-<th>CTE RMSE m (mean)</th><th>CTE RMSE m (best)</th></tr></thead>
-<tbody><tr><td class="l">F-150 Lightning</td><td>55</td><td>0.0126</td><td class="good">0.0125</td><td>72.0</td><td class="good">71.5</td></tr><tr><td class="l">Mach-E</td><td>75</td><td>0.0059</td><td class="good">0.0057</td><td>74.8</td><td class="good">74.8</td></tr><tr><td class="l">Ioniq 5</td><td>404</td><td>0.0064</td><td class="good">0.0063</td><td>69.5</td><td class="good">69.4</td></tr></tbody></table></div>
-  <div class="pills reveal-d4" style="margin-top:1.2rem;">
-    <span class="pill">V0 yaw RMSE ≡ 0.0163 rad/s</span>
-    <span class="pill orange">V0 CTE RMSE ≡ 254.3 m</span>
-  </div>
-</section>
-
-<section class="slide" data-i="4">
+<section class="slide" data-i="3" data-substeps="12">
   <span class="eyebrow reveal">Distribution</span>
   <h3 class="heading reveal-d1 section-h">Improvement vs V0, per agent.</h3>
-  <p class="subtitle reveal-d2" style="margin-bottom:1rem;">Two KPIs, side by side. Yaw left, CTE right. Same agents, sorted by their own metric.</p>
+  <p class="subtitle reveal-d2" style="margin-bottom:1rem;">Yaw left, CTE right — click through to reveal each agent in order, then sort by performance.</p>
   <div class="row reveal-d3">
     <div>
       <div class="stat-card" style="margin-bottom:.8rem;">
         <div class="label">Yaw rate · improvement vs V0</div>
         <div class="value" style="font-size:1.15rem;color:var(--ink-soft);">All 11 agents</div>
       </div>
-      <div class="bar-row "><span class="lab">A06</span><div class="track"><div class="fill" data-w="74.8%" style="width:0"></div></div><span class="val">56.7%</span></div>
-<div class="bar-row "><span class="lab">A11</span><div class="track"><div class="fill" data-w="74.7%" style="width:0"></div></div><span class="val">56.7%</span></div>
-<div class="bar-row "><span class="lab">A01</span><div class="track"><div class="fill" data-w="74.6%" style="width:0"></div></div><span class="val">56.6%</span></div>
-<div class="bar-row "><span class="lab">A03</span><div class="track"><div class="fill" data-w="74.6%" style="width:0"></div></div><span class="val">56.6%</span></div>
-<div class="bar-row "><span class="lab">A04</span><div class="track"><div class="fill" data-w="74.6%" style="width:0"></div></div><span class="val">56.6%</span></div>
-<div class="bar-row "><span class="lab">A05</span><div class="track"><div class="fill" data-w="74.6%" style="width:0"></div></div><span class="val">56.6%</span></div>
-<div class="bar-row "><span class="lab">A09</span><div class="track"><div class="fill" data-w="74.6%" style="width:0"></div></div><span class="val">56.6%</span></div>
-<div class="bar-row "><span class="lab">A10</span><div class="track"><div class="fill" data-w="74.6%" style="width:0"></div></div><span class="val">56.6%</span></div>
-<div class="bar-row "><span class="lab">A08</span><div class="track"><div class="fill" data-w="73.4%" style="width:0"></div></div><span class="val">55.7%</span></div>
-<div class="bar-row "><span class="lab">A02</span><div class="track"><div class="fill" data-w="73.4%" style="width:0"></div></div><span class="val">55.7%</span></div>
-<div class="bar-row "><span class="lab">A07</span><div class="track"><div class="fill" data-w="73.4%" style="width:0"></div></div><span class="val">55.7%</span></div>
+      <div id="bars-yaw" class="bars"></div>
     </div>
     <div>
       <div class="stat-card" style="margin-bottom:.8rem;">
         <div class="label">Cross-track error · improvement vs V0</div>
         <div class="value" style="font-size:1.15rem;color:var(--ink-soft);">All 11 agents</div>
       </div>
-      <div class="bar-row cte"><span class="lab">A08</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.3%</span></div>
-<div class="bar-row cte"><span class="lab">A02</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.3%</span></div>
-<div class="bar-row cte"><span class="lab">A07</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.3%</span></div>
-<div class="bar-row cte"><span class="lab">A06</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.3%</span></div>
-<div class="bar-row cte"><span class="lab">A11</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.3%</span></div>
-<div class="bar-row cte"><span class="lab">A01</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.2%</span></div>
-<div class="bar-row cte"><span class="lab">A03</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.2%</span></div>
-<div class="bar-row cte"><span class="lab">A04</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.2%</span></div>
-<div class="bar-row cte"><span class="lab">A05</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.2%</span></div>
-<div class="bar-row cte"><span class="lab">A09</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.2%</span></div>
-<div class="bar-row cte"><span class="lab">A10</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.2%</span></div>
+      <div id="bars-cte" class="bars"></div>
     </div>
   </div>
+  <div class="bars-hint" id="bars-hint">→  reveal first agent</div>
 </section>
 
-<section class="slide" data-i="5">
-  <span class="eyebrow reveal">Scatter · KPI space</span>
-  <h3 class="heading reveal-d1 section-h">Yaw RMSE vs CTE RMSE — V0 first, then the cohort.</h3>
-  <p class="subtitle reveal-d2" style="margin-bottom:.8rem;">Bottom-left is better. The orange star is the "non-existing agent" — V0 baseline that just echoes the input. Blue points are this level’s agents.</p>
-  <div class="row-tight reveal-d3">
-    <div class="scatter-wrap">
-      <svg viewBox="0 0 720 520" data-reveal-points="1"><defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><text x="56" y="18" fill="rgba(255,255,255,0.85)" font-size="12" font-family="JetBrains Mono,monospace" letter-spacing="0.1em">LEVEL 4 VS V0 BASELINE</text><line x1="56.0" y1="28" x2="56.0" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="28.0" x2="698" y2="28.0" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="216.5" y1="28" x2="216.5" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="138.5" x2="698" y2="138.5" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="377.0" y1="28" x2="377.0" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="249.0" x2="698" y2="249.0" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="537.5" y1="28" x2="537.5" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="359.5" x2="698" y2="359.5" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="698.0" y1="28" x2="698.0" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="470.0" x2="698" y2="470.0" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="470" x2="698" y2="470" stroke="rgba(255,255,255,0.25)" stroke-width="1"/><line x1="56" y1="28" x2="56" y2="470" stroke="rgba(255,255,255,0.25)" stroke-width="1"/><text x="56.0" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.000</text><text x="216.5" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.004</text><text x="377.0" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.009</text><text x="537.5" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.013</text><text x="698.0" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.017</text><text x="48.0" y="473.0" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">0</text><text x="48.0" y="362.5" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">67</text><text x="48.0" y="252.0" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">133</text><text x="48.0" y="141.5" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">200</text><text x="48.0" y="31.0" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">267</text><text x="377.0" y="508" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">yaw RMSE (rad/s)</text><text transform="translate(16,249.0) rotate(-90)" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">CTE RMSE (m)</text><circle class="pt" cx="667.4" cy="49.0" r="11" fill="#ff7828" fill-opacity="0.85" stroke="#ff7828" stroke-opacity="0.95" stroke-width="1" data-delay="0" filter="url(#glow)"><title>V0 baseline (no agent): yaw=0.0163, cte=254.3</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="600" filter="url(#glow)"><title>A01: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="327.1" cy="353.2" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="690" filter="url(#glow)"><title>A02: yaw=0.0072, cte=70.5</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="780" filter="url(#glow)"><title>A03: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="870" filter="url(#glow)"><title>A04: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="960" filter="url(#glow)"><title>A05: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="320.6" cy="353.2" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1050" filter="url(#glow)"><title>A06: yaw=0.0070, cte=70.5</title></circle><circle class="pt" cx="327.1" cy="353.2" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1140" filter="url(#glow)"><title>A07: yaw=0.0072, cte=70.5</title></circle><circle class="pt" cx="327.0" cy="353.2" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1230" filter="url(#glow)"><title>A08: yaw=0.0072, cte=70.5</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1320" filter="url(#glow)"><title>A09: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1410" filter="url(#glow)"><title>A10: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.1" cy="353.2" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1500" filter="url(#glow)"><title>A11: yaw=0.0071, cte=70.6</title></circle></svg>
-      <div class="legend">
-        <div><span class="sw" style="background:#ff7828"></span>V0 baseline</div>
-        <div><span class="sw" style="background:#3d89ff"></span>Level 4 agents (n=11)</div>
-      </div>
-    </div>
-    <div>
-      <div class="stat-card" style="margin-bottom:.6rem;">
-        <div class="label">V0 baseline</div>
-        <div class="value">0.0163 · 254</div>
-        <div class="delta bad">yaw rad/s · cte m</div>
-      </div>
-      <div class="stat-card" style="margin-bottom:.6rem;">
-        <div class="label">Cohort best</div>
-        <div class="value">0.0070 · 71</div>
-        <div class="delta">yaw rad/s · cte m</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Average gain</div>
-        <div class="value">56.4% · 72.2%</div>
-        <div class="delta">yaw · cte vs V0</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="slide" data-i="6">
-  <span class="eyebrow reveal">What worked · what didn’t</span>
+<section class="slide" data-i="4" data-substeps="0">
+  <span class="eyebrow reveal">What worked · what didn't</span>
   <h3 class="heading reveal-d1">Level 4 — reading the cohort.</h3>
   <div class="compare reveal-d2">
     <div class="compare-panel after">
@@ -283,41 +248,272 @@ p.body{color:var(--ink-soft);font-size:1.02rem;line-height:1.65;max-width:64ch;m
 <div class="footer"><span>Quix · Webinar AI · 2026</span><span><span id="cur">1</span> / <span id="tot">5</span></span></div>
 <div class="progress" id="prog"></div>
 <script>
+const CURRENT_LEVEL = 'L4';
+const AGENT_COUNT = 11;
+const BARS_DATA = {
+  yaw: [
+    {id:'A01',val:56.6},{id:'A02',val:55.7},{id:'A03',val:56.6},
+    {id:'A04',val:56.6},{id:'A05',val:56.6},{id:'A06',val:56.7},
+    {id:'A07',val:55.7},{id:'A08',val:55.7},{id:'A09',val:56.6},
+    {id:'A10',val:56.6},{id:'A11',val:56.7}
+  ],
+  cte: [
+    {id:'A01',val:72.2},{id:'A02',val:72.3},{id:'A03',val:72.2},
+    {id:'A04',val:72.2},{id:'A05',val:72.2},{id:'A06',val:72.3},
+    {id:'A07',val:72.3},{id:'A08',val:72.3},{id:'A09',val:72.2},
+    {id:'A10',val:72.2},{id:'A11',val:72.3}
+  ]
+};
+
+const SCATTER_DATA = {
+  V0: { yaw: 0.0163, cte: 254.3 },
+  L1: [{id:'A01',yaw:0.0080,cte:110.2},{id:'A02',yaw:0.0084,cte:108.8},{id:'A03',yaw:0.0084,cte:110.2},{id:'A04',yaw:0.0085,cte:111.7},{id:'A05',yaw:0.0084,cte:113.8},{id:'A06',yaw:0.0086,cte:121.3},{id:'A07',yaw:0.0082,cte:118.4},{id:'A08',yaw:0.0097,cte:110.3},{id:'A09',yaw:0.0081,cte:113.3},{id:'A10',yaw:0.0085,cte:128.5}],
+  L2: [{id:'A01',yaw:0.0084,cte:109.6},{id:'A02',yaw:0.0082,cte:103.3},{id:'A03',yaw:0.0083,cte:108.9},{id:'A04',yaw:0.0082,cte:104.0},{id:'A05',yaw:0.0083,cte:104.0},{id:'A06',yaw:0.0080,cte:111.0},{id:'A07',yaw:0.0080,cte:109.6},{id:'A08',yaw:0.0088,cte:109.4},{id:'A09',yaw:0.0080,cte:111.0},{id:'A10',yaw:0.0080,cte:115.2}],
+  L3: [{id:'A01',yaw:0.0074,cte:72.8},{id:'A02',yaw:0.0070,cte:70.6},{id:'A03',yaw:0.0070,cte:70.6},{id:'A04',yaw:0.0070,cte:70.4},{id:'A05',yaw:0.0071,cte:70.6},{id:'A06',yaw:0.0071,cte:70.6},{id:'A07',yaw:0.0071,cte:70.6},{id:'A08',yaw:0.0071,cte:70.6},{id:'A09',yaw:0.0070,cte:70.6},{id:'A10',yaw:0.0071,cte:70.6}],
+  L4: [{id:'A01',yaw:0.0071,cte:70.6},{id:'A02',yaw:0.0072,cte:70.5},{id:'A03',yaw:0.0071,cte:70.6},{id:'A04',yaw:0.0071,cte:70.6},{id:'A05',yaw:0.0071,cte:70.6},{id:'A06',yaw:0.0070,cte:70.5},{id:'A07',yaw:0.0072,cte:70.5},{id:'A08',yaw:0.0072,cte:70.5},{id:'A09',yaw:0.0071,cte:70.6},{id:'A10',yaw:0.0071,cte:70.6},{id:'A11',yaw:0.0071,cte:70.6}]
+};
+const LEVEL_ORDER = ['V0','L1','L2','L3','L4'];
+const LEVEL_COLOR = { V0:'#ff7828', L1:'#3d89ff', L2:'#ff2e5f', L3:'#00dd81', L4:'#58e2ff' };
+const LEVEL_LABEL = { V0:'V0 baseline', L1:'Level 01', L2:'Level 02', L3:'Level 03', L4:'Level 04' };
+const PREV_OF = { L1:'V0', L2:'L1', L3:'L2', L4:'L3' };
+
 const slides=document.querySelectorAll('.slide');
 const cur=document.getElementById('cur');
 const tot=document.getElementById('tot');
 const prog=document.getElementById('prog');
 tot.textContent=slides.length;
-let i=0;
-function go(n){i=Math.max(0,Math.min(slides.length-1,n));
-  slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+let i=0, s=0;
+const subMax = idx => parseInt(slides[idx].dataset.substeps||'0',10);
+function applyState(){
+  slides.forEach((sl,idx)=>sl.classList.toggle('active',idx===i));
   cur.textContent=i+1;
   prog.style.setProperty('--p',((i+1)/slides.length*100)+'%');
-  // trigger scatter point reveal
-  document.querySelectorAll('.slide.active [data-reveal-points]').forEach(svg=>{
-    const pts=svg.querySelectorAll('circle.pt');
-    pts.forEach((p,idx)=>{p.style.opacity=0;p.style.transform='scale(0)';
-      p.style.transformOrigin=p.getAttribute('cx')+'px '+p.getAttribute('cy')+'px';
-      setTimeout(()=>{p.style.transition='opacity .45s ease, transform .55s cubic-bezier(.2,.7,.2,1)';
-        p.style.opacity=1;p.style.transform='scale(1)';},
-        parseInt(p.getAttribute('data-delay')||'0',10));
-    });
-  });
-  // trigger bar fills
-  document.querySelectorAll('.slide.active .bar-row .fill').forEach(b=>{
-    const w=b.dataset.w;b.style.width='0';
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{b.style.width=w;}));
-  });
+  if(slides[i].dataset.i==='2') onScatterActive();
+  if(slides[i].dataset.i==='3') onBarsActive(s);
 }
+function next(){ if(s<subMax(i)) s++; else if(i<slides.length-1){i++;s=0;} applyState(); }
+function prev(){ if(s>0) s--; else if(i>0){i--;s=subMax(i);} applyState(); }
+function goSlide(n){ i=Math.max(0,Math.min(slides.length-1,n)); s=0; applyState(); }
 document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')go(i+1);
-  if(e.key==='ArrowLeft'||e.key==='PageUp')go(i-1);
-  if(e.key==='Home')go(0);
-  if(e.key==='End')go(slides.length-1);
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') next();
+  if(e.key==='ArrowLeft'||e.key==='PageUp') prev();
+  if(e.key==='Home') goSlide(0);
+  if(e.key==='End') goSlide(slides.length-1);
 });
 document.addEventListener('click',e=>{
-  if(e.target.closest('a,button,input'))return;
-  go(i+(e.clientX>window.innerWidth/2?1:-1));
+  if(e.target.closest('a,button,input,.toggles,#scat-toggles,#scat-legend')) return;
+  if(e.clientX>window.innerWidth/2) next(); else prev();
 });
-go(0);
+
+const SVG_NS='http://www.w3.org/2000/svg';
+const VB_W=720, VB_H=520, PAD_L=60, PAD_R=24, PAD_T=30, PAD_B=50;
+const PLOT_W=VB_W-PAD_L-PAD_R, PLOT_H=VB_H-PAD_T-PAD_B;
+const X0=PAD_L, X1=VB_W-PAD_R, Y0=VB_H-PAD_B, Y1=PAD_T;
+const visibility = Object.fromEntries(LEVEL_ORDER.map(k=>[k,false]));
+visibility[CURRENT_LEVEL]=true;
+visibility[PREV_OF[CURRENT_LEVEL]]=true;
+
+function svgEl(tag,attrs){const el=document.createElementNS(SVG_NS,tag); for(const k in attrs) el.setAttribute(k,attrs[k]); return el;}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const exp=Math.pow(10,Math.floor(Math.log10(v)));
+  const m=v/exp;
+  let n;
+  if(m<=1)n=1;else if(m<=1.5)n=1.5;else if(m<=2)n=2;else if(m<=2.5)n=2.5;
+  else if(m<=3)n=3;else if(m<=4)n=4;else if(m<=5)n=5;else if(m<=7.5)n=7.5;else n=10;
+  return n*exp;
+}
+function allScatterPoints(){
+  const arr=[];
+  LEVEL_ORDER.forEach(k=>{
+    if(k==='V0') arr.push({level:k,id:'V0',yaw:SCATTER_DATA.V0.yaw,cte:SCATTER_DATA.V0.cte});
+    else SCATTER_DATA[k].forEach(a=>arr.push({level:k,id:a.id,yaw:a.yaw,cte:a.cte}));
+  });
+  return arr;
+}
+function activeScatterPoints(){ return allScatterPoints().filter(p=>visibility[p.level]); }
+function renderScatter(){
+  const active=activeScatterPoints();
+  if(!active.length) return;
+  const xMax=niceCeil(Math.max(...active.map(p=>p.yaw))*1.05);
+  const yMax=niceCeil(Math.max(...active.map(p=>p.cte))*1.05);
+  const xToPx=v=>X0+(v/xMax)*PLOT_W;
+  const yToPx=v=>Y0-(v/yMax)*PLOT_H;
+  const axes=document.getElementById('scat-axes'); axes.innerHTML='';
+  const ticks=5;
+  for(let t=0;t<=ticks;t++){
+    const xv=xMax*t/ticks, yv=yMax*t/ticks;
+    const xp=xToPx(xv), yp=yToPx(yv);
+    if(t>0){
+      axes.appendChild(svgEl('line',{class:'grid-line',x1:xp,y1:Y1,x2:xp,y2:Y0,stroke:'rgba(255,255,255,0.04)','stroke-width':1}));
+      axes.appendChild(svgEl('line',{class:'grid-line',x1:X0,y1:yp,x2:X1,y2:yp,stroke:'rgba(255,255,255,0.04)','stroke-width':1}));
+    }
+    const xt=svgEl('text',{class:'axis-text',x:xp,y:Y0+18,'text-anchor':'middle',fill:'rgba(255,255,255,0.55)','font-size':10,'font-family':'JetBrains Mono,monospace'});
+    xt.textContent = xMax<0.05 ? xv.toFixed(4) : xv.toFixed(2);
+    axes.appendChild(xt);
+    const yt=svgEl('text',{class:'axis-text',x:X0-8,y:yp+3,'text-anchor':'end',fill:'rgba(255,255,255,0.55)','font-size':10,'font-family':'JetBrains Mono,monospace'});
+    yt.textContent = yMax<10 ? yv.toFixed(1) : Math.round(yv).toString();
+    axes.appendChild(yt);
+  }
+  axes.appendChild(svgEl('line',{x1:X0,y1:Y0,x2:X1,y2:Y0,stroke:'rgba(255,255,255,0.25)','stroke-width':1}));
+  axes.appendChild(svgEl('line',{x1:X0,y1:Y1,x2:X0,y2:Y0,stroke:'rgba(255,255,255,0.25)','stroke-width':1}));
+  const xlab=svgEl('text',{x:(X0+X1)/2,y:VB_H-10,'text-anchor':'middle',fill:'rgba(255,255,255,0.6)','font-size':11,'font-family':'JetBrains Mono,monospace'});
+  xlab.textContent='yaw RMSE (rad/s)'; axes.appendChild(xlab);
+  const ylab=svgEl('text',{x:14,y:(Y0+Y1)/2,'text-anchor':'middle',fill:'rgba(255,255,255,0.6)','font-size':11,'font-family':'JetBrains Mono,monospace',transform:`rotate(-90 14 ${(Y0+Y1)/2})`});
+  ylab.textContent='CTE RMSE (m)'; axes.appendChild(ylab);
+
+  const ptsG=document.getElementById('scat-pts');
+  allScatterPoints().forEach(p=>{
+    const key=`${p.level}_${p.id}`;
+    let c=ptsG.querySelector(`[data-key="${key}"]`);
+    if(!c){
+      c=svgEl('circle',{class:'pt','data-key':key,filter:'url(#glow)'});
+      c.setAttribute('cx',xToPx(p.yaw)); c.setAttribute('cy',yToPx(p.cte));
+      ptsG.appendChild(c);
+      const t=document.createElementNS(SVG_NS,'title');
+      t.textContent=`${LEVEL_LABEL[p.level]} · ${p.id}: yaw=${p.yaw.toFixed(4)}, cte=${p.cte.toFixed(1)}`;
+      c.appendChild(t);
+    }
+    const isCurrent=p.level===CURRENT_LEVEL;
+    const isV0=p.level==='V0';
+    const isVisible=visibility[p.level];
+    c.setAttribute('r', isV0?11 : isCurrent?8 : 6);
+    c.setAttribute('fill',LEVEL_COLOR[p.level]); c.setAttribute('stroke',LEVEL_COLOR[p.level]);
+    c.setAttribute('fill-opacity', isVisible ? (isCurrent?0.95 : isV0?0.9 : 0.55) : 0);
+    c.setAttribute('stroke-opacity', isVisible ? 0.95 : 0);
+    c.setAttribute('cx',xToPx(p.yaw)); c.setAttribute('cy',yToPx(p.cte));
+    c.style.pointerEvents = isVisible ? 'auto' : 'none';
+  });
+
+  const lg=document.getElementById('scat-legend'); lg.innerHTML='';
+  LEVEL_ORDER.forEach(k=>{
+    if(!visibility[k]) return;
+    const d=document.createElement('div');
+    d.innerHTML=`<span class="sw" style="background:${LEVEL_COLOR[k]}"></span>${LEVEL_LABEL[k]}${k===CURRENT_LEVEL?' · this level':''}`;
+    lg.appendChild(d);
+  });
+}
+function buildToggles(){
+  const wrap=document.getElementById('scat-toggles'); wrap.innerHTML='';
+  const idx=LEVEL_ORDER.indexOf(CURRENT_LEVEL);
+  LEVEL_ORDER.slice(0,idx+1).forEach(k=>{
+    const b=document.createElement('button');
+    b.dataset.set=k;
+    b.innerHTML=`<span class="sw" style="background:${LEVEL_COLOR[k]}"></span>${LEVEL_LABEL[k]}${k===CURRENT_LEVEL?' · this level':''}`;
+    if(visibility[k]) b.classList.add('on');
+    if(k===CURRENT_LEVEL) b.classList.add('current');
+    b.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(k===CURRENT_LEVEL) return;
+      visibility[k]=!visibility[k];
+      b.classList.toggle('on');
+      renderScatter();
+    });
+    wrap.appendChild(b);
+  });
+}
+let scatterEntered=false;
+function onScatterActive(){
+  if(scatterEntered) return;
+  scatterEntered=true;
+  buildToggles(); renderScatter();
+  const wrap=document.querySelector('.scatter-wrap');
+  const ptsG=document.getElementById('scat-pts');
+  const active=Array.from(ptsG.querySelectorAll('circle.pt')).filter(c=>visibility[c.dataset.key.split('_')[0]]);
+  const orderKey=c=>{const lvl=c.dataset.key.split('_')[0]; if(lvl==='V0') return 0; if(lvl===CURRENT_LEVEL) return 1; return 2;};
+  active.sort((a,b)=>orderKey(a)-orderKey(b));
+  active.forEach(c=>{
+    c.style.opacity='0';
+    c.style.transformOrigin=`${c.getAttribute('cx')}px ${c.getAttribute('cy')}px`;
+    c.style.transform='scale(0.35)';
+  });
+  active.forEach((c,idx)=>{
+    setTimeout(()=>{
+      c.style.transition='opacity .65s ease, transform .9s cubic-bezier(.2,.7,.2,1)';
+      requestAnimationFrame(()=>{
+        c.style.opacity='1'; c.style.transform='scale(1)';
+      });
+    }, 220 + idx*150);
+  });
+  setTimeout(()=>{
+    wrap.classList.add('ready');
+    active.forEach(c=>{
+      c.style.transition=''; c.style.transform=''; c.style.transformOrigin=''; c.style.opacity='';
+    });
+  }, 220 + active.length*150 + 1100);
+}
+
+let barsBuilt=false, barsSorted=false;
+function buildBars(){
+  if(barsBuilt) return;
+  barsBuilt=true;
+  ['yaw','cte'].forEach(metric=>{
+    const c=document.getElementById('bars-'+metric);
+    if(!c) return;
+    const max=Math.max(...BARS_DATA[metric].map(b=>b.val));
+    BARS_DATA[metric].forEach((b,idx)=>{
+      const row=document.createElement('div');
+      row.className='bar-row hidden'+(metric==='cte'?' cte':'');
+      row.dataset.agent=b.id; row.dataset.order=idx; row.dataset.val=b.val;
+      const w=(b.val/max*92).toFixed(1);
+      row.innerHTML=`<span class="lab">${b.id}</span><div class="track"><div class="fill" data-w="${w}%" style="width:0"></div></div><span class="val">${b.val.toFixed(1)}%</span>`;
+      c.appendChild(row);
+    });
+  });
+}
+function flipReorder(container, comparator){
+  const rows=Array.from(container.children);
+  const positions=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
+  rows.sort(comparator);
+  rows.forEach(r=>container.appendChild(r));
+  rows.forEach(r=>{
+    const newTop=r.getBoundingClientRect().top;
+    const delta=positions.get(r)-newTop;
+    if(delta){
+      r.style.transition='none';
+      r.style.transform=`translateY(${delta}px)`;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        r.style.transition=''; r.style.transform='translateY(0)';
+      }));
+    }
+  });
+}
+function onBarsActive(sub){
+  buildBars();
+  const yawC=document.getElementById('bars-yaw');
+  const cteC=document.getElementById('bars-cte');
+  const hint=document.getElementById('bars-hint');
+  if(sub<=AGENT_COUNT){
+    if(barsSorted){
+      flipReorder(yawC,(a,b)=>parseInt(a.dataset.order,10)-parseInt(b.dataset.order,10));
+      flipReorder(cteC,(a,b)=>parseInt(a.dataset.order,10)-parseInt(b.dataset.order,10));
+      barsSorted=false;
+    }
+    [yawC,cteC].forEach(c=>{
+      Array.from(c.children).forEach(row=>{
+        const ord=parseInt(row.dataset.order,10);
+        const shouldShow=ord<sub;
+        const wasHidden=row.classList.contains('hidden');
+        if(shouldShow && wasHidden){
+          row.classList.remove('hidden');
+          const fill=row.querySelector('.fill');
+          fill.style.width='0';
+          requestAnimationFrame(()=>requestAnimationFrame(()=>{ fill.style.width=fill.dataset.w; }));
+        } else if(!shouldShow && !wasHidden){
+          row.classList.add('hidden');
+        }
+      });
+    });
+    if(hint) hint.textContent = sub===0 ? '→  reveal first agent' : sub<AGENT_COUNT ? '→  reveal next agent' : '→  sort by performance';
+  } else {
+    if(!barsSorted){
+      flipReorder(yawC,(a,b)=>parseFloat(b.dataset.val)-parseFloat(a.dataset.val));
+      flipReorder(cteC,(a,b)=>parseFloat(b.dataset.val)-parseFloat(a.dataset.val));
+      barsSorted=true;
+    }
+    if(hint) hint.textContent='→  next slide';
+  }
+}
+
+applyState();
 </script></body></html>

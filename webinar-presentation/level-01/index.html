@@ -748,6 +748,49 @@
     pointer-events: auto;
   }
   .slide[data-i="5"][data-frame="2"] .frontier-kicker { transition-delay: 0.12s; }
+
+  /* ============== SLIDE 6 — concrete diagram label helpers ============== */
+  .diagram svg .lbl-md {
+    font-size: 17px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    fill: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .diagram svg .lbl-mono {
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 500;
+    fill: var(--ink);
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.04em;
+  }
+  .diagram svg .lbl-mono-sm {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 500;
+    fill: rgba(255,255,255,0.55);
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.04em;
+  }
+  .diagram svg .tools-chip text.wide {
+    font-size: 10.5px; letter-spacing: 0.06em;
+  }
+  .diagram svg .spec-banner rect {
+    fill: rgba(189,46,255,0.12);
+    stroke: rgba(189,46,255,0.55);
+    stroke-width: 1.6;
+  }
+  .diagram svg .spec-banner text {
+    font-family: var(--mono);
+    font-size: 14px; font-weight: 600;
+    fill: var(--purple-l);
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.05em;
+  }
+  .diagram svg .perim-dashed {
+    fill: none;
+    stroke: rgba(255,120,40,0.55);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+  }
   .frontier-kicker .grad-kicker {
     background: linear-gradient(120deg, var(--orange-l) 0%, var(--purple) 100%);
     -webkit-background-clip: text; background-clip: text;
@@ -1054,6 +1097,112 @@
     </div>
   </section>
 
+  <!-- ===== SLIDE 6 — the minimal agent, anatomically ===== -->
+  <section class="slide" data-i="6">
+    <div class="diagram-wrap">
+      <div class="diagram-head reveal">
+        <span class="eyebrow orange">Diagram · 06 · The minimal agent, anatomically</span>
+        <span class="counter"><b id="dCur2">01</b> / 07</span>
+      </div>
+      <div class="diagram reveal-d1" data-frame="1" id="diagram2">
+        <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z" fill="rgba(255,255,255,0.75)"/>
+            </marker>
+          </defs>
+
+          <!-- frame 1 — Human -->
+          <g class="dia-el dia-box box-blue" data-from="1">
+            <rect class="bg" x="80" y="210" width="140" height="80" rx="14"/>
+            <text class="lbl" x="150" y="250">Human</text>
+          </g>
+
+          <!-- frame 2 — Human ↔ LLM dashed link + LLM Call (concrete) -->
+          <g class="dia-el dia-arrow dashed" data-from="2">
+            <path d="M 224 250 L 292 250" marker-start="url(#arr2)" marker-end="url(#arr2)"/>
+          </g>
+          <g class="dia-el dia-box box-purple" data-from="2">
+            <rect class="bg" x="296" y="180" width="208" height="140" rx="14"/>
+            <text class="lbl-md" x="400" y="232">Claude · Opus / Sonnet 4.x</text>
+            <text class="lbl-mono" x="400" y="262">Claude Code · VS Code</text>
+          </g>
+
+          <!-- frame 3 — TASK.md spec banner above LLM Call -->
+          <g class="dia-el spec-banner" data-from="3">
+            <rect x="326" y="42" width="148" height="44" rx="10"/>
+            <text x="400" y="64">TASK.md</text>
+          </g>
+          <g class="dia-el dia-arrow" data-from="3">
+            <path class="draw-stroke" d="M 400 90 L 400 176" marker-end="url(#arr2)"/>
+          </g>
+
+          <!-- frame 4 — Action arrow ending in empty space + tools chip (named) -->
+          <g class="dia-el dia-arrow" data-from="4">
+            <text class="arrow-label" x="590" y="128">Action</text>
+            <path class="draw-stroke" d="M 504 210 Q 590 155, 676 200" marker-end="url(#arr2)"/>
+          </g>
+          <g class="dia-el tools-chip" data-from="4">
+            <rect x="518" y="150" width="156" height="44" rx="14"/>
+            <text class="wide" x="596" y="166">READ · WRITE</text>
+            <text class="wide" x="596" y="184">BASH · PYTHON</text>
+          </g>
+
+          <!-- frame 5 — Environment box + dashed permissions perimeter + Feedback arrow -->
+          <g class="dia-el" data-from="5">
+            <rect class="perim-dashed" x="670" y="130" width="280" height="240" rx="20"/>
+          </g>
+          <g class="dia-el dia-box box-orange" data-from="5">
+            <rect class="bg" x="680" y="140" width="260" height="220" rx="14"/>
+            <text class="lbl-header" x="810" y="166">Environment</text>
+            <text class="lbl-mono" x="810" y="190">module-1/agent-XX/</text>
+          </g>
+          <g class="dia-el dia-arrow" data-from="5">
+            <path class="draw-stroke" d="M 676 300 Q 590 325, 504 290" marker-end="url(#arr2)"/>
+            <text class="arrow-label" x="590" y="358">Feedback</text>
+          </g>
+
+          <!-- frame 6 — data/ and code/ sub-boxes, concrete -->
+          <g class="dia-el dia-sub" data-from="6">
+            <rect x="690" y="212" width="114" height="138" rx="10"/>
+            <g class="icon-db" transform="translate(747, 240)">
+              <ellipse cx="0" cy="-11" rx="20" ry="5"/>
+              <path d="M -20 -11 L -20 11 A 20 5 0 0 0 20 11 L 20 -11"/>
+              <path d="M -20 0 A 20 5 0 0 0 20 0" opacity="0.7"/>
+            </g>
+            <text class="lbl-mono" x="747" y="286">data/</text>
+            <text class="lbl-mono-sm" x="747" y="308">F1 segments</text>
+            <text class="lbl-mono-sm" x="747" y="326">sim.csv</text>
+          </g>
+          <g class="dia-el dia-sub" data-from="6">
+            <rect x="816" y="212" width="114" height="138" rx="10"/>
+            <g class="icon-code" transform="translate(873, 240)">
+              <path d="M -12 -11 L -22 0 L -12 11"/>
+              <path d="M 12 -11 L 22 0 L 12 11"/>
+              <path d="M -5 15 L 5 -15" opacity="0.75"/>
+            </g>
+            <text class="lbl-mono" x="873" y="286">code/</text>
+            <text class="lbl-mono-sm" x="873" y="308">V0 baseline</text>
+            <text class="lbl-mono-sm" x="873" y="326">+ helpers</text>
+          </g>
+
+          <!-- frame 7 — Stop = deliverable check -->
+          <g class="dia-el dia-arrow dashed" data-from="7">
+            <path d="M 400 324 L 400 396" marker-end="url(#arr2)"/>
+          </g>
+          <g class="dia-el dia-box box-green" data-from="7">
+            <rect class="bg" x="306" y="400" width="188" height="44" rx="14"/>
+            <text class="lbl-mono" x="400" y="422">final-model/ written</text>
+          </g>
+          <g class="dia-el" data-from="7">
+            <text class="lbl-mono-sm" x="400" y="466" font-style="italic">→ grader runs</text>
+          </g>
+        </svg>
+        <p class="diagram-caption" id="diaCaption2">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <div class="hint">← →  navigate</div>
@@ -1072,22 +1221,29 @@
   const diaEls = document.querySelectorAll('#diagram [data-from]');
   const diagram = document.getElementById('diagram');
   const cap = document.getElementById('diaCaption');
+  const diaEls2 = document.querySelectorAll('#diagram2 [data-from]');
+  const diagram2 = document.getElementById('diagram2');
+  const cap2 = document.getElementById('diaCaption2');
   const cur = document.getElementById('cur');
   const tot = document.getElementById('tot');
   const cCur = document.getElementById('cCur');
   const dCur = document.getElementById('dCur');
+  const dCur2 = document.getElementById('dCur2');
   const prog = document.getElementById('prog');
 
-  const REFS_SLIDE     = 2;       // zero-based — carousel now sits at slide 3
-  const DIAGRAM_SLIDE  = 3;       // zero-based — diagram
-  const FRONTIER_SLIDE = 4;       // zero-based — laptop vs production
-  const TOTAL_FRAMES   = 8;
+  const REFS_SLIDE      = 2;      // zero-based — carousel
+  const DIAGRAM_SLIDE   = 3;      // zero-based — abstract loop diagram
+  const FRONTIER_SLIDE  = 4;      // zero-based — laptop vs production
+  const DIAGRAM2_SLIDE  = 5;      // zero-based — concrete loop diagram
+  const TOTAL_FRAMES    = 8;
   const FRONTIER_FRAMES = 2;
+  const TOTAL_FRAMES2   = 7;
   tot.textContent = slides.length;
   let i = 0;
   let c = 0;
   let frame = 1;
   let fFrame = 1;
+  let frame2 = 1;
   const frontierEl = slides[FRONTIER_SLIDE];
 
   const captions = {
@@ -1099,6 +1255,16 @@
     6: 'the environment talks back — and the loop closes.',
     7: 'tools are how the model reaches into the environment.',
     8: 'the loop ends when the model decides the job is done.'
+  };
+
+  const captions2 = {
+    1: '',
+    2: 'the model and the harness — Claude, inside VS Code via Claude Code.',
+    3: 'the spec — the job, the deliverable contract, the grading criteria.',
+    4: 'the tools — read files, write files, run shells, run Python.',
+    5: 'sandboxed to one working directory — that’s the agent’s whole world.',
+    6: 'the data it studies, the code it edits.',
+    7: 'the loop ends when the deliverable lands and the grader runs.'
   };
 
   function paintSlide() {
@@ -1127,33 +1293,46 @@
   function paintFrontier() {
     frontierEl.dataset.frame = fFrame;
   }
+  function paintDiagram2() {
+    diagram2.dataset.frame = frame2;
+    diaEls2.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame2);
+    });
+    dCur2.textContent = String(frame2).padStart(2, '0');
+    cap2.textContent = captions2[frame2] || ' ';
+  }
 
   // deck-chain: this is a deep-dive off the ladder — both ends return to it,
   // positioned on the L1 (Agentic AI) rung that opened this dive
   const __ladder = '../02-ladder/definitive/index.html#climb-2';
   function next() {
-    if (i === DIAGRAM_SLIDE  && frame  < TOTAL_FRAMES)     { frame++;  paintDiagram();  return; }
-    if (i === REFS_SLIDE     && c      < cards.length - 1) { c++;      paintCarousel(); return; }
-    if (i === FRONTIER_SLIDE && fFrame < FRONTIER_FRAMES)  { fFrame++; paintFrontier(); return; }
+    if (i === DIAGRAM_SLIDE   && frame  < TOTAL_FRAMES)     { frame++;  paintDiagram();  return; }
+    if (i === REFS_SLIDE      && c      < cards.length - 1) { c++;      paintCarousel(); return; }
+    if (i === FRONTIER_SLIDE  && fFrame < FRONTIER_FRAMES)  { fFrame++; paintFrontier(); return; }
+    if (i === DIAGRAM2_SLIDE  && frame2 < TOTAL_FRAMES2)    { frame2++; paintDiagram2(); return; }
     if (i < slides.length - 1) {
       i++;
-      if (i === DIAGRAM_SLIDE)  { frame = 1;  paintDiagram();  }
-      if (i === REFS_SLIDE)     { c = 0;      paintCarousel(); }
-      if (i === FRONTIER_SLIDE) { fFrame = 1; paintFrontier(); }
+      if (i === DIAGRAM_SLIDE)   { frame  = 1; paintDiagram();  }
+      if (i === REFS_SLIDE)      { c      = 0; paintCarousel(); }
+      if (i === FRONTIER_SLIDE)  { fFrame = 1; paintFrontier(); }
+      if (i === DIAGRAM2_SLIDE)  { frame2 = 1; paintDiagram2(); }
       paintSlide();
       return;
     }
     window.location.href = __ladder;
   }
   function prev() {
-    if (i === DIAGRAM_SLIDE  && frame  > 1) { frame--;  paintDiagram();  return; }
-    if (i === REFS_SLIDE     && c      > 0) { c--;      paintCarousel(); return; }
-    if (i === FRONTIER_SLIDE && fFrame > 1) { fFrame--; paintFrontier(); return; }
+    if (i === DIAGRAM_SLIDE   && frame  > 1) { frame--;  paintDiagram();  return; }
+    if (i === REFS_SLIDE      && c      > 0) { c--;      paintCarousel(); return; }
+    if (i === FRONTIER_SLIDE  && fFrame > 1) { fFrame--; paintFrontier(); return; }
+    if (i === DIAGRAM2_SLIDE  && frame2 > 1) { frame2--; paintDiagram2(); return; }
     if (i > 0) {
       i--;
-      if (i === DIAGRAM_SLIDE)  { frame  = TOTAL_FRAMES;    paintDiagram();  }
-      if (i === REFS_SLIDE)     { c      = cards.length - 1; paintCarousel(); }
-      if (i === FRONTIER_SLIDE) { fFrame = FRONTIER_FRAMES;  paintFrontier(); }
+      if (i === DIAGRAM_SLIDE)   { frame  = TOTAL_FRAMES;    paintDiagram();  }
+      if (i === REFS_SLIDE)      { c      = cards.length - 1; paintCarousel(); }
+      if (i === FRONTIER_SLIDE)  { fFrame = FRONTIER_FRAMES;  paintFrontier(); }
+      if (i === DIAGRAM2_SLIDE)  { frame2 = TOTAL_FRAMES2;    paintDiagram2(); }
       paintSlide();
       return;
     }
@@ -1161,9 +1340,10 @@
   }
   function goto(idx) {
     i = Math.max(0, Math.min(slides.length - 1, idx));
-    if (i === DIAGRAM_SLIDE)  { frame  = 1; paintDiagram();  }
-    if (i === REFS_SLIDE)     { c      = 0; paintCarousel(); }
-    if (i === FRONTIER_SLIDE) { fFrame = 1; paintFrontier(); }
+    if (i === DIAGRAM_SLIDE)   { frame  = 1; paintDiagram();  }
+    if (i === REFS_SLIDE)      { c      = 0; paintCarousel(); }
+    if (i === FRONTIER_SLIDE)  { fFrame = 1; paintFrontier(); }
+    if (i === DIAGRAM2_SLIDE)  { frame2 = 1; paintDiagram2(); }
     paintSlide();
   }
 
@@ -1187,6 +1367,7 @@
   paintCarousel();
   paintDiagram();
   paintFrontier();
+  paintDiagram2();
 </script>
 </body>
 </html>

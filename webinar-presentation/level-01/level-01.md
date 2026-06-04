@@ -116,3 +116,43 @@ The same loop, but the environment doesn't exist yet:
 > The model is the easy part. The **environment** is the work.
 
 ---
+
+## Slide 6 — The minimal agent, anatomically
+
+Same loop as slide 3, now grounded in `env-template-LV01`. The animation re-runs the build-up of slide 3, but each frame swaps the abstract label for its concrete counterpart in our template. Same shape, filled in.
+
+**Frame 1 — Human.**
+Unchanged. The person who kicks the agent off.
+
+**Frame 2 — LLM Call becomes the model + harness.**
+The **LLM Call** box relabels to **Claude (Opus / Sonnet 4.x) — VS Code via Claude Code**.
+
+**Frame 3 — Specification appears above LLM Call.**
+A **`TASK.md`** banner appears above **LLM Call**, with a downward arrow into it. *Caption (optional):* "the job, the deliverable contract, the grading criteria."
+
+**Frame 4 — Action arrow names the tools.**
+The **tools** label on the action arrow resolves to **Read · Write · Bash · Python** — Claude Code's built-in tool layer.
+
+**Frame 5 — Environment becomes the working directory.**
+The **Environment** box relabels to **`module-1/agent-XX/`**. A thin dashed border appears around it. *Caption (optional):* "permissions — sandboxed to this directory; can launch processes, install packages, write to `final-model/`."
+
+**Frame 6 — data and code fill in concretely.**
+Inside the environment box, the child elements relabel: **`data/`** (F1 segments, `sim.csv`, V0 baseline predictions) and **`code/`** (V0 model + helpers).
+
+**Frame 7 — Stop becomes the deliverable check.**
+The **Stop** box relabels to **`final-model/` written → grader runs**.
+
+### Final state — the six concrete things
+
+- **Specification** — `TASK.md` (job, deliverable contract, grading criteria)
+- **Model + harness** — Claude Opus / Sonnet 4.x in VS Code via Claude Code
+- **Tools** — Read · Write · Bash · Python (Claude Code's built-in layer)
+- **Environment** — `module-1/agent-XX/` working directory (`data/` + `code/`)
+- **Permissions** — sandboxed to the working directory; may launch processes, install packages, write to `final-model/`
+- **Loop** — Claude reasons → calls a tool → reads the result → reasons again. Until the deliverable lands.
+
+> The minimal agent — six concrete things, no more. This is the floor of the agentic spectrum. The principles that name each piece follow.
+
+*Working directory: `webinar-AI/module-1/agent-{01..10}/`. Template: `webinar-meta/env-template-LV01/`.*
+
+---

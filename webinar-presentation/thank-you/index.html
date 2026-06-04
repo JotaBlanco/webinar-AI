@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank you · Quix Webinar</title>
+<style>
+  /* =========================================================
+     THANK YOU — closing slide
+     Cosmic baseline. Hero QR, centred. One focal point.
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield specks */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* top bar — Quix mark + meta */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 5vw; right: 5vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* Q&A ribbon — pinned, secondary */
+  .qa-ribbon {
+    position: fixed;
+    top: calc(2.5vh + 3rem);
+    right: 5vw;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1rem 0.55rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    z-index: 6;
+    animation: ribbon-in 1.2s 0.4s ease both;
+  }
+  .qa-ribbon .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse-dot 2.2s ease-in-out infinite;
+  }
+  .qa-ribbon b { color: var(--ink); font-weight: 600; }
+
+  @keyframes ribbon-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1);   opacity: 0.9; }
+    50%      { transform: scale(1.3); opacity: 1; }
+  }
+
+  /* stage */
+  .stage {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 12vh 6vw 12vh;
+    gap: 2.2rem;
+  }
+
+  /* hairline header */
+  .hairline {
+    font-size: 0.82rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 1rem;
+    animation: fade-up 1s 0.1s ease both;
+  }
+  .hairline::before, .hairline::after {
+    content: ''; width: 36px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  }
+
+  /* QR — hero element */
+  .qr-wrap {
+    position: relative;
+    animation: fade-up 1.2s 0.25s ease both;
+  }
+  /* outer nebula bloom behind the QR */
+  .qr-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -28%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(61,137,255,0.55), transparent 55%),
+      radial-gradient(circle at 70% 70%, rgba(189,46,255,0.50), transparent 55%),
+      radial-gradient(circle at 50% 90%, rgba(255,120,40,0.35), transparent 60%);
+    filter: blur(38px);
+    z-index: -1;
+    animation: bloom 5s ease-in-out infinite alternate;
+  }
+  @keyframes bloom {
+    0%   { transform: scale(0.96); opacity: 0.85; }
+    100% { transform: scale(1.06); opacity: 1; }
+  }
+
+  .qr-tile {
+    position: relative;
+    width: clamp(260px, 34vh, 380px);
+    aspect-ratio: 1 / 1;
+    padding: 1.1rem;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.18) inset,
+      0 30px 80px rgba(0,0,0,0.55),
+      0 0 70px rgba(61,137,255,0.25),
+      0 0 140px rgba(189,46,255,0.18);
+  }
+  /* gradient frame ring */
+  .qr-tile::before {
+    content: '';
+    position: absolute; inset: -2px;
+    border-radius: 24px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.9;
+  }
+
+  .qr-tile img,
+  .qr-tile .qr-placeholder {
+    width: 100%; height: 100%;
+    display: block;
+    border-radius: 10px;
+  }
+
+  /* placeholder visible until a real QR image is dropped in */
+  .qr-tile .qr-placeholder {
+    background:
+      linear-gradient(45deg, #111 25%, transparent 25%) 0 0/14px 14px,
+      linear-gradient(-45deg, #111 25%, transparent 25%) 0 0/14px 14px,
+      linear-gradient(45deg, transparent 75%, #111 75%) 7px 7px/14px 14px,
+      linear-gradient(-45deg, transparent 75%, #111 75%) 7px 7px/14px 14px,
+      #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(0,0,0,0.55);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .qr-tile .qr-placeholder span {
+    background: #fff;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+  }
+
+  /* "Thank you." — small, intimate, sits just above carrot */
+  .thanks {
+    font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-top: 0.2rem;
+    animation: fade-up 1s 0.45s ease both;
+  }
+  .thanks .dot { color: var(--blue-l); }
+
+  /* the carrot — the actual headline */
+  .carrot {
+    font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-align: center;
+    color: var(--ink);
+    max-width: 22ch;
+    animation: fade-up 1.1s 0.6s ease both;
+  }
+  .carrot .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 55%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* unlock list — mono, muted */
+  .unlock {
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.1rem;
+    animation: fade-up 1s 0.8s ease both;
+  }
+  .unlock span { color: var(--ink-soft); }
+  .unlock i {
+    font-style: normal;
+    color: rgba(255,255,255,0.18);
+  }
+
+  /* gate hint — soft pre-disclosure that there are 2 questions */
+  .gate-hint {
+    font-size: 0.86rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: -0.6rem;
+    animation: fade-up 1s 0.95s ease both;
+  }
+  .gate-hint .arrow {
+    color: var(--blue-l);
+    font-weight: 700;
+    margin: 0 0.2rem;
+    display: inline-block;
+    animation: nudge 2.4s ease-in-out infinite;
+  }
+  @keyframes nudge {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(4px); }
+  }
+
+  /* fallback URL */
+  .fallback {
+    position: fixed;
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    text-align: center;
+    animation: fade-up 1s 1s ease both;
+  }
+  .fallback b {
+    color: var(--ink);
+    font-weight: 600;
+    margin-left: 0.4rem;
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* footer mark */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 5vw; right: 5vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* progress bar — full, since this is the end */
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+  }
+
+  /* tighter spacing on short viewports */
+  @media (max-height: 760px) {
+    .stage { gap: 1.4rem; padding: 10vh 6vw 10vh; }
+    .qr-tile { width: clamp(220px, 30vh, 320px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Thank you</span>
+</div>
+
+<div class="qa-ribbon">
+  <span class="dot"></span>
+  <span>Drop your questions in the <b>Q&amp;A</b> — we'll get to them.</span>
+</div>
+
+<main class="stage">
+
+  <span class="hairline">Thank you</span>
+
+  <div class="qr-wrap">
+    <div class="qr-tile">
+      <img src="Untitled.jpeg" alt="Scan to get the webinar content">
+    </div>
+  </div>
+
+  <h1 class="carrot">
+    <span class="grad">Take it home.</span>
+  </h1>
+
+  <div class="gate-hint">Two quick questions <span class="arrow">→</span> slides, code &amp; data.</div>
+
+</main>
+
+<div class="fallback">
+  Or visit <b>forms.gle/pS8nsNmNri7yE1Dy5</b>
+</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span>fin.</span>
+</div>
+
+<div class="progress"></div>
+
+<script>
+  // terminal slide — forward does nothing, back returns to the ladder's last slide
+  const BACK_HREF = '../02-ladder/definitive/index.html#end';
+  function back() { window.location.href = BACK_HREF; }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {
+      e.preventDefault();
+      back();
+    }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, input, img')) return;
+    if (e.clientX < window.innerWidth / 2) back();
+  });
+</script>
+</body>
+</html>
