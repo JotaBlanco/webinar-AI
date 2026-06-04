@@ -175,8 +175,8 @@ DENY_PATTERNS_REL = [
     "deprecated/*",
     "raw-model/**",
     "raw-model/*",
-    "_grade/**",
-    "_grade/*",
+    "cohort-runs/**",
+    "cohort-runs/*",
 ]
 
 
@@ -291,7 +291,7 @@ def main():
         f"  tool: {tool_name}\n"
         f"  blocked: {[str(p) for _, p in blocked]}\n"
         f"  policy: webinar-angle-*/_shared|_launch|_observations|process-log.md|RUN-LOG.md, "
-        f"webinar-meta/**, module-1/2/3/4/**, deprecated/**, raw-model/**, _grade/**, plus --extra-deny. "
+        f"webinar-meta/**, module-1/2/3/4/**, deprecated/**, raw-model/**, cohort-runs/**, plus --extra-deny. "
         f"--allow-module={args.allow_module or 'none'} whitelists the active cohort.\n"
         f"  logged to: {log_file}\n"
         f"If this read is genuinely needed, declare a limitation in REPORT.md and proceed without.",

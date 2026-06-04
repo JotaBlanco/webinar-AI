@@ -87,12 +87,12 @@ The "angle root" for this repo is the repo root itself (`/Users/javiquix/Desktop
 
 **Per-launch flow:** when the user asks "launch N agents in module-M for idea-X":
 
-1. Copy `webinar-meta/launch-configs/m{M}-idea-{X}.json` to `<repo-root>/.launch-config.json`.
-2. If N < 10, slice `modules` to the first N entries (jq, python, or sed — your call) and write back to `.launch-config.json`.
-3. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root>`.
+1. Copy `webinar-meta/launch-configs/m{M}-idea-{X}.json` to `<repo-root>/cohort-runs/.launch-config.json`.
+2. If N < 10, slice `modules` to the first N entries (jq, python, or sed — your call) and write back to `cohort-runs/.launch-config.json`.
+3. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root>/cohort-runs`.
 4. Fire the N Agent() calls returned between BEGIN_INVOCATIONS / END_INVOCATIONS, all in ONE message, `run_in_background: true`, `subagent_type: "general-purpose"`.
 5. Wait for all callbacks. Persist any REPORT.md text the agents return (Write on `(report|findings|summary|analysis).*\.md$` is blocked in subagents — see "When a subagent can't write REPORT.md" below).
-6. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root> --verify`.
+6. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root>/cohort-runs --verify`.
 7. Summarise: per agent — did `final-model/predict.py` exist? Did it import cleanly? Headline numbers? One sentence each. Don't run grading — separate step (see `grade-cohort-reports` skill).
 
 If the user asks for a (module, idea) combo that has no config file yet, **stop and ask** rather than improvise — the configs encode the harness components and forbidden paths per scenario.

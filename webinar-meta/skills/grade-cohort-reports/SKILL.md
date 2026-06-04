@@ -119,7 +119,7 @@ Anything else is optional. `coeffs.json` is conventional; `REPORT.md` is informa
 - **iter 2 (shipped):** cohort.html (interactive plotly) + cohort.pdf (weasyprint) via quix-report-styling light theme; scatter, family bars, per-platform faceted scatter, boxplots, calibration cards.
 - **iter 3:** `--with-self-reported` diagnostic mode — extract each agent's claimed yaw/CTE Δ% from their REPORT.md, compare to canonical, surface the gap as a self-awareness signal.
 
-## Outputs per run (under `_grade/<ts>/`)
+## Outputs per run (under `cohort-runs/_grade/<ts>/`)
 
 ```
 cohort.json            machine-readable; everything the renderer needs

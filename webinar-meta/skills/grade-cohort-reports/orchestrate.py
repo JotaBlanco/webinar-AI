@@ -7,7 +7,7 @@ hand-firing of subagents:
     python3 orchestrate.py grade \\
         --idea-id idea-01-lateral-attribution \\
         --agent-folders "module-*/agent-*/final-model" [more globs...]
-        [--out-dir _grade/<ts>]
+        [--out-dir cohort-runs/_grade/<ts>]
         [--concurrency N]
         [--timeout-per-agent SECONDS]
         [--rebuild-baseline]
@@ -77,13 +77,13 @@ def cmd_grade(rest: list[str]) -> int:
 
     # Find the out-dir canonical_eval picked.
     if args.out_dir is None:
-        # canonical_eval prints the path; here we just glob for the newest _grade/<ts>/canonical.
+        # canonical_eval prints the path; here we just glob for the newest cohort-runs/_grade/<ts>/canonical.
         candidates = sorted(
-            (p for p in (Path.cwd() / "_grade").glob("*") if p.is_dir() and (p / "canonical").is_dir()),
+            (p for p in (Path.cwd() / "cohort-runs" / "_grade").glob("*") if p.is_dir() and (p / "canonical").is_dir()),
             reverse=True,
         )
         if not candidates:
-            print("orchestrate: cannot locate fresh out-dir under _grade/", file=sys.stderr)
+            print("orchestrate: cannot locate fresh out-dir under cohort-runs/_grade/", file=sys.stderr)
             return 2
         out_dir = candidates[0]
     else:

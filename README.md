@@ -55,8 +55,10 @@ Option 2 is probably the right next step if this deck gets reused.
   - [env-template-LV01/](webinar-meta/env-template-LV01/) … `LV04/` — per-level agent environment templates
   - [domain-knowledge-challenges/](webinar-meta/domain-knowledge-challenges/) — the tasks the agents are graded on
   - [visualisation/](webinar-meta/visualisation/) — visualising agent outputs
-- [_launch/](_launch/) — timestamped launch artifacts from each cohort run
-- [_grade/](_grade/) — timestamped grading runs; canonical judge prompts at the root of this dir
+- [cohort-runs/](cohort-runs/) — process artifacts from each cohort run
+  - [cohort-runs/_launch/](cohort-runs/_launch/) — timestamped launch artifacts
+  - [cohort-runs/_grade/](cohort-runs/_grade/) — timestamped grading runs; canonical judge prompts at the root of this dir
+  - [cohort-runs/.launch-config.json](cohort-runs/.launch-config.json) — active config consumed by the orchestrator
 
 ### Module outputs (one folder per level / agent)
 - [module-1/](module-1/) — Level 1 outputs, ten agents (`agent-01` … `agent-10`), each with `TASK.md`, `REPORT.md`, `code/`, `data/`, `final-model/`, `out/`
