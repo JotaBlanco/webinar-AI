@@ -6,6 +6,7 @@
     "TESLA_MODEL_3"
   ],
   "predict_callable": "predict.py:predict",
-  "model_family": "ks_with_understeer_plus_steering_lead",
-  "notes": "Per-platform fit (K_us, scale, delta_bias, tau, alpha3) of yaw = scale * v * (delta_road + tau*delta_dot + delta_bias + alpha3*delta_road^3) / (L + K_us*v^2). Tesla uses a Mach-E-derived prior (no truth labels available for Tesla in training data)."
+  "model": "kinematic bicycle with per-platform L_eff, understeer K_us, steering-rate lead tau, and yaw bias. Tesla = V0 passthrough.",
+  "objective": "yaw_plus_cte (cte_weight=1.5)",
+  "train_dev_split": "route-grouped, 75/25, seed=42"
 }

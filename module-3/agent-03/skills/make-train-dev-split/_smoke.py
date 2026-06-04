@@ -27,7 +27,14 @@ def main() -> None:
     dev_fraction = 0.25
     seed = 42
 
-    train, dev = split(dev_fraction=dev_fraction, seed=seed)
+    # Resolve segments against the canonical repo data dir so the smoke runs
+    # from anywhere — same pattern score-model and fit-model use.
+    seg_root = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/data/sim/segments")
+    if not seg_root.exists():
+        raise SystemExit(f"smoke: canonical seg root not found: {seg_root}")
+    seg_paths = sorted(p for p in seg_root.glob("*/**/sim.csv") if p.is_file())
+
+    train, dev = split(segment_paths=seg_paths, dev_fraction=dev_fraction, seed=seed)
 
     n_train = len(train)
     n_dev = len(dev)
@@ -35,7 +42,7 @@ def main() -> None:
 
     if n_total == 0:
         raise SystemExit(
-            "Smoke test found zero segments — check that data/sim/segments/FORD_* "
+            "Smoke test found zero segments — check that data/sim/segments/* "
             "exists under the current working directory."
         )
 
@@ -59,11 +66,11 @@ def main() -> None:
     )
 
     # 4. Reproducibility.
-    train2, dev2 = split(dev_fraction=dev_fraction, seed=seed)
+    train2, dev2 = split(segment_paths=seg_paths, dev_fraction=dev_fraction, seed=seed)
     assert train == train2 and dev == dev2, "same seed produced a different split"
 
     # 5. Different seed should usually produce a different split (sanity, not strict).
-    _t3, dev3 = split(dev_fraction=dev_fraction, seed=seed + 1)
+    _t3, dev3 = split(segment_paths=seg_paths, dev_fraction=dev_fraction, seed=seed + 1)
     different = set(dev) != set(dev3)
 
     print(f"n_train            = {n_train}")

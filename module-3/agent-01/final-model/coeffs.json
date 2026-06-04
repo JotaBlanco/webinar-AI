@@ -1,35 +1,30 @@
 {
   "FORD_F_150_LIGHTNING_MK1": {
-    "g": 0.863,
-    "L_eff": 3.26,
-    "K_us": 0.00350,
-    "tau": 0.060,
-    "delta0": 0.00133,
-    "use_per_segment_delta0": false
+    "use_per_segment_delta0": false,
+    "delta0_fallback": 0.0,
+    "g": 0.837566273970069,
+    "L_eff": 3.268209123755641,
+    "K_us": 0.0030867190166670422,
+    "tau": 0.06250429810813812,
+    "delta0": 0.0013772165596965772
   },
   "FORD_MUSTANG_MACH_E_MK1": {
-    "g": 0.891,
-    "L_eff": 2.22,
-    "K_us": 0.0015,
-    "tau": 0.069,
-    "delta0": -0.0001,
-    "use_per_segment_delta0": true
+    "use_per_segment_delta0": true,
+    "delta0_fallback": 0.0,
+    "g": 0.8689392647920121,
+    "L_eff": 2.227860743811346,
+    "K_us": 0.0015375118933521228,
+    "tau": 0.048005187766273924
   },
   "HYUNDAI_IONIQ_5": {
-    "g": 0.93817,
-    "L_eff": 2.8871,
-    "K_us": 0.0028925,
-    "tau": 0.061895,
-    "delta0": 0.0,
-    "use_per_segment_delta0": true
+    "use_per_segment_delta0": true,
+    "delta0_fallback": 0.0,
+    "g": 0.9036447880498372,
+    "L_eff": 2.9067538688854606,
+    "K_us": 0.002172067149911832,
+    "tau": 0.021561438947319593
   },
-  "_meta": {
-    "delta0_detector": {
-      "method": "yaw_rate_pred_rads_low_speed_high",
-      "yr_thresh": 0.03,
-      "v_thresh": 5.0,
-      "min_rows": 50
-    },
-    "notes": "Lightning coeffs hand-set from anti-patterns.md priors. Mach-E K_us tuned via grid sweep from 0.002 -> 0.0015 (CTE 101 -> 99). Hyundai coeffs fitted via fit-model on 60 train / 20 dev segments, yaw_plus_cte objective. Per-segment delta0 detector uses V0 yaw-rate prediction (allowed contract column) instead of a_lat_meas_mps2 (NOT in allowlist)."
+  "TESLA_MODEL_3": {
+    "passthrough": true
   }
 }

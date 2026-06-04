@@ -54,9 +54,9 @@ Use `scoring-model`'s per-regime breakdown to diagnose:
 
 ---
 
-## Rung 1 — Linear dynamic single-track with slip angles *[sketch — not implemented]*
+## Rung 1 — Linear dynamic single-track with slip angles *[the default climb attempt — see AGENTS.md § "On exploration"]*
 
-The first principled climb. Replaces the steady-state assumption with the actual lateral dynamics ODE.
+The first principled climb past V0. Replaces the steady-state assumption with the actual lateral dynamics ODE. **This is the rung your `EXPERIMENTS.md` is required to contain at least one attempt at** — the cohort needs evidence about whether it pays on this data, and we don't have that evidence yet.
 
 ### Equations
 
@@ -84,6 +84,46 @@ Where `vx = v_mps` (longitudinal speed, measured), `vy` is lateral velocity (a s
 | `Iz` | yaw moment of inertia (kg·m²) | `code/parameters.py` (often a crude estimate; sensitive parameter) |
 | `a`, `b` | CG-to-axle distances (m) | carParams (verify `a + b == L_eff`) |
 | `τ` | optional first-order lag on top | fit, may go to zero |
+
+### Minimum viable rung-1 attempt — ~30 lines, two fitted params
+
+You do NOT have to fit all of `{C_αf, C_αr, m, Iz, a, b}`. The cheap version: fix `m`, `Iz`, `a`, `b` from `code/parameters.py` (carParams), fix `C_αr` from carParams too, fit **only** `C_αf` per platform. That's two states (`vy`, `yr`), Euler integration, one fitted parameter. The expensive part is the integration loop, not the optimisation.
+
+```python
+import numpy as np
+import pandas as pd
+
+def _rung1_predict(sim_df: pd.DataFrame, p: dict) -> np.ndarray:
+    """Linear dynamic single-track. p = {C_af, C_ar, m, Iz, a, b}.
+    Returns yaw_rate aligned with sim_df.index."""
+    delta = sim_df["delta_road_rad"].to_numpy()
+    vx    = sim_df["v_mps"].to_numpy()
+    t     = sim_df["t_s"].to_numpy()
+
+    vx_safe = np.maximum(vx, 1.0)         # clamp to avoid /0 in slip-angle
+    dt = np.diff(t, prepend=t[0])
+
+    C_af, C_ar = p["C_af"], p["C_ar"]
+    m, Iz       = p["m"], p["Iz"]
+    a, b        = p["a"], p["b"]
+
+    vy = 0.0                              # state init
+    yr = 0.0
+    out = np.empty_like(vx)
+    for i in range(len(vx)):
+        alpha_f = delta[i] - (vy + a * yr) / vx_safe[i]
+        alpha_r =           -(vy - b * yr) / vx_safe[i]
+        F_yf = C_af * alpha_f
+        F_yr = C_ar * alpha_r
+        vy_dot = (F_yf + F_yr) / m - vx[i] * yr
+        yr_dot = (a * F_yf - b * F_yr) / Iz
+        vy += vy_dot * dt[i]
+        yr += yr_dot * dt[i]
+        out[i] = yr
+    return out
+```
+
+Wrap that in a `predict_factory(platform, coeffs)` (see `fit-model`'s SKILL.md), seed `C_af` from carParams (e.g. ~80,000 N/rad for the Fords), bound it to `(20_000, 200_000)`, and let `fit-model` go. Per platform. Total time: an hour if you've never written this before, much less if you have. Even if it doesn't beat your rung-0 model, **log it under `Rung: 1` in `EXPERIMENTS.md`** — that is the required deliverable. Past cohorts assumed this was a 50-100 line lift; it's 30 lines and one fitted parameter.
 
 ### Implementation notes (when you build this)
 
@@ -133,7 +173,7 @@ Single parameter `μ`; saturates more abruptly than Pacejka. Cheapest nonlinear 
 
 ### When to climb to rung 2
 
-After rung 1, **only if** the residual is concentrated in high-`|a_lat|` segments (`|a_lat_meas_mps2| > 4`). If your data doesn't push tyres into saturation, the cheaper Fiala or staying on rung 1 wins.
+After rung 1, **only if** the residual is concentrated in high-`|a_lat|` segments. Use the allowlist proxy `|a_lat| ≈ |v_mps * yaw_rate_pred_rads| > 4` to identify them (`a_lat_meas_mps2` is denied at grading — see `AGENTS.md` § Operating contract). If your data doesn't push tyres into saturation, the cheaper Fiala or staying on rung 1 wins.
 
 ### Failure modes
 

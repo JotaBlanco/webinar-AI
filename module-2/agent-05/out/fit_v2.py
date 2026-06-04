@@ -1,114 +1,116 @@
-"""V2 fit: understeer + steering-rate lead term + (optional) Mach-E delta cubic.
+"""Fit V2: kinematic + understeer + steering-rate lead + bias.
 
-Per-platform fit of:
-    delta_eff = delta_road + tau * delta_dot + delta_bias + alpha3 * delta_road^3
-    yaw = scale * v * delta_eff / (L + K_us * v^2)
+Per platform we fit:
+    yaw = v * sin(delta_road + tau * d_delta_dt) / L_eff / (1 + K_us * v^2) + bias
 
-We pool all train samples per platform, fit via least_squares.
-We need delta_dot per segment, computed with np.gradient.
+(Linearized + lead term — captures understeer curve AND pipeline-delay lead.)
+
+Tesla → V0 passthrough.
 """
-from __future__ import annotations
-
 import json
 import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import least_squares
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "out"))
-from score import find_segments  # noqa: E402
+ROOT = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/module-2.v3/agent-05")
+sys.path.insert(0, str(ROOT / "skills" / "score-model"))
+sys.path.insert(0, str(ROOT / "skills" / "fit-model"))
+sys.path.insert(0, str(ROOT / "skills" / "make-train-dev-split"))
+from score import score, format_summary  # type: ignore
+from fit import fit, format_fit_summary  # type: ignore
+from split import split  # type: ignore
 
-L_NOMINAL = {
-    "TESLA_MODEL_3": 2.875,
-    "FORD_MUSTANG_MACH_E_MK1": 2.984,
+
+PLATFORMS = ("FORD_F_150_LIGHTNING_MK1", "FORD_MUSTANG_MACH_E_MK1", "HYUNDAI_IONIQ_5")
+
+# Physical wheelbase priors from parameters.py.
+L_PRIOR = {
     "FORD_F_150_LIGHTNING_MK1": 3.70,
-    "HYUNDAI_IONIQ_5": 3.0,
+    "FORD_MUSTANG_MACH_E_MK1":  2.984,
+    "HYUNDAI_IONIQ_5":          2.984,  # not in parameters.py — use mid-size guess; will be fit
+    "TESLA_MODEL_3":            2.875,
 }
 
-SAMPLE_FILTER_V_MPS = 2.0
+
+def _delta_dot(t, delta):
+    """Time-derivative of delta_road with light smoothing."""
+    return np.gradient(delta, t)
 
 
-def pool_segments(platform):
-    segs = find_segments(platform)
-    Vs, Ds, Dd, Ys = [], [], [], []
-    for p in segs:
-        df = pd.read_csv(p)
-        if "yaw_rate_meas_rads" not in df.columns:
-            continue
-        t = df["t_s"].to_numpy(float)
-        d = df["delta_road_rad"].to_numpy(float)
-        if len(t) < 3:
-            continue
-        ddot = np.gradient(d, t)
-        m = df["v_mps"].to_numpy(float) > SAMPLE_FILTER_V_MPS
-        Vs.append(df["v_mps"].to_numpy(float)[m])
-        Ds.append(d[m])
-        Dd.append(ddot[m])
-        Ys.append(df["yaw_rate_meas_rads"].to_numpy(float)[m])
-    return (np.concatenate(Vs), np.concatenate(Ds),
-            np.concatenate(Dd), np.concatenate(Ys))
+def predict_factory_v2(platform, coeffs):
+    L_eff = coeffs.get("L_eff", L_PRIOR.get(platform, 3.0))
+    K_us  = coeffs.get("K_us", 0.0)
+    tau   = coeffs.get("tau", 0.0)
+    bias  = coeffs.get("bias", 0.0)
 
+    def predict(sim_df):
+        if platform == "TESLA_MODEL_3":
+            return sim_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
+        t = sim_df["t_s"].to_numpy(dtype=float)
+        v = sim_df["v_mps"].to_numpy(dtype=float)
+        d = sim_df["delta_road_rad"].to_numpy(dtype=float)
+        d_dot = _delta_dot(t, d)
+        d_eff = d + tau * d_dot
+        # Understeer-shaped: v * tan(d_eff) / (L + Kus * v^2). Linearize tan for stability.
+        num = v * np.tan(d_eff)
+        den = L_eff + K_us * v * v
+        return num / den + bias
 
-def model(v, d, ddot, L, K_us, scale, delta_bias, tau, alpha3):
-    d_eff = d + tau * ddot + delta_bias + alpha3 * (d ** 3)
-    return scale * v * d_eff / (L + K_us * v * v)
-
-
-def fit_platform(platform, with_cubic=True):
-    v, d, ddot, y = pool_segments(platform)
-    L = L_NOMINAL[platform]
-
-    if with_cubic:
-        x0 = np.array([0.003, 1.0, 0.0, 0.05, 0.0])
-        def resid(t): return model(v, d, ddot, L, *t) - y
-    else:
-        x0 = np.array([0.003, 1.0, 0.0, 0.05])
-        def resid(t):
-            K, s, b, tau = t
-            return model(v, d, ddot, L, K, s, b, tau, 0.0) - y
-    res = least_squares(resid, x0, method="lm", max_nfev=10000)
-    if with_cubic:
-        K_us, scale, delta_bias, tau, alpha3 = res.x
-    else:
-        K_us, scale, delta_bias, tau = res.x
-        alpha3 = 0.0
-    pred = model(v, d, ddot, L, K_us, scale, delta_bias, tau, alpha3)
-    rmse = float(np.sqrt(np.mean((pred - y) ** 2)))
-    return {
-        "K_us": float(K_us),
-        "scale": float(scale),
-        "delta_bias": float(delta_bias),
-        "tau": float(tau),
-        "alpha3": float(alpha3),
-        "L0": L,
-        "rmse_fit": rmse,
-        "n_samples": int(len(v)),
-    }
+    return predict
 
 
 def main():
-    coeffs = {}
-    for platform in ("FORD_F_150_LIGHTNING_MK1", "FORD_MUSTANG_MACH_E_MK1", "HYUNDAI_IONIQ_5"):
-        c = fit_platform(platform)
-        coeffs[platform] = c
-        print(f"{platform}: n={c['n_samples']:,}  fit rmse={c['rmse_fit']:.5f}")
-        print(f"   K_us={c['K_us']:.4g} scale={c['scale']:.4f} bias={c['delta_bias']:+.4g} tau={c['tau']:+.4g} alpha3={c['alpha3']:+.4g}")
-    # Tesla: copy from Mach-E as it's same brand family — best guess for unseen.
-    # Actually use a generic safe default: K_us tuned to Mach-E, scale 1.0
-    coeffs["TESLA_MODEL_3"] = {
-        "K_us": coeffs["FORD_MUSTANG_MACH_E_MK1"]["K_us"],
-        "scale": 1.0,
-        "delta_bias": 0.0,
-        "tau": coeffs["FORD_MUSTANG_MACH_E_MK1"]["tau"],
-        "alpha3": 0.0,
-        "L0": L_NOMINAL["TESLA_MODEL_3"],
-    }
+    import os
+    os.chdir(ROOT)
+
+    all_paths = sorted(Path("data/sim/segments").glob("*/**/sim.csv"))
+    train, dev = split(all_paths, dev_fraction=0.25, seed=42)
+    print(f"train={len(train)} dev={len(dev)}")
+
+    init = {plat: {
+        "L_eff": L_PRIOR[plat],
+        "K_us":  0.001,
+        "tau":   -0.05,   # negative = lead (sensor delay correction)
+        "bias":  0.0,
+    } for plat in PLATFORMS}
+
+    bounds = {plat: {
+        "L_eff": (1.5, 6.0),
+        "K_us":  (-0.005, 0.015),
+        "tau":   (-0.30, 0.30),
+        "bias":  (-0.02, 0.02),
+    } for plat in PLATFORMS}
+
+    print("=== Fit pass 1: yaw_plus_cte (cte_weight=1.5) ===")
+    result = fit(
+        predict_factory_v2,
+        init,
+        train_segments=train,
+        objective="yaw_plus_cte",
+        dev_segments=dev,
+        bounds=bounds,
+        max_iter=120,
+        cte_weight=1.5,
+        verbose=False,
+    )
+    print(format_fit_summary(result))
+
+    coeffs = result["coeffs"]
+    coeffs["TESLA_MODEL_3"] = {"L_eff": L_PRIOR["TESLA_MODEL_3"], "K_us": 0.0, "tau": 0.0, "bias": 0.0}
     out_path = ROOT / "out" / "coeffs_v2.json"
     out_path.write_text(json.dumps(coeffs, indent=2))
-    print(f"wrote {out_path}")
+    print(f"\nSaved coeffs → {out_path}")
+
+    def predict_fn(sim_df, platform):
+        cb = predict_factory_v2(platform, coeffs.get(platform, init.get(platform, {})))
+        yr = cb(sim_df)
+        return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
+
+    print("\n=== Full-dataset score V2 ===")
+    res = score(predict_fn)
+    print(format_summary(res))
 
 
 if __name__ == "__main__":

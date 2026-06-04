@@ -1,69 +1,83 @@
-"""Lateral-fidelity predict — refined kinematic single-track with
-per-platform g / delta0 / K_us / tau / L_eff, plus first-order yaw lag.
+"""Lateral-fidelity predictor.
 
-Tesla: V0 passthrough (no ground-truth channel to fit against).
-
-Coefficients fitted offline against pooled yaw-rate sum-of-squares
-on `data/sim/segments/<platform>/**/sim.csv` using scipy.optimize
-Nelder-Mead (see ../out/fit.py).
-
-Operating contract: reads only columns present in sim-only/ schema
-(t_s, delta_road_rad, v_mps, yaw_rate_pred_rads).
+Single-track kinematic core with platform-tuned (g, L_eff, K_us, tau, delta0),
+per-segment δ₀ estimation gated by platform (Mach-E + IONIQ-5: on; Lightning: off),
+and a first-order lag on yaw rate. Tesla falls back to V0 passthrough (no truth
+to fit). Reads only allowlist columns. See REPORT.md for derivation.
 """
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-_COEFFS_PATH = Path(__file__).resolve().parent / "coeffs.json"
-with open(_COEFFS_PATH) as _fh:
-    COEFFS = json.load(_fh)
+
+_HERE = Path(__file__).resolve().parent
+with open(_HERE / "coeffs.json") as _f:
+    PLATFORM_PARAMS: dict = json.load(_f)
 
 
-def _apply_lag(yr_ss: np.ndarray, dt: np.ndarray, tau: float) -> np.ndarray:
-    """First-order lag y[i] = y[i-1] + alpha[i] * (yr_ss[i] - y[i-1])."""
-    n = len(yr_ss)
-    if n == 0:
-        return yr_ss
-    if tau <= 0:
-        return yr_ss.copy()
-    alpha = dt / (tau + dt)
-    y = np.empty(n, dtype=float)
-    y[0] = yr_ss[0]
-    for i in range(1, n):
-        y[i] = y[i-1] + alpha[i] * (yr_ss[i] - y[i-1])
-    return y
+def _per_segment_delta0(
+    sim_df: pd.DataFrame,
+    fallback: float = 0.0,
+    yr_thresh: float = 0.03,
+    v_thresh: float = 5.0,
+    min_rows: int = 50,
+) -> float:
+    """Estimate δ₀ from THIS segment's straight-driving rows.
+
+    Uses only allowlist inputs: yaw_rate_pred_rads (V0) as straight detector,
+    plus v_mps and delta_road_rad.
+    """
+    v = sim_df["v_mps"].to_numpy()
+    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
+    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
+    if int(mask.sum()) < min_rows:
+        return fallback
+    return float(sim_df.loc[mask, "delta_road_rad"].median())
 
 
-def _predict_physics(sim_df: pd.DataFrame, p: dict) -> np.ndarray:
-    delta = sim_df["delta_road_rad"].to_numpy(dtype=float)
-    v     = sim_df["v_mps"].to_numpy(dtype=float)
-    t     = sim_df["t_s"].to_numpy(dtype=float)
-
-    delta_eff = (delta - p["delta0"]) * p["g"]
-    yr_ss = v * delta_eff / (p["L_eff"] + p["K_us"] * v * v)
-
-    if len(t) >= 2:
-        dt = np.diff(t, prepend=t[0])
-        # guard zero/negative dt
-        dt = np.where(dt <= 0, np.median(np.diff(t)) if len(t) > 1 else 0.02, dt)
-    else:
-        dt = np.array([0.02])
-    return _apply_lag(yr_ss, dt, p["tau"])
+def _yaw_rate_with_lag(
+    t: np.ndarray,
+    v: np.ndarray,
+    delta_eff: np.ndarray,
+    L_eff: float,
+    K_us: float,
+    tau: float,
+) -> np.ndarray:
+    yr_ss = v * delta_eff / (L_eff + K_us * v * v)
+    dt = np.diff(t, prepend=t[0])
+    # First sample dt=0 -> alpha=0 (anchor at yr_ss[0])
+    safe_tau = max(tau, 1e-6)
+    alpha = dt / (safe_tau + dt)
+    yr = np.empty_like(yr_ss)
+    yr[0] = yr_ss[0]
+    for i in range(1, len(yr)):
+        yr[i] = yr[i - 1] + alpha[i] * (yr_ss[i] - yr[i - 1])
+    return yr
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
-    """Predict yaw_rate_pred_rads for the given segment.
+    if platform not in PLATFORM_PARAMS:
+        # Tesla and unknowns: V0 passthrough
+        return pd.DataFrame(
+            {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
+            index=sim_df.index,
+        )
 
-    For Tesla (no truth channel), returns V0 passthrough so we don't
-    drift from the baseline KS output on a platform where score-model
-    treats baseline AS truth.
-    """
-    if platform not in COEFFS:
-        return sim_df[["yaw_rate_pred_rads"]].copy()
-    yr = _predict_physics(sim_df, COEFFS[platform])
+    p = PLATFORM_PARAMS[platform]
+    if p.get("use_per_segment_delta0", False):
+        delta0 = _per_segment_delta0(sim_df, fallback=p.get("delta0_fallback", 0.0))
+    else:
+        delta0 = p.get("delta0", 0.0)
+
+    delta_road = sim_df["delta_road_rad"].to_numpy()
+    v = sim_df["v_mps"].to_numpy()
+    t = sim_df["t_s"].to_numpy()
+
+    delta_eff = (delta_road - delta0) * p["g"]
+    yr = _yaw_rate_with_lag(t, v, delta_eff, p["L_eff"], p["K_us"], p["tau"])
+
     return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)

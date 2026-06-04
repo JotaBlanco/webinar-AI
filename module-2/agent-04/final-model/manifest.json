@@ -1,7 +1,5 @@
 {
-  "name": "idea-01-per-platform-algebraic-correction",
-  "version": "1.0.0",
-  "description": "Per-platform algebraic correction on V0 yaw rate. Best variant chosen per platform on dev CTE-RMSE.",
+  "model_name": "v2-understeer-with-steering-rate-lead",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
@@ -9,10 +7,5 @@
     "TESLA_MODEL_3"
   ],
   "predict_callable": "predict.py:predict",
-  "variants_per_platform": {
-    "FORD_F_150_LIGHTNING_MK1": "V4 (a*yp + b*yp*v^2)",
-    "FORD_MUSTANG_MACH_E_MK1": "V2 (a*yp + b*yp^3)",
-    "HYUNDAI_IONIQ_5": "V4 (a*yp + b*yp*v^2)",
-    "TESLA_MODEL_3": "V0 (passthrough)"
-  }
+  "notes": "Per-platform single-track yaw + understeer (Kus) + steering-rate lead (tau). Tesla passes through V0."
 }

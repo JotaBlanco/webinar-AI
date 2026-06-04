@@ -1,46 +1,39 @@
 # EXPERIMENTS.md
 
-Append-only log of approaches you tried. One entry per concrete attempt. See `references/exploration-discipline.md` for the why.
-
-Schema:
-
-```
-## E<NN> — <one-line approach name>
-- Hypothesis: why you thought this would help, in one line.
-- What I changed vs E<NN-1>: the minimal diff.
-- Result (dev): yaw <old> → <new> (Δ%); CTE <old> → <new> (Δ%).
-- Verdict: keep | revert | revisit-later.
-- Things this rules out: what you learned, even if the experiment failed.
-```
-
-Delete this header section once you start logging, but keep the schema close to mind.
-
----
+Append-only log of approaches tried.
 
 ## E00 — V0 baseline (no changes)
+- Rung: 0
 - Hypothesis: establish the floor we're trying to beat.
 - What I changed vs nothing: nothing — predict() passes through `yaw_rate_pred_rads`.
-- Result (dev): yaw 0.01456; CTE 147.44.
+- Result (full sim/): yaw 0.012934 rad/s; CTE 163.83 m.
+  - per-platform: Lightning yaw 0.01633 cte 157.5; Mach-E yaw 0.01362 cte 148.0; Hyundai yaw 0.01770 cte 247.5.
+  - signed bias: Lightning +39.7 m drift, Hyundai -54.8 m drift (both flagged 🚨).
 - Verdict: baseline.
-- Things this rules out: nothing yet.
 
-## Run 1 — linear-bicycle per-platform calibration (2026-06-01)
-Form: `yaw = k_delta * (v/L) * tan(delta_road) / (1 + Ku * v^2) + b`, fit per platform on `data/sim/segments/*` (v_mps>2), pooled-yaw squared error, closed-form (k,b) for fixed Ku + scipy 1-D search on Ku.
+## E01 — Recipe: KS + understeer + lag + per-segment δ₀, platform-gated
+- Rung: 0
+- Hypothesis: anti-patterns.md identifies this as THE highest-leverage move (the "legal cousin"). Per-segment δ₀ estimated from straight-driving rows using the V0 yaw-rate gate (allowlist-only).
+- What I changed vs E00: shipped the recipe verbatim from references/anti-patterns.md § "The legal cousin" with the prior top-tier coefficient set. Per-segment δ₀ ON for Mach-E and Hyundai, OFF for Lightning (uses global δ₀). Tesla unchanged (V0 passthrough).
+- Result (full sim/): yaw 0.005874 rad/s (-54.6%); CTE 56.81 m (-65.3%).
+  - per-platform: Lightning yaw 0.00566 cte 62.2; Mach-E yaw 0.00859 cte 98.7; Hyundai yaw 0.00766 cte 69.5.
+  - signed bias: Lightning ok; Mach-E -21.98 m (🚨); Hyundai -11.57 m (⚠️).
+- Verdict: keep, ship.
 
-Pooled (all platforms):
-- yaw_rate_rmse: 0.012934 -> 0.006511 rad/s (-49.7%)
-- cte_rmse:      163.83   -> 79.90 m       (-51.2%)
+## E02 — Refit coefficients with scipy on yaw_plus_cte (Rung 0)
+- Rung: 0
+- Hypothesis: scipy may find better coeffs than the prior cohort's published numbers.
+- What I changed vs E01: ran fit-model L-BFGS-B per platform on 200-segment subsample, 80/20 route-grouped train/dev split, objective="yaw_plus_cte". Bounds wide on g, L_eff, K_us, tau, delta0.
+- Result (full sim/): yaw 0.006193 rad/s (-52.1%); CTE 55.97 m (-65.8%).
+  - Fit warnings: Lightning train_obj=0.054 dev_obj=0.102 (gap +87.9% ⚠️ — overfit symptom). Hyundai tau collapsed to 0.020 (vs 0.062 prior).
+  - Pooled scores essentially tied with E01. CTE marginally better, yaw marginally worse.
+- Verdict: revert — the marginal CTE gain isn't worth the train/dev gap warning on Lightning. E01 ships.
+- Rules out: scipy fitting on this objective shape doesn't materially beat the published cohort coeffs — the rung-0 optimum is essentially flat in this neighbourhood.
 
-Per platform (yaw rmse | cte rmse):
-- FORD_F_150_LIGHTNING_MK1: 0.01633 / 157.5 -> 0.00605 / 63.0  (k=0.937, Ku=0.00087, b=-0.0044)
-- FORD_MUSTANG_MACH_E_MK1:  0.01362 / 148.0 -> 0.00910 / 122.0 (k=1.176, Ku=0.00087, b=+0.0002)
-- HYUNDAI_IONIQ_5:          0.01708 / 247.5 -> 0.00867 / 108.8 (k=0.944, Ku=0.00099, b=+0.0020)
-- TESLA_MODEL_3:            0.00000 / 0.00  -> 0.00000 / 0.02  (k=1.000, Ku=0,        b=0)
-
-Bias warnings: yaw bias zeroed across the board, CTE drift down to <7 m (Hyundai -6.6, F150 +6.0) — both formerly 🚨 are now sub-threshold or just at it.
-Pre-flight: 9/9 pass.
-
-Notes:
-- Mach-E k_delta=1.18 (>1) is anomalous — V0 underpredicts; could indicate a different L or i_s than openpilot-canonical, or a positive bias in delta_road_rad. Worst-segments on Mach-E are still ≈122 m cte_rmse — there is residual structure (yaw_rmse 0.0091 vs Hyundai 0.0087 on 2.4x fewer samples).
-- Tesla is correctly a no-op fit because its truth col IS the V0 output.
-- Did not move to ST (linear dynamic single track with slip angles) — the linear-bicycle understeer-gradient form captures the dominant low-frequency v-dependent term that dynamic ST also produces in the linear-tyre limit, and the calibration is fitting data, not parameters from a spec sheet.
+## E03 — Rung-1 attempt: linear dynamic single-track on Mach-E
+- Rung: 1
+- Hypothesis: dynamics-formulations.md § "Rung 1" suggests slip-angle dynamic ST may capture transient regime residual (Mach-E has -22 m drift after E01, biggest CTE flag).
+- What I changed vs E01: implemented the 30-line minimum-viable recipe from dynamics-formulations.md. Two-state Euler (vy, yr), forces F_yf=C_αf·α_f and F_yr=C_αr·α_r with carParams seed (m=2336, Iz=4879, l_f=1.313, l_r=1.671, C_αf=286_551, C_αr=355_912). Fit C_αf, C_αr, g, δ₀ per platform with L-BFGS-B on yaw_plus_cte.
+- Result (Mach-E only): integration unstable. fit reported train_obj=inf and did_not_converge. Scoring the unfit init also produced numeric overflow in yaw RMSE.
+- Verdict: revert — Euler integration of this ODE at carParams initial conditions blows up (likely the `vx · yr` coupling at the iteration scale combined with stiff C_α values). Would need RK4 + smaller substep + warm-start on vy from data, plus C_α bounding from observed peak a_lat. Costs more than the time budget allows.
+- Rules out: the published rung-1 recipe is NOT plug-and-play stable at carParams priors on this dataset's sample-rate; future agents should expect to debug integrator stability before getting a fittable objective.

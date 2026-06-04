@@ -1,12 +1,11 @@
 {
-  "name": "agent-08-v1",
-  "description": "Linear-bicycle (understeer-corrected KS) + steering low-pass; per-platform fit.",
-  "predict_callable": "predict.py:predict",
+  "model_name": "v2-understeer-plus-steering-rate-lead",
   "platform_support": [
-    "FORD_MUSTANG_MACH_E_MK1",
     "FORD_F_150_LIGHTNING_MK1",
+    "FORD_MUSTANG_MACH_E_MK1",
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "tesla_note": "TESLA_MODEL_3 falls back to V0 (no measured yaw truth available in training data; psi_dot_rads in Tesla sim.csv is itself V0's output)."
+  "predict_callable": "predict.py:predict",
+  "notes": "V2 = v * (delta + tau*ddelta/dt) / (L + K_us*v^2) + bias. Per-platform K_us, tau, bias fitted by L-BFGS-B on yaw-rate MSE over full sim/segments. Tesla passes V0 through unchanged (its 'truth' IS V0)."
 }

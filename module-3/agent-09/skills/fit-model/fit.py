@@ -169,6 +169,103 @@ def _evaluate(
 
 
 # ---------------------------------------------------------------------------
+# Post-fit diagnostics — degeneracy / overfit / co-collapse heuristics.
+#
+# These run on the fitted vector and the optimisation trace. They cannot
+# prove the model is identifiable; they only warn when symptoms of a
+# common failure mode are present, so the agent looks before shipping.
+# ---------------------------------------------------------------------------
+
+# Tunables. Edit if your problem's natural scale is different.
+COLLAPSE_REL_THRESHOLD = 0.05   # final |x| < this × initial |x|
+COLLAPSE_ABS_THRESHOLD = 1e-3   # final |x| also below this absolute floor
+OVERFIT_GAP_FRACTION   = 0.50   # dev_obj > (1 + this) × train_obj  → "wide gap"
+NEAR_BOUND_FRACTION    = 0.02   # within this much of a bound → "stuck on bound"
+
+
+def _detect_diagnostics(
+    *,
+    platform: str,
+    param_names: list[str],
+    x0: np.ndarray,
+    x_final: np.ndarray,
+    train_obj: float,
+    dev_obj: float | None,
+    bounds: list | None,
+    converged: bool,
+) -> list[dict]:
+    """Return a list of {kind, severity, msg} warnings for this platform's fit."""
+    out: list[dict] = []
+
+    # --- Co-collapse: multiple params shrunk near zero from a non-zero start ---
+    collapsed = []
+    for name, xi, xf in zip(param_names, x0, x_final):
+        if abs(xi) > 1e-9 and abs(xf) < COLLAPSE_ABS_THRESHOLD and abs(xf) < abs(xi) * COLLAPSE_REL_THRESHOLD:
+            collapsed.append(name)
+    if len(collapsed) >= 2:
+        out.append({
+            "kind":     "co_collapse",
+            "severity": "high",
+            "params":   collapsed,
+            "msg":      (
+                f"{len(collapsed)} parameters collapsed near zero ({collapsed}). "
+                f"Common cause: two coefficients enter the model in a co-degenerate "
+                f"way (e.g. gain × L_eff both free with no anchor), so the optimiser "
+                f"finds a numerically-equivalent but physically nonsensical solution. "
+                f"Fixes: remove one parameter, add a physical bound, or fix one of them."
+            ),
+        })
+
+    # --- Stuck on a bound: any final |x - bound| / span < NEAR_BOUND_FRACTION ---
+    if bounds is not None:
+        on_bound = []
+        for name, xf, b in zip(param_names, x_final, bounds):
+            if b is None: continue
+            lo, hi = b
+            span = (hi - lo) if (lo is not None and hi is not None and hi > lo) else 1.0
+            if lo is not None and abs(xf - lo) < NEAR_BOUND_FRACTION * span:
+                on_bound.append((name, "lower", lo))
+            elif hi is not None and abs(xf - hi) < NEAR_BOUND_FRACTION * span:
+                on_bound.append((name, "upper", hi))
+        if on_bound:
+            out.append({
+                "kind":     "stuck_on_bound",
+                "severity": "warn",
+                "params":   on_bound,
+                "msg":      (
+                    f"{len(on_bound)} parameter(s) ended on a bound: {on_bound}. "
+                    f"The true optimum may be outside; widen the bound (carefully) "
+                    f"or confirm this is the physical limit you intended."
+                ),
+            })
+
+    # --- Wide train/dev gap (overfit symptom) — only if dev was scored. ---
+    if dev_obj is not None and train_obj == train_obj and dev_obj == dev_obj:
+        if train_obj > 0 and dev_obj > (1.0 + OVERFIT_GAP_FRACTION) * train_obj:
+            sev = "high" if dev_obj > 2.0 * train_obj else "warn"
+            out.append({
+                "kind":     "wide_train_dev_gap",
+                "severity": sev,
+                "msg":      (
+                    f"dev_obj ({dev_obj:.6f}) is more than "
+                    f"{OVERFIT_GAP_FRACTION:+.0%} above train_obj ({train_obj:.6f}). "
+                    f"Likely overfit / route-leakage / model too flexible. "
+                    f"Consider fewer parameters, regularisation, or better train/dev split."
+                ),
+            })
+
+    # --- Optimiser said it did not converge. ---
+    if not converged:
+        out.append({
+            "kind":     "did_not_converge",
+            "severity": "warn",
+            "msg":      "scipy.optimize.minimize returned success=False. Trust the fit only if dev_obj agrees with train_obj.",
+        })
+
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -212,13 +309,17 @@ def fit(
 
     Returns:
         dict with keys:
-          - coeffs:     {platform: {param: float}}  fitted coefficients
-          - train_obj:  {platform: float}           final objective on train
-          - dev_obj:    {platform: float} or None   final objective on dev
-          - history:    {platform: [{x, obj}, ...]} optimisation trace
-          - n_iter:     {platform: int}             scipy iteration count
-          - converged:  {platform: bool}            scipy `success`
-          - objective:  the objective name passed in
+          - coeffs:        {platform: {param: float}}  fitted coefficients
+          - train_obj:     {platform: float}           final objective on train
+          - dev_obj:       {platform: float} or None   final objective on dev
+          - gap:           {platform: float} or None   dev_obj - train_obj
+          - gap_fraction:  {platform: float} or None   (dev_obj - train_obj) / train_obj
+          - warnings:      {platform: [diag dict, ...]} co-collapse / overfit /
+                           stuck-on-bound / didn't-converge flags
+          - history:       {platform: [{x, obj}, ...]} optimisation trace
+          - n_iter:        {platform: int}             scipy iteration count
+          - converged:     {platform: bool}            scipy `success`
+          - objective:     the objective name passed in
     """
     if objective not in ("yaw", "cte", "yaw_plus_cte"):
         raise ValueError(f"unknown objective: {objective!r}")
@@ -238,6 +339,9 @@ def fit(
     coeffs_out:    dict[str, dict] = {}
     train_obj:     dict[str, float] = {}
     dev_obj:       dict[str, float] = {}
+    gap:           dict[str, float] = {}
+    gap_fraction:  dict[str, float] = {}
+    warnings_out:  dict[str, list]  = {}
     history:       dict[str, list] = {}
     n_iter:        dict[str, int] = {}
     converged:     dict[str, bool] = {}
@@ -246,11 +350,12 @@ def fit(
         plat_train = train_by_plat.get(platform, [])
         preloaded = _preload(plat_train)
         if not preloaded:
-            coeffs_out[platform] = dict(init)
-            train_obj[platform]  = float("nan")
-            history[platform]    = []
-            n_iter[platform]     = 0
-            converged[platform]  = False
+            coeffs_out[platform]   = dict(init)
+            train_obj[platform]    = float("nan")
+            warnings_out[platform] = []
+            history[platform]      = []
+            n_iter[platform]       = 0
+            converged[platform]    = False
             if verbose:
                 print(f"[fit-model] {platform}: no usable train segments — passthrough init.")
             continue
@@ -303,23 +408,51 @@ def fit(
         history[platform] = trace
 
         plat_dev = dev_by_plat.get(platform, [])
+        plat_dev_obj: float | None = None
         if plat_dev:
             dev_pre = _preload(plat_dev)
             if dev_pre:
                 cb_final = predict_factory(platform, coeffs_out[platform])
-                dev_obj[platform] = _evaluate(
+                plat_dev_obj = _evaluate(
                     dev_pre, cb_final, objective,
                     sample_filter_v_mps, grid_step_m, min_distance_m, cte_weight,
                 )
+                dev_obj[platform] = plat_dev_obj
+                tr = train_obj[platform]
+                if tr == tr and plat_dev_obj == plat_dev_obj:
+                    gap[platform] = float(plat_dev_obj - tr)
+                    if tr > 1e-12:
+                        gap_fraction[platform] = float((plat_dev_obj - tr) / tr)
+                    elif plat_dev_obj < 1e-9:
+                        # Both essentially zero (e.g. Tesla passthrough) — gap is zero.
+                        gap_fraction[platform] = 0.0
+                    else:
+                        gap_fraction[platform] = float("inf")
+
+        # Post-fit diagnostics on this platform's run.
+        x_final = np.array([coeffs_out[platform][k] for k in param_names], dtype=float)
+        warnings_out[platform] = _detect_diagnostics(
+            platform=platform,
+            param_names=param_names,
+            x0=x0,
+            x_final=x_final,
+            train_obj=train_obj[platform],
+            dev_obj=plat_dev_obj,
+            bounds=plat_bounds,
+            converged=converged[platform],
+        )
 
     return {
-        "coeffs":    coeffs_out,
-        "train_obj": train_obj,
-        "dev_obj":   dev_obj if dev_by_plat else None,
-        "history":   history,
-        "n_iter":    n_iter,
-        "converged": converged,
-        "objective": objective,
+        "coeffs":       coeffs_out,
+        "train_obj":    train_obj,
+        "dev_obj":      dev_obj if dev_by_plat else None,
+        "gap":          gap if dev_by_plat else None,
+        "gap_fraction": gap_fraction if dev_by_plat else None,
+        "warnings":     warnings_out,
+        "history":      history,
+        "n_iter":       n_iter,
+        "converged":    converged,
+        "objective":    objective,
     }
 
 
@@ -328,32 +461,79 @@ def fit(
 # ---------------------------------------------------------------------------
 
 def format_fit_summary(result: dict) -> str:
+    """Render a one-shot markdown dashboard. Opens with warnings (if any),
+    then the per-platform table with train/dev/gap columns."""
     L = []
     L.append("## fit-model summary")
     L.append(f"- objective: `{result['objective']}`")
+
+    # --- Warnings block — surfaced FIRST so the agent sees co-collapse / overfit
+    # before they look at the numbers. ---
+    warn_total = sum(len(w) for w in (result.get("warnings") or {}).values())
+    if warn_total:
+        L.append("")
+        L.append("### 🚨 fit warnings — READ BEFORE shipping")
+        L.append("These do not block the fit; they flag failure modes the optimiser cannot detect on its own.")
+        L.append("")
+        for plat, ws in result["warnings"].items():
+            if not ws: continue
+            for w in ws:
+                tag = "🚨" if w.get("severity") == "high" else "⚠️"
+                L.append(f"- {tag} `{plat}` — **{w['kind']}**: {w['msg']}")
+
     L.append("")
     has_dev = result.get("dev_obj") is not None
-    header = "| platform | converged | n_iter | train_obj"
-    sep    = "|---|---|---|---"
+    header = "| platform | converged | warn | n_iter | train_obj"
+    sep    = "|---|---|---|---|---"
     if has_dev:
-        header += " | dev_obj"
-        sep    += "|---"
+        header += " | dev_obj | gap | gap_% "
+        sep    += "|---|---|---"
     header += " | coeffs |"
     sep    += "|---|"
     L.append(header)
     L.append(sep)
     for plat, coeffs in result["coeffs"].items():
-        tr = result["train_obj"].get(plat, float("nan"))
-        nit = result["n_iter"].get(plat, 0)
+        tr   = result["train_obj"].get(plat, float("nan"))
+        nit  = result["n_iter"].get(plat, 0)
         conv = "✓" if result["converged"].get(plat) else "✗"
-        cells = [f"`{plat}`", conv, str(nit), f"{tr:.6f}" if tr == tr else "nan"]
+        ws   = result.get("warnings", {}).get(plat, [])
+        # Aggregate per-platform warning marker: 🚨 if any high, ⚠️ if any warn, else ok.
+        if any(w.get("severity") == "high" for w in ws):
+            warn_cell = "🚨"
+        elif any(w.get("severity") == "warn" for w in ws):
+            warn_cell = "⚠️"
+        else:
+            warn_cell = "ok"
+        cells = [f"`{plat}`", conv, warn_cell, str(nit), f"{tr:.6f}" if tr == tr else "nan"]
         if has_dev:
             dv = result["dev_obj"].get(plat, float("nan"))
+            g  = result.get("gap", {}).get(plat, float("nan"))
+            gf = result.get("gap_fraction", {}).get(plat, float("nan"))
             cells.append(f"{dv:.6f}" if dv == dv else "nan")
+            cells.append(f"{g:+.6f}" if g == g else "nan")
+            # Flag any single platform's gap inline too — easier to scan a wide table.
+            if gf == gf and gf > OVERFIT_GAP_FRACTION:
+                cells.append(f"**{gf:+.1%}** ⚠️")
+            elif gf == gf:
+                cells.append(f"{gf:+.1%}")
+            else:
+                cells.append("nan")
         pretty = ", ".join(f"{k}={v:+.5g}" for k, v in coeffs.items())
         cells.append(f"`{{{pretty}}}`")
         L.append("| " + " | ".join(cells) + " |")
+
+    if has_dev:
+        L.append("")
+        L.append(f"`gap_%` = (dev - train) / train. Inline ⚠️ when > {OVERFIT_GAP_FRACTION:+.0%}.")
+
     return "\n".join(L)
 
 
-__all__ = ["fit", "format_fit_summary"]
+__all__ = [
+    "fit",
+    "format_fit_summary",
+    "COLLAPSE_REL_THRESHOLD",
+    "COLLAPSE_ABS_THRESHOLD",
+    "OVERFIT_GAP_FRACTION",
+    "NEAR_BOUND_FRACTION",
+]

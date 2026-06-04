@@ -1,13 +1,17 @@
 ---
 name: exploration-discipline
-description: How to keep yourself from locking in on the first approach. A short protocol for naming alternatives before committing, and a log template for tracking what you've already tried.
+description: How to keep yourself from locking in on the first approach. A short protocol for naming alternatives before committing, the EXPERIMENTS.md schema (including the required `Rung:` tag), and the rule that you must log at least one rung-1+ climb attempt.
 when-to-load: At the start of the task, and again any time you find yourself iterating on the same approach without progress for more than ~15 minutes.
-load-cost: ~400 words.
+load-cost: ~500 words.
 ---
 
 # Exploration discipline
 
-Modelling tasks reward divergence then convergence. The trap is silent re-convergence on the same approach, dressed in new variable names. Two cheap practices keep that from happening.
+Modelling tasks reward divergence then convergence. The trap past cohorts have fallen into isn't a lack of divergence — it's **convergence to the same rung-0 local optimum, by every agent, every time.** Reading the m3 reports shows agents *considered* climbing and rejected it, because rung 0 is reliable and rung 1 looks expensive. The result is the cohort piles up around +48–57% over V0 and we still don't know whether rung 1 helps on this data.
+
+The discipline in this template addresses both halves of that:
+1. **Name alternatives across rungs before committing**, so the structure-space gets a fair search.
+2. **Log at least one rung-1+ (or orthogonal) climb attempt** before declaring done — enforced by `pre-flighting-final-model`. The cohort needs evidence about whether rung 1 pays on this data; that evidence only arrives if agents try.
 
 ## Before you commit to an approach — name five, with at least three different model structures
 
@@ -27,14 +31,19 @@ Example list that satisfies the rule:
 
 Then pick one, try it, score it, log it (see below). If the chosen approach doesn't beat dev by a meaningful margin (~2% on at least one KPI), come back to the list and try the next.
 
-This is a divergence-prompting protocol, not a multi-agent dance. You stay one thread. The discipline is that the alternatives get *named on paper* before commitment, not muttered as "I considered…" in the report.
+## You must log at least one rung-1+ climb attempt
 
-## EXPERIMENTS.md — keep a visible log of approaches tried
+`pre-flighting-final-model` checks `EXPERIMENTS.md` and fails the bundle if no entry is tagged `Rung: 1` (or higher, or `orthogonal`). This isn't aspirational — it's mechanical. **Your shipped model can still be rung 0** if your climb attempt didn't beat it; what's required is that you *tried* and logged the result.
+
+See `references/dynamics-formulations.md` § "Minimum viable rung-1 attempt" for a 30-line scaffold. The cost is lower than past cohorts assumed. If your climb fails or hurts, that is itself a contribution to the cohort — it lets the next agent skip the deadend (and the template `## Tried and shelved` section is where it goes).
+
+## EXPERIMENTS.md schema — `Rung:` is required
 
 Maintain a single file at the root of your working directory called `EXPERIMENTS.md`. Append-only. One entry per concrete attempt:
 
 ```
-## E03 — Per-segment δ₀ on Mach-E (gated by a_lat < 0.3)
+## E03 — Per-segment δ₀ on Mach-E (gated by |yaw_rate_pred_rads| < 0.03)
+- Rung: 0
 - Hypothesis: per-segment bias spread is wide; offset is segment-specific.
 - What I changed vs E02: replaced platform-wide δ₀ with median(delta_road) on straight rows.
 - Result (dev): yaw 0.00882 → 0.00821 (+6.9%); CTE 134.2 → 88.7 (+33.9%).
@@ -42,12 +51,14 @@ Maintain a single file at the root of your working directory called `EXPERIMENTS
 - Things this rules out: bias was not noise — correction landed.
 ```
 
-Why this matters: by experiment 6 or 7 you will be tempted to "try per-segment δ₀ again with slightly different gating", not realising it's a variant of E03. The log makes the duplication visible *to yourself*. It also gives the orchestrator a clean trail of what was tried and why, which is far more useful than a final-state REPORT.md alone.
+The `Rung:` field is required on every entry. Permitted values: `0`, `1`, `2`, `3`, `orthogonal`. The preflight check counts entries tagged `1+` or `orthogonal`. Tagging `Rung: 0` on a rung-1 attempt to slip past the check is dishonest — and detectable next cohort when we audit the actual model code in the log entries.
+
+Why this matters: by experiment 6 or 7 you will be tempted to "try per-segment δ₀ again with slightly different gating", not realising it's a variant of E03. The log makes the duplication visible *to yourself* (every entry is `Rung: 0`). It also gives the orchestrator a clean trail of what was tried and why, which is far more useful than a final-state REPORT.md alone.
 
 A starter template lives at the template root as `EXPERIMENTS.md` — copy or extend it.
 
 ## When to stop
 
-You're done exploring when the **named alternatives are exhausted** OR when your latest attempt produced no dev-KPI movement in either direction. If neither is true, you have at least one option left worth trying — go try it.
+You're done exploring when the **named alternatives are exhausted** AND your `EXPERIMENTS.md` includes at least one `Rung: 1+` or `Rung: orthogonal` entry. If neither is true, you have at least one option left worth trying — go try it.
 
 You should improve on this if you can.

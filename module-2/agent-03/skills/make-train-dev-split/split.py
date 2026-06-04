@@ -34,9 +34,13 @@ def _parse_route_key(path: Path) -> tuple[str, str, str]:
 
 
 def _default_glob() -> list[Path]:
-    """Default segment glob, resolved against the current working directory."""
+    """Default segment glob, resolved against the current working directory.
+
+    Matches ALL platforms (not just FORD_*) — the older default silently
+    excluded Hyundai and Tesla, the same cohort bug score-model used to have.
+    """
     root = Path.cwd() / "data" / "sim" / "segments"
-    return sorted(root.glob("FORD_*/**/sim.csv"))
+    return sorted(p for p in root.glob("*/**/sim.csv") if p.is_file())
 
 
 def _split_one_pool(
@@ -80,7 +84,7 @@ def split(
 
     Args:
         segment_paths: iterable of sim.csv paths. If None, globs all
-            `data/sim/segments/FORD_*/**/sim.csv` under the current working dir.
+            `data/sim/segments/*/**/sim.csv` (every platform) under the cwd.
         dev_fraction: target fraction of segments in dev. Greedy fill — stops
             on first crossing, so actual fraction may exceed the target slightly.
         seed: RNG seed for the route-group shuffle. Same seed + same inputs ->

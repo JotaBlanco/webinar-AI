@@ -1,20 +1,24 @@
-"""Score V0 passthrough."""
+"""Score V0 baseline (pass-through) against all platforms."""
 import sys
 from pathlib import Path
 
-ROOT = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/module-3/agent-01")
+import pandas as pd
+
+ROOT = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/module-3.v2/agent-01")
 sys.path.insert(0, str(ROOT / "skills" / "score-model"))
-sys.path.insert(0, str(ROOT / "out"))
 
-# score-model expects cwd to be agent root for default segment glob
-import os
-os.chdir(ROOT)
+from score import score, format_summary  # noqa: E402
 
-from score import score, format_summary  # type: ignore
-from v0_predict import predict  # type: ignore
 
-res = score(predict)
-print(format_summary(res))
-print()
-print(f"YAW_RMSE_OVERALL={res['yaw_rate_rmse']:.6f}")
-print(f"CTE_RMSE_OVERALL={res['cte_rmse']:.4f}")
+def predict_v0(sim_df, platform):
+    return pd.DataFrame(
+        {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
+        index=sim_df.index,
+    )
+
+
+if __name__ == "__main__":
+    segs = sorted((ROOT / "data" / "sim" / "segments").glob("*/**/sim.csv"))
+    print(f"Found {len(segs)} segments")
+    res = score(predict_v0, segment_paths=segs)
+    print(format_summary(res))

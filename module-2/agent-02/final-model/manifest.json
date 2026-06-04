@@ -1,6 +1,7 @@
 {
-  "name": "lateral-v1-linearised-bicycle",
+  "model_name": "v2_understeer_with_steering_rate_lead",
   "version": "1.0",
+  "description": "Per-platform linear understeer (L_eff, K_us, b) plus a steering-rate phase-lead term (tau). Tesla passes V0 through.",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
@@ -8,5 +9,13 @@
     "TESLA_MODEL_3"
   ],
   "predict_callable": "predict.py:predict",
-  "description": "Per-platform linearised single-track yaw-rate model with fitted understeer coefficient K, gain scale, and steering offset d0."
+  "files": [
+    "predict.py",
+    "coeffs.json",
+    "manifest.json"
+  ],
+  "notes": [
+    "Tesla truth channel psi_dot_rads is the V0 KS output, so Tesla is intentionally passed through unchanged.",
+    "Coefficients fitted with scipy.optimize L-BFGS-B on a route-grouped 80/20 train/dev split, objective=yaw_plus_cte (cte_weight=2.0)."
+  ]
 }

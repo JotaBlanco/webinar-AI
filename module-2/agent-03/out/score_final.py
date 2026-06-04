@@ -1,30 +1,44 @@
-"""Score the final-model predict() against all available sim segments."""
-from __future__ import annotations
-import sys
+"""Score the shipped final-model on sim/ data (with truth) and check sim-only contract.
+
+The grader uses sim-only (no truth, no extras). We can't score against sim-only
+because there's no truth, but we run our predict on sim-only segments to verify
+no KeyError, and we score against sim/ (where truth lives) to get the final KPIs.
+"""
+import os, sys
+import importlib.util
 from pathlib import Path
+import numpy as np
+import pandas as pd
 
-REPO = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/module-2/agent-03")
-sys.path.insert(0, str(REPO / "skills" / "score-model"))
-sys.path.insert(0, str(REPO / "final-model"))
+ROOT = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/module-2.v3/agent-03")
+os.chdir(ROOT)
+sys.path.insert(0, str(ROOT / "skills" / "score-model"))
+sys.path.insert(0, str(ROOT / "final-model"))
 
-from score import score, format_summary  # noqa: E402
-from predict import predict  # noqa: E402
+from score import score, format_summary
+import predict as predict_mod
 
+def predict_wrapper(sim_df, platform):
+    return predict_mod.predict(sim_df, platform)
 
-def gather_paths():
-    root = REPO / "data" / "sim" / "segments"
-    paths = sorted(root.glob("*/**/sim.csv"))
-    keep = []
-    for p in paths:
-        with p.open() as f:
-            header = f.readline().rstrip("\n").split(",")
-        if "yaw_rate_meas_rads" in header and "yaw_rate_pred_rads" in header:
-            keep.append(p)
-    return keep
+r = score(predict_wrapper)
+print(format_summary(r, top_n=5))
+print(f"\nHEADLINE: yaw_rate_rmse={r['yaw_rate_rmse']:.6f}  cte_rmse={r['cte_rmse']:.4f}")
 
+# Sanity: also try sim-only paths (no truth) to confirm no KeyError on predict
+print("\n--- sim-only contract check ---")
+so_root = ROOT / "data" / "sim-only" / "segments"
+sample = next(so_root.glob("FORD_MUSTANG_MACH_E_MK1/*/*/*/sim.csv"))
+df = pd.read_csv(sample)
+print(f"sim-only sample: {sample.relative_to(ROOT)}")
+print(f"sim-only columns: {list(df.columns)}")
+out = predict_wrapper(df, "FORD_MUSTANG_MACH_E_MK1")
+print(f"predict output shape: {out.shape}, NaN count: {out['yaw_rate_pred_rads'].isna().sum()}")
 
-if __name__ == "__main__":
-    paths = gather_paths()
-    print(f"Scoring final model on {len(paths)} segments with truth.")
-    result = score(predict, segment_paths=paths)
-    print(format_summary(result))
+# Try all 4 platforms
+for plat in ["TESLA_MODEL_3", "FORD_F_150_LIGHTNING_MK1", "FORD_MUSTANG_MACH_E_MK1", "HYUNDAI_IONIQ_5"]:
+    samp = next(so_root.glob(f"{plat}/*/*/*/sim.csv"), None)
+    if samp is None: continue
+    df = pd.read_csv(samp)
+    o = predict_wrapper(df, plat)
+    print(f"  {plat}: rows={len(o)} nan={o['yaw_rate_pred_rads'].isna().sum()} ok")

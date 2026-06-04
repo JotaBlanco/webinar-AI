@@ -1,49 +1,45 @@
-# EXPERIMENTS.md
+# EXPERIMENTS log — agent-06
 
-Append-only log of approaches you tried. One entry per concrete attempt. See `references/exploration-discipline.md` for the why.
+Pooled KPIs across all 4 platforms (1996 segments, ~5.2M samples). Tesla is V0 passthrough.
 
-Schema:
+## V0 — baseline KS passthrough
+- Rung: 0
+- Hypothesis: floor.
+- Result: yaw_rate_rmse = 0.012934 rad/s, cte_rmse = 163.83 m.
 
-```
-## E<NN> — <one-line approach name>
-- Hypothesis: why you thought this would help, in one line.
-- What I changed vs E<NN-1>: the minimal diff.
-- Result (dev): yaw <old> → <new> (Δ%); CTE <old> → <new> (Δ%).
-- Verdict: keep | revert | revisit-later.
-- Things this rules out: what you learned, even if the experiment failed.
-```
+## V1 — KS + understeer + lag + per-segment δ₀ (recipe defaults from anti-patterns.md)
+- Rung: 0
+- Hypothesis: replicate the "legal cousin" recipe with platform-gated per-segment δ₀ (Mach-E + IONIQ-5 on, Lightning off).
+- Change: linear understeer (g, L_eff, K_us) + first-order lag (tau), with per-segment δ₀ estimated from the V0 straight-row gate `|yaw_v0|<0.03 ∧ v>5`.
+- Result: yaw = 0.005874 rad/s (−54.6% vs V0), cte = 56.81 m (−65.3% vs V0).
+- Notes: Mach-E shows residual signed yaw bias (−0.00142 rad/s) → cte_drift −22.0 m. Worst-CTE segments concentrate on 5 Mach-E segments under route 33439c2a9c.
 
-Delete this header section once you start logging, but keep the schema close to mind.
+## V2 — Nelder-Mead refit with L_eff pinned to physical wheelbase
+- Rung: 0
+- Hypothesis: pinning L_eff would resolve the g↔L_eff scale invariance and let scipy find a tighter fit per platform.
+- Change: scipy NM over (g, K_us, tau, δ₀_fallback) on 100 training segments per platform; yaw-RMSE + 50×|bias| loss.
+- Result: yaw = 0.007650 rad/s, cte = 69.23 m — WORSE than V1.
+- Reason: Mach-E pegged at upper g bound (1.30) and lower tau bound (0.005). The recipe value L_eff=2.22 for Mach-E is FAR below the physical 2.984 m wheelbase — the recipe encodes an effective-wheelbase choice that fixed-L_eff fitting cannot reach. Pinning L_eff to the physical value is NOT a free move.
+- Decision: revert to V1 defaults.
 
----
+## V3 — coefficient sweep on Mach-E only (g ∈ [0.870, 0.920], K_us ∈ [0.0010, 0.0020])
+- Rung: 0
+- Hypothesis: the published Mach-E coefficients are already near optimum; sweeps will be flat.
+- Result: best Mach-E-only yaw = 0.00842 (g=0.891, K_us=0.0020) — virtually identical to V1 default 0.00859. The signed yaw bias (−0.0014) is invariant to (g, K_us) within ±2% — likely a structural artefact (lag asymmetry between L/R turns, or missing nonlinear tyre), reachable only by climbing a rung.
+- Decision: ship V1 defaults.
 
-## E00 — V0 baseline (no changes)
-- Hypothesis: establish the floor we're trying to beat.
-- What I changed vs nothing: nothing — predict() passes through `yaw_rate_pred_rads`.
-- Result (full eval): yaw 0.01416; CTE 163.83.
-  - Per-platform: Lightning yaw=0.0163/cte=157.5 (bias 🚨), Mach-E yaw=0.0136/cte=148.0 (ok), Ioniq yaw=0.0177/cte=247.5 (bias 🚨).
-- Verdict: baseline.
-- Things this rules out: nothing yet. Sign of pooled bias on Lightning and Ioniq says global-δ₀ / K_us calibration is the highest-leverage move.
+## V4 — Rung-1 attempt: linear dynamic single-track with slip angles
+- Rung: 1
+- Hypothesis: replace kinematic steady-state with a slip-angle linear bicycle (vy, r) state-space; backward-Euler integration should out-perform the kinematic understeer model in the transient regime (rung-0 yaw_rmse peaks at 0.0165 rad/s there).
+- Change: 2-state semi-implicit (backward Euler) integration of
+    m·v̇_y = −C_f·α_f − C_r·α_r − m·u·r
+    Iz·ṙ   = −l_f·C_f·α_f + l_r·C_r·α_r
+  with openpilot-canonical mass / inertia / tyre stiffness from `code/parameters.py` for Mach-E and Lightning; IONIQ-5 used literature defaults (m=2100, Iz=4500, Cf=300k, Cr=370k). Per-segment δ₀ kept on for Mach-E + IONIQ-5.
+- Result: yaw = 0.008636 rad/s (vs V1 0.005874 — WORSE by +47%), cte = 69.51 m (vs V1 56.81 — WORSE by +22%).
+- Per-platform: Mach-E yaw=0.01379, Lightning yaw=0.00914, IONIQ yaw=0.01071. Lightning fares closest to V1; Mach-E worst.
+- Failure notes: first explicit-Euler attempt blew up (stiffness with C_f≈300k at 20 ms — eigenvalues outside stability region). Backward Euler stabilises but the openpilot C_f/C_r priors are too high for these data — the linear-ST steady-state K_us = (m/L²)(l_r/C_f − l_f/C_r) is *smaller* than what the rung-0 fit converged on. Rung 1 needs a joint refit of (C_f, C_r) per platform to be competitive — out of budget here.
+- Reason for falling back to rung-0: yaw_rmse increased on all three live platforms.
 
-## E01 — Rung-0 KS + understeer + lag + per-segment δ₀ (platform-gated), priors-only
-- Hypothesis: anti-patterns.md's prior recipe (m3-agent-09 numbers) already lifts ~50% on this dataset; ship it before fitting.
-- What I changed vs E00: predict.py implements `yr_ss = v · (δ - δ₀) · g / (L_eff + K_us·v²)` with a first-order lag.
-  - Mach-E and Ioniq use input-derived per-segment δ₀ (straight detector: `|delta_road_rad| < 0.005 AND v > 5`, min 50 rows). Lightning uses global δ₀.
-  - Tesla: V0 passthrough.
-- Result (full eval): yaw 0.00671 (-52.6%); CTE 64.69 (-60.5%).
-- Verdict: keep, target the residual bias on Mach-E and Ioniq next.
-- Things this rules out: the bulk of V0's gap is bias + understeer mismatch, not transient dynamics — rung-0 closes most of it.
-
-## E02 — Minimal Nelder-Mead refinement on `{δ₀, K_us, g, τ}` (per platform; +L_eff for Ioniq)
-- Hypothesis: priors are close but not on the optimum; cheap NM over 60 train segments per platform can shave another few %.
-- What I changed vs E01: refit per-platform via Nelder-Mead on a 60-segment random subsample, loss = yaw_rmse + 3e-4·cte_rmse.
-- Result (full eval): yaw 0.00587 (-58.5% vs V0); CTE 63.12 (-61.5% vs V0).
-- Verdict: keep. Mach-E was almost unmoved (cte 108.7 → 107.5), Ioniq improved most (yaw 0.0093 → 0.0076, cte 82.4 → 79.6), Lightning yaw slightly worse (0.00566 → 0.00598) but cte slightly better.
-- Things this rules out: rung-0 ceiling on Mach-E is near here — bias of -20m signed cte_drift is persistent across all refits, suggesting it's segment-distribution-driven (a few high-CTE Mach-E outliers dominate the pool).
-
-## Approaches named but NOT tried (per exploration-discipline.md)
-1. *(rung-0, coefficient)* Polynomial g(δ) on Mach-E — referenced as the canonical Mach-E gain. Not tried; rung-0 + per-segment δ₀ already brought Mach-E to bias-of-noise levels on yaw, and the residual CTE is concentrated in <5 outlier segments rather than spread across the population.
-2. *(rung-0, coefficient)* `K_us(v)` speed-dependent — small effect per ref; deferred.
-3. *(rung-1, structural)* Linear dynamic single-track with slip angles — transient-regime RMSE (0.021) is 4× the straight-regime (0.0045), which is the canonical "climb a rung" signal. Did NOT try due to time budget.
-4. *(rung-2, structural)* Nonlinear tyre (Pacejka/Fiala) — not tried; rung-1 was the next logical step.
-5. *(orthogonal)* Residual learner on physics prior — not tried; would require route-grouped train/dev split (no `make-train-dev-split` was used).
+## Shipped — V1 (rung 0)
+- Coefficients in `final-model/coeffs.json`.
+- Final pooled: yaw_rate_rmse = 0.005874 rad/s (−54.6% vs V0), cte_rmse = 56.81 m (−65.3% vs V0).

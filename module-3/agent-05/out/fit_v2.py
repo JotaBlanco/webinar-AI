@@ -1,117 +1,177 @@
-"""Fit v2: L_eff fixed to wheelbase, per-segment δ₀ for all platforms (data shows wide bias spread on all 3)."""
-from __future__ import annotations
+"""V2: per-platform refit of (g, L_eff, K_us, tau, delta0_fallback) for the three Ford/Hyundai platforms.
+
+Strategy:
+- Group segments by route -> route-grouped train/dev split (80/20).
+- For each platform, run scipy.optimize.minimize on a yaw+CTE composite objective.
+- Save fitted coeffs to coeffs.json.
+"""
+import json
+import math
 import sys
 from pathlib import Path
-import math
+
 import numpy as np
-import json
+import pandas as pd
 from scipy.optimize import minimize
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "out"))
-from _shared.traj_metrics import cte_rmse_segment
-from harness import find_sim_csvs, load_segment, SIM_ROOT
-from recipe_v1 import predict_with_params
+ROOT = Path("/Users/javiquix/Desktop/quixdev/webinar-AI/module-3.v2/agent-05")
+sys.path.insert(0, str(ROOT / "skills" / "score-model"))
+sys.path.insert(0, str(ROOT / "_shared"))
 
-# Approximate wheelbase priors (m)
-WHEELBASE_PRIOR = {
-    "FORD_MUSTANG_MACH_E_MK1": 2.984,
-    "FORD_F_150_LIGHTNING_MK1": 3.708,
-    "HYUNDAI_IONIQ_5": 3.000,
-}
+from score import score
+from traj_metrics import cte_diagnostics_segment
 
 
-def collect_platform_data(platform):
-    csvs = find_sim_csvs(SIM_ROOT, platform)
-    segs = []
-    for csv in csvs:
-        df = load_segment(csv)
-        if "yaw_rate_meas_rads" not in df.columns:
+def _per_segment_delta0(sim_df, fallback=0.0,
+                        yr_thresh=0.03, v_thresh=5.0, min_rows=50):
+    v = sim_df["v_mps"].to_numpy()
+    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
+    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
+    if int(mask.sum()) < min_rows:
+        return fallback
+    return float(sim_df.loc[mask, "delta_road_rad"].median())
+
+
+def predict_one(sim_df, params):
+    g, L_eff, K_us, tau = params["g"], params["L_eff"], params["K_us"], params["tau"]
+    if params.get("use_per_segment_delta0", False):
+        delta0 = _per_segment_delta0(sim_df, fallback=params.get("delta0_fallback", 0.0))
+    else:
+        delta0 = params["delta0"]
+    delta = (sim_df["delta_road_rad"].to_numpy() - delta0) * g
+    v = sim_df["v_mps"].to_numpy()
+    yr_ss = v * delta / (L_eff + K_us * v * v)
+    t = sim_df["t_s"].to_numpy()
+    dt = np.diff(t, prepend=t[0])
+    alpha = dt / (tau + dt)
+    yr = np.empty_like(yr_ss)
+    yr[0] = yr_ss[0]
+    for i in range(1, len(yr)):
+        yr[i] = yr[i-1] + alpha[i] * (yr_ss[i] - yr[i-1])
+    return yr
+
+
+def load_segments(platform, max_segments=200, seed=7):
+    seg_root = ROOT / "data" / "sim" / "segments" / platform
+    paths = sorted(p for p in seg_root.glob("**/sim.csv") if p.is_file())
+    if len(paths) > max_segments:
+        rng = np.random.default_rng(seed)
+        # Route-stratified subsample so dev split is still meaningful
+        routes_map = {}
+        for p in paths:
+            r = p.resolve().parents[1].name
+            routes_map.setdefault(r, []).append(p)
+        routes = list(routes_map.keys())
+        rng.shuffle(routes)
+        sel = []
+        for r in routes:
+            sel.extend(routes_map[r])
+            if len(sel) >= max_segments:
+                break
+        paths = sel[:max_segments]
+    out = []
+    for p in paths:
+        df = pd.read_csv(p)
+        route = p.resolve().parents[1].name
+        out.append((route, str(p), df))
+    return out
+
+
+def route_split(segments, frac_dev=0.2, seed=42):
+    routes = sorted({r for r, _, _ in segments})
+    rng = np.random.default_rng(seed)
+    rng.shuffle(routes)
+    n_dev = max(1, int(len(routes) * frac_dev))
+    dev_routes = set(routes[:n_dev])
+    train, dev = [], []
+    for r, p, df in segments:
+        (dev if r in dev_routes else train).append((r, p, df))
+    return train, dev
+
+
+def pooled_metrics(segments, params):
+    yaw_sum_sq = 0.0
+    yaw_n = 0
+    cte_sum_sq = 0.0
+    cte_n = 0
+    for _, _, df in segments:
+        t = df["t_s"].to_numpy(float)
+        v = df["v_mps"].to_numpy(float)
+        if len(t) < 2 or np.any(np.diff(t) <= 0):
             continue
-        segs.append(df)
-    return segs
+        # mimic score-model: provide allowlist subset
+        sim_df_agent = df.copy()
+        yr_pred = predict_one(sim_df_agent, params)
+        yr_truth = df["yaw_rate_meas_rads"].to_numpy(float)
+        mask_v = v > 2.0
+        resid = yr_pred - yr_truth
+        yaw_sum_sq += float(np.sum(resid[mask_v]**2))
+        yaw_n += int(mask_v.sum())
+        cte = cte_diagnostics_segment(t, v, yr_truth, yr_pred,
+                                       grid_step_m=1.0, min_distance_m=20.0)
+        cte_sum_sq += cte["sum_sq_m2"]
+        cte_n += cte["n_bins"]
+    yaw_rmse = math.sqrt(yaw_sum_sq / yaw_n) if yaw_n > 0 else float("nan")
+    cte_rmse = math.sqrt(cte_sum_sq / cte_n) if cte_n > 0 else float("nan")
+    return yaw_rmse, cte_rmse
 
 
-def eval_params(segs, p):
-    sum_sq_yaw = 0.0
-    n_yaw = 0
-    sum_sq_cte = 0.0
-    n_bins = 0
-    for df in segs:
-        truth = df["yaw_rate_meas_rads"].to_numpy()
-        t = df["t_s"].to_numpy()
-        v = df["v_mps"].to_numpy()
-        pred_df = predict_with_params(df, None, p)
-        pred = pred_df["yaw_rate_pred_rads"].to_numpy()
-        err = pred - truth
-        sum_sq_yaw += float((err * err).sum())
-        n_yaw += int(len(err))
-        ss, nb, _ = cte_rmse_segment(t, v, truth, pred)
-        sum_sq_cte += ss
-        n_bins += nb
-    yaw = math.sqrt(sum_sq_yaw / n_yaw) if n_yaw > 0 else float("nan")
-    cte = math.sqrt(sum_sq_cte / n_bins) if n_bins > 0 else float("nan")
-    return yaw, cte
+def fit_platform(platform, init, use_psd0, delta0_key, bounds, train, dev):
+    keys = ["g", "L_eff", "K_us", "tau", delta0_key]
+    x0 = [init[k] for k in keys]
+    bounds_arr = [bounds[k] for k in keys]
 
-
-def fit_platform(platform, use_per_seg_delta0, init=None):
-    segs = collect_platform_data(platform)
-    L_fixed = WHEELBASE_PRIOR[platform]
-    print(f"[{platform}] {len(segs)} segments, L_fixed={L_fixed}")
-    if init is None:
-        init = [0.88, 0.0025, 0.065, 0.0]  # g, K_us, tau, d0
-
-    def unpack(x):
-        g, K_us, tau, d0 = x
-        p = {"g": g, "L_eff": L_fixed, "K_us": K_us, "tau": tau}
-        if use_per_seg_delta0:
-            p["use_per_segment_delta0"] = True
-            p["delta0_fallback"] = d0
+    def make_params(x):
+        p = {keys[i]: float(x[i]) for i in range(len(keys))}
+        p["use_per_segment_delta0"] = use_psd0
+        if use_psd0:
+            # x[-1] is delta0_fallback
+            pass
         else:
-            p["use_per_segment_delta0"] = False
-            p["delta0"] = d0
+            pass
         return p
 
-    base_yaw, base_cte = eval_params(segs, unpack(init))
-    print(f"  init: yaw={base_yaw:.5f}  cte={base_cte:.3f}")
-
     def obj(x):
-        if x[0] < 0.6 or x[0] > 1.2: return 1e3
-        if x[1] < -0.005 or x[1] > 0.02: return 1e3
-        if x[2] < 0.001 or x[2] > 0.3: return 1e3
-        if abs(x[3]) > 0.05: return 1e3
-        p = unpack(x)
-        yaw, cte = eval_params(segs, p)
-        if not (np.isfinite(yaw) and np.isfinite(cte)): return 1e3
-        return yaw / base_yaw + cte / base_cte
+        params = make_params(x)
+        yaw, cte = pooled_metrics(train, params)
+        # composite: normalised
+        return (yaw / 0.01) ** 2 + (cte / 50.0) ** 2
 
-    res = minimize(obj, init, method="Nelder-Mead",
-                   options={"xatol": 1e-5, "fatol": 1e-5, "maxiter": 600, "disp": False})
-    p = unpack(res.x)
-    yaw, cte = eval_params(segs, p)
-    print(f"  fit:  yaw={yaw:.5f}  cte={cte:.3f}")
-    print(f"  params: g={p['g']:.4f} L_eff={p['L_eff']:.3f} K_us={p['K_us']:.5f} tau={p['tau']:.4f} d0={res.x[3]:.5f}")
-    return p
+    res = minimize(obj, x0, method="L-BFGS-B", bounds=bounds_arr,
+                   options={"maxiter": 30, "ftol": 1e-5})
+    best = make_params(res.x)
+    train_yaw, train_cte = pooled_metrics(train, best)
+    dev_yaw, dev_cte = pooled_metrics(dev, best)
+    print(f"[{platform}] fit: {dict((k, round(v, 5) if isinstance(v, float) else v) for k, v in best.items())}")
+    print(f"  train: yaw={train_yaw:.5f} cte={train_cte:.3f}  dev: yaw={dev_yaw:.5f} cte={dev_cte:.3f}")
+    return best
+
+
+def main():
+    out = {}
+    init_lightning = {"g": 0.863, "L_eff": 3.26, "K_us": 0.00350, "tau": 0.060, "delta0": 0.00133}
+    init_machE     = {"g": 0.891, "L_eff": 2.22, "K_us": 0.00150, "tau": 0.069, "delta0_fallback": -0.0001}
+    init_ioniq     = {"g": 0.938, "L_eff": 2.887, "K_us": 0.00289, "tau": 0.062, "delta0_fallback": 0.0}
+    bounds_common = {"g": (0.6, 1.2), "L_eff": (1.8, 4.0), "K_us": (0.0, 0.02), "tau": (0.01, 0.25)}
+
+    for platform, init, use_psd0, delta0_key in [
+        ("FORD_F_150_LIGHTNING_MK1", init_lightning, False, "delta0"),
+        ("FORD_MUSTANG_MACH_E_MK1",  init_machE,     True,  "delta0_fallback"),
+        ("HYUNDAI_IONIQ_5",          init_ioniq,     True,  "delta0_fallback"),
+    ]:
+        print(f"\n==== Fitting {platform} ====")
+        segs = load_segments(platform)
+        train, dev = route_split(segs)
+        print(f"  train segments: {len(train)}, dev segments: {len(dev)}")
+        bounds = dict(bounds_common)
+        bounds[delta0_key] = (-0.05, 0.05)
+        best = fit_platform(platform, init, use_psd0, delta0_key, bounds, train, dev)
+        out[platform] = best
+
+    coeffs_path = ROOT / "out" / "coeffs.json"
+    coeffs_path.write_text(json.dumps(out, indent=2))
+    print(f"\nSaved coeffs to {coeffs_path}")
 
 
 if __name__ == "__main__":
-    results = {}
-    for plat in ["FORD_MUSTANG_MACH_E_MK1", "FORD_F_150_LIGHTNING_MK1", "HYUNDAI_IONIQ_5"]:
-        # Try both with and without per-seg, pick the better one.
-        print(f"\n== {plat} per-seg ON ==")
-        p_on = fit_platform(plat, use_per_seg_delta0=True)
-        y_on, c_on = eval_params(collect_platform_data(plat), p_on)
-        print(f"\n== {plat} per-seg OFF ==")
-        p_off = fit_platform(plat, use_per_seg_delta0=False)
-        y_off, c_off = eval_params(collect_platform_data(plat), p_off)
-        # Pick based on combined score (yaw+cte weighted)
-        score_on = y_on + c_on / 200.0
-        score_off = y_off + c_off / 200.0
-        print(f"  >> ON score={score_on:.5f}  OFF score={score_off:.5f}")
-        results[plat] = p_on if score_on <= score_off else p_off
-        print(f"  >> CHOSE: {'ON' if score_on <= score_off else 'OFF'}")
-
-    with open(ROOT / "out" / "fitted_v2.json", "w") as f:
-        json.dump(results, f, indent=2)
-    print("\nSaved fitted_v2.json")
+    main()

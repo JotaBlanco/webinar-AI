@@ -1,12 +1,11 @@
 {
-  "name": "module-2-agent-06-understeer-v1",
-  "version": "1.0",
-  "predict_callable": "predict.py:predict",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "description": "Per-platform linear-tyre understeer model yr = v*(s*delta - d0)/(L + K*v^2), with V0 passthrough for TESLA_MODEL_3 (synthetic truth = baseline). Trajectory integrated from yaw-rate and measured v."
+  "predict_callable": "predict.py:predict",
+  "model": "V2: per-platform v*(delta + tau*d_delta_dt)/(L + Kus*v^2) + bias; Tesla = V0 passthrough",
+  "version": "v2"
 }

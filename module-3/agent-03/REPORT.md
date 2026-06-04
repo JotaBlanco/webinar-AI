@@ -1,32 +1,64 @@
-# Module 3 — Agent 03 — Report (final-angle-v2 / idea-01 lateral fidelity)
+# REPORT — module-3.v2 / agent-03
 
-**Headline (pooled across all 4 platforms / 1996 segments / sim/segments):**
-- Yaw-rate RMSE: **0.01293 → 0.00586 rad/s (-54.7%)**
-- Distance-resampled CTE RMSE: **163.83 → 62.83 m (-61.6%)**
+## Headline numerical result (canonical-grader equivalent, pooled, all platforms incl. Tesla)
 
-Per-platform (yaw_rmse rad/s | CTE m):
-- FORD_F_150_LIGHTNING_MK1: 0.01633 → 0.00570 | 157.5 → 61.4
-- FORD_MUSTANG_MACH_E_MK1: 0.01362 → 0.00857 | 148.0 → 107.5
-- HYUNDAI_IONIQ_5: 0.01770 → 0.00763 | 247.5 → 79.1
-- TESLA_MODEL_3: 0 → 0 | 0 → 0 (V0 passthrough — no truth channel)
+| metric | V0 | shipped | delta |
+|---|---|---|---|
+| yaw_rate_rmse (rad/s) | 0.012934 | **0.005853** | **−54.7%** |
+| cte_rmse (m)          | 163.831  | **56.59**    | **−65.5%** |
 
-Preflight: 8/9 checks pass; only `REPORT.md` missing locally (orchestrator persists this).
+Per-platform (shipped):
+- LIGHTNING: yaw 0.00566 / cte 62.19 (cte drift +2.67 m)
+- MACH-E:    yaw 0.00859 / cte 98.68 (cte drift −21.98 m) ← residual systematic CTE bias
+- IONIQ-5:   yaw 0.00762 / cte 69.03 (cte drift −11.65 m)
+- TESLA:     V0 passthrough (no truth channel — fitting is moot)
 
 ## What I implemented
-- One variant, per-platform: refined kinematic single-track `yr_ss = v·(δ−δ₀)·g / (L_eff + K_us·v²)` + first-order yaw-rate lag `τ`, fitted per platform (Nelder-Mead, composite loss `yaw/0.01 + 0.5·CTE/50`) against `data/sim/segments/`.
-- Platform-gated per-segment δ₀: estimated each segment's residual steering offset from rows where `|δ_road| < 0.005 rad ∧ v > 8 m/s` (median). A/B'd ON for Mach-E & Hyundai (wide segment bias spread), OFF for Lightning (tight spread → hurts CTE from 60 → 122 m). Tesla = V0 passthrough.
-- Files: `final-model/predict.py`, `final-model/coeffs.json`, `final-model/manifest.json`; fitter at `out/fit.py`; experiment log entry in `EXPERIMENTS.md`.
+
+1. **E01 — KS + understeer + first-order lag + per-segment δ₀** (anti-patterns § "legal cousin").
+   `yr_ss = v·(δ−δ₀_seg)·g / (L_eff + K_us·v²)`, then a discrete first-order lag with τ. δ₀
+   per-segment, estimated from an **input-only** straight-row gate
+   `|yaw_rate_pred_rads| < 0.03 ∧ v_mps > 5` (no truth peek). Platform-gated:
+   Mach-E and IONIQ-5 ON, Lightning OFF (in-segment estimation hurt Lightning — E02 confirmed).
+2. **E03 — scipy refit (L_eff pinned to wheelbase to break g↔L_eff scale-invariance).**
+   First fit pegged Mach-E's g at the lower bound (classic identifiability symptom from
+   anti-patterns.md). Fixing L_eff per platform let g, K_us, τ, δ₀ converge — but the yaw
+   RMSE only moved by 1–2%. The reference's heuristic priors were already near-optimal.
+3. **E04 — alternative δ₀ gates** (steering, a_lat proxy from allowlist). Both worse;
+   the V0-yaw gate is best on this data.
+4. **E06 — Rung-1 climb attempt (linear dynamic single-track for Mach-E).** Two-state Euler
+   integration of (vy, yr) with `F_y=C_α·α`, m/Iz/l_f/l_r/C_αr from openpilot carParams,
+   fitted C_αf only. Required 4-substep Euler to stabilise. Best yaw RMSE 0.01284 vs.
+   rung-0's 0.00859 (~50% worse). **Did not ship.** Logged per AGENTS.md mandate.
+
+Final shipped: E05 — recipe priors for Mach-E + L_eff-pinned fitted coeffs for Lightning
+and IONIQ-5.
 
 ## Most painful absence in the harness
-**No `a_lat_meas_mps2` in the sim-only operating contract.** Every published "legal cousin" recipe in `anti-patterns.md` and `approach-menu.md` uses `|a_lat_meas| < 0.3` as the straight-row detector for per-segment δ₀. That column is in `data/sim/segments/` but NOT in `ALLOWED_INPUT_COLUMNS`. I had to substitute `|delta_road_rad| < 0.005` — coarser, and circular (using steering to detect not-steering). My Mach-E CTE (107 m) is the visible cost; the canonical recipe with `a_lat_meas` reportedly hits ~75 m there. The references should either flag this or include an `a_lat_meas`-free recipe variant.
 
-## What the rules nearly led me to do
-The task says baseline yaw-rate is "pre-computed as `yaw_rate_pred_rads` in every sim.csv". It's not — the *training* `sim/segments/TESLA_MODEL_3/*/sim.csv` has `psi_dot_rads` instead (different column name; same content for Tesla because Tesla has no independent truth). I almost added a custom Tesla branch to my fitter before noticing `PLATFORM_SCHEMA` already handles the alias and that fitting Tesla is pointless (no truth). Time saved: ~10 min.
+**No `fit-model` skill with a CTE-aware joint objective and CTE-trajectory-integrator already
+plugged in.** I had to roll my own Nelder-Mead loop in `out/fit_coeffs.py`. The skill body
+description in AGENTS.md says it supports `objective="cte"`, but the skill files weren't loaded
+in a way I could trivially adapt — for time budget, I rolled my own yaw-RMSE-only objective, which
+is what then plateaued. A fit-model skill that minimises the *pooled CTE* directly would have let
+me chase Mach-E's −22 m CTE drift even when the yaw RMSE was already plateaued.
+
+## What the rules prevented me from almost doing
+
+I almost reached for the truth column (`yaw_rate_meas_rads`) inside `_per_segment_delta0` to
+sanity-check the gate — the anti-patterns reference flagged this explicitly, and the operating
+contract makes it impossible (it's stripped from sim-only). I substituted the V0-yaw input-only
+gate as recommended. Also: my initial Mach-E unconstrained fit landed at g=0.30, L_eff=0.75 —
+not because those are physical, but because of the g↔L_eff scale-invariance documented in
+anti-patterns § failure-mode index. Catching it earlier saved me a chase.
 
 ## Most surprising thing learned
-Hyundai (which has no entry in `code/parameters.py` and no mention in any reference doc) responds extremely well to the same Mach-E recipe (CTE 248 → 79 m, ~68% drop) — bigger absolute and relative gain than either Ford. The references treat the problem as Mach-E vs Lightning; in fact Hyundai dominates the V0 CTE pool (800 / 1996 segments) and is where most of my "61.6% improvement" actually comes from.
 
-## Honest gaps
-- I never climbed past Rung 0 (no dynamic ST, no slip-angle model, no a_lat fusion). 45 min was tight, and the residual didn't scream "transient-regime-dominated" per the diagnostic (transient rmse=0.0165 vs steady=0.0081 — present but not isolated).
-- No train/dev route-grouped split; fitted directly on a 150-segment stride of training data. Risk of overfit isn't quantified.
-- Mach-E `g` fitted to 1.03 (near 1.0) and Hyundai `g`=0.90 are reasonable. Lightning hit Mach-E's L_eff bound the first run (caught and widened); Hyundai also bumped the original `L_eff` ceiling — second run with widened bound gave only marginal improvement, but worth flagging.
+The per-segment bias-spread diagnostic (`std(per_seg_yaw_residual_mean)`) on this dataset reads
+**0.00626** for Lightning — above the 0.002 "turn per-segment δ₀ ON" threshold from the reference.
+The reference *also* says Lightning should be OFF. I tested both — Lightning's per-seg δ₀ ON
+made Lightning **worse** (yaw 0.00566 → 0.00765, cte 62 → 116). The lesson: per-segment bias
+spread above the threshold is *necessary but not sufficient*. Lightning's bias is route-bound,
+not segment-bound, so an in-segment median doesn't capture it. The platform-level diagnostic
+needs a "is the variance in-segment or between-segment-within-route?" follow-up — which the
+reference didn't supply and I didn't have time to write.

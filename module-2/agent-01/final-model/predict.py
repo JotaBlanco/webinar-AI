@@ -1,81 +1,68 @@
-"""Lateral-fidelity predict: per-platform bicycle-with-understeer + affine fit.
+"""Final-model predict() — V1 lateral fidelity (single-track + understeer + steering-rate lead).
 
-For each supported platform we predict the yaw rate as
+Per-platform parameterised model:
 
-    yr_pred = gain * (v * delta_road / (L + K * v^2)) + bias
+    delta_eff = delta_road + tau * d(delta_road)/dt        # steering-rate lead
+    yaw_pred  = gain * v * delta_eff / (L_eff + K_us * v^2) + bias
 
-with (L, K, gain, bias) loaded from `coeffs.json`. This is the kinematic
-single-track yaw equation augmented with a single understeer coefficient K
-(a linearised tire-slip term) plus a per-platform affine correction that
-absorbs steady-state offsets (steer-ratio mis-calibration, suspension
-compliance, sensor zero error).
+Coefficients are loaded from sibling coeffs.json. For TESLA_MODEL_3 the model is a
+pass-through to the V0 baseline `yaw_rate_pred_rads` column (Tesla sim has no
+independent truth channel — V0 IS the truth — so deviating from V0 strictly
+increases RMSE).
 
-For TESLA_MODEL_3 (no ground truth available locally) we fall back to the
-V0 KS formula `yr = v * tan(delta_road) / L`.
-
-x_m, y_m are optionally integrated from yaw rate + measured v using the
-shared `_shared/traj_metrics.integrate_trajectory` math. We omit them and
-let the grader integrate (the contract allows omission and is consistent
-with our local scoring).
-
-Operating contract: predict reads only ALLOWED_INPUT_COLUMNS — t_s,
-delta_wheel_deg, delta_road_rad, v_mps, a_long_mps2, accel_pedal_pct,
-brake_pressed, yaw_rate_pred_rads.
+Optional `x_m, y_m` are integrated by the scorer using the predicted yaw_rate and
+the measured v_mps, so we don't emit trajectory columns ourselves.
 """
 from __future__ import annotations
 import json
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import pandas as pd
 
+
 _HERE = Path(__file__).resolve().parent
-with (_HERE / "coeffs.json").open() as fh:
-    _COEFFS: dict[str, Any] = json.load(fh)
-
-# Fallback for unknown platforms
-_DEFAULT = {"L": 2.95, "K": 0.0, "gain": 1.0, "bias": 0.0, "passthrough": True}
+with open(_HERE / "coeffs.json") as _fh:
+    _COEFFS = json.load(_fh)["coeffs"]
 
 
-def _predict_yaw_rate(v: np.ndarray, delta_road: np.ndarray, platform: str,
-                       v0_col: np.ndarray | None) -> np.ndarray:
-    c = _COEFFS.get(platform, _DEFAULT)
-    if c.get("passthrough", False):
-        if v0_col is not None:
-            return v0_col.astype(float)
-        L = float(c["L"])
-        return v * np.tan(delta_road) / L
-    L = float(c["L"])
-    K = float(c["K"])
-    gain = float(c["gain"])
-    bias = float(c["bias"])
-    denom = L + K * v * v
-    # Guard against tiny denominator (cannot realistically happen but be safe)
-    denom = np.where(np.abs(denom) < 1e-3, 1e-3 * np.sign(denom + 1e-12), denom)
-    return gain * (v * delta_road / denom) + bias
+def _predict_yaw(sim_df: pd.DataFrame, coeffs: dict) -> np.ndarray:
+    t      = sim_df["t_s"].to_numpy(dtype=float)
+    v      = sim_df["v_mps"].to_numpy(dtype=float)
+    delta  = sim_df["delta_road_rad"].to_numpy(dtype=float)
+
+    L_eff = float(coeffs.get("L_eff", 2.9))
+    K_us  = float(coeffs.get("K_us",  0.0))
+    gain  = float(coeffs.get("gain",  1.0))
+    bias  = float(coeffs.get("bias",  0.0))
+    tau   = float(coeffs.get("tau",   0.0))
+
+    if abs(tau) > 1e-12 and len(t) >= 2:
+        ddelta_dt = np.gradient(delta, t)
+        delta_eff = delta + tau * ddelta_dt
+    else:
+        delta_eff = delta
+
+    denom = L_eff + K_us * v * v
+    return gain * v * delta_eff / denom + bias
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
-    """Predict yaw rate (and optionally x_m, y_m) for one segment.
+    """Return a DataFrame aligned with sim_df.index containing yaw_rate_pred_rads.
 
-    Args:
-        sim_df: input columns from the operating contract allowlist.
-                Must contain t_s, v_mps, delta_road_rad. May contain
-                yaw_rate_pred_rads (V0 baseline).
-        platform: one of {FORD_F_150_LIGHTNING_MK1, FORD_MUSTANG_MACH_E_MK1,
-                  HYUNDAI_IONIQ_5, TESLA_MODEL_3}.
-
-    Returns:
-        DataFrame aligned with sim_df.index, column `yaw_rate_pred_rads`.
+    Tesla: pass-through V0 (no independent truth). All other platforms: V1 model.
     """
-    v = sim_df["v_mps"].to_numpy(dtype=float)
-    delta = sim_df["delta_road_rad"].to_numpy(dtype=float)
-    v0 = (
-        sim_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
-        if "yaw_rate_pred_rads" in sim_df.columns
-        else None
-    )
-    yr = _predict_yaw_rate(v, delta, platform, v0)
-    out = pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
-    return out
+    if platform == "TESLA_MODEL_3":
+        yr = sim_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
+    else:
+        coeffs = _COEFFS.get(platform)
+        if coeffs is None:
+            # Unknown platform — fall back to the V0 baseline if available.
+            if "yaw_rate_pred_rads" in sim_df.columns:
+                yr = sim_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
+            else:
+                yr = np.zeros(len(sim_df), dtype=float)
+        else:
+            yr = _predict_yaw(sim_df, coeffs)
+
+    return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)

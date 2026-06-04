@@ -4,8 +4,8 @@ description: Optimise per-platform coefficient dicts of an opaque model by minim
 when-to-invoke: You have a parametrised predictor and want its coefficients optimised against yaw RMSE, CTE RMSE, or a blend — without writing the scipy/optimisation glue yourself. Especially useful when the bias-warnings block of `scoring-model` is lit up and you need a CTE-aware fit (yaw-RMSE-only fits leave the integrated drift on the table).
 when-NOT-to-invoke: You only want to score a model (use scoring-model); you only want to diff two models (use compare-models); you need a global / cross-platform fit (this skill fits each platform independently — change the loop in `fit.py` if you need joint).
 inputs: predict_factory (callable[platform, coeffs] -> callable[sim_df] -> ndarray), initial_coeffs ({platform: {param: float}}), train_segments (list[Path] or {platform: [Path]}), objective ("yaw" | "cte" | "yaw_plus_cte"), dev_segments (optional), bounds (optional per-platform per-param), method (scipy method or None for auto), max_iter, sample_filter_v_mps, grid_step_m, min_distance_m, cte_weight, verbose.
-outputs: dict — coeffs (fitted), train_obj, dev_obj, history (per-iteration trace), n_iter, converged, objective.
-load-cost: ~210 tokens metadata, ~460 tokens body.
+outputs: dict — coeffs (fitted), train_obj, dev_obj, gap (dev-train), gap_fraction, warnings (co-collapse / overfit / stuck-on-bound / non-convergence per platform), history (per-iteration trace), n_iter, converged, objective.
+load-cost: ~230 tokens metadata, ~520 tokens body.
 ---
 
 # fitting-model
@@ -32,6 +32,39 @@ The agent is free to:
 - Change the model structure between calls (V1 yaw factor → V2 understeer → V3 lookup table) — just rebuild the factory and `initial_coeffs`.
 - Use a different parameter set on each platform (Tesla can be `{}` if you want it to no-op).
 - Wrap a per-segment feature mask, time-varying coefficient, anything.
+
+## Post-fit diagnostics
+
+`fit()` runs four cheap checks on every platform's fit and surfaces them as `result["warnings"][platform]`. `format_fit_summary()` opens with them — they are the first thing you see, before the per-platform table — because the optimiser cannot detect any of these on its own. The categories:
+
+- **`co_collapse`** (🚨 high) — two or more parameters started non-zero and ended near zero. Usual cause: co-degenerate parameterisation (e.g. `gain` and `L_eff` both free with no anchor), where the optimiser finds a numerically-equivalent but physically nonsensical solution. Fix: remove one parameter, fix one, or add a physical bound.
+- **`stuck_on_bound`** (⚠️ warn) — a fitted value sits within 2% of a supplied bound's range. The true optimum may be outside the bound; widen carefully or confirm this is the physical limit you intended.
+- **`wide_train_dev_gap`** (⚠️ warn / 🚨 high) — `dev_obj > (1 + OVERFIT_GAP_FRACTION) × train_obj` (default 50% gap warns; 100% high). Suggests overfit, route leakage, or model too flexible. Tune the model down, regularise, or check the split.
+- **`did_not_converge`** (⚠️ warn) — scipy returned `success=False`. Compare train vs dev before trusting.
+
+Thresholds are module-level constants (`COLLAPSE_REL_THRESHOLD`, `COLLAPSE_ABS_THRESHOLD`, `OVERFIT_GAP_FRACTION`, `NEAR_BOUND_FRACTION`). Edit if your problem's natural scale is different.
+
+## Train/dev gap is displayed inline
+
+When `dev_segments` is passed, `format_fit_summary()`'s table grows three columns — `dev_obj`, `gap`, `gap_%` — and inline-flags any `gap_%` above `OVERFIT_GAP_FRACTION`. This is the difference between "I fit the train set perfectly" and "I shipped a model that generalises". Pass dev segments.
+
+## Bounds are encouraged
+
+Default method is Nelder-Mead (no bounds). It's robust but it will happily find degenerate solutions when two parameters are non-identifiable. **If you have any physical intuition about your parameters' scale, pass `bounds`** — the method switches to L-BFGS-B and the `co_collapse` failure mode collapses (heh) to "stuck_on_bound", which is much easier to read.
+
+A reasonable shape for a single-track / understeer fit:
+
+```python
+bounds = {
+    plat: {
+        "L_eff": (1.5, 5.0),     # wheelbase metres
+        "K_us":  (0.0, 0.01),    # understeer coefficient
+        "gain":  (0.5, 1.5),     # multiplicative correction
+        "bias":  (-0.05, 0.05),  # rad/s zero-offset
+    }
+    for plat in PLATFORMS
+}
+```
 
 ## Why this exists
 

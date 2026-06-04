@@ -1,14 +1,10 @@
-"""Lateral-fidelity predict — calibrated kinematic single-track + first-order yaw lag.
+"""Final predict for module-3.v2 agent-09.
 
-Per-platform coefficients in `coeffs.json`. Tesla falls back to identity
-(echo V0 baseline) because the sim's truth channel for Tesla IS V0.
+Recipe: Kinematic single-track + understeer + first-order yaw lag, with
+platform-gated per-segment δ₀ estimation from input-only straight-driving rows.
 
-Model:
-    delta_eff[i] = (delta_road_rad[i] - delta0) * g
-    yr_ss[i]     = v[i] * delta_eff[i] / (L_eff + K_us * v[i]^2)
-    yr[i+1]      = yr[i] + alpha[i] * (yr_ss[i] - yr[i])
-    alpha[i]     = dt[i] / (tau + dt[i])
-    yr[0]        = yr_ss[0]
+Per-platform coefficients in `coeffs.json`. Tesla falls back to V0 passthrough
+(no truth channel).
 """
 from __future__ import annotations
 
@@ -18,56 +14,55 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-_COEFFS_PATH = Path(__file__).parent / "coeffs.json"
-with _COEFFS_PATH.open() as _f:
-    _COEFFS = json.load(_f)
+_HERE = Path(__file__).resolve().parent
+with open(_HERE / "coeffs.json") as f:
+    _COEFFS = json.load(f)
 
 
-def _model_yaw_rate(t, v, delta, L_eff, g, delta0, K_us, tau):
-    delta_eff = (delta - delta0) * g
-    yr_ss = v * delta_eff / (L_eff + K_us * v * v)
-    if len(t) < 2:
-        return yr_ss.copy()
-    dt = np.diff(t)
+def _per_segment_delta0(sim_df, fallback=0.0,
+                        yr_thresh=0.03, v_thresh=5.0, min_rows=50):
+    """Estimate δ₀ from THIS segment's own straight-driving rows.
+
+    Uses input-only allowlist channels: V0 yaw-rate prediction as the
+    straight-driving gate.
+    """
+    v = sim_df["v_mps"].to_numpy()
+    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
+    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
+    if int(mask.sum()) < min_rows:
+        return fallback
+    return float(sim_df.loc[mask, "delta_road_rad"].median())
+
+
+def _predict_yaw(sim_df, p):
+    """Compute yaw rate given platform params p (dict)."""
+    if p.get("use_per_segment_delta0", False):
+        delta0 = _per_segment_delta0(sim_df, fallback=p["delta0_fallback"])
+    else:
+        delta0 = p["delta0"]
+    delta = (sim_df["delta_road_rad"].to_numpy() - delta0) * p["g"]
+    v = sim_df["v_mps"].to_numpy()
+    L_eff = p["L_eff"]
+    K_us = p["K_us"]
+    tau = p["tau"]
+    yr_ss = v * delta / (L_eff + K_us * v * v)
+    t = sim_df["t_s"].to_numpy()
+    dt = np.diff(t, prepend=t[0])
+    alpha = dt / (tau + dt)
     yr = np.empty_like(yr_ss)
     yr[0] = yr_ss[0]
-    if tau <= 0:
-        yr[:] = yr_ss
-        return yr
-    # Vectorised first-order IIR — recursive, so loop:
-    for i in range(len(dt)):
-        a = dt[i] / (tau + dt[i])
-        yr[i + 1] = yr[i] + a * (yr_ss[i] - yr[i])
+    for i in range(1, len(yr)):
+        yr[i] = yr[i - 1] + alpha[i] * (yr_ss[i] - yr[i - 1])
     return yr
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
-    out = pd.DataFrame(index=sim_df.index)
-
-    c = _COEFFS.get(platform)
-    if c is None:
-        # Unknown platform (incl. Tesla) — echo V0 baseline.
-        if "yaw_rate_pred_rads" in sim_df.columns:
-            out["yaw_rate_pred_rads"] = sim_df["yaw_rate_pred_rads"].astype(float).to_numpy()
-        else:
-            out["yaw_rate_pred_rads"] = np.zeros(len(sim_df))
-        return out
-
-    t = sim_df["t_s"].to_numpy(dtype=float)
-    v = sim_df["v_mps"].to_numpy(dtype=float)
-    delta = sim_df["delta_road_rad"].to_numpy(dtype=float)
-
-    yr = _model_yaw_rate(
-        t, v, delta,
-        L_eff=c["L_eff"], g=c["g"], delta0=c["delta0"],
-        K_us=c["K_us"], tau=c["tau"],
-    )
-    # Replace any NaNs (e.g. v==0 segments) with V0 fallback.
-    if np.any(np.isnan(yr)):
-        v0 = sim_df.get("yaw_rate_pred_rads")
-        if v0 is not None:
-            yr = np.where(np.isnan(yr), v0.to_numpy(dtype=float), yr)
-        else:
-            yr = np.nan_to_num(yr, nan=0.0)
-    out["yaw_rate_pred_rads"] = yr
-    return out
+    if platform not in _COEFFS:
+        # Tesla and any unknown platform → V0 passthrough.
+        return pd.DataFrame(
+            {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
+            index=sim_df.index,
+        )
+    p = _COEFFS[platform]
+    yr = _predict_yaw(sim_df, p)
+    return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)

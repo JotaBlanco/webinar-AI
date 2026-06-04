@@ -1,10 +1,12 @@
 {
+  "name": "v1-ks-understeer-lag-pseg-delta0",
+  "predict_callable": "predict.py:predict",
   "platform_support": [
     "FORD_F_150_LIGHTNING_MK1",
     "FORD_MUSTANG_MACH_E_MK1",
     "HYUNDAI_IONIQ_5",
     "TESLA_MODEL_3"
   ],
-  "predict_callable": "predict.py:predict",
-  "notes": "Bicycle (KS + understeer + first-order lag) with per-platform calibration and platform-gated per-segment delta0. Tesla passthrough (no truth channel)."
+  "model_shape": "kinematic bicycle steady-state + understeer + first-order lag + per-segment δ₀",
+  "notes": "Tesla passthrough (no truth channel). Per-segment δ₀ enabled on Mach-E and IONIQ-5; Lightning uses global δ₀. Coeffs fit per-platform on a route-grouped train split, objective=yaw_plus_cte."
 }

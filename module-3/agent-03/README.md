@@ -40,11 +40,11 @@ The narrow exception that survives in the literature — parallel divergent expl
 
 Five short markdown documents under [`references/`](references/), each with a frontmatter `description` + `when-to-load`, a body that includes a worked example drawn from prior top-performing agents, and a failure-mode index at the end:
 
-- **`anti-patterns.md`** — known traps. Distinguishes the *illegal* per-segment bias trick (uses truth at inference, submission fails) from the *legal* input-derived per-segment δ₀ (a winning move when platform-gated). Worked example: a ~40-line `predict()` from m3-agent-09's shipped model.
-- **`approach-menu.md`** — option map. Annotated [explored] / [lightly tried] / [unexplored]. Includes platform-gating diagnostic. Worked example: polynomial g + per-segment δ₀ combo.
-- **`two-kpi-tradeoff.md`** — KPI interpretation. Two-step diagnostic for "yaw improved but CTE stuck". Worked example: per-platform bias-spread check.
-- **`exploration-discipline.md`** — protocol for naming ≥5 alternatives (at least 3 different model structures) before commitment + the `EXPERIMENTS.md` log convention.
-- **`dynamics-formulations.md`** — V0 documented in full plus sketched rungs 1–3 (linear dynamic single-track with slip angles, nonlinear tyre, multi-body). **Living doc — explicitly designed to be appended-to by agents who ship a formulation past V0.** Includes a "Tried and shelved" section for dead ends so the next agent doesn't redo them.
+- **`anti-patterns.md`** — known traps. Now leads with the per-segment δ₀ recipe (`"The legal cousin"`) as **THE highest-leverage move on this dataset**, with allowlist-clean code (m3.v2 fix: prior version used `a_lat_meas_mps2` which is denied by the operating contract; recipe now uses `yaw_rate_pred_rads` / `delta_road_rad` proxies). Cohort evidence: top tier vs bottom tier = +8pts yaw / +15pts CTE on this single technique.
+- **`approach-menu.md`** — option map. Annotated [explored] / [lightly tried] / [unexplored]. Now opens with `Two model shapes` (reconstruction vs V0-correction) — m3 cohort showed agents who picked V0-correction plateaued ~+48% yaw structurally. Includes the platform-gating diagnostic and the structural-complexity ladder.
+- **`two-kpi-tradeoff.md`** — KPI interpretation. Two-step diagnostic for "yaw improved but CTE stuck". Worked example: per-platform bias-spread check (now part of the AGENTS.md inner-loop as numbered step 2).
+- **`exploration-discipline.md`** — protocol for naming ≥5 alternatives (at least 3 different model structures) before commitment + the `EXPERIMENTS.md` log convention. **m3.v2 change: now requires a `Rung: 0|1|2|3|orthogonal` tag on every log entry, and `pre-flighting-final-model` enforces at least one `Rung: 1+` or `Rung: orthogonal` entry before the bundle can ship.**
+- **`dynamics-formulations.md`** — V0 documented in full. **m3.v2 change: rung 1 is no longer marked `[sketch — not implemented]`; it's flagged as the default climb attempt under the new exploration policy and now includes a "Minimum viable rung-1 attempt" section with a ~30-line code scaffold (Euler integration, fix all params from carParams except `C_αf`, fit per platform).** The cost-to-attempt is much lower than past cohorts assumed.
 - **`ceiling-moves.md`** — four moves above the current best-known ceiling (multi-seed fold averaging, CTE-aware fit, constrained joint fit, climb the structure ladder). With the `fit-model` skill now in the toolkit, several of these are one-line config changes rather than heavy lifts. Sequenced by residual shape. Only load after the agent has already beaten V0 by ≥+30% on both KPIs.
 
 Plus one root-level artifact:
@@ -57,7 +57,7 @@ Plus one root-level artifact:
 2. Open the agent dir in Claude Code. `AGENTS.md` loads.
 3. The agent's task prompt names the two KPIs to minimise.
 4. The agent inspects skill and reference metadata first (cheap), loads bodies on demand. Recommended order in AGENTS.md.
-5. Iterate: name three alternatives → pick one → fit → `scoring-model` → log to `EXPERIMENTS.md` → consult references when stuck → repeat. Use `comparing-models` for A/B. Run `pre-flighting-final-model` before declaring done.
+5. Iterate: name alternatives (across rungs) → pick one → fit → `scoring-model` → log to `EXPERIMENTS.md` with `Rung:` tag → consult references when stuck → repeat. Use `comparing-models` for A/B. **Required: log at least one `Rung: 1` (or higher, or `orthogonal`) attempt before declaring done — `pre-flighting-final-model` enforces this.** Run `pre-flighting-final-model` before declaring done.
 
 ## What's *not* here (held for later modules)
 

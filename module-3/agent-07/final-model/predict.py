@@ -1,31 +1,9 @@
-"""Module-3 agent-07 final model — per-platform linear-bicycle calibration.
+"""Final model — KS + understeer + first-order lag + per-segment δ₀.
 
-Form
-----
-    yaw_rate_pred = k_delta * (v / L) * tan(delta_road) / (1 + Ku * v^2) + b
+Platform-gated per-segment δ₀ estimation from input channels only
+(legal at inference time — no truth columns read).
 
-This is the "next rung" above V0 (kinematic single-track):
-- k_delta absorbs steering-ratio / kingpin-compliance errors and the
-  effective-wheelbase mismatch between the V0 prior L and the on-road truth.
-- Ku is the linear-bicycle understeer-gradient coefficient
-  (Gillespie 6-9 / Rajamani §3.4) — at low speed the kinematic formula is
-  exact, at higher v the lateral-force balance produces a yaw-rate roll-off
-  proportional to v^2.
-- b absorbs residual sensor-bias / steering-angle zero offset per platform.
-
-Coefficients in `coeffs.json` are fitted per platform on
-`data/sim/segments/*/**/sim.csv` minimising pooled yaw-rate squared error
-(v_mps > 2.0). Tesla collapses to k=1, Ku=0, b=0 because its truth channel
-is the V0 KS output itself (no independent reference).
-
-Predict reads ONLY the operating-contract columns
-(t_s, v_mps, delta_road_rad, yaw_rate_pred_rads etc.) — no truth channels.
-
-Trajectory (x_m, y_m) is *not* returned here. The scorer integrates
-yaw_rate + measured v on its own under the standard kinematic-trajectory
-convention; emitting x_m/y_m here would force a second integration with
-identical starting state. See `_shared/traj_metrics.py` for the canonical
-integration.
+Tesla -> V0 passthrough (no truth channel to fit against).
 """
 from __future__ import annotations
 
@@ -35,57 +13,58 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-_COEFF_PATH = Path(__file__).resolve().parent / "coeffs.json"
-with _COEFF_PATH.open() as _fh:
-    _COEFFS: dict = json.load(_fh)
+_COEFFS_PATH = Path(__file__).parent / "coeffs.json"
+with open(_COEFFS_PATH) as _f:
+    _CFG = json.load(_f)
 
-# Fallback if a platform isn't in the calibration set: V0 identity. The
-# pre-flight skill tests Mach-E, which is in the dict, but a real grader
-# could conceivably pass an unseen platform — return V0 in that case.
-_FALLBACK = {"k_delta": 1.0, "Ku": 0.0, "b": 0.0, "L": 2.875}
+PLATFORM_PARAMS: dict[str, dict] = _CFG["params"]
+PLATFORM_GATES: dict[str, bool] = _CFG["gates"]
 
 
-def _params(platform: str) -> dict:
-    return _COEFFS.get(platform, _FALLBACK)
+def _per_segment_delta0(sim_df: pd.DataFrame,
+                        fallback: float = 0.0,
+                        yr_thresh: float = 0.03,
+                        v_thresh: float = 5.0,
+                        min_rows: int = 50) -> float:
+    """Estimate δ₀ for THIS segment from its straight-driving rows.
+
+    Uses input-allowlist channels only: v_mps, yaw_rate_pred_rads (V0 baseline),
+    delta_road_rad. Legal at grading time.
+    """
+    v = sim_df["v_mps"].to_numpy()
+    yr_v0 = sim_df["yaw_rate_pred_rads"].to_numpy()
+    mask = (np.abs(yr_v0) < yr_thresh) & (v > v_thresh)
+    if int(mask.sum()) < min_rows:
+        return float(fallback)
+    return float(sim_df.loc[mask, "delta_road_rad"].median())
 
 
 def predict(sim_df: pd.DataFrame, platform: str) -> pd.DataFrame:
-    """Predict yaw rate for one segment.
+    """Return DataFrame with yaw_rate_pred_rads aligned with sim_df.index."""
+    if platform not in PLATFORM_PARAMS:
+        # Tesla and any other platform without a fitted model -> V0 passthrough.
+        return pd.DataFrame(
+            {"yaw_rate_pred_rads": sim_df["yaw_rate_pred_rads"].to_numpy()},
+            index=sim_df.index,
+        )
+    p = PLATFORM_PARAMS[platform]
+    gate = bool(PLATFORM_GATES.get(platform, False))
+    if gate:
+        delta0 = _per_segment_delta0(sim_df, fallback=p["delta0"])
+    else:
+        delta0 = float(p["delta0"])
 
-    Parameters
-    ----------
-    sim_df : pd.DataFrame
-        Per-sample inputs. Required columns: ``v_mps``, ``delta_road_rad``,
-        ``yaw_rate_pred_rads`` (V0 baseline; used as the safety fallback).
-    platform : str
-        One of the platforms listed in ``manifest.json:platform_support``.
+    delta = (sim_df["delta_road_rad"].to_numpy() - delta0) * p["g"]
+    v = sim_df["v_mps"].to_numpy()
+    yr_ss = v * delta / (p["L_eff"] + p["K_us"] * v * v)
 
-    Returns
-    -------
-    pd.DataFrame indexed identically to ``sim_df`` with a single column
-    ``yaw_rate_pred_rads`` (rad/s).
-    """
-    p = _params(platform)
-    L = float(p["L"])
-    k = float(p["k_delta"])
-    Ku = float(p["Ku"])
-    b = float(p["b"])
+    t = sim_df["t_s"].to_numpy()
+    dt = np.diff(t, prepend=t[0])
+    tau = max(p["tau"], 1e-3)
+    alpha = dt / (tau + dt)
+    yr = np.empty_like(yr_ss)
+    yr[0] = yr_ss[0]
+    for i in range(1, len(yr)):
+        yr[i] = yr[i-1] + alpha[i] * (yr_ss[i] - yr[i-1])
 
-    v = sim_df["v_mps"].to_numpy(dtype=float)
-    d = sim_df["delta_road_rad"].to_numpy(dtype=float)
-
-    kin = (v / L) * np.tan(d)
-    denom = 1.0 + Ku * (v * v)
-    yr = k * kin / denom + b
-
-    # Guard: at v near zero the bias term `b` can produce a spurious yaw
-    # rate while the car is stationary. Clamp prediction to V0 (which is
-    # also ~0 there) for very low speeds so we don't accumulate heading
-    # error during stops.
-    low_v = v < 1.0
-    if low_v.any():
-        v0 = sim_df["yaw_rate_pred_rads"].to_numpy(dtype=float)
-        yr = np.where(low_v, v0, yr)
-
-    out = pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
-    return out
+    return pd.DataFrame({"yaw_rate_pred_rads": yr}, index=sim_df.index)
