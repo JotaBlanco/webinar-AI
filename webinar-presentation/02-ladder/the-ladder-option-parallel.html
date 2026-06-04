@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ladder — Parallel (three lenses)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f1f1f3; color: #222229;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; padding: 2rem 0; }
+.deck-header { max-width: 1280px; margin: 0 auto 1.5rem; padding: 0 2rem; }
+.deck-header h1 { color: #0a0b24; font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; }
+.deck-header p { color: #646471; font-size: 0.92rem; margin-top: 0.35rem; line-height: 1.55; }
+.slide { width: 1280px; max-width: calc(100% - 2rem); aspect-ratio: 16/9;
+  margin: 0 auto 2rem; background: #fff; border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(10, 11, 36, 0.08);
+  padding: 2.5rem 3rem 3rem; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; }
+.slide::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #0064ff, #bd2eff, #ff7828); }
+.slide-tag { position: absolute; top: 1.25rem; right: 1.5rem;
+  background: #f5f5fa; color: #646471; font-size: 0.7rem; font-weight: 700;
+  padding: 5px 11px; border-radius: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.slide h2 { color: #0a0b24; font-weight: 800; font-size: 1.85rem; letter-spacing: -0.02em; line-height: 1.15; }
+.slide .subtitle { color: #0064ff; font-weight: 500; font-size: 0.98rem;
+  margin-top: 0.45rem; margin-bottom: 1.3rem; max-width: 90ch; }
+.slide-logo { position: absolute; bottom: 1.1rem; left: 1.5rem; height: 14px; opacity: 0.45; }
+.footnote { position: absolute; bottom: 1.2rem; right: 1.6rem; font-size: 0.78rem; color: #646471; font-style: italic; }
+
+/* === P1: 5x3 matrix table === */
+.p1-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; flex: 1;
+  border-radius: 10px; overflow: hidden; border: 1px solid #eeeef3; }
+.p1-table th { background: #0a0b24; color: #fff; font-weight: 600; font-size: 0.78rem;
+  padding: 0.65rem 0.9rem; text-align: left; letter-spacing: 0.04em; vertical-align: middle; }
+.p1-table th.col-scope { border-top: 3px solid #0064ff; }
+.p1-table th.col-meta { border-top: 3px solid #ff7828; }
+.p1-table th.col-tech { border-top: 3px solid #00aa65; }
+.p1-table th .sub { display: block; font-weight: 400; font-size: 0.7rem; opacity: 0.7; margin-top: 0.1rem; }
+.p1-table td { padding: 0.65rem 0.9rem; border-bottom: 1px solid #eeeef3;
+  vertical-align: top; color: #222229; line-height: 1.45; }
+.p1-table tr:last-child td { border-bottom: none; }
+.p1-table tr.l0 td:first-child { border-left: 4px solid #a2a2b0; }
+.p1-table tr.l1 td:first-child { border-left: 4px solid #0064ff; }
+.p1-table tr.l2 td:first-child { border-left: 4px solid #0064ff; }
+.p1-table tr.l3 td:first-child { border-left: 4px solid #bd2eff; }
+.p1-table tr.l4 td:first-child { border-left: 4px solid #ff7828; }
+.p1-table td.rung { font-weight: 800; color: #0a0b24; font-size: 0.88rem; width: 145px; }
+.p1-table td.rung .name { display: block; font-size: 0.7rem; color: #646471; font-weight: 500; margin-top: 0.15rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.p1-table td .h { font-weight: 700; color: #0a0b24; }
+.p1-table td .b { color: #646471; font-size: 0.78rem; margin-top: 0.1rem; }
+
+/* === P2: Swim lanes === */
+.p2-grid { display: grid; grid-template-columns: 110px repeat(3, 1fr); gap: 0.7rem;
+  flex: 1; align-content: start; }
+.p2-head { font-size: 0.7rem; font-weight: 700; color: #646471;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.4rem 0.85rem 0.4rem 0.1rem; border-bottom: 2px solid #eeeef3;
+  display: flex; align-items: center; }
+.p2-head.scope { color: #0064ff; border-bottom-color: #0064ff; }
+.p2-head.meta { color: #ff7828; border-bottom-color: #ff7828; }
+.p2-head.tech { color: #00aa65; border-bottom-color: #00aa65; }
+.p2-head .lbl { font-weight: 400; color: #a2a2b0; margin-left: 0.5rem; text-transform: none; letter-spacing: 0; font-size: 0.72rem; font-style: italic; }
+.p2-rung-cell { background: #fafafa; border-radius: 8px;
+  padding: 0.55rem 0.7rem; display: flex; flex-direction: column; justify-content: center;
+  border-left: 4px solid; }
+.p2-rung-cell.l0 { border-left-color: #a2a2b0; }
+.p2-rung-cell.l1 { border-left-color: #0064ff; }
+.p2-rung-cell.l2 { border-left-color: #0064ff; }
+.p2-rung-cell.l3 { border-left-color: #bd2eff; }
+.p2-rung-cell.l4 { border-left-color: #ff7828; }
+.p2-rung-cell .r { font-weight: 800; font-size: 0.85rem; color: #0a0b24; }
+.p2-rung-cell .n { font-size: 0.68rem; font-weight: 600; color: #646471;
+  letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.1rem; }
+.p2-cell { padding: 0.5rem 0.75rem; border-radius: 8px; line-height: 1.4; }
+.p2-cell.scope { background: #f5faff; border-left: 3px solid #cce0ff; }
+.p2-cell.meta { background: #fff8f2; border-left: 3px solid #ffd1b4; }
+.p2-cell.tech { background: #f2faf6; border-left: 3px solid #b5e6cf; }
+.p2-cell .h { color: #0a0b24; font-weight: 700; font-size: 0.82rem; margin-bottom: 0.1rem; }
+.p2-cell .b { color: #646471; font-size: 0.74rem; }
+
+/* === P3: Stacked rung cards with lens pills === */
+.p3-stack { display: flex; flex-direction: column; gap: 0.55rem; flex: 1; padding-top: 0.25rem; }
+.p3-card { display: grid; grid-template-columns: 130px 1fr 1fr 1fr;
+  gap: 0.7rem; padding: 0.65rem 0.95rem; background: #ffffff;
+  border: 1px solid #eeeef3; border-radius: 10px; align-items: stretch; }
+.p3-card.l0 { border-left: 4px solid #a2a2b0; }
+.p3-card.l1 { border-left: 4px solid #0064ff; }
+.p3-card.l2 { border-left: 4px solid #0064ff; background: #fbfcff; }
+.p3-card.l3 { border-left: 4px solid #bd2eff; background: #fcfaff; }
+.p3-card.l4 { border-left: 4px solid #ff7828; background: #fffaf5; }
+.p3-rung { display: flex; flex-direction: column; justify-content: center; }
+.p3-rung .r { font-weight: 800; font-size: 1.05rem; color: #0a0b24; }
+.p3-rung .n { font-size: 0.72rem; font-weight: 600; color: #646471;
+  letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.15rem; }
+.p3-lens { padding-left: 0.7rem; border-left: 1px solid #eeeef3; display: flex; flex-direction: column; justify-content: center; }
+.p3-lens .pill { display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 0.25rem; }
+.p3-lens.scope .pill { background: #e6f0ff; color: #0064ff; }
+.p3-lens.meta .pill { background: #fff1e3; color: #ff7828; }
+.p3-lens.tech .pill { background: #e3f5ec; color: #00aa65; }
+.p3-lens .body { color: #222229; font-size: 0.78rem; line-height: 1.4; }
+.p3-lens .body strong { color: #0a0b24; }
+
+/* === P4: Compact swimlanes per rung === */
+.p4-stack { display: flex; flex-direction: column; gap: 0.45rem; flex: 1; padding-top: 0.25rem; }
+.p4-row { display: grid; grid-template-columns: 100px 1fr 1fr 1fr; gap: 0.45rem; }
+.p4-rung { background: #0a0b24; color: #fff; border-radius: 8px;
+  padding: 0.55rem 0.75rem; display: flex; flex-direction: column; justify-content: center; }
+.p4-rung.l0 { background: #646471; }
+.p4-rung.l1 { background: #0064ff; }
+.p4-rung.l2 { background: #003fb3; }
+.p4-rung.l3 { background: #8c1ec4; }
+.p4-rung.l4 { background: #d65a18; }
+.p4-rung .r { font-weight: 800; font-size: 0.9rem; }
+.p4-rung .n { font-size: 0.66rem; font-weight: 600; opacity: 0.8;
+  letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.1rem; }
+.p4-cell { padding: 0.55rem 0.75rem; border-radius: 8px; line-height: 1.4;
+  background: #fafafa; border: 1px solid #eeeef3; }
+.p4-cell.scope { border-top: 2px solid #0064ff; }
+.p4-cell.meta { border-top: 2px solid #ff7828; }
+.p4-cell.tech { border-top: 2px solid #00aa65; }
+.p4-cell .h { color: #0a0b24; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.1rem; }
+.p4-cell .b { color: #646471; font-size: 0.74rem; }
+.p4-headrow { display: grid; grid-template-columns: 100px 1fr 1fr 1fr; gap: 0.45rem;
+  margin-bottom: 0.45rem; }
+.p4-headrow .h-lbl { font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.25rem 0.75rem; }
+.p4-headrow .h-lbl.scope { color: #0064ff; }
+.p4-headrow .h-lbl.meta { color: #ff7828; }
+.p4-headrow .h-lbl.tech { color: #00aa65; }
+.p4-headrow .h-lbl .sub { display: block; font-weight: 400; color: #a2a2b0;
+  letter-spacing: 0; text-transform: none; font-style: italic; font-size: 0.68rem; margin-top: 0.05rem; }
+
+@media print {
+  body { background: #fff; padding: 0; }
+  .deck-header { display: none; }
+  .slide { box-shadow: none; margin: 0; max-width: none; border-radius: 0; page-break-after: always; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <h1>The AI-Assisted Engineering Ladder — Parallel (three lenses)</h1>
+  <p>Framing: every rung viewed through <strong>three lenses at once</strong> — <em>Scope</em> (who benefits), <em>Einstein</em> (onboarding moment), <em>Tech</em> (what you actually built).</p>
+</div>
+
+<!-- ============== P1: 5×3 matrix ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 1 · 5×3 matrix</span>
+  <h2>Three lenses on the same climb.</h2>
+  <p class="subtitle">The model stays the same at every rung. The system around it grows up — three ways to see the same growth.</p>
+  <table class="p1-table">
+    <thead>
+      <tr>
+        <th>Rung</th>
+        <th class="col-scope">Scope<span class="sub">who benefits</span></th>
+        <th class="col-meta">Einstein<span class="sub">onboarding moment</span></th>
+        <th class="col-tech">Tech<span class="sub">what you've built</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="l0">
+        <td class="rung">L0<span class="name">Chatbot</span></td>
+        <td><span class="h">One user, one window.</span><div class="b">Personal productivity.</div></td>
+        <td><span class="h">"Einstein in a room."</span><div class="b">Walk in, ask, walk out.</div></td>
+        <td><span class="h">Conversation only.</span><div class="b">No tools, no actions.</div></td>
+      </tr>
+      <tr class="l1">
+        <td class="rung">L1<span class="name">Agentic AI</span></td>
+        <td><span class="h">One developer's autopilot.</span><div class="b">The AI now executes whole tasks.</div></td>
+        <td><span class="h">Laptop &amp; credentials.</span><div class="b">He can do work — but from scratch.</div></td>
+        <td><span class="h">Tool use, file access, loops.</span><div class="b">Acts inside your systems.</div></td>
+      </tr>
+      <tr class="l2">
+        <td class="rung">L2<span class="name">+ Skills</span></td>
+        <td><span class="h">Team conventions encoded.</span><div class="b">How <em>this team</em> works.</div></td>
+        <td><span class="h">Show him the ropes.</span><div class="b">Two weeks shadowing seniors.</div></td>
+        <td><span class="h">Reusable procedures / playbooks.</span><div class="b">Workflow recipes the agent loads on demand.</div></td>
+      </tr>
+      <tr class="l3">
+        <td class="rung">L3<span class="name">+ Knowledge Base</span></td>
+        <td><span class="h">Team intelligence shared.</span><div class="b">Collective domain knowledge.</div></td>
+        <td><span class="h">Open the archives.</span><div class="b">Reads — and contributes back.</div></td>
+        <td><span class="h">Retrieval over docs &amp; decisions.</span><div class="b">Post-mortems, customer context, designs.</div></td>
+      </tr>
+      <tr class="l4">
+        <td class="rung">L4<span class="name">AI Harness</span></td>
+        <td><span class="h">Org-level infrastructure.</span><div class="b">How the company operates.</div></td>
+        <td><span class="h">In the operating model.</span><div class="b">On-call, delegates, audited.</div></td>
+        <td><span class="h">Hooks, scheduling, sub-agents, governance.</span><div class="b">The system around the model is the product.</div></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="footnote">Einstein's IQ never changes. What changes is everything around him.</span>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== P2: Swim lanes ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 2 · Three swim lanes</span>
+  <h2>Three views, five stops, one story.</h2>
+  <p class="subtitle">Each lens is a track running alongside the others. Stops align row-by-row — read across to compare lenses, or down to follow one.</p>
+  <div class="p2-grid">
+    <div></div>
+    <div class="p2-head scope">Scope<span class="lbl">who benefits</span></div>
+    <div class="p2-head meta">Einstein<span class="lbl">onboarding moment</span></div>
+    <div class="p2-head tech">Tech<span class="lbl">what you've built</span></div>
+
+    <div class="p2-rung-cell l0"><div class="r">L0</div><div class="n">Chatbot</div></div>
+    <div class="p2-cell scope"><div class="h">One user, one window</div><div class="b">Personal productivity, ad hoc.</div></div>
+    <div class="p2-cell meta"><div class="h">Einstein in a room</div><div class="b">Brilliant, zero integration.</div></div>
+    <div class="p2-cell tech"><div class="h">Conversation only</div><div class="b">No tools, no actions.</div></div>
+
+    <div class="p2-rung-cell l1"><div class="r">L1</div><div class="n">Agentic AI</div></div>
+    <div class="p2-cell scope"><div class="h">One developer's autopilot</div><div class="b">AI executes whole tasks.</div></div>
+    <div class="p2-cell meta"><div class="h">Laptop &amp; credentials</div><div class="b">He can do work — but from scratch.</div></div>
+    <div class="p2-cell tech"><div class="h">Tools, files, action loops</div><div class="b">Operates inside your systems.</div></div>
+
+    <div class="p2-rung-cell l2"><div class="r">L2</div><div class="n">+ Skills</div></div>
+    <div class="p2-cell scope"><div class="h">Team conventions encoded</div><div class="b">How this team works.</div></div>
+    <div class="p2-cell meta"><div class="h">Show him the ropes</div><div class="b">Two weeks shadowing seniors.</div></div>
+    <div class="p2-cell tech"><div class="h">Reusable procedures</div><div class="b">Playbooks loaded on demand.</div></div>
+
+    <div class="p2-rung-cell l3"><div class="r">L3</div><div class="n">+ Knowledge Base</div></div>
+    <div class="p2-cell scope"><div class="h">Team intelligence shared</div><div class="b">Collective domain knowledge.</div></div>
+    <div class="p2-cell meta"><div class="h">Open the archives</div><div class="b">Reads and contributes back.</div></div>
+    <div class="p2-cell tech"><div class="h">Retrieval over docs &amp; decisions</div><div class="b">Post-mortems, customer context.</div></div>
+
+    <div class="p2-rung-cell l4"><div class="r">L4</div><div class="n">AI Harness</div></div>
+    <div class="p2-cell scope"><div class="h">Org-level infrastructure</div><div class="b">How the company operates.</div></div>
+    <div class="p2-cell meta"><div class="h">In the operating model</div><div class="b">On-call, delegates, audited.</div></div>
+    <div class="p2-cell tech"><div class="h">Hooks, scheduling, sub-agents, governance</div><div class="b">System around the model = product.</div></div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== P3: Rung cards with lens pills ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 3 · Rung cards with lens pills</span>
+  <h2>Each rung, seen through three lenses.</h2>
+  <p class="subtitle">One row per rung. Inside each row, three coloured pills surface the same story from three angles.</p>
+  <div class="p3-stack">
+    <div class="p3-card l0">
+      <div class="p3-rung"><div class="r">L0</div><div class="n">Chatbot</div></div>
+      <div class="p3-lens scope"><span class="pill">Scope</span><div class="body">One user, one window.</div></div>
+      <div class="p3-lens meta"><span class="pill">Einstein</span><div class="body">Einstein in a room — walk in, ask, walk out.</div></div>
+      <div class="p3-lens tech"><span class="pill">Tech</span><div class="body">Conversation only — no tools, no actions.</div></div>
+    </div>
+    <div class="p3-card l1">
+      <div class="p3-rung"><div class="r">L1</div><div class="n">Agentic AI</div></div>
+      <div class="p3-lens scope"><span class="pill">Scope</span><div class="body">One developer's autopilot.</div></div>
+      <div class="p3-lens meta"><span class="pill">Einstein</span><div class="body">Laptop, VPN, credentials — he can do work.</div></div>
+      <div class="p3-lens tech"><span class="pill">Tech</span><div class="body">Tools, file access, action loops.</div></div>
+    </div>
+    <div class="p3-card l2">
+      <div class="p3-rung"><div class="r">L2</div><div class="n">+ Skills</div></div>
+      <div class="p3-lens scope"><span class="pill">Scope</span><div class="body">Team conventions encoded.</div></div>
+      <div class="p3-lens meta"><span class="pill">Einstein</span><div class="body">Shadowing seniors — learns the team's verbs.</div></div>
+      <div class="p3-lens tech"><span class="pill">Tech</span><div class="body">Reusable procedures and playbooks.</div></div>
+    </div>
+    <div class="p3-card l3">
+      <div class="p3-rung"><div class="r">L3</div><div class="n">+ Knowledge Base</div></div>
+      <div class="p3-lens scope"><span class="pill">Scope</span><div class="body">Team intelligence shared.</div></div>
+      <div class="p3-lens meta"><span class="pill">Einstein</span><div class="body">Reading the archives — and adding to them.</div></div>
+      <div class="p3-lens tech"><span class="pill">Tech</span><div class="body">Retrieval over docs, decisions, customer context.</div></div>
+    </div>
+    <div class="p3-card l4">
+      <div class="p3-rung"><div class="r">L4</div><div class="n">AI Harness</div></div>
+      <div class="p3-lens scope"><span class="pill">Scope</span><div class="body">Org-level infrastructure.</div></div>
+      <div class="p3-lens meta"><span class="pill">Einstein</span><div class="body">Part of the operating model — on-call, delegates, audited.</div></div>
+      <div class="p3-lens tech"><span class="pill">Tech</span><div class="body">Hooks, scheduling, sub-agents, governance.</div></div>
+    </div>
+  </div>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+<!-- ============== P4: Compact swimlanes per rung ============== -->
+<section class="slide">
+  <span class="slide-tag">Version 4 · Compact swimlanes</span>
+  <h2>The whole ladder, on one screen.</h2>
+  <p class="subtitle">Densest layout — every rung × every lens, colour-coded for fast scanning. Use this as the "memorable single slide" for Q&amp;A.</p>
+  <div class="p4-headrow">
+    <div></div>
+    <div class="h-lbl scope">Scope<span class="sub">who benefits</span></div>
+    <div class="h-lbl meta">Einstein<span class="sub">onboarding moment</span></div>
+    <div class="h-lbl tech">Tech<span class="sub">what you've built</span></div>
+  </div>
+  <div class="p4-stack">
+    <div class="p4-row">
+      <div class="p4-rung l0"><div class="r">L0</div><div class="n">Chatbot</div></div>
+      <div class="p4-cell scope"><div class="h">One user, one window</div><div class="b">Personal productivity.</div></div>
+      <div class="p4-cell meta"><div class="h">Einstein in a room</div><div class="b">Walk in, ask, walk out.</div></div>
+      <div class="p4-cell tech"><div class="h">Conversation only</div><div class="b">No tools, no actions.</div></div>
+    </div>
+    <div class="p4-row">
+      <div class="p4-rung l1"><div class="r">L1</div><div class="n">Agentic AI</div></div>
+      <div class="p4-cell scope"><div class="h">One dev's autopilot</div><div class="b">Executes whole tasks.</div></div>
+      <div class="p4-cell meta"><div class="h">Laptop &amp; credentials</div><div class="b">He can do work — from scratch.</div></div>
+      <div class="p4-cell tech"><div class="h">Tools, files, loops</div><div class="b">Operates inside your systems.</div></div>
+    </div>
+    <div class="p4-row">
+      <div class="p4-rung l2"><div class="r">L2</div><div class="n">+ Skills</div></div>
+      <div class="p4-cell scope"><div class="h">Team conventions</div><div class="b">How this team works.</div></div>
+      <div class="p4-cell meta"><div class="h">Show him the ropes</div><div class="b">Shadowing seniors.</div></div>
+      <div class="p4-cell tech"><div class="h">Reusable procedures</div><div class="b">Playbooks on demand.</div></div>
+    </div>
+    <div class="p4-row">
+      <div class="p4-rung l3"><div class="r">L3</div><div class="n">+ Knowledge</div></div>
+      <div class="p4-cell scope"><div class="h">Team intelligence</div><div class="b">Collective domain knowledge.</div></div>
+      <div class="p4-cell meta"><div class="h">Open the archives</div><div class="b">Reads &amp; contributes back.</div></div>
+      <div class="p4-cell tech"><div class="h">Retrieval over docs</div><div class="b">Post-mortems, customer context.</div></div>
+    </div>
+    <div class="p4-row">
+      <div class="p4-rung l4"><div class="r">L4</div><div class="n">AI Harness</div></div>
+      <div class="p4-cell scope"><div class="h">Org infrastructure</div><div class="b">How the company operates.</div></div>
+      <div class="p4-cell meta"><div class="h">Operating model</div><div class="b">On-call, delegates, audited.</div></div>
+      <div class="p4-cell tech"><div class="h">Hooks, agents, governance</div><div class="b">System around model = product.</div></div>
+    </div>
+  </div>
+  <span class="footnote">Einstein's IQ never changes. What changes is everything around him.</span>
+  <svg class="slide-logo" viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg"><g><rect x="108" y="108" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+</section>
+
+</body>
+</html>

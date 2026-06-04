@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 3 · Results</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#05060f;--bg-deep:#0a0b16;--ink:#fff;
+  --ink-soft:rgba(255,255,255,.72);--ink-mute:rgba(255,255,255,.42);
+  --blue:#0064ff;--blue-l:#3d89ff;--purple:#bd2eff;--orange:#ff7828;--green:#00dd81;
+  --mono:'JetBrains Mono','IBM Plex Mono','SF Mono','Consolas',monospace;
+}
+html,body{height:100%;background:var(--bg);color:var(--ink-soft);
+  font-family:'Geist','Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow:hidden;}
+body::before,body::after{content:'';position:fixed;inset:-20%;pointer-events:none;z-index:0;
+  background:radial-gradient(40% 30% at 20% 25%,rgba(0,100,255,.35),transparent 60%),
+    radial-gradient(35% 28% at 80% 70%,rgba(189,46,255,.28),transparent 60%),
+    radial-gradient(30% 25% at 55% 90%,rgba(255,120,40,.22),transparent 65%);
+  filter:blur(40px);animation:drift 30s ease-in-out infinite alternate;}
+body::after{background:radial-gradient(25% 20% at 70% 20%,rgba(0,221,129,.18),transparent 60%),
+  radial-gradient(28% 22% at 25% 75%,rgba(61,137,255,.22),transparent 60%);
+  animation-duration:42s;animation-direction:alternate-reverse;mix-blend-mode:screen;}
+@keyframes drift{0%{transform:translate3d(-3%,-2%,0) scale(1);}50%{transform:translate3d(2%,3%,0) scale(1.08);}
+  100%{transform:translate3d(-1%,2%,0) scale(1.02);}}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.7),transparent 50%),
+    radial-gradient(1px 1px at 78% 32%,rgba(255,255,255,.5),transparent 50%),
+    radial-gradient(1.5px 1.5px at 45% 80%,rgba(255,255,255,.6),transparent 50%),
+    radial-gradient(1px 1px at 88% 88%,rgba(255,255,255,.45),transparent 50%),
+    radial-gradient(1px 1px at 30% 65%,rgba(255,255,255,.55),transparent 50%),
+    radial-gradient(1.5px 1.5px at 62% 12%,rgba(255,255,255,.6),transparent 50%);
+  animation:twinkle 6s ease-in-out infinite alternate;}
+@keyframes twinkle{from{opacity:.45;}to{opacity:1;}}
+.deck{position:fixed;inset:0;z-index:1;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:6vh 7vw;opacity:0;pointer-events:none;transition:opacity .9s ease;}
+.slide.active{opacity:1;pointer-events:auto;}
+.topbar{position:fixed;top:2.5vh;left:7vw;right:7vw;display:flex;justify-content:space-between;
+  align-items:center;z-index:5;pointer-events:none;}
+.topbar .meta{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-mute);}
+.topbar svg{height:22px;opacity:.85;}
+.footer{position:fixed;bottom:2.5vh;left:7vw;right:7vw;display:flex;justify-content:space-between;
+  align-items:center;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-mute);z-index:5;}
+.progress{position:fixed;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.05);z-index:5;}
+.progress::after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--p,0%);
+  background:linear-gradient(90deg,var(--blue),var(--purple),var(--orange));transition:width .6s ease;}
+.eyebrow{font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;color:var(--blue-l);
+  font-weight:600;margin-bottom:1.2rem;display:inline-flex;align-items:center;gap:.75rem;}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--blue-l);}
+h1.display{color:var(--ink);font-size:clamp(2.6rem,5.6vw,5.2rem);font-weight:800;
+  line-height:.98;letter-spacing:-.035em;margin-bottom:1.2rem;}
+h1.display .grad{background:linear-gradient(120deg,var(--blue-l) 0%,var(--purple) 50%,var(--orange) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.subtitle{color:var(--ink-soft);font-size:clamp(1rem,1.4vw,1.25rem);font-weight:400;
+  max-width:64ch;line-height:1.55;}
+h2.section{color:var(--ink);font-size:clamp(2rem,4vw,3.4rem);font-weight:800;
+  letter-spacing:-.03em;line-height:1.05;margin-bottom:.8rem;}
+h3.heading{color:var(--ink);font-size:clamp(1.4rem,2.1vw,1.85rem);font-weight:700;
+  letter-spacing:-.015em;margin-bottom:.8rem;}
+.big-num{font-size:clamp(5rem,11vw,9rem);font-weight:800;line-height:1;letter-spacing:-.05em;
+  background:linear-gradient(180deg,var(--ink) 30%,rgba(255,255,255,.15) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+p.body{color:var(--ink-soft);font-size:1.02rem;line-height:1.65;max-width:64ch;margin-bottom:.8rem;}
+.pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;}
+.pill{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--ink);
+  font-size:.78rem;font-weight:500;backdrop-filter:blur(8px);}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue-l);}
+.pill.purple::before{background:var(--purple);}
+.pill.orange::before{background:var(--orange);}
+.pill.green::before{background:var(--green);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;}
+.stat-card{padding:1.25rem 1.25rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;backdrop-filter:blur(12px);}
+.stat-card .label{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem;}
+.stat-card .value{font-size:1.85rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;}
+.stat-card .delta{color:var(--green);font-size:.85rem;font-weight:600;margin-top:.3rem;}
+.stat-card .delta.bad{color:var(--orange);}
+.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin-top:1.2rem;}
+.compare-panel{padding:1.5rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;backdrop-filter:blur(12px);}
+.compare-panel .label{font-family:var(--mono);font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:.7rem;}
+.compare-panel h4{color:var(--ink);font-size:1.1rem;font-weight:700;letter-spacing:-.015em;margin-bottom:.8rem;}
+.compare-panel ul{list-style:none;display:flex;flex-direction:column;gap:.4rem;}
+.compare-panel ul li{color:var(--ink-soft);font-size:.92rem;line-height:1.5;padding-left:1.2rem;position:relative;}
+.compare-panel ul li::before{content:'';position:absolute;left:0;top:.65em;width:8px;height:1px;background:var(--ink-mute);}
+.compare-panel.before{border-color:rgba(255,120,40,.25);}
+.compare-panel.before .label{color:var(--orange);}
+.compare-panel.after{border-color:rgba(0,221,129,.25);}
+.compare-panel.after .label{color:var(--green);}
+.compare-vs{display:flex;align-items:center;justify-content:center;padding:0 1.2rem;
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.22em;color:var(--ink-mute);text-transform:uppercase;position:relative;}
+.compare-vs::after{content:'';position:absolute;top:10%;bottom:10%;left:50%;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.15),transparent);}
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:.82rem;}
+.tbl th,.tbl td{padding:.55rem .7rem;text-align:right;border-bottom:1px solid rgba(255,255,255,.06);}
+.tbl th{color:var(--ink-mute);font-weight:600;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;}
+.tbl td{color:var(--ink-soft);font-family:var(--mono);}
+.tbl td.l,.tbl th.l{text-align:left;}
+.tbl td.l{color:var(--ink);font-family:'Geist','Inter',system-ui,sans-serif;font-weight:500;}
+.tbl tr:hover td{background:rgba(255,255,255,.03);}
+.tbl td.good{color:var(--green);}
+.tbl td.warn{color:var(--orange);}
+/* bar chart */
+.bar-row{display:grid;grid-template-columns:3.5rem 1fr 4.5rem;gap:.7rem;align-items:center;
+  padding:.28rem 0;}
+.bar-row .lab{font-family:var(--mono);font-size:.74rem;color:var(--ink-mute);letter-spacing:.1em;}
+.bar-row .track{position:relative;height:10px;background:rgba(255,255,255,.04);border-radius:5px;overflow:hidden;}
+.bar-row .fill{position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg,var(--blue-l),var(--purple));border-radius:5px;
+  transition:width 1.2s cubic-bezier(.2,.7,.2,1);}
+.bar-row.cte .fill{background:linear-gradient(90deg,var(--orange),var(--green));}
+.bar-row .val{font-family:var(--mono);font-size:.78rem;color:var(--ink);text-align:right;}
+/* scatter */
+.scatter-wrap{position:relative;width:100%;max-width:760px;aspect-ratio:5/4;margin-top:.7rem;}
+.scatter-wrap svg{width:100%;height:100%;display:block;}
+.scatter-wrap .legend{position:absolute;top:4px;right:4px;display:flex;flex-direction:column;gap:.3rem;
+  font-size:.72rem;color:var(--ink-soft);font-family:var(--mono);background:rgba(10,11,22,.55);
+  border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem .7rem;backdrop-filter:blur(8px);}
+.scatter-wrap .legend .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.4rem;vertical-align:middle;}
+/* slide.active entrance reveals */
+.slide.active .reveal{animation:rise .9s cubic-bezier(.2,.7,.2,1) both;}
+.slide.active .reveal-d1{animation:rise .9s cubic-bezier(.2,.7,.2,1) .15s both;}
+.slide.active .reveal-d2{animation:rise .9s cubic-bezier(.2,.7,.2,1) .3s both;}
+.slide.active .reveal-d3{animation:rise .9s cubic-bezier(.2,.7,.2,1) .45s both;}
+.slide.active .reveal-d4{animation:rise .9s cubic-bezier(.2,.7,.2,1) .6s both;}
+.slide.active .reveal-d5{animation:rise .9s cubic-bezier(.2,.7,.2,1) .75s both;}
+@keyframes rise{from{opacity:0;transform:translateY(28px);filter:blur(6px);}to{opacity:1;transform:translateY(0);filter:blur(0);}}
+.hint{position:fixed;bottom:4.5vh;left:50%;transform:translateX(-50%);font-size:.7rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--ink-mute);animation:blink 2.4s ease-in-out infinite;z-index:5;}
+@keyframes blink{0%,100%{opacity:.3;}50%{opacity:.85;}}
+/* roster grid */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.7rem;margin-top:1rem;}
+.roster .card{padding:.85rem 1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;backdrop-filter:blur(8px);}
+.roster .card .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem;}
+.roster .card .id{font-family:var(--mono);font-size:.76rem;color:var(--blue-l);letter-spacing:.1em;}
+.roster .card .imp{font-family:var(--mono);font-size:.74rem;color:var(--green);}
+.roster .card .nm{font-size:.85rem;color:var(--ink);font-weight:500;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* layout helpers */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;}
+.row-tight{display:grid;grid-template-columns:1.3fr 1fr;gap:2rem;align-items:center;}
+.section-h{margin-bottom:.6rem;}
+</style></head><body>
+<div class="stars"></div>
+<div class="topbar"><svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg><span class="meta">Quix · Level 3 results</span></div>
+<div class="deck">
+
+<section class="slide" data-i="1">
+  <span class="eyebrow reveal">Level 3 · Domain Knowledge</span>
+  <h1 class="display reveal-d1">10 agents, <span class="grad">one brief.</span></h1>
+  <p class="subtitle reveal-d2">Vehicle dynamics added to the prompt. Domain context buys what fitting cannot.</p>
+  <div class="pills reveal-d3">
+    <span class="pill">cohort = 10</span>
+    <span class="pill purple">avg yaw ↑ 56.5%</span>
+    <span class="pill orange">avg cte ↑ 72.2%</span>
+    <span class="pill green">best yaw 56.8%</span>
+  </div>
+</section>
+
+<section class="slide" data-i="2">
+  <span class="eyebrow reveal">Cohort</span>
+  <h3 class="heading reveal-d1 section-h">All 10 agents in Level 3.</h3>
+  <p class="subtitle reveal-d2" style="margin-bottom:.4rem;">Same prompt, same data, same scoring — different intuitions about how a car turns.</p>
+  <div class="roster reveal-d3">
+    <div class="card"><div class="h"><span class="id">A01</span><span class="imp">+54.5% yaw · +71.4% cte</span></div><div class="nm">v1-ks-understeer-lag-pseg-delta0</div></div><div class="card"><div class="h"><span class="id">A02</span><span class="imp">+56.8% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A03</span><span class="imp">+56.7% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A04</span><span class="imp">+56.8% yaw · +72.3% cte</span></div><div class="nm">m3v2-agent-04-ks-understeer-lag-perseg-delta0</div></div><div class="card"><div class="h"><span class="id">A05</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A06</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">agent-06-ks-understeer-lag-perseg-delta0</div></div><div class="card"><div class="h"><span class="id">A07</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A08</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">—</div></div><div class="card"><div class="h"><span class="id">A09</span><span class="imp">+56.8% yaw · +72.2% cte</span></div><div class="nm">agent-09-final</div></div><div class="card"><div class="h"><span class="id">A10</span><span class="imp">+56.6% yaw · +72.2% cte</span></div><div class="nm">agent-10-rung0-per-segment-delta0</div></div>
+  </div>
+</section>
+
+<section class="slide" data-i="3">
+  <span class="eyebrow reveal">Per-segment KPIs</span>
+  <h3 class="heading reveal-d1 section-h">RMSE by platform · cohort mean and best.</h3>
+  <p class="subtitle reveal-d2" style="margin-bottom:1rem;">V0 = no-op baseline. Mean is the cohort centre; best is the single agent’s number on that platform.</p>
+  <div class="reveal-d3" style="max-width:980px;"><table class="tbl">
+<thead><tr><th class="l">Platform</th><th>Segments</th>
+<th>Yaw RMSE (mean)</th><th>Yaw RMSE (best)</th>
+<th>CTE RMSE m (mean)</th><th>CTE RMSE m (best)</th></tr></thead>
+<tbody><tr><td class="l">F-150 Lightning</td><td>55</td><td>0.0126</td><td class="good">0.0125</td><td>71.2</td><td class="good">68.4</td></tr><tr><td class="l">Mach-E</td><td>75</td><td>0.0057</td><td class="good">0.0057</td><td>74.8</td><td class="good">74.7</td></tr><tr><td class="l">Ioniq 5</td><td>404</td><td>0.0064</td><td class="good">0.0063</td><td>69.9</td><td class="good">69.5</td></tr></tbody></table></div>
+  <div class="pills reveal-d4" style="margin-top:1.2rem;">
+    <span class="pill">V0 yaw RMSE ≡ 0.0163 rad/s</span>
+    <span class="pill orange">V0 CTE RMSE ≡ 254.3 m</span>
+  </div>
+</section>
+
+<section class="slide" data-i="4">
+  <span class="eyebrow reveal">Distribution</span>
+  <h3 class="heading reveal-d1 section-h">Improvement vs V0, per agent.</h3>
+  <p class="subtitle reveal-d2" style="margin-bottom:1rem;">Two KPIs, side by side. Yaw left, CTE right. Same agents, sorted by their own metric.</p>
+  <div class="row reveal-d3">
+    <div>
+      <div class="stat-card" style="margin-bottom:.8rem;">
+        <div class="label">Yaw rate · improvement vs V0</div>
+        <div class="value" style="font-size:1.15rem;color:var(--ink-soft);">All 10 agents</div>
+      </div>
+      <div class="bar-row "><span class="lab">A04</span><div class="track"><div class="fill" data-w="74.8%" style="width:0"></div></div><span class="val">56.8%</span></div>
+<div class="bar-row "><span class="lab">A09</span><div class="track"><div class="fill" data-w="74.8%" style="width:0"></div></div><span class="val">56.8%</span></div>
+<div class="bar-row "><span class="lab">A02</span><div class="track"><div class="fill" data-w="74.7%" style="width:0"></div></div><span class="val">56.8%</span></div>
+<div class="bar-row "><span class="lab">A03</span><div class="track"><div class="fill" data-w="74.7%" style="width:0"></div></div><span class="val">56.7%</span></div>
+<div class="bar-row "><span class="lab">A05</span><div class="track"><div class="fill" data-w="74.5%" style="width:0"></div></div><span class="val">56.6%</span></div>
+<div class="bar-row "><span class="lab">A06</span><div class="track"><div class="fill" data-w="74.5%" style="width:0"></div></div><span class="val">56.6%</span></div>
+<div class="bar-row "><span class="lab">A07</span><div class="track"><div class="fill" data-w="74.5%" style="width:0"></div></div><span class="val">56.6%</span></div>
+<div class="bar-row "><span class="lab">A08</span><div class="track"><div class="fill" data-w="74.5%" style="width:0"></div></div><span class="val">56.6%</span></div>
+<div class="bar-row "><span class="lab">A10</span><div class="track"><div class="fill" data-w="74.5%" style="width:0"></div></div><span class="val">56.6%</span></div>
+<div class="bar-row "><span class="lab">A01</span><div class="track"><div class="fill" data-w="71.8%" style="width:0"></div></div><span class="val">54.5%</span></div>
+    </div>
+    <div>
+      <div class="stat-card" style="margin-bottom:.8rem;">
+        <div class="label">Cross-track error · improvement vs V0</div>
+        <div class="value" style="font-size:1.15rem;color:var(--ink-soft);">All 10 agents</div>
+      </div>
+      <div class="bar-row cte"><span class="lab">A04</span><div class="track"><div class="fill" data-w="95.2%" style="width:0"></div></div><span class="val">72.3%</span></div>
+<div class="bar-row cte"><span class="lab">A09</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A05</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A06</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A07</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A08</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A10</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A03</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A02</span><div class="track"><div class="fill" data-w="95.1%" style="width:0"></div></div><span class="val">72.2%</span></div>
+<div class="bar-row cte"><span class="lab">A01</span><div class="track"><div class="fill" data-w="94.0%" style="width:0"></div></div><span class="val">71.4%</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-i="5">
+  <span class="eyebrow reveal">Scatter · KPI space</span>
+  <h3 class="heading reveal-d1 section-h">Yaw RMSE vs CTE RMSE — V0 first, then the cohort.</h3>
+  <p class="subtitle reveal-d2" style="margin-bottom:.8rem;">Bottom-left is better. The orange star is the "non-existing agent" — V0 baseline that just echoes the input. Blue points are this level’s agents.</p>
+  <div class="row-tight reveal-d3">
+    <div class="scatter-wrap">
+      <svg viewBox="0 0 720 520" data-reveal-points="1"><defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><text x="56" y="18" fill="rgba(255,255,255,0.85)" font-size="12" font-family="JetBrains Mono,monospace" letter-spacing="0.1em">LEVEL 3 VS V0 BASELINE</text><line x1="56.0" y1="28" x2="56.0" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="28.0" x2="698" y2="28.0" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="216.5" y1="28" x2="216.5" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="138.5" x2="698" y2="138.5" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="377.0" y1="28" x2="377.0" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="249.0" x2="698" y2="249.0" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="537.5" y1="28" x2="537.5" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="359.5" x2="698" y2="359.5" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="698.0" y1="28" x2="698.0" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="470.0" x2="698" y2="470.0" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="56" y1="470" x2="698" y2="470" stroke="rgba(255,255,255,0.25)" stroke-width="1"/><line x1="56" y1="28" x2="56" y2="470" stroke="rgba(255,255,255,0.25)" stroke-width="1"/><text x="56.0" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.000</text><text x="216.5" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.004</text><text x="377.0" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.009</text><text x="537.5" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.013</text><text x="698.0" y="488" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">0.017</text><text x="48.0" y="473.0" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">0</text><text x="48.0" y="362.5" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">67</text><text x="48.0" y="252.0" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">133</text><text x="48.0" y="141.5" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">200</text><text x="48.0" y="31.0" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" font-family="JetBrains Mono,monospace">267</text><text x="377.0" y="508" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">yaw RMSE (rad/s)</text><text transform="translate(16,249.0) rotate(-90)" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">CTE RMSE (m)</text><circle class="pt" cx="667.4" cy="49.0" r="11" fill="#ff7828" fill-opacity="0.85" stroke="#ff7828" stroke-opacity="0.95" stroke-width="1" data-delay="0" filter="url(#glow)"><title>V0 baseline (no agent): yaw=0.0163, cte=254.3</title></circle><circle class="pt" cx="334.0" cy="349.5" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="600" filter="url(#glow)"><title>A01: yaw=0.0074, cte=72.8</title></circle><circle class="pt" cx="320.4" cy="353.0" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="690" filter="url(#glow)"><title>A02: yaw=0.0070, cte=70.6</title></circle><circle class="pt" cx="320.7" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="780" filter="url(#glow)"><title>A03: yaw=0.0070, cte=70.6</title></circle><circle class="pt" cx="320.0" cy="353.4" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="870" filter="url(#glow)"><title>A04: yaw=0.0070, cte=70.4</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="960" filter="url(#glow)"><title>A05: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1050" filter="url(#glow)"><title>A06: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1140" filter="url(#glow)"><title>A07: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1230" filter="url(#glow)"><title>A08: yaw=0.0071, cte=70.6</title></circle><circle class="pt" cx="320.2" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1320" filter="url(#glow)"><title>A09: yaw=0.0070, cte=70.6</title></circle><circle class="pt" cx="321.5" cy="353.1" r="7" fill="#3d89ff" fill-opacity="0.85" stroke="#3d89ff" stroke-opacity="0.95" stroke-width="1" data-delay="1410" filter="url(#glow)"><title>A10: yaw=0.0071, cte=70.6</title></circle></svg>
+      <div class="legend">
+        <div><span class="sw" style="background:#ff7828"></span>V0 baseline</div>
+        <div><span class="sw" style="background:#3d89ff"></span>Level 3 agents (n=10)</div>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card" style="margin-bottom:.6rem;">
+        <div class="label">V0 baseline</div>
+        <div class="value">0.0163 · 254</div>
+        <div class="delta bad">yaw rad/s · cte m</div>
+      </div>
+      <div class="stat-card" style="margin-bottom:.6rem;">
+        <div class="label">Cohort best</div>
+        <div class="value">0.0070 · 70</div>
+        <div class="delta">yaw rad/s · cte m</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Average gain</div>
+        <div class="value">56.5% · 72.2%</div>
+        <div class="delta">yaw · cte vs V0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-i="6">
+  <span class="eyebrow reveal">What worked · what didn’t</span>
+  <h3 class="heading reveal-d1">Level 3 — reading the cohort.</h3>
+  <div class="compare reveal-d2">
+    <div class="compare-panel after">
+      <div class="label">Worked</div>
+      <h4>Where the cohort delivered.</h4>
+      <ul><li>Best yaw: <b>A04</b> at <b>56.8%</b> off V0 — every agent beat the no-op baseline.</li><li>Best CTE: <b>A04</b> at <b>72.3%</b> — the two KPIs move together when the model is honest about lag.</li><li>Median yaw improvement <b>56.6%</b>, median CTE <b>72.2%</b> — the cohort clusters, not scatters.</li></ul>
+    </div>
+    <div class="compare-vs">vs</div>
+    <div class="compare-panel before">
+      <div class="label">Didn’t</div>
+      <h4>Where it left room.</h4>
+      <ul><li>Yaw spread <b>2.3 pp</b> across the cohort — the bottom agents leave performance on the table.</li><li>Weakest yaw: <b>A01</b> at 54.5%, weakest CTE: <b>A01</b> at 71.4%.</li><li>Per-platform RMSE always worst on Ford trucks — high mass, high lag, the model can’t hide it.</li></ul>
+    </div>
+  </div>
+</section>
+</div>
+<div class="hint">← →  navigate</div>
+<div class="footer"><span>Quix · Webinar AI · 2026</span><span><span id="cur">1</span> / <span id="tot">5</span></span></div>
+<div class="progress" id="prog"></div>
+<script>
+const slides=document.querySelectorAll('.slide');
+const cur=document.getElementById('cur');
+const tot=document.getElementById('tot');
+const prog=document.getElementById('prog');
+tot.textContent=slides.length;
+let i=0;
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  cur.textContent=i+1;
+  prog.style.setProperty('--p',((i+1)/slides.length*100)+'%');
+  // trigger scatter point reveal
+  document.querySelectorAll('.slide.active [data-reveal-points]').forEach(svg=>{
+    const pts=svg.querySelectorAll('circle.pt');
+    pts.forEach((p,idx)=>{p.style.opacity=0;p.style.transform='scale(0)';
+      p.style.transformOrigin=p.getAttribute('cx')+'px '+p.getAttribute('cy')+'px';
+      setTimeout(()=>{p.style.transition='opacity .45s ease, transform .55s cubic-bezier(.2,.7,.2,1)';
+        p.style.opacity=1;p.style.transform='scale(1)';},
+        parseInt(p.getAttribute('data-delay')||'0',10));
+    });
+  });
+  // trigger bar fills
+  document.querySelectorAll('.slide.active .bar-row .fill').forEach(b=>{
+    const w=b.dataset.w;b.style.width='0';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{b.style.width=w;}));
+  });
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')go(i+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp')go(i-1);
+  if(e.key==='Home')go(0);
+  if(e.key==='End')go(slides.length-1);
+});
+document.addEventListener('click',e=>{
+  if(e.target.closest('a,button,input'))return;
+  go(i+(e.clientX>window.innerWidth/2?1:-1));
+});
+go(0);
+</script></body></html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentation Templates · Quix</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0b16;
+    --bg-2: #0f1024;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --hair: rgba(255,255,255,0.08);
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1300px; margin: 0 auto; padding: 5rem 2rem; }
+
+  header {
+    margin-bottom: 4rem;
+    border-bottom: 1px solid var(--hair);
+    padding-bottom: 2.5rem;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--blue-l);
+    margin-bottom: 1rem;
+  }
+  h1 {
+    color: var(--ink);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 1rem;
+  }
+  h1 .grad {
+    background: linear-gradient(120deg, var(--blue-l), var(--purple), var(--orange));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .lede { font-size: 1.1rem; max-width: 60ch; line-height: 1.6; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    position: relative;
+    border: 1px solid var(--hair);
+    background: var(--bg-2);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.4s cubic-bezier(.2,.7,.2,1), border-color 0.3s;
+    display: flex; flex-direction: column;
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(61,137,255,0.4); }
+  .card iframe {
+    width: 100%;
+    height: 280px;
+    border: 0;
+    background: #000;
+    pointer-events: none;
+  }
+  .card .body { padding: 1.5rem 1.5rem 1.75rem; }
+  .card .num {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.28em;
+    text-transform: uppercase; margin-bottom: 0.5rem;
+  }
+  .card.b .num { color: var(--blue-l); }
+  .card.p .num { color: var(--purple); }
+  .card.o .num { color: var(--orange); }
+  .card.g .num { color: var(--green); }
+  .card.c .num { color: #58e2ff; }
+  .card.w .num { color: #fff; }
+
+  .card h3 {
+    color: var(--ink);
+    font-size: 1.4rem; font-weight: 700;
+    letter-spacing: -0.02em; margin-bottom: 0.5rem;
+  }
+  .card p {
+    color: var(--ink-soft);
+    font-size: 0.95rem; line-height: 1.55;
+  }
+  .card .open {
+    margin-top: 1rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue-l);
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .card .open::after { content: '→'; transition: transform 0.3s; }
+  .card:hover .open::after { transform: translateX(4px); }
+
+  footer {
+    margin-top: 4rem; padding-top: 2rem;
+    border-top: 1px solid var(--hair);
+    font-family: var(--mono); font-size: 0.74rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="eyebrow">Quix · presentation templates · 2026</div>
+    <h1>Six directions for a <span class="grad">cinematic</span> deck.</h1>
+    <p class="lede">Each template is a self-contained HTML file with arrow-key navigation (← → space). Click a card to open the full deck. Hover to see the cover slide live.</p>
+  </header>
+
+  <div class="grid">
+
+    <a class="card c" href="01-cosmic.html">
+      <iframe src="01-cosmic.html" loading="lazy"></iframe>
+      <div class="body">
+        <div class="num">01 · Cosmic</div>
+        <h3>Drifting nebulae, hero type</h3>
+        <p>Deep-space gradient mesh that breathes. Letter-by-letter reveals, gradient-text headlines. Keynote-grade opener.</p>
+        <div class="open">Open deck</div>
+      </div>
+    </a>
+
+    <a class="card b" href="02-blueprint.html">
+      <iframe src="02-blueprint.html" loading="lazy"></iframe>
+      <div class="body">
+        <div class="num">02 · Blueprint</div>
+        <h3>Engineering schematic, CAD-style</h3>
+        <p>Panning grid, registration crosshairs, monospaced metadata, line-draw reveals. The deck that documents itself.</p>
+        <div class="open">Open deck</div>
+      </div>
+    </a>
+
+    <a class="card p" href="03-aurora.html">
+      <iframe src="03-aurora.html" loading="lazy"></iframe>
+      <div class="body">
+        <div class="num">03 · Aurora</div>
+        <h3>Glassmorphism, animated blobs</h3>
+        <p>Frosted cards, animated aurora gradients, soft float-in motion. Product-launch energy without going corporate.</p>
+        <div class="open">Open deck</div>
+      </div>
+    </a>
+
+    <a class="card g" href="04-terminal.html">
+      <iframe src="04-terminal.html" loading="lazy"></iframe>
+      <div class="body">
+        <div class="num">04 · Terminal</div>
+        <h3>CRT console, scan lines, glow</h3>
+        <p>Console output blocks, blinking cursors, faint scanlines and vignette. Engineering-first, but elevated — not a Hollywood hacker scene.</p>
+        <div class="open">Open deck</div>
+      </div>
+    </a>
+
+    <a class="card o" href="05-editorial.html">
+      <iframe src="05-editorial.html" loading="lazy"></iframe>
+      <div class="body">
+        <div class="num">05 · Editorial (light)</div>
+        <h3>Tech magazine, asymmetric grid</h3>
+        <p>Serif/sans contrast, oversized numerals, drop caps, pull-quotes. A printed-quarterly feel for document-grade decks. The only light-theme option.</p>
+        <div class="open">Open deck</div>
+      </div>
+    </a>
+
+    <a class="card w" href="06-wireframe.html">
+      <iframe src="06-wireframe.html" loading="lazy"></iframe>
+      <div class="body">
+        <div class="num">06 · Wireframe</div>
+        <h3>Outline type, hairline geometry</h3>
+        <p>Stroked display type, dotted grid, neon punctuation, animated stroke-borders that draw themselves on slide-in. CAD-model-in-motion energy.</p>
+        <div class="open">Open deck</div>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>
+    <span>navigate · ← → space</span>
+    <span>Quix · 2026</span>
+  </footer>
+</div>
+</body>
+</html>

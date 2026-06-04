@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro — Quix Webinar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --ink-faint: rgba(255,255,255,0.18);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Inter', 'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 18% 22%, rgba(0,100,255,0.22), transparent 60%),
+      radial-gradient(35% 28% at 82% 72%, rgba(189,46,255,0.18), transparent 60%),
+      radial-gradient(30% 25% at 55% 92%, rgba(255,120,40,0.14), transparent 65%);
+    filter: blur(50px);
+    animation: drift 32s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 72% 18%, rgba(0,221,129,0.10), transparent 60%),
+      radial-gradient(28% 22% at 22% 78%, rgba(61,137,255,0.14), transparent 60%);
+    animation-duration: 44s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.5), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.35; } to { opacity: 0.85; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 5vw; right: 5vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.9; }
+
+  /* footer */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 5vw; right: 5vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.26em;
+    text-transform: uppercase; color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.25; } 50% { opacity: 0.8; } }
+
+  /* deck + slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 9vh 5vw 9vh;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.7s ease;
+    display: grid;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.85rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 36px; height: 1px; background: currentColor;
+  }
+
+  /* reveal helpers */
+  .slide.active .reveal     { animation: rise 0.7s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1  { animation: rise 0.7s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2  { animation: rise 0.7s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3  { animation: rise 0.7s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+  }
+
+  /* =========================================================
+     SLIDE 1 — coding ≠ engineering
+     ========================================================= */
+  .s1 {
+    grid-template-rows: auto 1fr auto;
+    gap: 4vh;
+  }
+  .s1 .eyebrow { color: var(--blue-l); }
+
+  .s1-stage {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 6vh;
+  }
+
+  .kinetic {
+    font-size: clamp(5rem, 14vw, 14rem);
+    font-weight: 900;
+    line-height: 0.82;
+    letter-spacing: -0.05em;
+    color: var(--ink);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.18em;
+    white-space: nowrap;
+  }
+  .kinetic .word { display: inline-flex; }
+  .kinetic .word .char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px) rotateX(60deg);
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+    line-height: 1;
+  }
+  /* gradient text needs a taller box so descenders aren't clipped by background-clip */
+  .kinetic .word.engineering { margin-bottom: -0.25em; }
+  .kinetic .word.engineering .char { line-height: 1.25; }
+  .slide.active .kinetic .word.coding .char {
+    animation: charIn 0.5s cubic-bezier(.2,.7,.2,1) var(--d, 0s) both;
+  }
+  .slide.active .kinetic .neq {
+    animation: neqIn 0.6s cubic-bezier(.2,.7,.2,1) 0.7s both;
+  }
+  .slide.active .kinetic .word.engineering .char {
+    animation: charIn 0.5s cubic-bezier(.2,.7,.2,1) calc(1.1s + var(--d, 0s)) both;
+  }
+
+  @keyframes charIn {
+    from { opacity: 0; transform: translateY(40px) rotateX(60deg); filter: blur(8px); }
+    to   { opacity: 1; transform: translateY(0)   rotateX(0);     filter: blur(0); }
+  }
+
+  .kinetic .neq {
+    display: inline-block;
+    color: var(--ink-mute);
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0.4) rotate(-12deg);
+  }
+  @keyframes neqIn {
+    from { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+    50%  { opacity: 1; transform: scale(1.15) rotate(0deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  .kinetic .word.engineering .char {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 55%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .s1-sub {
+    font-size: clamp(1.1rem, 1.7vw, 1.55rem);
+    color: var(--ink-mute);
+    letter-spacing: -0.005em;
+    max-width: 48ch;
+    line-height: 1.45;
+    opacity: 0;
+  }
+  .slide.active .s1-sub {
+    animation: rise 0.8s cubic-bezier(.2,.7,.2,1) 2.4s both;
+  }
+  .s1-sub b {
+    color: var(--ink-soft);
+    font-weight: 500;
+    border-bottom: 1px dashed var(--ink-faint);
+    padding-bottom: 2px;
+  }
+
+  .s1-foot {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1rem;
+    opacity: 0;
+  }
+  .slide.active .s1-foot {
+    animation: rise 0.8s cubic-bezier(.2,.7,.2,1) 3s both;
+  }
+  .s1-foot .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 14px var(--orange);
+  }
+
+  /* =========================================================
+     SLIDE 2 — The F1 Playbook
+     ========================================================= */
+  .s2 {
+    grid-template-rows: auto auto 1fr auto;
+    gap: 3vh;
+    align-content: start;
+  }
+  .s2 .s2-title { margin-bottom: 4vh; }
+  .s2 .s2-cards-wrap {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .s2 .eyebrow { color: var(--purple-l); }
+
+  .s2-title {
+    font-size: clamp(2.2rem, 4.4vw, 3.8rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink);
+    max-width: 22ch;
+  }
+  .s2-title .em {
+    background: linear-gradient(120deg, var(--blue-l), var(--purple), var(--orange));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .s2-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+    align-items: stretch;
+    max-width: 1600px;
+    width: 100%;
+  }
+
+  .pat-card {
+    position: relative;
+    background: rgba(10,11,22,0.55);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 1.5rem 1.6rem 1.4rem;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    gap: 0.7rem;
+    transition: transform 0.4s ease, border-color 0.4s ease;
+  }
+  .pat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.18);
+  }
+  .pat-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent, var(--blue-l));
+    box-shadow: 0 0 18px var(--accent, var(--blue-l));
+  }
+  .pat-card::after {
+    content: ''; position: absolute;
+    inset: 0;
+    background: radial-gradient(80% 40% at 50% -10%, var(--accent-glow, rgba(61,137,255,0.18)), transparent 70%);
+    pointer-events: none;
+  }
+
+  .pat-card.c1 { --accent: var(--blue-l);   --accent-glow: rgba(61,137,255,0.20); }
+  .pat-card.c2 { --accent: var(--purple-l); --accent-glow: rgba(202,95,255,0.20); }
+  .pat-card.c3 { --accent: var(--orange-l); --accent-glow: rgba(254,147,83,0.20); }
+
+  .pat-card .pc-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    color: var(--accent);
+    text-transform: uppercase;
+    position: relative;
+  }
+  .pat-card h3 {
+    font-size: clamp(1.55rem, 2.1vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    line-height: 1.1;
+    position: relative;
+  }
+  .pat-card p {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    position: relative;
+  }
+  .pat-card p + p { margin-top: 0.2rem; color: var(--ink-mute); }
+
+  .pat-card .pc-tag {
+    margin-top: auto;
+    padding-top: 0.95rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+
+  /* card stagger entrance */
+  .pat-card { opacity: 0; transform: translateY(28px); }
+  .slide.active .pat-card.c1 { animation: cardIn 0.7s cubic-bezier(.2,.7,.2,1) 0.5s both; }
+  .slide.active .pat-card.c2 { animation: cardIn 0.7s cubic-bezier(.2,.7,.2,1) 0.7s both; }
+  .slide.active .pat-card.c3 { animation: cardIn 0.7s cubic-bezier(.2,.7,.2,1) 0.9s both; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(28px) scale(0.98); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);   filter: blur(0); }
+  }
+
+  .s2-foot {
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+  }
+  .slide.active .s2-foot {
+    animation: rise 0.8s cubic-bezier(.2,.7,.2,1) 1.4s both;
+  }
+  .s2-foot .pe-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--green);
+    display: inline-flex; align-items: center; gap: 0.8rem;
+  }
+  .s2-foot .pe-eyebrow::before,
+  .s2-foot .pe-eyebrow::after {
+    content: ''; width: 32px; height: 1px; background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* responsive guard */
+  @media (max-width: 1100px) {
+    .s2-cards { grid-template-columns: 1fr; }
+    .kinetic { font-size: clamp(3.6rem, 12vw, 7rem); white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta" id="meta">Intro · 01 — Premise</span>
+</div>
+
+<div class="deck">
+
+  <!-- ================= SLIDE 1 ================= -->
+  <section class="slide s1 active" data-i="1">
+    <span class="eyebrow reveal">Webinar Intro · Premise</span>
+
+    <div class="s1-stage">
+      <div class="kinetic">
+        <span class="word coding" data-word="coding"></span>
+        <span class="neq">≠</span>
+        <span class="word engineering" data-word="engineering"></span>
+      </div>
+
+      <p class="s1-sub">
+        the internet has a lot to say about <b>the first one</b>
+      </p>
+    </div>
+
+  </section>
+
+  <!-- ================= SLIDE 2 ================= -->
+  <section class="slide s2" data-i="2">
+    <span class="eyebrow reveal">Webinar Intro · Sources</span>
+
+    <h1 class="s2-title reveal-d1">
+      The F1 Playbook for <span class="em">AI-assisted Engineering</span>
+    </h1>
+
+    <div class="s2-cards">
+
+      <article class="pat-card c1">
+        <div class="pc-num">Source · 01</div>
+        <h3>F1 Exposure</h3>
+        <p>Working with roughly half the grid.</p>
+        <p>F1 has always been state-of-the-art engineering, now assisted by AI.</p>
+        <div class="pc-tag">State of the art · High-frequency data · Real-time decisions</div>
+      </article>
+
+      <article class="pat-card c2">
+        <div class="pc-num">Source · 02</div>
+        <h3>Frontier Practitioners</h3>
+        <p>The landscape is messy and shifts weekly.</p>
+        <p>But a handful of principles are reaching real consensus.</p>
+        <div class="pc-tag">Published · Battle-tested · Converging</div>
+      </article>
+
+      <article class="pat-card c3">
+        <div class="pc-num">Source · 03</div>
+        <h3>Building QuixAI</h3>
+        <p>What our customers ask for, struggle with, and push back on.</p>
+        <p>The signal we trust most because we experience it ourselves.</p>
+        <div class="pc-tag">Customer signal · Production · Continuous</div>
+      </article>
+
+    </div>
+
+    <div class="s2-foot">
+      <span class="pe-eyebrow">Patterns emerging</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">←  →   space   ·  navigate    ·    R    replay</div>
+
+<div class="footer">
+  <span>Quix · Webinar · Intro</span>
+  <span><span id="cur">1</span> / <span id="tot">2</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  /* ---------- letter splitter for slide 1 ---------- */
+  function splitKinetic(el) {
+    const word = el.dataset.word || '';
+    el.innerHTML = '';
+    [...word].forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = ch;
+      span.style.setProperty('--d', (i * 0.05) + 's');
+      el.appendChild(span);
+    });
+  }
+  document.querySelectorAll('.kinetic .word').forEach(splitKinetic);
+
+  /* ---------- nav + animation re-fire ---------- */
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  const meta = document.getElementById('meta');
+  tot.textContent = slides.length;
+  let i = 0;
+
+  const metas = [
+    'Intro · 01 — Premise',
+    'Intro · 02 — Sources'
+  ];
+
+  function refireAnimations(slide) {
+    slide.classList.remove('active');
+    void slide.offsetWidth;
+    slide.classList.add('active');
+  }
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => {
+      if (idx === i) {
+        s.classList.add('active');
+        refireAnimations(s);
+      } else {
+        s.classList.remove('active');
+      }
+    });
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+    meta.textContent = metas[i] || metas[0];
+  }
+
+  // deck-chain navigation — boundary hops to neighbouring decks
+  const __nav = {
+    prev: '../00-first/index.html',
+    next: '../02-ladder/definitive/index.html',
+  };
+  function tryGo(target) {
+    if (target < 0)                    { if (__nav.prev) window.location.href = __nav.prev; return; }
+    if (target > slides.length - 1)    { if (__nav.next) window.location.href = __nav.next; return; }
+    go(target);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); tryGo(i + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); tryGo(i - 1); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+    if (e.key === 'r' || e.key === 'R') refireAnimations(slides[i]);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    tryGo(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+
+  go(0);
+</script>
+</body>
+</html>

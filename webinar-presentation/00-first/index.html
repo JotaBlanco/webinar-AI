@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The F1 Playbook for AI Assisted Engineering — Quix Webinar</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.78);
+    --ink-mute: rgba(255,255,255,0.55);
+    --accent: #0064ff;
+    --accent-l: #3d89ff;
+    --panel-bg: rgba(8, 10, 18, 0.74);
+    --panel-border: rgba(255,255,255,0.08);
+  }
+
+  html, body {
+    height: 100%;
+    background: #000;
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* full-bleed background video */
+  .bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* subtle vignette so the panel reads cleanly over any frame */
+  .vignette {
+    position: fixed; inset: 0;
+    z-index: 1; pointer-events: none;
+    background:
+      linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0) 75%);
+  }
+
+  /* title / speaker panel — landscape, full width with side margins */
+  .panel {
+    position: fixed;
+    left: 4vw;
+    right: 4vw;
+    bottom: 5vh;
+    padding: 2.4rem 2.8rem 2.5rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 3;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  }
+
+  .panel-logo {
+    height: 38px;
+    display: block;
+    margin-bottom: 1.1rem;
+  }
+
+  .panel-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.18);
+    margin: 0 0 1.5rem;
+  }
+
+  .panel-title {
+    color: var(--ink);
+    font-size: clamp(2rem, 3.6vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* bottom row: speakers on the right, Q mark anchored far-right */
+  .panel-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+  }
+
+  .speakers {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .speaker {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+
+  .speaker .avatar {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: radial-gradient(circle at 30% 30%, var(--accent-l), #1a3a8a 70%);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .speaker .avatar.jb {
+    background: radial-gradient(circle at 30% 30%, #ff9a5f, #c25028 70%);
+  }
+
+  .speaker .who {
+    color: var(--ink);
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+  .speaker .who .role {
+    color: var(--ink-mute);
+    font-weight: 400;
+    margin-left: 0.4rem;
+  }
+
+  /* Q mark inside the box, far bottom-right of the row */
+  .q-mark { display: block; flex-shrink: 0; }
+  .q-mark svg { display: block; height: 48px; opacity: 0.95; }
+
+  /* entrance reveal */
+  .panel { animation: rise 1s cubic-bezier(.2,.7,.2,1) 0.2s both; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline preload="auto">
+  <source src="actually_re_do_it_Based_on_t.mp4" type="video/mp4">
+</video>
+
+<div class="vignette"></div>
+
+<div class="panel">
+  <!-- quix wordmark -->
+  <svg class="panel-logo" viewBox="0 0 360 90" xmlns="http://www.w3.org/2000/svg" aria-label="quix">
+    <g fill="#ffffff">
+      <rect x="68" y="68" width="16" height="16" rx="1.8"/>
+      <rect x="50" y="50" width="16" height="16" rx="1.8"/>
+      <rect x="32" y="32" width="16" height="16" rx="1.8"/>
+      <path d="M82.5 0H1.7C0.76 0 0 0.76 0 1.7v80.6c0 0.94 0.76 1.7 1.7 1.7h46.6c0.94 0 1.7-0.76 1.7-1.7v-12.1c0-0.94-0.76-1.7-1.7-1.7H15.3V15.3h53.4v32.9c0 0.94 0.76 1.7 1.7 1.7h12.1c0.94 0 1.7-0.76 1.7-1.7V1.7c0-0.94-0.76-1.7-1.7-1.7z"/>
+      <text x="108" y="66" font-family="Geist, Inter, system-ui, sans-serif" font-size="62" font-weight="700" letter-spacing="-2">quix</text>
+    </g>
+  </svg>
+
+  <div class="panel-divider"></div>
+
+  <h1 class="panel-title">The F1 Playbook for AI Assisted Engineering</h1>
+
+  <div class="panel-bottom">
+    <div class="speakers">
+      <div class="speaker">
+        <div class="avatar">MR</div>
+        <div class="who">Mike Rosam <span class="role">— CEO</span></div>
+      </div>
+      <div class="speaker">
+        <div class="avatar jb">JB</div>
+        <div class="who">Javier Blanco <span class="role">— Lead Solutions Engineer</span></div>
+      </div>
+    </div>
+
+    <div class="q-mark" aria-hidden="true">
+      <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#ffffff">
+          <rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5"/>
+          <rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5"/>
+          <rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5"/>
+          <path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  // deck-chain navigation — single-slide cover, forward only
+  const __next = '../01-intro/index.html';
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); window.location.href = __next;
+    }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, input, video')) return;
+    if (e.clientX > window.innerWidth / 2) window.location.href = __next;
+  });
+</script>
+</body>
+</html>

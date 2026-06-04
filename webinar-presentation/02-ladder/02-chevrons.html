@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ladder · 02 Chevrons · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · The Ladder · 02 Chevrons
+     Diagonal cascade of flat-design arrow/chevron cards,
+     ascending bottom-left → top-right. Cosmic master aesthetic.
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --cyan: #58e2ff;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background — verbatim from cosmic master */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.orange { color: var(--orange-l); }
+  .eyebrow.orange::before { background: var(--orange-l); }
+  .eyebrow.green  { color: var(--green); }
+  .eyebrow.green::before  { background: var(--green); }
+  .eyebrow.cyan   { color: var(--cyan); }
+  .eyebrow.cyan::before   { background: var(--cyan); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+
+  /* ============== SLIDE 1 — cover ============== */
+  .cover {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .cover .tag {
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l);
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .cover .tag::before {
+    content: ''; width: 36px; height: 1px; background: var(--blue-l);
+    box-shadow: 0 0 8px var(--blue-l);
+  }
+  .cover h1 {
+    margin-top: 1.5rem;
+    font-size: clamp(4.5rem, 12vw, 10rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+  }
+  .cover h1 .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cover .sub {
+    margin-top: 2rem;
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    line-height: 1.5;
+  }
+  .cover .footnote {
+    margin-top: 2.5rem;
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: inline-flex; align-items: center; gap: 1rem;
+  }
+  .cover .footnote::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
+    width: 280px;
+  }
+
+  /* ============== SLIDE 2/3 — ladder stage ============== */
+  .stage-wrap {
+    display: flex; flex-direction: column; gap: 0.75rem;
+    height: 100%; justify-content: center;
+  }
+  .stage-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+  .stage-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .stage-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .ladder-stage {
+    position: relative;
+    width: 100%;
+    height: 62vh;
+    min-height: 460px;
+    margin: 0 auto;
+  }
+
+  /* SVG tracer overlay */
+  .ladder-stage svg.tracer {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+  }
+  .tracer path.line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    opacity: 0;
+    transition:
+      stroke-dashoffset 1.0s cubic-bezier(.2,.7,.2,1) 0.3s,
+      opacity 0.5s ease 0.2s;
+    filter: drop-shadow(0 0 6px rgba(61,137,255,0.45));
+  }
+  .tracer path.line.draw { stroke-dashoffset: 0; opacity: 0.85; }
+  .tracer path.line.faded { opacity: 0.35; }
+
+  /* chevron card */
+  .chev {
+    position: absolute;
+    width: 36%;
+    min-width: 320px;
+    max-width: 480px;
+    height: 92px;
+    z-index: 2;
+    display: flex; align-items: center;
+    transform: translateX(-180%);
+    opacity: 0;
+    transition:
+      transform 0.7s cubic-bezier(.2,.7,.2,1),
+      opacity 0.6s ease;
+  }
+  .chev.snap {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  .chev.faded { opacity: 0.45; }
+  .chev.ghost {
+    transform: translateX(0);
+    opacity: 0.18;
+  }
+  .chev.ghost .card-body { background: transparent; border-style: dashed; }
+  .chev.ghost .card-body::after { display: none; }
+  .chev.ghost .icon-box { background: transparent; }
+  .chev.ghost .num, .chev.ghost .name, .chev.ghost .desc { color: rgba(255,255,255,0.25); }
+
+  /* icon-on-the-left */
+  .icon-box {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-right: 16px;
+    color: var(--ink);
+    transition: border-color 0.4s, box-shadow 0.4s;
+  }
+  .icon-box svg { width: 30px; height: 30px; }
+  .icon-box .brace {
+    font-family: var(--mono);
+    font-size: 1.6rem; font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  /* card body: rectangle with chevron point on right */
+  .card-body {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    padding: 0.85rem 2.3rem 0.85rem 1.25rem;
+    background:
+      linear-gradient(135deg,
+        rgba(255,255,255,0.06) 0%,
+        rgba(255,255,255,0.025) 100%);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-right: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex; flex-direction: column; justify-content: center;
+    overflow: visible;
+    clip-path: polygon(0 0, calc(100% - 36px) 0, 100% 50%, calc(100% - 36px) 100%, 0 100%);
+  }
+  /* coloured top accent on each card */
+  .card-body::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 36px; height: 1px;
+    background: linear-gradient(90deg, var(--accent, var(--blue-l)) 0%, transparent 100%);
+  }
+  /* the chevron point — drawn as a thin coloured stripe on the right edge via pseudo-shape */
+  .card-body::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 36px;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--accent, var(--blue-l)) 22%, transparent),
+      transparent);
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    pointer-events: none;
+  }
+
+  .num {
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent, var(--blue-l));
+    margin-bottom: 0.18rem;
+  }
+  .name {
+    color: var(--ink);
+    font-size: 1.18rem; font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    margin-bottom: 0.2rem;
+  }
+  .desc {
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    font-style: italic;
+    line-height: 1.35;
+    max-width: 34ch;
+  }
+
+  /* per-card accent colours */
+  .chev[data-rung="1"] { --accent: #3d89ff; }
+  .chev[data-rung="2"] { --accent: #ca5fff; }
+  .chev[data-rung="3"] { --accent: #fe9353; }
+  .chev[data-rung="4"] { --accent: #00dd81; }
+  .chev[data-rung="5"] { --accent: #58e2ff; }
+
+  .chev[data-rung="1"] .icon-box { border-color: rgba(61,137,255,0.55);  background: rgba(61,137,255,0.10);  box-shadow: 0 0 24px rgba(61,137,255,0.20); color: #3d89ff; }
+  .chev[data-rung="2"] .icon-box { border-color: rgba(202,95,255,0.55);  background: rgba(202,95,255,0.10);  box-shadow: 0 0 24px rgba(202,95,255,0.20); color: #ca5fff; }
+  .chev[data-rung="3"] .icon-box { border-color: rgba(254,147,83,0.55);  background: rgba(254,147,83,0.10);  box-shadow: 0 0 24px rgba(254,147,83,0.20); color: #fe9353; }
+  .chev[data-rung="4"] .icon-box { border-color: rgba(0,221,129,0.55);   background: rgba(0,221,129,0.10);   box-shadow: 0 0 24px rgba(0,221,129,0.20);  color: #00dd81; }
+  .chev[data-rung="5"] .icon-box { border-color: rgba(88,226,255,0.55);  background: rgba(88,226,255,0.10);  box-shadow: 0 0 24px rgba(88,226,255,0.20); color: #58e2ff; }
+
+  /* card-specific positions — diagonal cascade, bottom-left → top-right */
+  /* values calibrated so the chevron point of N tail-feeds card N+1 */
+  .chev[data-rung="1"] { left:  2%;  bottom: 4%;  }
+  .chev[data-rung="2"] { left: 16%;  bottom: 22%; }
+  .chev[data-rung="3"] { left: 30%;  bottom: 40%; }
+  .chev[data-rung="4"] { left: 44%;  bottom: 58%; }
+  .chev[data-rung="5"] { left: 58%;  bottom: 76%; }
+
+  /* walking figure */
+  .walker {
+    position: absolute;
+    width: 44px; height: 56px;
+    z-index: 3;
+    pointer-events: none;
+    transform: translate(-200px, 0);
+    opacity: 0;
+    transition:
+      transform 0.85s cubic-bezier(.4,.05,.2,1),
+      opacity 0.5s ease;
+    filter: drop-shadow(0 0 14px rgba(255,255,255,0.5));
+  }
+  .walker.show { opacity: 1; }
+  .walker .glow {
+    fill: url(#walkerGrad);
+  }
+  .walker .leg {
+    stroke: rgba(255,255,255,0.85);
+    stroke-width: 2;
+    stroke-linecap: round;
+    transform-origin: center top;
+    animation: stride 0.7s ease-in-out infinite alternate;
+  }
+  .walker .leg.r { animation-delay: -0.35s; }
+  @keyframes stride {
+    from { transform: rotate(-18deg); }
+    to   { transform: rotate(18deg); }
+  }
+
+  /* caption */
+  .stage-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 72ch;
+    margin: 0.75rem auto 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* ============== SLIDE 3 — final state extras ============== */
+  .final-overlay {
+    position: absolute;
+    bottom: 5%;
+    left: 4%;
+    max-width: 38ch;
+    z-index: 4;
+  }
+  .final-overlay .tagline {
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .final-overlay .tagline .a { color: var(--blue-l); }
+  .final-overlay .tagline .b { color: var(--cyan); }
+  .final-overlay .attrib {
+    margin-top: 0.9rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  /* footer + progress — verbatim */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance reveals */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Ladder · 02 Chevrons</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — cover ===== -->
+  <section class="slide active" data-i="1">
+    <div class="cover">
+      <span class="tag reveal">The Ladder</span>
+      <h1 class="reveal-d1">Five steps <span class="grad">up.</span></h1>
+      <p class="sub reveal-d2">
+        A bare model is a poltergeist. A model wrapped in skills, knowledge, ops, and rails
+        is a genie in a lamp. The webinar is the climb between the two.
+      </p>
+      <span class="footnote reveal-d3">The harness, one rung at a time</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — the climb (animated) ===== -->
+  <section class="slide" data-i="2">
+    <div class="stage-wrap">
+      <div class="stage-head reveal">
+        <span class="eyebrow purple">The Climb · From floor to harness</span>
+        <span class="counter"><b id="dCur">01</b> / 06</span>
+      </div>
+
+      <div class="ladder-stage reveal-d1" id="stage">
+        <!-- SVG tracer + walker gradient defs -->
+        <svg class="tracer" id="tracer" viewBox="0 0 1000 600" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="traceGrad" x1="0" y1="100%" x2="100%" y2="0">
+              <stop offset="0%"   stop-color="#3d89ff"/>
+              <stop offset="50%"  stop-color="#ca5fff"/>
+              <stop offset="100%" stop-color="#00dd81"/>
+            </linearGradient>
+          </defs>
+          <!-- one tracer line per gap between cards (4 lines for 5 cards) -->
+          <path class="line" data-gap="1" d="M 240 545 C 280 530, 280 470, 320 455" stroke="url(#traceGrad)"/>
+          <path class="line" data-gap="2" d="M 380 455 C 420 440, 420 380, 460 365" stroke="url(#traceGrad)"/>
+          <path class="line" data-gap="3" d="M 520 365 C 560 350, 560 290, 600 275" stroke="url(#traceGrad)"/>
+          <path class="line" data-gap="4" d="M 660 275 C 700 260, 700 200, 740 185" stroke="url(#traceGrad)"/>
+        </svg>
+
+        <!-- 5 chevron cards, each absolutely positioned -->
+        <!-- rung 1 — Bare Agent (BLUE) -->
+        <div class="chev" data-rung="1">
+          <div class="icon-box"><span class="brace">{ }</span></div>
+          <div class="card-body">
+            <div class="num">Module 01</div>
+            <div class="name">The Bare Agent</div>
+            <div class="desc">Model + tools + system prompt + a sandbox. The floor.</div>
+          </div>
+        </div>
+
+        <!-- rung 2 — Skills (PURPLE) — stack/layers glyph -->
+        <div class="chev" data-rung="2">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 L21 8 L12 13 L3 8 Z"/>
+              <path d="M3 12 L12 17 L21 12" opacity="0.75"/>
+              <path d="M3 16 L12 21 L21 16" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 02</div>
+            <div class="name">Skills</div>
+            <div class="desc">Procedural recipes, loaded by progressive disclosure.</div>
+          </div>
+        </div>
+
+        <!-- rung 3 — Domain Knowledge (ORANGE) — brain/book glyph -->
+        <div class="chev" data-rung="3">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 5 a2 2 0 0 1 2 -2 h12 a2 2 0 0 1 2 2 v14 a2 2 0 0 1 -2 2 h-12 a2 2 0 0 1 -2 -2 Z"/>
+              <path d="M4 5 v14" opacity="0.5"/>
+              <path d="M8 8 c2 -1.5, 4 -1.5, 6 0" />
+              <path d="M8 12 c2 -1.5, 4 -1.5, 6 0" opacity="0.8"/>
+              <path d="M8 16 c2 -1.5, 4 -1.5, 6 0" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 03</div>
+            <div class="name">Domain Knowledge</div>
+            <div class="desc">The hard-won expertise the model doesn't have on its own.</div>
+          </div>
+        </div>
+
+        <!-- rung 4 — Ops Layer (GREEN) — gauge/cog glyph -->
+        <div class="chev" data-rung="4">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 12 L17 8" stroke-width="2"/>
+              <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>
+              <path d="M12 3 L12 5" opacity="0.7"/>
+              <path d="M12 19 L12 21" opacity="0.7"/>
+              <path d="M3 12 L5 12" opacity="0.7"/>
+              <path d="M19 12 L21 12" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 04</div>
+            <div class="name">Ops Layer</div>
+            <div class="desc">Managed pipelines. The runtime substrate.</div>
+          </div>
+        </div>
+
+        <!-- rung 5 — Eval + Security (CYAN) — shield glyph -->
+        <div class="chev" data-rung="5">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 L20 5 V12 C20 16.5, 16.5 19.5, 12 22 C7.5 19.5, 4 16.5, 4 12 V5 Z"/>
+              <path d="M9 12 L11.5 14.5 L15.5 10" opacity="0.95"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 05</div>
+            <div class="name">Eval + Security</div>
+            <div class="desc">Custom judges, production traces, the lethal trifecta cut.</div>
+          </div>
+        </div>
+
+        <!-- walking figure — glowing circle with two tiny stride legs -->
+        <svg class="walker" id="walker" viewBox="0 0 44 56" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="walkerGrad" cx="50%" cy="40%" r="55%">
+              <stop offset="0%"  stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#3d89ff"/>
+              <stop offset="100%" stop-color="rgba(61,137,255,0)"/>
+            </radialGradient>
+          </defs>
+          <circle class="glow" cx="22" cy="22" r="14"/>
+          <circle cx="22" cy="22" r="6" fill="#ffffff" opacity="0.95"/>
+          <g transform="translate(22,38)">
+            <line class="leg l" x1="0" y1="0" x2="-5" y2="14"/>
+            <line class="leg r" x1="0" y1="0" x2="5"  y2="14"/>
+          </g>
+        </svg>
+      </div>
+
+      <p class="stage-caption" id="stageCaption">&nbsp;</p>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — final state ===== -->
+  <section class="slide" data-i="3">
+    <div class="stage-wrap">
+      <div class="stage-head reveal">
+        <span class="eyebrow green">The Climb · Full harness</span>
+        <span class="counter">06 / 06</span>
+      </div>
+
+      <div class="ladder-stage reveal-d1" id="stageFinal">
+        <svg class="tracer" viewBox="0 0 1000 600" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="traceGradF" x1="0" y1="100%" x2="100%" y2="0">
+              <stop offset="0%"   stop-color="#3d89ff"/>
+              <stop offset="50%"  stop-color="#ca5fff"/>
+              <stop offset="100%" stop-color="#00dd81"/>
+            </linearGradient>
+          </defs>
+          <path class="line draw" d="M 240 545 C 280 530, 280 470, 320 455" stroke="url(#traceGradF)"/>
+          <path class="line draw" d="M 380 455 C 420 440, 420 380, 460 365" stroke="url(#traceGradF)"/>
+          <path class="line draw" d="M 520 365 C 560 350, 560 290, 600 275" stroke="url(#traceGradF)"/>
+          <path class="line draw" d="M 660 275 C 700 260, 700 200, 740 185" stroke="url(#traceGradF)"/>
+        </svg>
+
+        <!-- all 5 cards at full opacity -->
+        <div class="chev snap" data-rung="1">
+          <div class="icon-box"><span class="brace">{ }</span></div>
+          <div class="card-body">
+            <div class="num">Module 01</div>
+            <div class="name">The Bare Agent</div>
+            <div class="desc">Model + tools + system prompt + a sandbox. The floor.</div>
+          </div>
+        </div>
+
+        <div class="chev snap" data-rung="2">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 L21 8 L12 13 L3 8 Z"/>
+              <path d="M3 12 L12 17 L21 12" opacity="0.75"/>
+              <path d="M3 16 L12 21 L21 16" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 02</div>
+            <div class="name">Skills</div>
+            <div class="desc">Procedural recipes, loaded by progressive disclosure.</div>
+          </div>
+        </div>
+
+        <div class="chev snap" data-rung="3">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 5 a2 2 0 0 1 2 -2 h12 a2 2 0 0 1 2 2 v14 a2 2 0 0 1 -2 2 h-12 a2 2 0 0 1 -2 -2 Z"/>
+              <path d="M4 5 v14" opacity="0.5"/>
+              <path d="M8 8 c2 -1.5, 4 -1.5, 6 0"/>
+              <path d="M8 12 c2 -1.5, 4 -1.5, 6 0" opacity="0.8"/>
+              <path d="M8 16 c2 -1.5, 4 -1.5, 6 0" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 03</div>
+            <div class="name">Domain Knowledge</div>
+            <div class="desc">The hard-won expertise the model doesn't have on its own.</div>
+          </div>
+        </div>
+
+        <div class="chev snap" data-rung="4">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 12 L17 8" stroke-width="2"/>
+              <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>
+              <path d="M12 3 L12 5" opacity="0.7"/>
+              <path d="M12 19 L12 21" opacity="0.7"/>
+              <path d="M3 12 L5 12" opacity="0.7"/>
+              <path d="M19 12 L21 12" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 04</div>
+            <div class="name">Ops Layer</div>
+            <div class="desc">Managed pipelines. The runtime substrate.</div>
+          </div>
+        </div>
+
+        <div class="chev snap" data-rung="5">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 L20 5 V12 C20 16.5, 16.5 19.5, 12 22 C7.5 19.5, 4 16.5, 4 12 V5 Z"/>
+              <path d="M9 12 L11.5 14.5 L15.5 10" opacity="0.95"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="num">Module 05</div>
+            <div class="name">Eval + Security</div>
+            <div class="desc">Custom judges, production traces, the lethal trifecta cut.</div>
+          </div>
+        </div>
+
+        <!-- walker, parked at rung 5 -->
+        <svg class="walker show" id="walkerFinal" viewBox="0 0 44 56" xmlns="http://www.w3.org/2000/svg" style="transform: none; left: 0; top: 0;">
+          <defs>
+            <radialGradient id="walkerGradF" cx="50%" cy="40%" r="55%">
+              <stop offset="0%"  stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#58e2ff"/>
+              <stop offset="100%" stop-color="rgba(88,226,255,0)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="22" cy="22" r="14" fill="url(#walkerGradF)"/>
+          <circle cx="22" cy="22" r="6" fill="#ffffff" opacity="0.95"/>
+          <g transform="translate(22,38)">
+            <line class="leg l" x1="0" y1="0" x2="-5" y2="14"/>
+            <line class="leg r" x1="0" y1="0" x2="5"  y2="14"/>
+          </g>
+        </svg>
+
+        <div class="final-overlay reveal-d3">
+          <div class="tagline">
+            Module 1 is a <span class="a">poltergeist.</span><br>
+            Module 5 is the <span class="b">lamp.</span>
+          </div>
+          <div class="attrib">Metaphor · Cassie Kozyrkov</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">3</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+  const cur  = document.getElementById('cur');
+  const tot  = document.getElementById('tot');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+  const stage = document.getElementById('stage');
+  const walker = document.getElementById('walker');
+  const cap = document.getElementById('stageCaption');
+  const chevs = stage.querySelectorAll('.chev');
+  const tracerLines = document.querySelectorAll('#tracer .line');
+
+  const CLIMB_SLIDE  = 1;   // zero-based — the animated slide
+  const TOTAL_FRAMES = 6;   // 1 = empty stage with ghosts; 2..6 = each card snaps in
+  tot.textContent = slides.length;
+  let i = 0;
+  let frame = 1;
+
+  const captions = {
+    1: 'the floor is bare. five rungs to climb. each one adds another piece of the harness.',
+    2: 'Module 01 — the bare agent. model, tools, prompt, sandbox. enough to be dangerous.',
+    3: 'Module 02 — Skills snap in. procedural recipes, loaded only when needed.',
+    4: 'Module 03 — Domain Knowledge arrives. the things the model could not know on its own.',
+    5: 'Module 04 — the Ops Layer. managed pipelines, the runtime substrate underneath.',
+    6: 'Module 05 — Eval and Security. judges, traces, and the lethal trifecta cut. harness complete.'
+  };
+
+  // Centre of each card (in the SVG 1000×600 viewBox space) for walker positioning.
+  // These mirror the CSS left/bottom % values, biased to the icon-box.
+  // Walker is positioned in CSS pixel space within the stage; we use percentages.
+  const walkerSpots = [
+    null,                         // frame 1 — hidden
+    { left: '4%',  bottom: '12%' }, // on rung 1
+    { left: '18%', bottom: '30%' },
+    { left: '32%', bottom: '48%' },
+    { left: '46%', bottom: '66%' },
+    { left: '60%', bottom: '84%' }
+  ];
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+
+  function paintClimb() {
+    if (dCur) dCur.textContent = String(frame).padStart(2, '0');
+    if (cap)  cap.textContent  = captions[frame] || ' ';
+
+    // Cards: rung N appears when frame >= N+1 (frame 1 = all ghosts; frame 2 = rung 1 snaps in)
+    chevs.forEach(card => {
+      const r = parseInt(card.dataset.rung, 10);
+      const visibleAt = r + 1; // rung 1 visible at frame 2, etc.
+      const isVisible = frame >= visibleAt;
+      const isLatest  = frame === visibleAt;
+      card.classList.toggle('ghost', !isVisible);
+      card.classList.toggle('snap',  isVisible);
+      card.classList.toggle('faded', isVisible && !isLatest && frame > 1);
+    });
+
+    // Tracer lines: gap N draws on frame N+2 (between rung N and rung N+1, after both exist)
+    tracerLines.forEach(line => {
+      const g = parseInt(line.dataset.gap, 10);
+      const drawAt = g + 2;
+      const isDrawn = frame >= drawAt;
+      const isLatest = frame === drawAt;
+      line.classList.toggle('draw', isDrawn);
+      line.classList.toggle('faded', isDrawn && !isLatest);
+    });
+
+    // Walker: ascend to current top rung
+    const spot = walkerSpots[frame];
+    if (!spot) {
+      walker.classList.remove('show');
+      walker.style.transform = 'translate(-200px, 0)';
+    } else {
+      walker.classList.add('show');
+      walker.style.left   = spot.left;
+      walker.style.bottom = spot.bottom;
+      walker.style.transform = 'translate(0, 0)';
+    }
+  }
+
+  function next() {
+    if (i === CLIMB_SLIDE && frame < TOTAL_FRAMES) { frame++; paintClimb(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === CLIMB_SLIDE) { frame = 1; paintClimb(); }
+      paintSlide();
+    }
+  }
+  function prev() {
+    if (i === CLIMB_SLIDE && frame > 1) { frame--; paintClimb(); return; }
+    if (i > 0) {
+      i--;
+      if (i === CLIMB_SLIDE) { frame = TOTAL_FRAMES; paintClimb(); }
+      paintSlide();
+    }
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === CLIMB_SLIDE) { frame = 1; paintClimb(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+
+  paintSlide();
+  paintClimb();
+</script>
+</body>
+</html>

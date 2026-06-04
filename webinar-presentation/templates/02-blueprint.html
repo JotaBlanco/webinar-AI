@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template 02 — Blueprint</title>
+<style>
+  /* =========================================================
+     TEMPLATE 02 — BLUEPRINT
+     Vibe: engineering schematic, crosshair registration marks,
+     animated grid, line-drawing reveals. Reads as drafting paper
+     and CAD — disciplined, technical, intentional.
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #07091a;
+    --bg-deep: #04050f;
+    --grid: rgba(61,137,255,0.10);
+    --grid-strong: rgba(61,137,255,0.22);
+    --ink: #eef3ff;
+    --ink-soft: rgba(238,243,255,0.7);
+    --ink-mute: rgba(238,243,255,0.4);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --cyan: #58e2ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* engineering grid — fine + coarse */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      linear-gradient(var(--grid-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px, 160px 160px, 160px 160px;
+    background-position: 0 0;
+    mask-image: radial-gradient(ellipse 70% 65% at center, transparent 0%, #000 55%, #000 75%, transparent 95%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 65% at center, transparent 0%, #000 55%, #000 75%, transparent 95%);
+    animation: gridpan 60s linear infinite;
+  }
+
+  /* content scrim — dims the grid behind the slide body without removing it */
+  .deck::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse 55% 55% at center, var(--bg) 0%, rgba(7,9,26,0.85) 35%, transparent 75%);
+  }
+  .slide > * { position: relative; z-index: 1; }
+  @keyframes gridpan {
+    from { background-position: 0 0, 0 0, 0 0, 0 0; }
+    to   { background-position: 320px 0, 320px 0, 1600px 0, 1600px 0; }
+  }
+
+  /* corner crosshairs */
+  .crosshair {
+    position: fixed; z-index: 4; pointer-events: none;
+    width: 28px; height: 28px;
+    border: 1px solid var(--blue-l);
+    opacity: 0.55;
+  }
+  .crosshair::before, .crosshair::after {
+    content: ''; position: absolute; background: var(--blue-l);
+  }
+  .crosshair::before { left: 50%; top: -8px; bottom: -8px; width: 1px; transform: translateX(-50%); }
+  .crosshair::after  { top: 50%; left: -8px; right: -8px; height: 1px; transform: translateY(-50%); }
+  .ch-tl { top: 3vh; left: 3vw; }
+  .ch-tr { top: 3vh; right: 3vw; }
+  .ch-bl { bottom: 3vh; left: 3vw; }
+  .ch-br { bottom: 3vh; right: 3vw; }
+
+  /* dimension marks along the edge */
+  .dim {
+    position: fixed; z-index: 4; pointer-events: none;
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.18em;
+    color: var(--ink-mute);
+  }
+  .dim-top  { top: 3vh; left: 50%; transform: translateX(-50%); }
+  .dim-side { left: 3vw; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
+
+  /* top bar */
+  .topbar {
+    position: fixed; top: 3vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.18em;
+    color: var(--ink-mute); text-transform: uppercase;
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 10vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+  .tag {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--cyan);
+    margin-bottom: 1.5rem;
+  }
+  .tag::before {
+    content: ''; width: 8px; height: 8px;
+    border: 1px solid var(--cyan); background: rgba(88,226,255,0.15);
+  }
+  .tag .id { color: var(--ink-mute); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(2.8rem, 6.8vw, 6rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin-bottom: 1.5rem;
+  }
+  h1.display .accent {
+    color: var(--blue-l);
+    position: relative;
+  }
+  h1.display .accent::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l) 0%, transparent 100%);
+    transform-origin: left; transform: scaleX(0);
+    animation: drawline 1.1s cubic-bezier(.2,.7,.2,1) 0.7s forwards;
+  }
+  .slide.active h1.display .accent::after { animation-play-state: running; }
+  @keyframes drawline { to { transform: scaleX(1); } }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    line-height: 1.55;
+    max-width: 64ch;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: clamp(5rem, 12vw, 10rem);
+    font-weight: 400;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--blue-l);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 0;
+  }
+  .section-title {
+    color: var(--ink);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  h3.heading {
+    color: var(--ink);
+    font-size: clamp(1.5rem, 2.2vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  h3.heading::before {
+    content: ''; position: absolute; left: 0; top: 0.45em;
+    width: 10px; height: 10px;
+    background: var(--blue-l);
+    transform: rotate(45deg);
+  }
+
+  p.body {
+    color: var(--ink-soft);
+    font-size: 1.05rem; line-height: 1.7;
+    max-width: 62ch;
+    margin-bottom: 1rem;
+  }
+
+  /* schematic spec line */
+  .spec {
+    display: grid; grid-template-columns: 8rem 1fr 8rem;
+    align-items: center; gap: 1rem;
+    font-family: var(--mono); font-size: 0.85rem;
+    color: var(--ink-soft);
+    padding: 0.85rem 1rem;
+    margin: 0 -1rem;
+    border-bottom: 1px dashed rgba(61,137,255,0.18);
+    background: linear-gradient(90deg, rgba(7,9,26,0.85) 0%, rgba(7,9,26,0.6) 50%, rgba(7,9,26,0.85) 100%);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .spec .k { color: var(--ink-mute); letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.72rem; }
+  .spec .v { color: var(--ink); font-weight: 600; text-align: right; font-size: 1.05rem; }
+  .spec .line {
+    height: 1px;
+    background: repeating-linear-gradient(90deg, var(--blue-l) 0 4px, transparent 4px 8px);
+    opacity: 0.5;
+  }
+
+  /* metric chip — engineering style */
+  .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+  .chip {
+    font-family: var(--mono); font-size: 0.82rem;
+    padding: 0.4rem 0.85rem;
+    color: var(--ink);
+    border: 1px solid rgba(61,137,255,0.4);
+    background: rgba(7,9,26,0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+  .chip.green  { border-color: rgba(0,221,129,0.5); color: var(--green); box-shadow: inset 0 0 0 100px rgba(0,221,129,0.06); }
+  .chip.orange { border-color: rgba(255,120,40,0.5); color: var(--orange); box-shadow: inset 0 0 0 100px rgba(255,120,40,0.06); }
+  .chip.purple { border-color: rgba(189,46,255,0.5); box-shadow: inset 0 0 0 100px rgba(189,46,255,0.06); }
+
+  /* data slide */
+  .grid3 {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .data-card {
+    border: 1px solid rgba(61,137,255,0.25);
+    background:
+      linear-gradient(180deg, rgba(61,137,255,0.05) 0%, rgba(0,0,0,0) 100%),
+      rgba(7,9,26,0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 1.5rem 1.25rem;
+    position: relative;
+  }
+  .data-card::before, .data-card::after {
+    content: ''; position: absolute; width: 10px; height: 10px;
+    border: 1px solid var(--blue-l);
+  }
+  .data-card::before { top: -5px; left: -5px; border-right: none; border-bottom: none; }
+  .data-card::after  { bottom: -5px; right: -5px; border-left: none; border-top: none; }
+  .data-card .k {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-mute); margin-bottom: 0.6rem;
+  }
+  .data-card .v {
+    font-size: 2.4rem; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.025em; line-height: 1;
+  }
+  .data-card .delta {
+    font-family: var(--mono); font-size: 0.78rem; color: var(--green);
+    margin-top: 0.5rem;
+  }
+
+  /* line-draw decorative bracket */
+  .bracket {
+    margin-top: 2rem;
+    display: flex; align-items: center; gap: 1rem;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.18em;
+    color: var(--ink-mute); text-transform: uppercase;
+  }
+  .bracket::before, .bracket::after {
+    content: ''; height: 1px; flex: 1; min-width: 40px;
+    background: linear-gradient(90deg, transparent, var(--blue-l), transparent);
+  }
+
+  /* entrance */
+  .slide.active .reveal    { animation: in1 0.7s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1 { animation: in1 0.7s cubic-bezier(.2,.7,.2,1) 0.12s both; }
+  .slide.active .reveal-d2 { animation: in1 0.7s cubic-bezier(.2,.7,.2,1) 0.24s both; }
+  .slide.active .reveal-d3 { animation: in1 0.7s cubic-bezier(.2,.7,.2,1) 0.36s both; }
+  .slide.active .reveal-d4 { animation: in1 0.7s cubic-bezier(.2,.7,.2,1) 0.48s both; }
+  @keyframes in1 { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* footer */
+  .footer {
+    position: fixed; bottom: 3vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.18em;
+    color: var(--ink-mute); text-transform: uppercase;
+    z-index: 5;
+  }
+
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 1px;
+    background: rgba(61,137,255,0.1); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l);
+    transition: width 0.5s ease;
+  }
+
+  /* quote slide */
+  .schematic-quote {
+    font-size: clamp(1.6rem, 3vw, 2.6rem); color: var(--ink);
+    font-weight: 500; line-height: 1.35; letter-spacing: -0.01em;
+    max-width: 28ch;
+  }
+  .schematic-quote::before {
+    content: '◆'; display: block; color: var(--blue-l);
+    font-size: 1.2rem; margin-bottom: 1rem; opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span>DOC · QX-2026-002 · REV A</span>
+</div>
+
+<div class="crosshair ch-tl"></div>
+<div class="crosshair ch-tr"></div>
+<div class="crosshair ch-bl"></div>
+<div class="crosshair ch-br"></div>
+
+<div class="dim dim-top">SHEET 01 / 05 · A3 · 1:1</div>
+
+<div class="deck">
+
+  <!-- slide 1 cover -->
+  <section class="slide active" data-i="1">
+    <div class="tag reveal">SHEET 01 <span class="id">/ COVER</span></div>
+    <h1 class="display reveal-d1">An <span class="accent">engineering</span> approach to streaming.</h1>
+    <p class="subtitle reveal-d2">Drafting-paper aesthetic with registration crosshairs, monospaced metadata, and animated grid panning. Designed for technical decks where structure is the message.</p>
+    <div class="bracket reveal-d3">presented by · javier blanco · 2026</div>
+  </section>
+
+  <!-- slide 2 section divider -->
+  <section class="slide" data-i="2">
+    <div class="tag reveal">SECTION <span class="id">/ 02</span></div>
+    <div class="section-num reveal-d1">02</div>
+    <h2 class="section-title reveal-d2">Pipeline architecture.</h2>
+    <p class="subtitle reveal-d3">From ingest to materialised view — the parts that matter and the parts engineers usually skip.</p>
+  </section>
+
+  <!-- slide 3 content / spec -->
+  <section class="slide" data-i="3">
+    <div class="tag reveal">SPEC <span class="id">/ 03.A</span></div>
+    <h3 class="heading reveal-d1">System constraints.</h3>
+    <p class="body reveal-d2">Three constraints define the design envelope. Everything that follows — partitioning, state strategy, backpressure handling — is a consequence of these numbers, not a free choice.</p>
+    <div class="reveal-d3">
+      <div class="spec"><span class="k">throughput</span><span class="line"></span><span class="v">1.2 M msg/s</span></div>
+      <div class="spec"><span class="k">p99 latency</span><span class="line"></span><span class="v">≤ 50 ms</span></div>
+      <div class="spec"><span class="k">state size</span><span class="line"></span><span class="v">18 GB / partition</span></div>
+      <div class="spec"><span class="k">availability</span><span class="line"></span><span class="v">99.95 %</span></div>
+    </div>
+    <div class="chips reveal-d4">
+      <span class="chip">kafka 3.6</span>
+      <span class="chip green">rocksdb</span>
+      <span class="chip purple">protobuf</span>
+      <span class="chip orange">ec2 m7i.2xlarge</span>
+    </div>
+  </section>
+
+  <!-- slide 4 data -->
+  <section class="slide" data-i="4">
+    <div class="tag reveal">RESULTS <span class="id">/ 04</span></div>
+    <h3 class="heading reveal-d1">Measured outcome.</h3>
+    <div class="grid3 reveal-d2">
+      <div class="data-card">
+        <div class="k">p99 latency</div>
+        <div class="v">42 ms</div>
+        <div class="delta">↓ 78% vs. v0</div>
+      </div>
+      <div class="data-card">
+        <div class="k">cost / 1M evt</div>
+        <div class="v">$0.18</div>
+        <div class="delta">↓ 64% vs. v0</div>
+      </div>
+      <div class="data-card">
+        <div class="k">recovery time</div>
+        <div class="v">7.2 s</div>
+        <div class="delta">↓ 91% vs. v0</div>
+      </div>
+    </div>
+    <div class="bracket reveal-d3">measured · prod · 14-day window</div>
+  </section>
+
+  <!-- slide 5 quote -->
+  <section class="slide" data-i="5">
+    <div class="tag reveal">NOTE <span class="id">/ 05</span></div>
+    <p class="schematic-quote reveal-d1">Specifications outlast slides. Build the doc you wish someone had handed you on day one.</p>
+    <div class="bracket reveal-d2" style="max-width: 28ch;">— engineering log · 2026.06</div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>QX · ENG · 2026</span>
+  <span>SHEET <span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = slides.length;
+  let i = 0;
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp') go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+  go(0);
+</script>
+</body>
+</html>

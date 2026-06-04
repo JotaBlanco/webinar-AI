@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template 01 — Cosmic</title>
+<style>
+  /* =========================================================
+     TEMPLATE 01 — COSMIC
+     Vibe: cinematic deep-space, drifting nebulae, hero typography,
+     letter-by-letter reveal. For keynote-style openers.
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background — global */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield specks */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* top bar — logo + meta */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* progress + slide counter */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3rem, 7.5vw, 7rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    margin-bottom: 1.5rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+    font-weight: 400;
+    max-width: 60ch;
+    line-height: 1.55;
+  }
+
+  h2.section {
+    color: var(--ink);
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+
+  .big-num {
+    font-size: clamp(6rem, 14vw, 12rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    background: linear-gradient(180deg, var(--ink) 30%, rgba(255,255,255,0.15) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  h3.heading {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin-bottom: 1rem;
+  }
+
+  p.body {
+    color: var(--ink-soft);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    max-width: 62ch;
+    margin-bottom: 1rem;
+  }
+
+  /* metric pills */
+  .pills { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--ink);
+    font-size: 0.85rem; font-weight: 500;
+    backdrop-filter: blur(8px);
+  }
+  .pill::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue-l);
+  }
+  .pill.purple::before { background: var(--purple); }
+  .pill.orange::before { background: var(--orange); }
+  .pill.green::before  { background: var(--green); }
+
+  /* two-column data slide */
+  .grid2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+    align-items: center;
+  }
+
+  .stat-card {
+    padding: 2rem 1.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+  }
+  .stat-card .label {
+    font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute); margin-bottom: 0.75rem;
+  }
+  .stat-card .value {
+    font-size: 2.5rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em;
+  }
+  .stat-card .delta { color: var(--green); font-size: 0.95rem; font-weight: 600; margin-top: 0.4rem; }
+
+  /* quote slide */
+  .quote {
+    font-size: clamp(1.6rem, 3vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    max-width: 22ch;
+  }
+  .quote::before {
+    content: '"'; display: block;
+    font-size: 6rem; line-height: 0.6;
+    background: linear-gradient(120deg, var(--blue-l), var(--purple));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .quote-attrib {
+    margin-top: 2rem; font-size: 0.82rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+
+  /* ============================================================
+     EXTENDED LAYOUT PATTERNS
+     ============================================================ */
+
+  /* AGENDA / TOC ------------------------------------------------ */
+  .agenda { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 1rem; max-width: 900px; }
+  .agenda-item {
+    display: grid; grid-template-columns: 4.5rem 1fr auto;
+    align-items: baseline; gap: 1.5rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: padding 0.3s, border-color 0.3s;
+  }
+  .agenda-item .num {
+    font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.18em;
+    color: var(--blue-l);
+  }
+  .agenda-item .ttl {
+    color: var(--ink); font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    font-weight: 600; letter-spacing: -0.01em;
+  }
+  .agenda-item .ttl small {
+    display: block; margin-top: 0.2rem;
+    color: var(--ink-mute); font-weight: 400; font-size: 0.92rem;
+    letter-spacing: 0;
+  }
+  .agenda-item .dur {
+    font-family: var(--mono); font-size: 0.78rem;
+    color: var(--ink-mute); letter-spacing: 0.12em;
+  }
+  .agenda-item.now { border-color: var(--blue-l); }
+  .agenda-item.now .num { color: var(--purple); }
+  .agenda-item.now .ttl::after {
+    content: ''; display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    margin-left: 0.5rem; vertical-align: middle;
+  }
+
+  /* SPEAKER INTRO ---------------------------------------------- */
+  .speaker {
+    display: grid; grid-template-columns: 220px 1fr; gap: 3.5rem;
+    align-items: center; margin-top: 1.5rem;
+  }
+  .avatar {
+    width: 220px; height: 220px; border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 30%, var(--blue-l) 0%, var(--purple) 60%, var(--orange) 100%);
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.12),
+      0 20px 60px rgba(0,100,255,0.3);
+    overflow: hidden;
+  }
+  .avatar::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 70% 70%, rgba(0,0,0,0.4) 0%, transparent 60%);
+  }
+  .avatar .initials {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; font-weight: 800; color: rgba(255,255,255,0.95);
+    letter-spacing: -0.03em;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+  .speaker-info .role {
+    font-size: 0.74rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 0.75rem;
+  }
+  .speaker-info h3 {
+    color: var(--ink); font-size: clamp(2rem, 3.4vw, 2.8rem);
+    font-weight: 800; letter-spacing: -0.025em; line-height: 1; margin-bottom: 0.5rem;
+  }
+  .speaker-info .title-line {
+    color: var(--ink-soft); font-size: 1.15rem; margin-bottom: 1.5rem;
+  }
+  .speaker-info .bio-list {
+    list-style: none; display: flex; flex-direction: column; gap: 0.55rem;
+  }
+  .speaker-info .bio-list li {
+    display: flex; align-items: baseline; gap: 0.75rem;
+    color: var(--ink-soft); font-size: 1rem;
+  }
+  .speaker-info .bio-list li::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue-l); flex-shrink: 0; transform: translateY(-1px);
+  }
+
+  /* THREE-COLUMN FEATURE CARDS -------------------------------- */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.5rem; }
+  .feature-card {
+    padding: 1.75rem 1.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), transparent);
+  }
+  .feature-card.purple::before { background: linear-gradient(90deg, var(--purple), transparent); }
+  .feature-card.orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
+  .feature-card .icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(0,100,255,0.12);
+    border: 1px solid rgba(61,137,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue-l); font-size: 1.2rem; font-weight: 700;
+    margin-bottom: 1.25rem;
+  }
+  .feature-card.purple .icon { background: rgba(189,46,255,0.12); border-color: rgba(189,46,255,0.3); color: var(--purple); }
+  .feature-card.orange .icon { background: rgba(255,120,40,0.12); border-color: rgba(255,120,40,0.3); color: var(--orange); }
+  .feature-card h4 {
+    color: var(--ink); font-size: 1.15rem; font-weight: 700;
+    letter-spacing: -0.01em; margin-bottom: 0.6rem;
+  }
+  .feature-card p {
+    color: var(--ink-soft); font-size: 0.95rem; line-height: 1.6;
+  }
+
+  /* TWO-COLUMN COMPARISON (vs) -------------------------------- */
+  .compare {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+    align-items: stretch; margin-top: 2rem;
+  }
+  .compare-panel {
+    padding: 2rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+  }
+  .compare-panel .label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute); margin-bottom: 1rem;
+  }
+  .compare-panel h4 {
+    color: var(--ink); font-size: 1.4rem; font-weight: 700;
+    letter-spacing: -0.015em; margin-bottom: 1rem;
+  }
+  .compare-panel ul {
+    list-style: none; display: flex; flex-direction: column; gap: 0.55rem;
+  }
+  .compare-panel ul li {
+    color: var(--ink-soft); font-size: 0.98rem; line-height: 1.5;
+    padding-left: 1.5rem; position: relative;
+  }
+  .compare-panel ul li::before {
+    content: ''; position: absolute; left: 0; top: 0.65em;
+    width: 8px; height: 1px; background: var(--ink-mute);
+  }
+  .compare-panel.before { border-color: rgba(255,120,40,0.25); }
+  .compare-panel.before .label { color: var(--orange); }
+  .compare-panel.after  { border-color: rgba(0,221,129,0.25); }
+  .compare-panel.after  .label { color: var(--green); }
+  .compare-vs {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 1.5rem;
+    font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.22em;
+    color: var(--ink-mute); text-transform: uppercase;
+    position: relative;
+  }
+  .compare-vs::after {
+    content: ''; position: absolute; top: 10%; bottom: 10%; left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+
+  /* CODE BLOCK ------------------------------------------------- */
+  .code-block {
+    margin-top: 1.5rem;
+    padding: 1.5rem 1.75rem;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(61,137,255,0.2);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    font-family: var(--mono);
+    font-size: 0.92rem; line-height: 1.7;
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .code-block::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), transparent);
+  }
+  .code-block .ln {
+    display: flex; gap: 1.5rem;
+  }
+  .code-block .ln-num {
+    color: var(--ink-mute); width: 1.5em; text-align: right; flex-shrink: 0;
+    user-select: none;
+  }
+  .code-block .kw  { color: #ca5fff; }
+  .code-block .fn  { color: var(--blue-l); }
+  .code-block .str { color: var(--green); }
+  .code-block .num { color: #ff9a5f; }
+  .code-block .cmt { color: var(--ink-mute); font-style: italic; }
+  .code-caption {
+    margin-top: 0.85rem; font-size: 0.85rem;
+    color: var(--ink-mute); font-style: italic;
+  }
+
+  /* PROCESS STEPS / TIMELINE ---------------------------------- */
+  .steps {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; margin-top: 2rem;
+    position: relative;
+  }
+  .steps::before {
+    content: ''; position: absolute; top: 22px; left: 5%; right: 5%; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), var(--orange), var(--green));
+    opacity: 0.45;
+  }
+  .step {
+    position: relative; padding: 0 1rem;
+    display: flex; flex-direction: column; align-items: flex-start;
+  }
+  .step .dot {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--blue-l);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.9rem; font-weight: 700;
+    color: var(--blue-l);
+    margin-bottom: 1.25rem;
+    box-shadow: 0 0 24px rgba(61,137,255,0.35);
+    position: relative; z-index: 2;
+  }
+  .step:nth-child(2) .dot { border-color: var(--purple); color: var(--purple); box-shadow: 0 0 24px rgba(189,46,255,0.35); }
+  .step:nth-child(3) .dot { border-color: var(--orange); color: var(--orange); box-shadow: 0 0 24px rgba(255,120,40,0.35); }
+  .step:nth-child(4) .dot { border-color: var(--green);  color: var(--green);  box-shadow: 0 0 24px rgba(0,221,129,0.35); }
+  .step h4 {
+    color: var(--ink); font-size: 1.05rem; font-weight: 700;
+    letter-spacing: -0.005em; margin-bottom: 0.4rem;
+  }
+  .step p {
+    color: var(--ink-soft); font-size: 0.9rem; line-height: 1.55;
+  }
+
+  /* TAKEAWAYS / BIG BULLETS ----------------------------------- */
+  .takeaways { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem; max-width: 900px; }
+  .takeaway {
+    display: grid; grid-template-columns: 4rem 1fr; gap: 1.5rem;
+    align-items: baseline;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .takeaway:last-child { border-bottom: none; }
+  .takeaway .n {
+    font-family: var(--mono); font-size: 1rem; font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--blue-l);
+  }
+  .takeaway:nth-child(2) .n { color: var(--purple); }
+  .takeaway:nth-child(3) .n { color: var(--orange); }
+  .takeaway:nth-child(4) .n { color: var(--green); }
+  .takeaway .t {
+    color: var(--ink); font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+    font-weight: 600; letter-spacing: -0.015em; line-height: 1.3;
+  }
+  .takeaway .t small {
+    display: block; margin-top: 0.3rem;
+    font-size: 0.95rem; font-weight: 400;
+    color: var(--ink-soft); letter-spacing: 0;
+  }
+
+  /* CLOSING / Q&A --------------------------------------------- */
+  .closing {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 1.5rem;
+  }
+  .closing .ask {
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 800; letter-spacing: -0.045em;
+    line-height: 0.95; color: var(--ink);
+  }
+  .closing .ask .grad {
+    background: linear-gradient(120deg, var(--blue-l), var(--purple), var(--orange));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .closing .contact {
+    margin-top: 1.5rem;
+    display: grid; grid-template-columns: auto auto; gap: 0.5rem 2.5rem;
+    font-family: var(--mono); font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .closing .contact .k {
+    color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase;
+    font-size: 0.74rem;
+  }
+  .closing .contact .v { color: var(--ink); }
+
+  /* delay tokens for extras */
+  .slide.active .reveal-d5 { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  .slide.active .reveal-d6 { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.9s both; }
+
+  /* entrance animations */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-size: 0.7rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Template 01 · Cosmic</span>
+</div>
+
+<div class="deck">
+
+  <!-- slide 1 — cover -->
+  <section class="slide active" data-i="1">
+    <span class="eyebrow reveal">Quix · Cinematic Series</span>
+    <h1 class="display reveal-d1">A short story about <span class="grad">streaming data</span>.</h1>
+    <p class="subtitle reveal-d2">A keynote-style opener — large display type, drifting nebulae, soft gradient mesh, letter-by-letter reveals. For audience-facing moments where the first impression has to land.</p>
+  </section>
+
+  <!-- slide 2 — section divider -->
+  <section class="slide" data-i="2">
+    <div class="reveal"><span class="big-num">01</span></div>
+    <h2 class="section reveal-d1">The pipeline problem.</h2>
+    <p class="subtitle reveal-d2">Why real-time systems break the assumptions that batch architectures were built on.</p>
+  </section>
+
+  <!-- slide 3 — content -->
+  <section class="slide" data-i="3">
+    <span class="eyebrow reveal">Core idea</span>
+    <h3 class="heading reveal-d1">State is the bottleneck, not throughput.</h3>
+    <p class="body reveal-d2">Most teams scale compute first and discover, six months later, that the real ceiling is how state is stored, shared, and replayed across operators. The fix is architectural, not infrastructural — and it's the part nobody puts on a slide.</p>
+    <p class="body reveal-d3">This template demonstrates how body copy, headings, and emphasised metrics share the same page without competing.</p>
+    <div class="pills reveal-d4">
+      <span class="pill">latency p99 = 42ms</span>
+      <span class="pill purple">throughput = 1.2M msg/s</span>
+      <span class="pill orange">state size = 18 GB</span>
+      <span class="pill green">SLA met</span>
+    </div>
+  </section>
+
+  <!-- slide 4 — data -->
+  <section class="slide" data-i="4">
+    <span class="eyebrow reveal">Results</span>
+    <h3 class="heading reveal-d1" style="margin-bottom: 2.5rem;">Three numbers that explain the shift.</h3>
+    <div class="grid2">
+      <div class="stat-card reveal-d2">
+        <div class="label">Median latency</div>
+        <div class="value">42 ms</div>
+        <div class="delta">↓ 78% vs. batch</div>
+      </div>
+      <div class="stat-card reveal-d3">
+        <div class="label">Cost per million events</div>
+        <div class="value">$0.18</div>
+        <div class="delta">↓ 64% vs. v0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 5 — quote -->
+  <section class="slide" data-i="5">
+    <div class="quote reveal">Streaming isn't faster batch. It's a different shape of problem.</div>
+    <div class="quote-attrib reveal-d2">— principal engineer, infra team</div>
+  </section>
+
+  <!-- slide 6 — agenda / TOC -->
+  <section class="slide" data-i="6">
+    <span class="eyebrow reveal">Agenda</span>
+    <h1 class="display reveal-d1" style="font-size: clamp(2.4rem, 5vw, 4rem); margin-bottom: 2rem;">What we'll cover.</h1>
+    <div class="agenda">
+      <div class="agenda-item now reveal-d2">
+        <span class="num">01</span>
+        <span class="ttl">Why streaming breaks batch assumptions<small>The mental model shift, in one diagram.</small></span>
+        <span class="dur">12 min</span>
+      </div>
+      <div class="agenda-item reveal-d3">
+        <span class="num">02</span>
+        <span class="ttl">State as a first-class object<small>How operator state shapes everything downstream.</small></span>
+        <span class="dur">18 min</span>
+      </div>
+      <div class="agenda-item reveal-d4">
+        <span class="num">03</span>
+        <span class="ttl">Failure modes nobody documents<small>The three bugs that kill production pipelines.</small></span>
+        <span class="dur">15 min</span>
+      </div>
+      <div class="agenda-item reveal-d5">
+        <span class="num">04</span>
+        <span class="ttl">Live walkthrough · Q&amp;A<small>End on something working, not something theoretical.</small></span>
+        <span class="dur">20 min</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 7 — speaker intro -->
+  <section class="slide" data-i="7">
+    <span class="eyebrow reveal">Your host</span>
+    <div class="speaker">
+      <div class="avatar reveal-d1">
+        <span class="initials">JB</span>
+      </div>
+      <div class="speaker-info">
+        <div class="role reveal-d2">Speaker · Quix</div>
+        <h3 class="reveal-d3">Javier Blanco.</h3>
+        <p class="title-line reveal-d3">Engineer, writer, and reluctant ops person.</p>
+        <ul class="bio-list">
+          <li class="reveal-d4">Eight years building streaming systems in production.</li>
+          <li class="reveal-d4">Burned by Kafka in three different ways. Still recommends Kafka.</li>
+          <li class="reveal-d5">Lives at <span style="color:var(--ink);">javier@quix.io</span> when not breaking pipelines.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 8 — three feature cards -->
+  <section class="slide" data-i="8">
+    <span class="eyebrow reveal">What we built</span>
+    <h3 class="heading reveal-d1" style="margin-bottom: 0.5rem;">Three pieces, one system.</h3>
+    <p class="subtitle reveal-d2" style="max-width: 64ch;">Each card describes one capability — short headline, three lines of body, accent rotation across blue, purple, orange.</p>
+    <div class="grid3">
+      <div class="feature-card reveal-d3">
+        <div class="icon">◆</div>
+        <h4>Stateful operators</h4>
+        <p>Rocks-backed key/value state replicated across the cluster. Exactly-once semantics, no manual checkpoint dance.</p>
+      </div>
+      <div class="feature-card purple reveal-d4">
+        <div class="icon">◇</div>
+        <h4>Adaptive backpressure</h4>
+        <p>Watermarks propagate upstream automatically. The system slows itself before it has to drop or buffer.</p>
+      </div>
+      <div class="feature-card orange reveal-d5">
+        <div class="icon">▲</div>
+        <h4>Materialized views</h4>
+        <p>Continuously updated derived tables, queryable from SQL. The dashboard reads from state, not from history.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 9 — comparison (before / after) -->
+  <section class="slide" data-i="9">
+    <span class="eyebrow reveal">Before / After</span>
+    <h3 class="heading reveal-d1">What the rewrite actually changed.</h3>
+    <div class="compare">
+      <div class="compare-panel before reveal-d2">
+        <div class="label">Before · v0</div>
+        <h4>Batch on a schedule.</h4>
+        <ul>
+          <li>15-minute pipeline cadence.</li>
+          <li>Recovery measured in tens of minutes.</li>
+          <li>State rebuilt from scratch on every job.</li>
+          <li>Dashboards lagged behind reality.</li>
+        </ul>
+      </div>
+      <div class="compare-vs reveal-d3">vs</div>
+      <div class="compare-panel after reveal-d4">
+        <div class="label">After · v1</div>
+        <h4>Continuous and stateful.</h4>
+        <ul>
+          <li>Sub-second event-to-view latency.</li>
+          <li>Recovery in seconds, not minutes.</li>
+          <li>State held in the operator, not the DB.</li>
+          <li>Dashboards reflect live system state.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 10 — code snippet -->
+  <section class="slide" data-i="10">
+    <span class="eyebrow reveal">Live code</span>
+    <h3 class="heading reveal-d1">Five lines, one streaming aggregation.</h3>
+    <div class="code-block reveal-d2">
+      <div class="ln"><span class="ln-num">1</span><span class="cmt"># pipeline.py · sliding window over click events</span></div>
+      <div class="ln"><span class="ln-num">2</span><span class="kw">from</span> quixstreams <span class="kw">import</span> <span class="fn">Application</span></div>
+      <div class="ln"><span class="ln-num">3</span></div>
+      <div class="ln"><span class="ln-num">4</span>app  = <span class="fn">Application</span>(broker_address=<span class="str">"localhost:9092"</span>)</div>
+      <div class="ln"><span class="ln-num">5</span>sdf  = app.<span class="fn">dataframe</span>(topic=app.<span class="fn">topic</span>(<span class="str">"clicks"</span>))</div>
+      <div class="ln"><span class="ln-num">6</span>out  = sdf.<span class="fn">tumbling_window</span>(<span class="num">60</span>).<span class="fn">count</span>().<span class="fn">final</span>()</div>
+      <div class="ln"><span class="ln-num">7</span>out.<span class="fn">to_topic</span>(app.<span class="fn">topic</span>(<span class="str">"clicks_per_minute"</span>))</div>
+      <div class="ln"><span class="ln-num">8</span>app.<span class="fn">run</span>()  <span class="cmt"># exactly-once, no checkpoint config needed</span></div>
+    </div>
+    <p class="code-caption reveal-d3">The whole pipeline, in the language the data team already speaks.</p>
+  </section>
+
+  <!-- slide 11 — process / steps -->
+  <section class="slide" data-i="11">
+    <span class="eyebrow reveal">How it works</span>
+    <h3 class="heading reveal-d1" style="margin-bottom: 1rem;">From raw event to live view in four steps.</h3>
+    <div class="steps">
+      <div class="step reveal-d2">
+        <div class="dot">01</div>
+        <h4>Ingest</h4>
+        <p>Producers write to a Kafka topic. Schema enforced at the broker.</p>
+      </div>
+      <div class="step reveal-d3">
+        <div class="dot">02</div>
+        <h4>Transform</h4>
+        <p>Streaming SQL filters, joins, and enriches each event in flight.</p>
+      </div>
+      <div class="step reveal-d4">
+        <div class="dot">03</div>
+        <h4>Aggregate</h4>
+        <p>Windowed counts and reductions held in stateful operators.</p>
+      </div>
+      <div class="step reveal-d5">
+        <div class="dot">04</div>
+        <h4>Serve</h4>
+        <p>Materialized views surface to dashboards and downstream consumers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 12 — takeaways -->
+  <section class="slide" data-i="12">
+    <span class="eyebrow reveal">Key takeaways</span>
+    <h3 class="heading reveal-d1" style="margin-bottom: 1rem;">Four things to remember when the slides are gone.</h3>
+    <div class="takeaways">
+      <div class="takeaway reveal-d2">
+        <span class="n">01</span>
+        <span class="t">State is the bottleneck.<small>Compute scales horizontally. State doesn't, until you treat it as a primary object.</small></span>
+      </div>
+      <div class="takeaway reveal-d3">
+        <span class="n">02</span>
+        <span class="t">Backpressure is a design choice.<small>If you didn't pick where it accumulates, the system picked for you — usually the worst place.</small></span>
+      </div>
+      <div class="takeaway reveal-d4">
+        <span class="n">03</span>
+        <span class="t">Recovery time defines availability.<small>p99 latency is what your users see. MTTR is what your on-call sees. Both are the same problem.</small></span>
+      </div>
+      <div class="takeaway reveal-d5">
+        <span class="n">04</span>
+        <span class="t">Document the thing you wish someone handed you.<small>The runbook you write at 2am is the only one anyone ever reads.</small></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- slide 13 — closing / Q&A -->
+  <section class="slide" data-i="13">
+    <div class="closing">
+      <span class="eyebrow reveal">End of deck</span>
+      <h1 class="ask reveal-d1">Questions?<br><span class="grad">Let's talk.</span></h1>
+      <div class="contact">
+        <span class="k reveal-d2">Email</span><span class="v reveal-d2">javier@quix.io</span>
+        <span class="k reveal-d3">Slides</span><span class="v reveal-d3">quix.io/webinar</span>
+        <span class="k reveal-d4">GitHub</span><span class="v reveal-d4">github.com/quixio</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = slides.length;
+  let i = 0;
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+  go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template 05 — Editorial</title>
+<style>
+  /* =========================================================
+     TEMPLATE 05 — EDITORIAL
+     Vibe: tech magazine cover, asymmetric grid, oversized
+     numerals, serif/sans contrast, slow horizontal slide
+     transitions. Confident, print-influenced, document-grade.
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fafafa;
+    --bg-2: #f1f1f3;
+    --ink: #0a0b24;
+    --ink-soft: #2b2b34;
+    --ink-mute: #646471;
+    --rule: #ebebeb;
+    --blue: #0064ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00aa65;
+    --serif: 'Tiempos', 'Charter', 'Georgia', 'Cambria', serif;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* paper texture / subtle dot grid */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(10,11,36,0.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: -1px -1px;
+    opacity: 0.6;
+  }
+
+  /* top runner */
+  .runner {
+    position: fixed; top: 3vh; left: 6vw; right: 6vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+  .runner svg { height: 22px; }
+  .runner .right { display: flex; gap: 2rem; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 11vh 6vw 8vh;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== COVER ============== */
+
+  .cover-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 2rem;
+    height: 100%;
+  }
+  .issue-tag {
+    grid-column: 1 / 2;
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--blue);
+    display: flex; gap: 1rem; align-items: center;
+  }
+  .issue-tag::after {
+    content: ''; flex: 1; height: 1px; background: var(--blue);
+    transform-origin: left; animation: stretch 1s cubic-bezier(.2,.7,.2,1) 0.5s both;
+  }
+  @keyframes stretch { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  h1.cover-title {
+    grid-column: 1 / 3;
+    align-self: center;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 9vw, 9rem);
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    margin: 0;
+  }
+  h1.cover-title .italic { font-style: italic; font-weight: 300; }
+  h1.cover-title .accent {
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cover-meta {
+    grid-column: 1 / 3;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding-top: 1.5rem; border-top: 1px solid var(--rule);
+  }
+  .cover-meta .left {
+    max-width: 36ch;
+    color: var(--ink-soft);
+    font-size: 1.05rem; line-height: 1.55;
+  }
+  .cover-meta .right {
+    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-mute); text-align: right;
+    line-height: 1.9;
+  }
+  .cover-meta .right b { color: var(--ink); font-weight: 600; }
+
+  /* ============== SECTION DIVIDER ============== */
+
+  .section-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr;
+    gap: 4rem;
+    align-items: center;
+    height: 100%;
+  }
+  .mega-num {
+    font-family: var(--serif);
+    font-size: clamp(10rem, 26vw, 24rem);
+    font-weight: 200;
+    line-height: 0.85;
+    color: var(--ink);
+    letter-spacing: -0.06em;
+    font-feature-settings: 'lnum';
+  }
+  .section-stack .kicker {
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.28em;
+    color: var(--orange); text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+  .section-stack h2 {
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 1.5rem;
+  }
+  .section-stack h2 .italic { font-style: italic; }
+  .section-stack p {
+    color: var(--ink-soft);
+    font-size: 1.1rem; line-height: 1.65;
+    max-width: 48ch;
+  }
+
+  /* ============== EDITORIAL CONTENT ============== */
+
+  .editorial {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    height: 100%;
+  }
+  .editorial .sidebar {
+    border-top: 2px solid var(--ink);
+    padding-top: 1rem;
+  }
+  .editorial .sidebar .label {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--ink-mute); margin-bottom: 0.5rem;
+  }
+  .editorial .sidebar .section-name {
+    font-family: var(--serif); font-size: 1.4rem; color: var(--ink);
+    font-style: italic; line-height: 1.3; margin-bottom: 2rem;
+  }
+  .editorial .sidebar .meta-list {
+    list-style: none; padding: 0;
+  }
+  .editorial .sidebar .meta-list li {
+    font-family: var(--mono); font-size: 0.78rem;
+    color: var(--ink-mute); padding: 0.6rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; gap: 1rem;
+  }
+  .editorial .sidebar .meta-list li b { color: var(--ink); font-weight: 600; }
+
+  .editorial .main h3 {
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    max-width: 22ch;
+  }
+  .editorial .main h3 .italic { font-style: italic; }
+
+  .editorial .main p {
+    color: var(--ink-soft);
+    font-size: 1.05rem; line-height: 1.7;
+    max-width: 56ch;
+    margin-bottom: 1rem;
+  }
+  .editorial .main p:first-of-type::first-letter {
+    font-family: var(--serif);
+    font-size: 4.2rem;
+    font-weight: 400;
+    float: left;
+    line-height: 0.9;
+    margin: 0.1em 0.15em 0 -0.05em;
+    color: var(--blue);
+  }
+
+  .pull-quote {
+    margin-top: 2rem; padding-left: 1.5rem;
+    border-left: 3px solid var(--orange);
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.3rem; line-height: 1.5; color: var(--ink);
+    max-width: 38ch;
+  }
+
+  /* ============== DATA SLIDE ============== */
+
+  .data-page {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 2.5rem; height: 100%;
+  }
+  .data-head {
+    border-top: 2px solid var(--ink); padding-top: 1.5rem;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .data-head h3 {
+    font-family: var(--serif); font-size: clamp(2rem, 3.4vw, 2.6rem);
+    font-weight: 400; color: var(--ink); letter-spacing: -0.02em;
+    max-width: 22ch;
+  }
+  .data-head .stamp {
+    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+  .data-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .data-cell {
+    padding: 2rem 1.5rem;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .data-cell:last-child { border-right: none; }
+  .data-cell .label {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute); margin-bottom: 1rem;
+  }
+  .data-cell .number {
+    font-family: var(--serif); font-size: clamp(3.5rem, 7vw, 6rem);
+    font-weight: 300; color: var(--ink); line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .data-cell .number small { font-size: 0.35em; color: var(--ink-mute); font-weight: 400; }
+  .data-cell .note {
+    margin-top: 1rem; font-family: var(--mono); font-size: 0.8rem;
+    color: var(--green);
+  }
+
+  /* ============== QUOTE SLIDE ============== */
+
+  .quote-page {
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center; height: 100%;
+  }
+  .quote-page .mark {
+    font-family: var(--serif); font-size: 8rem; line-height: 0.4;
+    color: var(--blue); margin-bottom: 1.5rem;
+  }
+  .quote-page blockquote {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    max-width: 24ch;
+  }
+  .quote-page blockquote .italic { font-style: italic; }
+  .quote-page cite {
+    margin-top: 2.5rem; font-style: normal;
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.26em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+  .quote-page cite::before { content: '— '; }
+
+  /* entrance */
+  .slide.active .reveal    { animation: slideIn 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1 { animation: slideIn 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2 { animation: slideIn 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3 { animation: slideIn 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4 { animation: slideIn 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* footer */
+  .colophon {
+    position: fixed; bottom: 3vh; left: 6vw; right: 6vw;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 1rem; border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: var(--rule); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: var(--ink);
+    transition: width 0.6s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="runner">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#0a0b24"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#0a0b24"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#0a0b24"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#0a0b24"/></g></svg>
+  <div class="right">
+    <span>Vol. 04 · Iss. 02</span>
+    <span>Quix Quarterly</span>
+    <span>June 2026</span>
+  </div>
+</div>
+
+<div class="deck">
+
+  <!-- cover -->
+  <section class="slide active" data-i="1">
+    <div class="cover-grid">
+      <div class="issue-tag reveal">Issue 02 · Streaming Systems</div>
+      <h1 class="cover-title reveal-d1">An <span class="italic">honest</span><br>account of <span class="accent">latency</span>.</h1>
+      <div class="cover-meta reveal-d2">
+        <div class="left">A magazine-style layout. Asymmetric grid, serif/sans contrast, oversized numerals. For document-grade decks that want to feel like a printed quarterly, not a slide deck.</div>
+        <div class="right">
+          By <b>Javier Blanco</b><br>
+          Quix Engineering<br>
+          Reading time · 12 min
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- section divider -->
+  <section class="slide" data-i="2">
+    <div class="section-grid">
+      <div class="mega-num reveal">02</div>
+      <div class="section-stack">
+        <div class="kicker reveal-d1">Chapter Two</div>
+        <h2 class="reveal-d2">When the <span class="italic">bottleneck</span> moves but doesn't change shape.</h2>
+        <p class="reveal-d3">A study of three pipelines, each rewritten twice, each failing in the same place the second time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- editorial article -->
+  <section class="slide" data-i="3">
+    <div class="editorial">
+      <div class="sidebar reveal">
+        <div class="label">§ 03 · Field Notes</div>
+        <div class="section-name">The bottleneck always rhymes.</div>
+        <ul class="meta-list">
+          <li><span>System</span><b>ingest-7d8f</b></li>
+          <li><span>Throughput</span><b>1.2M msg/s</b></li>
+          <li><span>State</span><b>18 GB / part.</b></li>
+          <li><span>Runtime</span><b>kafka 3.6</b></li>
+          <li><span>Author</span><b>j. blanco</b></li>
+        </ul>
+      </div>
+      <div class="main">
+        <h3 class="reveal-d1">State is the bottleneck — <span class="italic">not throughput.</span></h3>
+        <p class="reveal-d2">Most teams scale compute first and discover, six months later, that the real ceiling is how state is stored, shared, and replayed across operators. The fix is architectural, not infrastructural — and it's the part nobody puts on a slide.</p>
+        <p class="reveal-d3">This template demonstrates how body copy, headings, and a single emphasised pull-quote can share the same page without competing for attention.</p>
+        <div class="pull-quote reveal-d4">"Three rewrites in, the bottleneck hadn't moved — only changed its name."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- data -->
+  <section class="slide" data-i="4">
+    <div class="data-page">
+      <div class="data-head reveal">
+        <h3>By the <span style="font-style:italic;">numbers</span>.</h3>
+        <div class="stamp">Source · prod · 14-day window</div>
+      </div>
+      <div class="data-grid">
+        <div class="data-cell reveal-d1">
+          <div class="label">Latency p99</div>
+          <div class="number">42<small> ms</small></div>
+          <div class="note">↓ 78% from baseline</div>
+        </div>
+        <div class="data-cell reveal-d2">
+          <div class="label">Cost / 1M evt</div>
+          <div class="number">$0.18</div>
+          <div class="note">↓ 64% from baseline</div>
+        </div>
+        <div class="data-cell reveal-d3">
+          <div class="label">Recovery time</div>
+          <div class="number">7.2<small> s</small></div>
+          <div class="note">↓ 91% from baseline</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- quote -->
+  <section class="slide" data-i="5">
+    <div class="quote-page">
+      <div class="mark reveal">"</div>
+      <blockquote class="reveal-d1">Streaming isn't faster batch.<br>It's a <span class="italic">different shape</span> of problem.</blockquote>
+      <cite class="reveal-d2">principal engineer · infra retro</cite>
+    </div>
+  </section>
+
+</div>
+
+<div class="colophon">
+  <span>Set in Geist & Tiempos</span>
+  <span>Folio <span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = slides.length;
+  let i = 0;
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') go(i + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp') go(i - 1);
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+  go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 01 — Agentic AI · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · Level 01 · Agentic AI
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.orange { color: var(--orange-l); }
+  .eyebrow.orange::before { background: var(--orange-l); }
+  .eyebrow.green { color: var(--green); }
+  .eyebrow.green::before { background: var(--green); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+
+  .big-num {
+    font-size: clamp(7rem, 17vw, 15rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    background: linear-gradient(180deg, var(--ink) 25%, rgba(255,255,255,0.12) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+
+  /* ============== SLIDE 1 — section opener ============== */
+  .opener {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .opener .level-tag {
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l);
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .opener .level-tag::before {
+    content: ''; width: 36px; height: 1px; background: var(--blue-l);
+    box-shadow: 0 0 8px var(--blue-l);
+  }
+  .opener h1 {
+    font-size: clamp(4.5rem, 13vw, 11rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-top: 1rem;
+  }
+  .opener h1 .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .opener .subline {
+    margin-top: 2rem;
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .opener .subline::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
+    max-width: 280px;
+  }
+
+  /* ============== SLIDE 2 — definition ============== */
+  .definition { max-width: 60rem; }
+  .def-headword {
+    display: flex; align-items: baseline; gap: 1.25rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .def-headword h2 {
+    font-size: clamp(3rem, 6.5vw, 5.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .def-headword h2 .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .def-headword .pos {
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-mute);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .def-headword .pron {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+  }
+  .def-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), var(--orange), transparent);
+    margin-bottom: 2rem;
+    max-width: 280px;
+    transform-origin: left;
+    animation: drawDiv 1.2s cubic-bezier(.2,.7,.2,1) 0.4s both;
+  }
+  @keyframes drawDiv { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .def-body {
+    font-size: clamp(1.25rem, 1.85vw, 1.6rem);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    max-width: 38ch;
+    margin-bottom: 2.25rem;
+  }
+  .def-body .em-core   { color: var(--ink); border-bottom: 1px solid rgba(255,255,255,0.55); padding-bottom: 1px; }
+  .def-body .em-blue   { color: var(--ink); border-bottom: 1px dashed rgba(61,137,255,0.7); padding-bottom: 1px; }
+  .def-body .em-purple { color: var(--ink); border-bottom: 1px dashed rgba(202,95,255,0.7); padding-bottom: 1px; }
+  .def-body .em-orange { color: var(--ink); border-bottom: 1px dashed rgba(254,147,83,0.7); padding-bottom: 1px; }
+  .def-body .loop-clause {
+    display: block;
+    margin-top: 0.7em;
+    color: var(--green);
+    font-style: italic;
+  }
+  .def-body .loop-clause .loop-icon {
+    display: inline-block;
+    font-style: normal;
+    margin-right: 0.4em;
+    animation: loopSpin 5s linear infinite;
+  }
+  @keyframes loopSpin { to { transform: rotate(360deg); } }
+
+  .def-components {
+    display: flex; flex-wrap: wrap; gap: 0.7rem;
+    margin-bottom: 2.5rem;
+  }
+  .def-pill {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    font-size: 0.95rem; font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .def-pill .n {
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--ink-mute); letter-spacing: 0.15em;
+  }
+  .def-pill.blue   { border-color: rgba(61,137,255,0.45); background: rgba(61,137,255,0.08); }
+  .def-pill.purple { border-color: rgba(202,95,255,0.45); background: rgba(202,95,255,0.08); }
+  .def-pill.orange { border-color: rgba(254,147,83,0.45); background: rgba(254,147,83,0.08); }
+
+  .def-source {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 56ch;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.15);
+  }
+  .def-source b { color: var(--ink-soft); font-style: normal; font-weight: 500; }
+
+  /* ============== SLIDE 3 — diagram (the loop, built up) ============== */
+  .diagram-wrap {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    justify-content: center;
+  }
+  .diagram-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.25rem;
+  }
+  .diagram-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .diagram-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .diagram {
+    display: flex; flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .diagram svg {
+    width: 100%;
+    height: auto;
+    max-height: 58vh;
+    display: block;
+  }
+  .diagram-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 64ch;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+  }
+
+  /* SVG element styling */
+  .diagram svg text {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    fill: var(--ink);
+  }
+  .diagram svg .lbl {
+    font-size: 20px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: -0.005em;
+  }
+  .diagram svg .lbl-header {
+    font-size: 14px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    fill: rgba(255,255,255,0.7);
+  }
+  .diagram svg .dia-sub text {
+    font-size: 16px; font-weight: 500;
+    fill: var(--ink-soft);
+    text-anchor: middle; dominant-baseline: central;
+  }
+  .diagram svg .arrow-label {
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 500;
+    fill: rgba(255,255,255,0.75);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-anchor: middle;
+  }
+  .diagram svg .tools-chip rect {
+    fill: var(--bg-deep);
+    stroke: var(--purple-l);
+    stroke-width: 1.6;
+  }
+  .diagram svg .tools-chip text {
+    font-family: var(--mono);
+    font-size: 14px; font-weight: 600;
+    fill: var(--purple-l);
+    letter-spacing: 0.18em; text-transform: uppercase;
+    text-anchor: middle; dominant-baseline: central;
+  }
+
+  /* data/code icons inside the Environment */
+  .diagram svg .icon-db,
+  .diagram svg .icon-code {
+    fill: none;
+    stroke: rgba(255,255,255,0.6);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  /* box colour accents */
+  .diagram svg .dia-box rect.bg { stroke-width: 1.6; }
+  .diagram svg .box-blue   rect.bg { fill: rgba(61,137,255,0.10); stroke: rgba(61,137,255,0.6); }
+  .diagram svg .box-purple rect.bg { fill: rgba(189,46,255,0.10); stroke: rgba(189,46,255,0.6); }
+  .diagram svg .box-orange rect.bg { fill: rgba(255,120,40,0.10); stroke: rgba(255,120,40,0.6); }
+  .diagram svg .box-green  rect.bg { fill: rgba(0,221,129,0.10); stroke: rgba(0,221,129,0.6); }
+
+  /* sub-boxes (data, code) */
+  .diagram svg .dia-sub rect {
+    fill: rgba(255,255,255,0.04);
+    stroke: rgba(255,255,255,0.20);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+
+  /* arrows */
+  .diagram svg .dia-arrow path {
+    fill: none;
+    stroke: rgba(255,255,255,0.65);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .diagram svg .dia-arrow .draw-stroke {
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+    transition: stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1) 0.15s;
+  }
+  .diagram svg .dia-el.show .draw-stroke { stroke-dashoffset: 0; }
+  .diagram svg .dia-arrow.dashed path { stroke-dasharray: 6 5; }
+
+  /* per-element fade */
+  .diagram svg .dia-el {
+    opacity: 0;
+    transition: opacity 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+  .diagram svg .dia-el.show { opacity: 1; }
+
+  /* ============== SLIDE 4 — references carousel ============== */
+  .ref-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 2rem;
+  }
+  .ref-header .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .ref-header .counter b { color: var(--ink); font-weight: 600; }
+
+  .carousel {
+    position: relative;
+    height: 62vh; min-height: 440px;
+  }
+  .ref-card {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 2.5rem;
+    align-items: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s cubic-bezier(.2,.7,.2,1), transform 0.6s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+  .ref-card.prev { transform: translateX(-40px); }
+  .ref-card.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .ref-thumb {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    align-self: center;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg-deep);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .ref-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ref-thumb::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(5,6,15,0.4) 100%);
+    pointer-events: none;
+  }
+
+  /* generated thumb — for cards without image (ReAct) */
+  .ref-thumb.gen {
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 1.75rem;
+  }
+  .ref-thumb.gen::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(0,100,255,0.4), transparent 60%),
+      radial-gradient(50% 50% at 80% 80%, rgba(0,221,129,0.25), transparent 60%);
+    filter: blur(30px);
+  }
+  .ref-thumb.gen .gen-top {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+  }
+  .ref-thumb.gen .gen-mark {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); font-size: 1.05rem;
+  }
+  .ref-thumb.gen .gen-headline {
+    position: relative; z-index: 1;
+    color: var(--ink);
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+  .ref-thumb.gen .gen-meta {
+    position: relative; z-index: 1;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .ref-thumb.gen svg.glyph {
+    position: absolute; inset: 0; margin: auto;
+    width: 55%; height: auto; opacity: 0.18;
+    z-index: 0;
+  }
+
+  .ref-body {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0.5rem 0;
+  }
+  .ref-body .ref-tag {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--blue-l); margin-bottom: 1rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .ref-body .ref-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l);
+  }
+  .ref-card[data-card="1"] .ref-tag { color: var(--green); }
+  .ref-card[data-card="1"] .ref-tag::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .ref-card[data-card="2"] .ref-tag { color: var(--orange-l); }
+  .ref-card[data-card="2"] .ref-tag::before { background: var(--orange-l); box-shadow: 0 0 8px var(--orange-l); }
+
+  .ref-body h3 {
+    color: var(--ink);
+    font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+  .ref-body .ref-author {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .ref-body .ref-author b { color: var(--ink); font-weight: 600; }
+
+  .ref-takeaways {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .ref-takeaways li {
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .ref-takeaways li::before {
+    content: ''; position: absolute; left: 0; top: 0.6em;
+    width: 8px; height: 1px;
+    background: var(--blue-l);
+  }
+  .ref-takeaways li em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .ref-takeaways li b  { color: var(--ink); font-weight: 600; }
+
+  .ref-link {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue-l); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid rgba(61,137,255,0.4);
+    background: rgba(61,137,255,0.06);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    align-self: flex-start;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .ref-link:hover {
+    background: rgba(61,137,255,0.18);
+    transform: translateY(-2px);
+  }
+  .ref-link::after { content: '↗'; font-size: 0.95rem; }
+
+  /* carousel dots */
+  .carousel-dots {
+    position: absolute; bottom: -3.5rem; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 0.6rem;
+  }
+  .carousel-dots button {
+    width: 26px; height: 3px; border: 0;
+    border-radius: 2px; padding: 0;
+    background: rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+  .carousel-dots button.active {
+    background: var(--blue-l);
+    width: 44px;
+    box-shadow: 0 0 8px var(--blue-l);
+  }
+  .carousel-dots button:hover { background: rgba(255,255,255,0.35); }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Level 01 · Agentic AI</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — section opener ===== -->
+  <section class="slide active" data-i="1">
+    <div class="opener">
+      <span class="level-tag reveal">Level 01</span>
+      <div class="reveal-d1" style="margin-top: 1.5rem;">
+        <span class="big-num">01</span>
+      </div>
+      <h1 class="reveal-d2"><span class="grad">Agentic AI.</span></h1>
+      <div class="subline reveal-d3">A working definition · Further reading · The loop, built up</div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — definition ===== -->
+  <section class="slide" data-i="2">
+    <div class="definition">
+      <span class="eyebrow reveal">Definition · 02</span>
+      <div class="def-headword reveal-d1">
+        <h2><span class="grad">AI Agent</span></h2>
+        <span class="pos">noun</span>
+        <span class="pron">/eɪ&middot;aɪ ˈeɪ&middot;dʒənt/</span>
+      </div>
+      <div class="def-divider"></div>
+      <p class="def-body reveal-d2">
+        A system that pairs a <span class="em-core">language model</span> with three things:
+        an <span class="em-blue">environment</span> to act in,
+        a set of <span class="em-purple">tools</span> to act with,
+        and a <span class="em-orange">system prompt</span> that defines the job.
+        <span class="loop-clause"><span class="loop-icon">↻</span>It runs them in a loop until the task is completed.</span>
+      </p>
+      <div class="def-components reveal-d3">
+        <span class="def-pill blue"><span class="n">01</span> environment</span>
+        <span class="def-pill purple"><span class="n">02</span> tools</span>
+        <span class="def-pill orange"><span class="n">03</span> system prompt</span>
+      </div>
+      <p class="def-source reveal-d4">
+        <b>Barry Zhang</b>, Anthropic — <i>How We Build Effective Agents</i>,<br>
+        AI Engineer World's Fair, 2025.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 4 — animated diagram (moved to end) ===== -->
+  <section class="slide" data-i="4">
+    <div class="diagram-wrap">
+      <div class="diagram-head reveal">
+        <span class="eyebrow purple">Diagram · 04 · The loop, built up</span>
+        <span class="counter"><b id="dCur">01</b> / 08</span>
+      </div>
+      <div class="diagram reveal-d1" data-frame="1" id="diagram">
+        <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z" fill="rgba(255,255,255,0.75)"/>
+            </marker>
+          </defs>
+
+          <!-- frame 1 — Human -->
+          <g class="dia-el dia-box box-blue" data-from="1">
+            <rect class="bg" x="80" y="210" width="140" height="80" rx="14"/>
+            <text class="lbl" x="150" y="250">Human</text>
+          </g>
+
+          <!-- frame 2 — Human ↔ LLM dashed link -->
+          <g class="dia-el dia-arrow dashed" data-from="2">
+            <path d="M 224 250 L 316 250" marker-start="url(#arr)" marker-end="url(#arr)"/>
+          </g>
+
+          <!-- frame 2 — LLM Call -->
+          <g class="dia-el dia-box box-purple" data-from="2">
+            <rect class="bg" x="320" y="190" width="180" height="120" rx="14"/>
+            <text class="lbl" x="410" y="250">LLM Call</text>
+          </g>
+
+          <!-- frame 3 — Action arrow appears alone, terminating in empty space -->
+          <g class="dia-el dia-arrow" data-from="3">
+            <text class="arrow-label" x="590" y="148">Action</text>
+            <path class="draw-stroke" d="M 504 218 Q 590 175, 676 200" marker-end="url(#arr)"/>
+          </g>
+
+          <!-- frame 4 — Environment box materialises at the arrow endpoint -->
+          <g class="dia-el dia-box box-orange" data-from="4">
+            <rect class="bg" x="680" y="140" width="260" height="220" rx="14"/>
+            <text class="lbl-header" x="810" y="172">Environment</text>
+          </g>
+
+          <!-- frame 5 — data + code with glyphs, centred inside Environment -->
+          <g class="dia-el dia-sub" data-from="5">
+            <rect x="698" y="210" width="105" height="130" rx="10"/>
+            <g class="icon-db" transform="translate(750.5, 240)">
+              <ellipse cx="0" cy="-11" rx="20" ry="5"/>
+              <path d="M -20 -11 L -20 11 A 20 5 0 0 0 20 11 L 20 -11"/>
+              <path d="M -20 0 A 20 5 0 0 0 20 0" opacity="0.7"/>
+            </g>
+            <text x="750.5" y="305">data</text>
+          </g>
+          <g class="dia-el dia-sub" data-from="5">
+            <rect x="817" y="210" width="105" height="130" rx="10"/>
+            <g class="icon-code" transform="translate(869.5, 240)">
+              <path d="M -12 -11 L -22 0 L -12 11"/>
+              <path d="M 12 -11 L 22 0 L 12 11"/>
+              <path d="M -5 15 L 5 -15" opacity="0.75"/>
+            </g>
+            <text x="869.5" y="305">code</text>
+          </g>
+
+          <!-- frame 6 — Feedback arrow + label appear (after Environment exists) -->
+          <g class="dia-el dia-arrow" data-from="6">
+            <path class="draw-stroke" d="M 676 300 Q 590 325, 504 282" marker-end="url(#arr)"/>
+            <text class="arrow-label" x="590" y="358">Feedback</text>
+          </g>
+
+          <!-- frame 7 — tools chip (bigger) on the Action arrow -->
+          <g class="dia-el tools-chip" data-from="7">
+            <rect x="544" y="160" width="92" height="30" rx="15"/>
+            <text x="590" y="175">tools</text>
+          </g>
+
+          <!-- frame 8 — Stop -->
+          <g class="dia-el dia-arrow dashed" data-from="8">
+            <path d="M 410 314 L 410 396" marker-end="url(#arr)"/>
+          </g>
+          <g class="dia-el dia-box box-green" data-from="8">
+            <rect class="bg" x="370" y="400" width="80" height="48" rx="12"/>
+            <text class="lbl" x="410" y="425">Stop</text>
+          </g>
+        </svg>
+        <p class="diagram-caption" id="diaCaption">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — references carousel ===== -->
+  <section class="slide" data-i="3">
+    <div class="ref-header reveal">
+      <span class="eyebrow orange">References · Further reading</span>
+      <span class="counter"><b id="cCur">01</b> / 03</span>
+    </div>
+
+    <div class="carousel" id="carousel">
+
+      <!-- card 1 — How We Build Effective Agents -->
+      <div class="ref-card active" data-card="0">
+        <div class="ref-thumb">
+          <img src="thinklikeagents.jpg" alt="How We Build Effective Agents — Barry Zhang">
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Talk · AI Engineer World's Fair 2025</span>
+          <h3>How We Build Effective Agents</h3>
+          <p class="ref-author"><b>Barry Zhang</b> — Anthropic</p>
+          <ul class="ref-takeaways">
+            <li>The minimal agent is just three things — <b>environment + tools + system prompt</b>. Everything else (memory, planners, sub-agents) is downstream optimisation — add it only when you've felt the pain it solves.</li>
+            <li>Three rules for builders: <em>don't build agents for everything</em>; <em>keep it simple</em>; <em>think like your agent</em> — get inside its head before debugging the prompt.</li>
+          </ul>
+          <a class="ref-link" href="https://www.youtube.com/watch?v=D7_ipDqhtwk" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+      </div>
+
+      <!-- card 2 — ReAct -->
+      <div class="ref-card" data-card="1">
+        <div class="ref-thumb gen">
+          <svg class="glyph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="1.5">
+            <path d="M40 100 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0" stroke-dasharray="6 6"/>
+            <path d="M100 50 L100 30 M120 50 L140 30" stroke-linecap="round"/>
+            <path d="M140 100 L165 100 M140 120 L165 140" stroke-linecap="round"/>
+            <circle cx="100" cy="100" r="14" fill="#fff" stroke="none" opacity="0.9"/>
+          </svg>
+          <div class="gen-top">
+            <span>arXiv · 2210.03629</span>
+            <span class="gen-mark">π</span>
+          </div>
+          <div>
+            <div class="gen-headline">Re<span style="color:var(--green)">A</span>ct.</div>
+            <div class="gen-meta" style="margin-top: 0.5rem;">Reasoning + Acting · ICLR 2023</div>
+          </div>
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Paper · ICLR 2023</span>
+          <h3>ReAct: Synergizing Reasoning and Acting in Language Models</h3>
+          <p class="ref-author"><b>Yao et al.</b> — Princeton + Google</p>
+          <ul class="ref-takeaways">
+            <li>Interleaving <em>reasoning traces</em> with <em>tool actions</em> beats either alone on reasoning, QA, and decision-making benchmarks — and it makes the model's behaviour interpretable along the way.</li>
+            <li>This is the foundational pattern every modern "agent framework" is implementing. Strip a 2026 agent product down to its core and <b>this loop is what's left</b>.</li>
+            <li>Published as an arXiv preprint in <b>October 2022</b> — before ChatGPT shipped. The agentic loop was a research idea two months before the "agent" buzzword existed, and it has held up across every model generation since.</li>
+          </ul>
+          <a class="ref-link" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">Read on arXiv</a>
+        </div>
+      </div>
+
+      <!-- card 3 — Pelicans on Bicycles -->
+      <div class="ref-card" data-card="2">
+        <div class="ref-thumb">
+          <img src="pelicans.jpg" alt="Pelicans on Bicycles — Simon Willison">
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Talk · AI Engineer World's Fair 2025 · Best Speaker</span>
+          <h3>Pelicans on Bicycles</h3>
+          <p class="ref-author"><b>Simon Willison</b> — Django co-creator, simonwillison.net</p>
+          <ul class="ref-takeaways">
+            <li><em>"Tools + reasoning is the most powerful technique in AI engineering right now."</em></li>
+            <li>The one-line thesis for everything that follows in this webinar.</li>
+          </ul>
+          <a class="ref-link" href="https://www.youtube.com/watch?v=YpY83-kA7Bo&t=227s" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+      </div>
+
+      <div class="carousel-dots">
+        <button class="active" data-dot="0" aria-label="Card 1"></button>
+        <button data-dot="1" aria-label="Card 2"></button>
+        <button data-dot="2" aria-label="Card 3"></button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">4</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+  const cards  = document.querySelectorAll('.ref-card');
+  const dots   = document.querySelectorAll('.carousel-dots button');
+  const diaEls = document.querySelectorAll('#diagram [data-from]');
+  const diagram = document.getElementById('diagram');
+  const cap = document.getElementById('diaCaption');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const cCur = document.getElementById('cCur');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+
+  const REFS_SLIDE    = 2;       // zero-based — carousel now sits at slide 3
+  const DIAGRAM_SLIDE = 3;       // zero-based — diagram is the final slide
+  const TOTAL_FRAMES  = 8;
+  tot.textContent = slides.length;
+  let i = 0;
+  let c = 0;
+  let frame = 1;
+
+  const captions = {
+    1: '',
+    2: 'the model takes the job.',
+    3: 'the model has a way to act.',
+    4: 'into an environment.',
+    5: 'the environment is whatever the agent can touch — the files, the codebase, the running system.',
+    6: 'the environment talks back — and the loop closes.',
+    7: 'tools are how the model reaches into the environment.',
+    8: 'the loop ends when the model decides the job is done.'
+  };
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+  function paintCarousel() {
+    cards.forEach((card, idx) => {
+      card.classList.toggle('active', idx === c);
+      card.classList.toggle('prev', idx < c);
+    });
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === c));
+    cCur.textContent = String(c + 1).padStart(2, '0');
+  }
+  function paintDiagram() {
+    diagram.dataset.frame = frame;
+    diaEls.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+    dCur.textContent = String(frame).padStart(2, '0');
+    cap.textContent = captions[frame] || ' ';
+  }
+
+  // deck-chain: this is a deep-dive off the ladder — both ends return to it,
+  // positioned on the L1 (Agentic AI) rung that opened this dive
+  const __ladder = '../02-ladder/definitive/index.html#climb-2';
+  function next() {
+    if (i === DIAGRAM_SLIDE && frame < TOTAL_FRAMES) { frame++; paintDiagram(); return; }
+    if (i === REFS_SLIDE && c < cards.length - 1)    { c++; paintCarousel(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+      if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function prev() {
+    if (i === DIAGRAM_SLIDE && frame > 1) { frame--; paintDiagram(); return; }
+    if (i === REFS_SLIDE && c > 0)        { c--; paintCarousel(); return; }
+    if (i > 0) {
+      i--;
+      if (i === DIAGRAM_SLIDE) { frame = TOTAL_FRAMES;    paintDiagram(); }
+      if (i === REFS_SLIDE)    { c = cards.length - 1;    paintCarousel(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+    if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+    if (e.key === 'Escape') { e.preventDefault(); window.location.href = __ladder; }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, .ref-link, .ref-takeaways')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+  dots.forEach((d, idx) => d.addEventListener('click', e => {
+    e.stopPropagation();
+    c = idx; paintCarousel();
+  }));
+
+  paintSlide();
+  paintCarousel();
+  paintDiagram();
+</script>
+</body>
+</html>

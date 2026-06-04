@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 03 — Domain Knowledge · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · Level 03 · Domain Knowledge
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     Level accent: orange (3rd of blue → purple → orange).
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --grey: rgba(255,255,255,0.32);
+    --grey-l: rgba(255,255,255,0.18);
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(255,120,40,0.30), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.22), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(0,100,255,0.20), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.16), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(254,147,83,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--orange-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--orange-l);
+  }
+  .eyebrow.blue   { color: var(--blue-l); }
+  .eyebrow.blue::before   { background: var(--blue-l); }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.green  { color: var(--green); }
+  .eyebrow.green::before  { background: var(--green); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--orange) 0%, var(--purple) 50%, var(--blue-l) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+
+  .big-num {
+    font-size: clamp(7rem, 17vw, 15rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    background: linear-gradient(180deg, var(--ink) 25%, rgba(255,255,255,0.12) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+
+  /* ============== SLIDE 1 — section opener ============== */
+  .opener {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .opener .level-tag {
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--orange-l);
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .opener .level-tag::before {
+    content: ''; width: 36px; height: 1px; background: var(--orange-l);
+    box-shadow: 0 0 8px var(--orange-l);
+  }
+  .opener h1 {
+    font-size: clamp(4.5rem, 13vw, 11rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-top: 1rem;
+  }
+  .opener h1 .grad {
+    background: linear-gradient(120deg, var(--orange) 0%, var(--purple) 50%, var(--blue-l) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .opener .subline {
+    margin-top: 2rem;
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .opener .subline::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
+    max-width: 280px;
+  }
+
+  /* ============== SLIDE 2 — definition ============== */
+  .definition { max-width: 64rem; }
+  .def-headword {
+    display: flex; align-items: baseline; gap: 1.25rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .def-headword h2 {
+    font-size: clamp(3rem, 6.5vw, 5.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .def-headword h2 .grad {
+    background: linear-gradient(120deg, var(--orange) 0%, var(--purple) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .def-headword .pos {
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-mute);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .def-headword .pron {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+  }
+  .def-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--orange), var(--purple), var(--blue-l), transparent);
+    margin-bottom: 2rem;
+    max-width: 280px;
+    transform-origin: left;
+    animation: drawDiv 1.2s cubic-bezier(.2,.7,.2,1) 0.4s both;
+  }
+  @keyframes drawDiv { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .def-body {
+    font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+    line-height: 1.55;
+    color: var(--ink-soft);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    max-width: 50ch;
+    margin-bottom: 2.25rem;
+  }
+  .def-body .em-core   { color: var(--ink); border-bottom: 1px solid rgba(255,255,255,0.55); padding-bottom: 1px; }
+  .def-body .em-orange { color: var(--ink); border-bottom: 1px dashed rgba(254,147,83,0.8); padding-bottom: 1px; }
+  .def-body .em-purple { color: var(--ink); border-bottom: 1px dashed rgba(202,95,255,0.7); padding-bottom: 1px; }
+  .def-body .em-blue   { color: var(--ink); border-bottom: 1px dashed rgba(61,137,255,0.7); padding-bottom: 1px; }
+  .def-body .ratchet-clause {
+    display: block;
+    margin-top: 0.7em;
+    color: var(--green);
+    font-style: italic;
+  }
+  .def-body .ratchet-clause .r-icon {
+    display: inline-block;
+    font-style: normal;
+    margin-right: 0.4em;
+    animation: ratchet 4s linear infinite;
+    transform-origin: center;
+  }
+  @keyframes ratchet {
+    0%, 80% { transform: rotate(0deg); }
+    90%     { transform: rotate(45deg); }
+    100%    { transform: rotate(45deg); }
+  }
+
+  .def-components {
+    display: flex; flex-wrap: wrap; gap: 0.7rem;
+    margin-bottom: 2.5rem;
+  }
+  .def-pill {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    font-size: 0.95rem; font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .def-pill .n {
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--ink-mute); letter-spacing: 0.15em;
+  }
+  .def-pill.orange { border-color: rgba(254,147,83,0.5); background: rgba(254,147,83,0.08); }
+  .def-pill.purple { border-color: rgba(202,95,255,0.45); background: rgba(202,95,255,0.08); }
+  .def-pill.blue   { border-color: rgba(61,137,255,0.45); background: rgba(61,137,255,0.08); }
+  .def-pill.green  { border-color: rgba(0,221,129,0.45); background: rgba(0,221,129,0.08); }
+
+  .def-source {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 64ch;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.15);
+  }
+  .def-source b { color: var(--ink-soft); font-style: normal; font-weight: 500; }
+
+  /* ============== SLIDE 3 — diagram (the reference shelf, built up) ============== */
+  .diagram-wrap {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    justify-content: center;
+  }
+  .diagram-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.25rem;
+  }
+  .diagram-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .diagram-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .diagram {
+    display: flex; flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .diagram svg {
+    width: 100%;
+    height: auto;
+    max-height: 62vh;
+    display: block;
+  }
+  .diagram-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 64ch;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+  }
+
+  /* SVG element styling */
+  .diagram svg text {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    fill: var(--ink);
+  }
+  .diagram svg .lbl {
+    font-size: 18px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: -0.005em;
+  }
+  .diagram svg .lbl-sm {
+    font-size: 13px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+  }
+  .diagram svg .lbl-header {
+    font-size: 12px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    fill: rgba(255,255,255,0.7);
+  }
+  .diagram svg .arrow-label {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 500;
+    fill: rgba(255,255,255,0.75);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-anchor: middle;
+  }
+  .diagram svg .tools-chip rect {
+    fill: var(--bg-deep);
+    stroke: var(--purple-l);
+    stroke-width: 1.4;
+  }
+  .diagram svg .tools-chip text {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 600;
+    fill: var(--purple-l);
+    letter-spacing: 0.18em; text-transform: uppercase;
+    text-anchor: middle; dominant-baseline: central;
+  }
+
+  /* L02 grey base — Human / LLM / Env / Stop / System Prompt / skills */
+  .diagram svg .grey-base .lbl,
+  .diagram svg .grey-base .lbl-sm,
+  .diagram svg .grey-base .lbl-header,
+  .diagram svg .grey-base text {
+    fill: var(--grey);
+  }
+  .diagram svg .grey-base rect.bg {
+    fill: rgba(255,255,255,0.04);
+    stroke: var(--grey-l);
+    stroke-width: 1.4;
+  }
+  .diagram svg .grey-base .sub rect {
+    fill: rgba(255,255,255,0.02);
+    stroke: var(--grey-l);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+  .diagram svg .grey-base .grey-arrow path {
+    fill: none;
+    stroke: var(--grey-l);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .diagram svg .grey-base .grey-arrow.dashed path { stroke-dasharray: 5 5; }
+  .diagram svg .grey-base .tools-chip rect {
+    fill: var(--bg-deep);
+    stroke: var(--grey);
+  }
+  .diagram svg .grey-base .tools-chip text { fill: var(--grey); }
+
+  /* references/ — the new colour layer */
+  .diagram svg .dia-box rect.bg { stroke-width: 1.6; }
+  .diagram svg .box-orange rect.bg { fill: rgba(255,120,40,0.10); stroke: rgba(254,147,83,0.7); }
+  .diagram svg .box-green  rect.bg { fill: rgba(0,221,129,0.10); stroke: rgba(0,221,129,0.6); }
+
+  .diagram svg .ref-card rect {
+    fill: rgba(255,120,40,0.06);
+    stroke: rgba(254,147,83,0.45);
+    stroke-width: 1;
+  }
+  .diagram svg .ref-card.active rect {
+    fill: rgba(255,120,40,0.22);
+    stroke: var(--orange-l);
+    stroke-width: 1.8;
+    filter: drop-shadow(0 0 8px rgba(254,147,83,0.45));
+  }
+  .diagram svg .ref-card text {
+    font-family: var(--mono);
+    font-size: 10px;
+    fill: var(--orange-l);
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.05em;
+  }
+  .diagram svg .ref-card.active text { fill: var(--ink); }
+
+  /* arrows */
+  .diagram svg .dia-arrow path {
+    fill: none;
+    stroke: var(--orange-l);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .diagram svg .dia-arrow.dashed path { stroke-dasharray: 5 5; }
+  .diagram svg .dia-arrow.green path { stroke: var(--green); }
+
+  .diagram svg .dia-arrow .draw-stroke {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    transition: stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1) 0.15s;
+  }
+  .diagram svg .dia-el.show .draw-stroke { stroke-dashoffset: 0; }
+
+  /* per-element fade */
+  .diagram svg .dia-el {
+    opacity: 0;
+    transition: opacity 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+  .diagram svg .dia-el.show { opacity: 1; }
+  .diagram svg .dia-el.grey-base { opacity: 0.55; }
+  .diagram svg .dia-el.grey-base.show { opacity: 0.55; }
+
+  /* ============== SLIDE 4 — single reference card ============== */
+  .ref-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 2rem;
+  }
+  .ref-header .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .ref-header .counter b { color: var(--ink); font-weight: 600; }
+
+  .single-ref {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 3rem;
+    align-items: center;
+    height: 62vh; min-height: 440px;
+  }
+
+  .ref-thumb {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    align-self: center;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg-deep);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 1.75rem;
+  }
+  .ref-thumb::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(255,120,40,0.35), transparent 60%),
+      radial-gradient(50% 50% at 80% 80%, rgba(189,46,255,0.22), transparent 60%);
+    filter: blur(30px);
+  }
+  .ref-thumb .gen-top {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+  }
+  .ref-thumb .gen-mark {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); font-size: 1.05rem;
+  }
+  .ref-thumb .gen-headline {
+    position: relative; z-index: 1;
+    color: var(--ink);
+    font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+  .ref-thumb .gen-meta {
+    position: relative; z-index: 1;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  /* a small ratchet glyph behind */
+  .ref-thumb svg.glyph {
+    position: absolute; inset: 0; margin: auto;
+    width: 60%; height: auto; opacity: 0.16;
+    z-index: 0;
+  }
+
+  .ref-body {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0.5rem 0;
+  }
+  .ref-body .ref-tag {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--orange-l); margin-bottom: 1rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .ref-body .ref-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange-l); box-shadow: 0 0 8px var(--orange-l);
+  }
+  .ref-body h3 {
+    color: var(--ink);
+    font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+  .ref-body .ref-author {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .ref-body .ref-author b { color: var(--ink); font-weight: 600; }
+  .ref-body .ref-author i { color: var(--ink-mute); font-style: italic; }
+
+  .ref-takeaways {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.95rem;
+    margin-bottom: 1.75rem;
+  }
+  .ref-takeaways li {
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .ref-takeaways li::before {
+    content: ''; position: absolute; left: 0; top: 0.7em;
+    width: 8px; height: 1px;
+    background: var(--orange-l);
+  }
+  .ref-takeaways li em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .ref-takeaways li b  { color: var(--ink); font-weight: 600; }
+
+  .ref-link {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--orange-l); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid rgba(254,147,83,0.4);
+    background: rgba(254,147,83,0.06);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    align-self: flex-start;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .ref-link:hover {
+    background: rgba(254,147,83,0.18);
+    transform: translateY(-2px);
+  }
+  .ref-link::after { content: '↗'; font-size: 0.95rem; }
+
+  /* ============== SLIDE 5 — anatomy: four mini-panels ============== */
+  .anatomy-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 1.4rem;
+  }
+  .anatomy-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .anatomy-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .anatomy-stage {
+    position: relative;
+    height: 68vh; min-height: 480px;
+  }
+  .anatomy-panel {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 2.25rem;
+    align-items: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.55s cubic-bezier(.2,.7,.2,1), transform 0.55s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+  .anatomy-panel.prev { transform: translateX(-40px); }
+  .anatomy-panel.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .code-card {
+    background: var(--bg-deep);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1.5rem 1.6rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    overflow: auto;
+    max-height: 60vh;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.03);
+  }
+  .code-card .filename {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--orange-l);
+    margin-bottom: 0.85rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .code-card .filename::before {
+    content: '●'; color: var(--orange-l); font-size: 0.6rem;
+  }
+  .code-card pre {
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .code-card .key  { color: var(--blue-l); }
+  .code-card .str  { color: var(--green); }
+  .code-card .com  { color: var(--ink-mute); }
+  .code-card .hl   { color: var(--ink); background: rgba(254,147,83,0.16); padding: 0 0.25rem; border-radius: 3px; }
+  .code-card .num  { color: var(--purple-l); }
+  .code-card .hr   { display: block; height: 1px; background: rgba(255,255,255,0.08); margin: 0.85rem 0; }
+  .code-card h4    { color: var(--ink); font-family: 'Geist','Inter',system-ui,sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
+
+  .panel-body {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0.5rem 0;
+  }
+  .panel-body .panel-tag {
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--orange-l); margin-bottom: 0.9rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .panel-body .panel-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange-l); box-shadow: 0 0 8px var(--orange-l);
+  }
+  .anatomy-panel[data-panel="1"] .panel-tag         { color: var(--purple-l); }
+  .anatomy-panel[data-panel="1"] .panel-tag::before { background: var(--purple-l); box-shadow: 0 0 8px var(--purple-l); }
+  .anatomy-panel[data-panel="2"] .panel-tag         { color: var(--green); }
+  .anatomy-panel[data-panel="2"] .panel-tag::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .anatomy-panel[data-panel="3"] .panel-tag         { color: var(--blue-l); }
+  .anatomy-panel[data-panel="3"] .panel-tag::before { background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l); }
+
+  .panel-body h3 {
+    color: var(--ink);
+    font-size: clamp(1.45rem, 2.2vw, 1.95rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .panel-body p {
+    color: var(--ink-soft);
+    font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+    line-height: 1.6;
+    margin-bottom: 0.95rem;
+  }
+  .panel-body p b { color: var(--ink); font-weight: 600; }
+  .panel-body p em { color: var(--ink); font-style: italic; font-weight: 500; }
+
+  /* anatomy dots */
+  .anatomy-dots {
+    position: absolute; bottom: -2.5rem; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 0.6rem;
+  }
+  .anatomy-dots button {
+    width: 26px; height: 3px; border: 0;
+    border-radius: 2px; padding: 0;
+    background: rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+  .anatomy-dots button.active {
+    background: var(--orange-l);
+    width: 44px;
+    box-shadow: 0 0 8px var(--orange-l);
+  }
+  .anatomy-dots button:hover { background: rgba(255,255,255,0.35); }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--orange), var(--purple), var(--blue));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Level 03 · Domain Knowledge</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — section opener ===== -->
+  <section class="slide active" data-i="1">
+    <div class="opener">
+      <span class="level-tag reveal">Level 03</span>
+      <div class="reveal-d1" style="margin-top: 1.5rem;">
+        <span class="big-num">03</span>
+      </div>
+      <h1 class="reveal-d2"><span class="grad">Domain Knowledge.</span></h1>
+      <div class="subline reveal-d3">A working definition · Further reading · The reference shelf, built up · How to write one</div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — definition ===== -->
+  <section class="slide" data-i="2">
+    <div class="definition">
+      <span class="eyebrow reveal">Definition · 02</span>
+      <div class="def-headword reveal-d1">
+        <h2><span class="grad">Domain Knowledge</span></h2>
+        <span class="pos">noun</span>
+        <span class="pron">/dəˈmeɪn ˈnɒl.ɪdʒ/</span>
+      </div>
+      <div class="def-divider"></div>
+      <p class="def-body reveal-d2">
+        A short <span class="em-core">markdown document</span> the agent loads on demand. It carries
+        the <span class="em-orange">judgement</span> the codebase can't —
+        the traps prior work hit, the levers worth pulling,
+        the <em>why</em> behind the rule, with a worked example.
+        <span class="em-purple">Frontmatter</span> tells the agent when to load it;
+        the <span class="em-blue">body</span> only enters context when the moment matches.
+        <span class="ratchet-clause"><span class="r-icon">⚙</span>Every new failure your team sees becomes a new line.</span>
+      </p>
+      <div class="def-components reveal-d3">
+        <span class="def-pill orange"><span class="n">01</span> judgement</span>
+        <span class="def-pill purple"><span class="n">02</span> frontmatter</span>
+        <span class="def-pill blue"><span class="n">03</span> body on demand</span>
+        <span class="def-pill green"><span class="n">04</span> ratchet</span>
+      </div>
+      <p class="def-source reveal-d4">
+        <b>Mitchell Hashimoto</b> — <i>My AI Adoption Journey</i>, Feb 2026 (the ratchet method);<br>
+        <b>Sean Grove</b> — <i>The New Code</i>, AI Engineer World's Fair 2025 (spec as lossless source of intent);<br>
+        <b>BettaTech</b> — <i>¿Qué es esto del Harness Engineering?</i>, 2026 (guides vs sensors).
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — animated diagram (reference shelf, built up) ===== -->
+  <section class="slide" data-i="3">
+    <div class="diagram-wrap">
+      <div class="diagram-head reveal">
+        <span class="eyebrow purple">Diagram · 03 · The reference shelf, built up</span>
+        <span class="counter"><b id="dCur">01</b> / 06</span>
+      </div>
+      <div class="diagram reveal-d1" data-frame="1" id="diagram">
+        <svg viewBox="0 0 1140 620" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z" fill="rgba(254,147,83,0.85)"/>
+            </marker>
+            <marker id="arr-grey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z" fill="rgba(255,255,255,0.32)"/>
+            </marker>
+            <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z" fill="rgba(0,221,129,0.85)"/>
+            </marker>
+          </defs>
+
+          <!-- ============ FRAME 1 — L02 GREY BASE ============ -->
+          <g class="dia-el grey-base" data-from="1">
+            <!-- Human -->
+            <g class="dia-box">
+              <rect class="bg" x="40" y="320" width="120" height="68" rx="12"/>
+              <text class="lbl-sm" x="100" y="354">Human</text>
+            </g>
+
+            <!-- Human ↔ LLM dashed link -->
+            <g class="grey-arrow dashed">
+              <path d="M 162 354 L 318 354" marker-start="url(#arr-grey)" marker-end="url(#arr-grey)"/>
+            </g>
+
+            <!-- LLM Call -->
+            <g class="dia-box">
+              <rect class="bg" x="322" y="304" width="170" height="100" rx="12"/>
+              <text class="lbl-sm" x="407" y="354">LLM Call</text>
+            </g>
+
+            <!-- System Prompt (top, central) -->
+            <g class="dia-box">
+              <rect class="bg" x="322" y="60" width="500" height="58" rx="12"/>
+              <text class="lbl-header" x="572" y="89">System Prompt</text>
+            </g>
+            <!-- short arrow from System Prompt to LLM -->
+            <g class="grey-arrow">
+              <path d="M 407 120 L 407 302" marker-end="url(#arr-grey)"/>
+            </g>
+
+            <!-- skills/ folder (left of SP) -->
+            <g class="dia-box">
+              <rect class="bg" x="40" y="140" width="240" height="135" rx="10"/>
+              <text class="lbl-header" x="160" y="160">skills/</text>
+              <!-- 6 mini skill chips -->
+              <g>
+                <rect x="56" y="178" width="100" height="22" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+                <text x="106" y="189" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="var(--mono)">fit-model</text>
+                <rect x="164" y="178" width="100" height="22" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+                <text x="214" y="189" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="var(--mono)">score-model</text>
+                <rect x="56" y="206" width="100" height="22" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+                <text x="106" y="217" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="var(--mono)">compare-models</text>
+                <rect x="164" y="206" width="100" height="22" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+                <text x="214" y="217" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="var(--mono)">residual-structure</text>
+                <rect x="56" y="234" width="100" height="22" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+                <text x="106" y="245" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="var(--mono)">route-bias</text>
+                <rect x="164" y="234" width="100" height="22" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+                <text x="214" y="245" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="var(--mono)">…</text>
+              </g>
+            </g>
+            <!-- dashed metadata fan from skills/ to System Prompt -->
+            <g class="grey-arrow dashed">
+              <path d="M 160 138 Q 270 70, 380 92"/>
+              <path d="M 200 138 Q 280 75, 410 92"/>
+              <path d="M 240 138 Q 310 78, 440 92"/>
+            </g>
+
+            <!-- Environment -->
+            <g class="dia-box">
+              <rect class="bg" x="900" y="220" width="200" height="190" rx="12"/>
+              <text class="lbl-header" x="1000" y="244">Environment</text>
+              <!-- data sub -->
+              <g class="sub">
+                <rect x="914" y="278" width="78" height="110" rx="8"/>
+                <text x="953" y="338" class="lbl-sm" fill="rgba(255,255,255,0.32)">data</text>
+              </g>
+              <g class="sub">
+                <rect x="1006" y="278" width="78" height="110" rx="8"/>
+                <text x="1045" y="338" class="lbl-sm" fill="rgba(255,255,255,0.32)">code</text>
+              </g>
+            </g>
+
+            <!-- Action arrow (LLM → Env) — top curve -->
+            <g class="grey-arrow">
+              <text class="arrow-label" x="720" y="270" fill="rgba(255,255,255,0.32)">Action</text>
+              <path d="M 494 328 Q 700 290, 898 308" marker-end="url(#arr-grey)"/>
+            </g>
+            <!-- tools chip on action -->
+            <g class="tools-chip">
+              <rect x="668" y="295" width="78" height="24" rx="12"/>
+              <text x="707" y="307">tools</text>
+            </g>
+
+            <!-- Feedback arrow (Env → LLM) — bottom curve -->
+            <g class="grey-arrow">
+              <path d="M 898 350 Q 700 400, 494 380" marker-end="url(#arr-grey)"/>
+              <text class="arrow-label" x="720" y="425" fill="rgba(255,255,255,0.32)">Feedback</text>
+            </g>
+
+            <!-- Stop -->
+            <g class="grey-arrow dashed">
+              <path d="M 407 408 L 407 478" marker-end="url(#arr-grey)"/>
+            </g>
+            <g class="dia-box">
+              <rect class="bg" x="367" y="482" width="80" height="44" rx="10"/>
+              <text class="lbl-sm" x="407" y="505">Stop</text>
+            </g>
+          </g>
+
+          <!-- ============ FRAME 2 — references/ folder appears ============ -->
+          <g class="dia-el dia-box box-orange" data-from="2">
+            <rect class="bg" x="864" y="60" width="236" height="58" rx="12"/>
+            <text class="lbl" x="982" y="89" fill="var(--orange-l)">references/</text>
+          </g>
+
+          <!-- ============ FRAME 3 — six reference cards populate ============ -->
+          <g class="dia-el" data-from="3">
+            <g class="ref-card" id="ref-1">
+              <rect x="880" y="140" width="100" height="26" rx="5"/>
+              <text x="930" y="153">anti-patterns</text>
+            </g>
+            <g class="ref-card" id="ref-2">
+              <rect x="988" y="140" width="100" height="26" rx="5"/>
+              <text x="1038" y="153">approach-menu</text>
+            </g>
+            <g class="ref-card" id="ref-3">
+              <rect x="880" y="174" width="100" height="26" rx="5"/>
+              <text x="930" y="187">two-kpi-tradeoff</text>
+            </g>
+            <g class="ref-card" id="ref-4">
+              <rect x="988" y="174" width="100" height="26" rx="5"/>
+              <text x="1038" y="187">exploration-disc.</text>
+            </g>
+            <g class="ref-card" id="ref-5">
+              <rect x="880" y="208" width="100" height="26" rx="5"/>
+              <text x="930" y="221">dynamics-form.</text>
+            </g>
+            <g class="ref-card" id="ref-6">
+              <rect x="988" y="208" width="100" height="26" rx="5"/>
+              <text x="1038" y="221">ceiling-moves</text>
+            </g>
+          </g>
+
+          <!-- ============ FRAME 4 — metadata dashed lines flow to System Prompt ============ -->
+          <g class="dia-el dia-arrow dashed" data-from="4">
+            <path class="draw-stroke" d="M 880 154 Q 800 100, 720 92"/>
+            <path class="draw-stroke" d="M 988 154 Q 880 105, 760 95"/>
+            <path class="draw-stroke" d="M 880 188 Q 810 130, 720 100"/>
+            <path class="draw-stroke" d="M 988 188 Q 890 135, 780 105"/>
+          </g>
+          <g class="dia-el" data-from="4">
+            <text class="arrow-label" x="822" y="50" fill="var(--orange-l)">metadata · every turn</text>
+          </g>
+
+          <!-- ============ FRAME 5 — one reference activates; body slides into SP ============ -->
+          <!-- highlight ref-1 in active state via class on group below -->
+          <g class="dia-el" data-from="5">
+            <!-- ring around the active ref -->
+            <rect x="876" y="136" width="108" height="34" rx="7"
+                  fill="none" stroke="var(--orange-l)" stroke-width="2"
+                  filter="drop-shadow(0 0 6px var(--orange-l))"/>
+          </g>
+          <g class="dia-el dia-arrow" data-from="5">
+            <path class="draw-stroke" d="M 930 138 Q 800 70, 700 88" marker-end="url(#arr)"/>
+            <text class="arrow-label" x="780" y="155" fill="var(--orange-l)">body · on demand</text>
+          </g>
+
+          <!-- ============ FRAME 6 — ratchet loop from Feedback back to active reference ============ -->
+          <g class="dia-el dia-arrow green dashed" data-from="6">
+            <path class="draw-stroke"
+                  d="M 720 425 Q 850 470, 940 285 Q 950 220, 930 175"
+                  marker-end="url(#arr-green)"/>
+            <text class="arrow-label" x="900" y="460" fill="var(--green)">a new line per failure</text>
+          </g>
+        </svg>
+        <p class="diagram-caption" id="diaCaption">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 4 — single reference card ===== -->
+  <section class="slide" data-i="4">
+    <div class="ref-header reveal">
+      <span class="eyebrow blue">Reference · Further reading</span>
+      <span class="counter">01 / 01</span>
+    </div>
+    <div class="single-ref reveal-d1">
+      <div class="ref-thumb">
+        <svg class="glyph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="1.4">
+          <!-- ratchet wheel glyph -->
+          <circle cx="100" cy="100" r="58" stroke-dasharray="6 4"/>
+          <circle cx="100" cy="100" r="20"/>
+          <g stroke-linecap="round">
+            <path d="M100 30 L100 50"/>
+            <path d="M100 150 L100 170"/>
+            <path d="M30 100 L50 100"/>
+            <path d="M150 100 L170 100"/>
+            <path d="M50 50 L65 65"/>
+            <path d="M135 135 L150 150"/>
+            <path d="M150 50 L135 65"/>
+            <path d="M65 135 L50 150"/>
+          </g>
+        </svg>
+        <div class="gen-top">
+          <span>Essay · mitchellh.com</span>
+          <span class="gen-mark">⚙</span>
+        </div>
+        <div>
+          <div class="gen-headline">The<br>ratchet<br>method.</div>
+          <div class="gen-meta" style="margin-top: 0.5rem;">Feb 2026 · Hashimoto</div>
+        </div>
+      </div>
+      <div class="ref-body">
+        <span class="ref-tag">Essay · February 2026</span>
+        <h3>My AI Adoption Journey</h3>
+        <p class="ref-author">
+          <b>Mitchell Hashimoto</b> — HashiCorp co-founder, mitchellh.com.<br>
+          <i>Synthesised into the </i><i>harness engineering</i><i> vocabulary by BettaTech (Spanish-language YouTube, late April 2026).</i>
+        </p>
+        <ul class="ref-takeaways">
+          <li>The <b>ratchet method</b> — every agent mistake gets engineered out <em>structurally</em>: in AGENTS.md, in a reference doc, in a tool wrapper. Never just re-prompted away. Failures are inputs to the next iteration.</li>
+          <li><em>"AGENTS.md is the changelog of every mistake your agents have made, written in the imperative."</em> The same loop applies to every markdown artifact in the harness — including the domain-knowledge references.</li>
+        </ul>
+        <a class="ref-link" href="https://mitchellh.com/writing/my-ai-adoption-journey" target="_blank" rel="noopener">Read the essay</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 5 — anatomy: four mini-panels ===== -->
+  <section class="slide" data-i="5">
+    <div class="anatomy-head reveal">
+      <span class="eyebrow green">Anatomy · How to write a reference</span>
+      <span class="counter"><b id="aCur">01</b> / 04</span>
+    </div>
+
+    <div class="anatomy-stage" id="anatomy">
+
+      <!-- panel 0 — anti-patterns.md -->
+      <div class="anatomy-panel active" data-panel="0">
+        <div class="code-card">
+          <div class="filename">anti-patterns.md</div>
+<pre><span class="com">---</span>
+<span class="key">name:</span> <span class="str">anti-patterns</span>
+<span class="key">description:</span> <span class="str">Common ways prior work on this
+  task has gone wrong. Lead with these —
+  most of them are not obvious from the
+  data alone.</span>
+<span class="key">when-to-load:</span> <span class="str">Before you settle on a fitting
+  procedure or evaluation slice.</span>
+<span class="key">load-cost:</span> <span class="str">~600 words.</span>
+<span class="com">---</span>
+
+<span class="hr"></span>
+
+<h4>The legal cousin — per-segment δ₀ from
+input channels (this is THE winning move
+on the right platforms)</h4>
+
+This is the <span class="hl">single highest-leverage move on
+this dataset</span>. In the most recent m3 cohort,
+the three top-tier agents <span class="hl">all shipped it</span>;
+the three bottom-tier agents <span class="hl">all didn't</span>
+— and the gap was <span class="num">+8 pts yaw</span> /
+<span class="num">+15 pts CTE</span> between tiers, with
+model form otherwise identical.</pre>
+        </div>
+        <div class="panel-body">
+          <span class="panel-tag">Panel A · anti-patterns.md</span>
+          <h3>The description carries judgement, not mechanics.</h3>
+          <p>The frontmatter <b>names the role of the doc, not its contents</b> — <em>"common ways prior work has gone wrong."</em> The body opens with a worked example whose first paragraph is <b>cohort evidence</b>: not a principle, an outcome with numbers attached.</p>
+          <p>Grove's framing applies here: <b>the reference is the lossless source of judgement.</b> The code that implements δ₀ correction is a lossy projection of the <em>insight</em> that bottom-tier agents reliably miss it. The reference carries the insight; the code carries the implementation.</p>
+        </div>
+      </div>
+
+      <!-- panel 1 — exploration-discipline.md -->
+      <div class="anatomy-panel" data-panel="1">
+        <div class="code-card">
+          <div class="filename">exploration-discipline.md</div>
+<pre><span class="com">---</span>
+<span class="key">name:</span> <span class="str">exploration-discipline</span>
+<span class="key">description:</span> <span class="str">Protocol for naming ≥5
+  alternatives (at least 3 different model
+  structures) before committing to one,
+  plus the EXPERIMENTS.md log convention.
+  Prevents silent re-convergence on the
+  same approach prior cohorts piled up on.</span>
+<span class="key">when-to-load:</span> <span class="str">At the start of a fresh task,
+  before your first fit. Re-read whenever
+  you're tempted to "just iterate on the
+  current model".</span>
+<span class="com">---</span>
+
+<span class="hr"></span>
+
+Every EXPERIMENTS.md entry MUST carry a
+<span class="hl">Rung: 0|1|2|3|orthogonal</span> tag.
+
+The <span class="hl">pre-flighting-final-model</span> skill
+enforces at least one <span class="hl">Rung: 1+</span> or
+<span class="hl">Rung: orthogonal</span> entry before the bundle
+can ship.</pre>
+        </div>
+        <div class="panel-body">
+          <span class="panel-tag">Panel B · exploration-discipline.md</span>
+          <h3>The reference as protocol.</h3>
+          <p>A reference doesn't have to <em>teach</em> — it can <b>prescribe</b>. This one is a procedure: name five alternatives, log them, tag the rung, and the harness will refuse to ship if you skipped the climb.</p>
+          <p>That last sentence is the <b>ratchet in action</b> — a prior cohort failed (every agent piled up on rung-0 refinements), so the harness was modified to <em>prevent</em> that failure from recurring. The reference doc is the human-readable face of the same change. <b>References and skills co-evolve with the failures they exist to prevent.</b></p>
+        </div>
+      </div>
+
+      <!-- panel 2 — dynamics-formulations.md -->
+      <div class="anatomy-panel" data-panel="2">
+        <div class="code-card">
+          <div class="filename">dynamics-formulations.md</div>
+<pre><span class="com">---</span>
+<span class="key">name:</span> <span class="str">dynamics-formulations</span>
+<span class="key">description:</span> <span class="str">V0 documented in full plus
+  sketches of higher-rung formulations
+  (linear dynamic ST with slip angles,
+  nonlinear tyre, multi-body).</span>
+<span class="key">when-to-load:</span> <span class="str">When choosing a model
+  structure, or when residual-structure
+  flags `structure_detected`.</span>
+
+<span class="hl">Living doc — append your formulation
+here when you ship one past V0.</span>
+<span class="com">---</span>
+
+<span class="hr"></span>
+
+<h4>Minimum viable rung-1 attempt</h4>
+
+A ~30-line code scaffold (Euler
+integration, fix all params from
+carParams except <span class="num">C_αf</span>, fit per platform).
+The cost-to-attempt is lower than past
+cohorts assumed.</pre>
+        </div>
+        <div class="panel-body">
+          <span class="panel-tag">Panel C · dynamics-formulations.md</span>
+          <h3>The living reference.</h3>
+          <p>Some references are <b>append-only catalogues</b> — every agent that ships a successful new formulation adds an entry. This is the artifact-level analogue of <em>skill files as the unit of recursive self-improvement</em>.</p>
+          <p>The reference grows as the team's vocabulary for the problem grows. <b>Any markdown artifact in the harness can learn this way</b> — AGENTS.md, individual skills, and references all participate in the same ratchet at different grains.</p>
+        </div>
+      </div>
+
+      <!-- panel 3 — two-kpi-tradeoff.md -->
+      <div class="anatomy-panel" data-panel="3">
+        <div class="code-card">
+          <div class="filename">two-kpi-tradeoff.md</div>
+<pre><span class="com">---</span>
+<span class="key">name:</span> <span class="str">two-kpi-tradeoff</span>
+<span class="key">description:</span> <span class="str">How yaw-rate RMSE and CTE
+  RMSE relate. Two-step diagnostic for
+  "yaw improved but CTE stuck".</span>
+<span class="key">when-to-load:</span> <span class="str">After you have a working
+  model and want to interpret your
+  numbers.</span>
+<span class="com">---</span>
+
+<span class="hr"></span>
+
+<h4>Failure-mode index</h4>
+
+<span class="hl">☐</span> Yaw RMSE improved >30% but CTE barely
+   moved → check per-platform signed bias;
+   a symmetric error distribution survives
+   RMSE improvements but ships as drift.
+
+<span class="hl">☐</span> Pooled score improved, per-platform
+   got worse on one → you fit pooled but
+   evaluated pooled; check the per-
+   platform table.
+
+<span class="hl">☐</span> Dev RMSE matches train RMSE exactly
+   → you split at the sample level inside
+   a segment (route leakage). Re-split.</pre>
+        </div>
+        <div class="panel-body">
+          <span class="panel-tag">Panel D · two-kpi-tradeoff.md</span>
+          <h3>The failure-mode index.</h3>
+          <p>Every reference closes with a <b>failure-mode index</b> — a checklist of <em>"you'll see this if…"</em> patterns. This is the <b>Husain pattern</b> from production trace analysis, applied at authoring time: the moment a failure has surfaced often enough to characterise, it earns a checkbox here.</p>
+          <p>The index is what makes the reference useful at the <em>moment of decision</em>, not just at the <em>moment of reading</em>. The agent runs through it after every fit; the user does too.</p>
+        </div>
+      </div>
+
+      <div class="anatomy-dots">
+        <button class="active" data-dot="0" aria-label="Panel A"></button>
+        <button data-dot="1" aria-label="Panel B"></button>
+        <button data-dot="2" aria-label="Panel C"></button>
+        <button data-dot="3" aria-label="Panel D"></button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+  const panels = document.querySelectorAll('.anatomy-panel');
+  const dots   = document.querySelectorAll('.anatomy-dots button');
+  const diaEls = document.querySelectorAll('#diagram [data-from]');
+  const diagram = document.getElementById('diagram');
+  const cap = document.getElementById('diaCaption');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const aCur = document.getElementById('aCur');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+
+  const DIAGRAM_SLIDE = 2;     // zero-based — slide 3 is the diagram
+  const ANATOMY_SLIDE = 4;     // zero-based — slide 5 is the anatomy
+  const TOTAL_FRAMES  = 6;
+  tot.textContent = slides.length;
+  let i = 0;
+  let a = 0;
+  let frame = 1;
+
+  const captions = {
+    1: 'where we left off — the skills shelf, in grey.',
+    2: 'a new folder for judgement.',
+    3: 'six short documents, each with metadata up front.',
+    4: 'metadata loads every turn — cheap. the agent decides whether the body is worth pulling.',
+    5: 'the body loads only when the moment matches.',
+    6: 'the reference learns. every recurring failure becomes a new bullet.'
+  };
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+  function paintAnatomy() {
+    panels.forEach((p, idx) => {
+      p.classList.toggle('active', idx === a);
+      p.classList.toggle('prev', idx < a);
+    });
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === a));
+    aCur.textContent = String(a + 1).padStart(2, '0');
+  }
+  function paintDiagram() {
+    diagram.dataset.frame = frame;
+    diaEls.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+    dCur.textContent = String(frame).padStart(2, '0');
+    cap.textContent = captions[frame] || ' ';
+  }
+
+  // deck-chain: this is a deep-dive off the ladder — both ends return to it,
+  // positioned on the L3 (Knowledge base) rung that opened this dive
+  const __ladder = '../02-ladder/definitive/index.html#climb-4';
+  function next() {
+    if (i === DIAGRAM_SLIDE && frame < TOTAL_FRAMES) { frame++; paintDiagram(); return; }
+    if (i === ANATOMY_SLIDE && a < panels.length - 1) { a++; paintAnatomy(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+      if (i === ANATOMY_SLIDE) { a = 0;     paintAnatomy(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function prev() {
+    if (i === DIAGRAM_SLIDE && frame > 1) { frame--; paintDiagram(); return; }
+    if (i === ANATOMY_SLIDE && a > 0)     { a--; paintAnatomy(); return; }
+    if (i > 0) {
+      i--;
+      if (i === DIAGRAM_SLIDE) { frame = TOTAL_FRAMES;      paintDiagram(); }
+      if (i === ANATOMY_SLIDE) { a = panels.length - 1;     paintAnatomy(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+    if (i === ANATOMY_SLIDE) { a = 0;     paintAnatomy(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+    if (e.key === 'Escape') { e.preventDefault(); window.location.href = __ladder; }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, .ref-link')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+  dots.forEach((d, idx) => d.addEventListener('click', e => {
+    e.stopPropagation();
+    a = idx; paintAnatomy();
+  }));
+
+  paintSlide();
+  paintAnatomy();
+  paintDiagram();
+</script>
+</body>
+</html>

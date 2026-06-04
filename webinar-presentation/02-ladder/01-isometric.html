@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ladder · 01 Isometric · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · The Ladder · 01 Isometric
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --cyan: #58e2ff;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.orange { color: var(--orange-l); }
+  .eyebrow.orange::before { background: var(--orange-l); }
+  .eyebrow.green { color: var(--green); }
+  .eyebrow.green::before { background: var(--green); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(4rem, 11vw, 10rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    margin-bottom: 1.5rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 60ch;
+    line-height: 1.55;
+  }
+
+  /* ============== SLIDE 1 — cover ============== */
+  .cover {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .cover .eyebrow { margin-bottom: 2rem; }
+  .cover h1 { margin-bottom: 1.75rem; }
+  .cover .subline {
+    margin-top: 2.5rem;
+    font-family: var(--mono); font-size: 0.82rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .cover .subline::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
+    max-width: 320px;
+  }
+
+  /* ============== SLIDE 2 — animated staircase ============== */
+  .stair-wrap {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    justify-content: center;
+  }
+  .stair-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+  .stair-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .stair-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .diagram {
+    display: flex; flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .diagram svg {
+    width: 100%;
+    height: auto;
+    max-height: 62vh;
+    display: block;
+    overflow: visible;
+  }
+
+  .diagram-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 70ch;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+  }
+
+  /* SVG element styling */
+  .diagram svg text {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    fill: var(--ink);
+  }
+
+  /* per-element entrance — used by frames */
+  .diagram svg .dia-el {
+    opacity: 0;
+    transition: opacity 0.55s cubic-bezier(.2,.7,.2,1);
+  }
+  .diagram svg .dia-el.show { opacity: 1; }
+
+  /* step block — drops in with a settle */
+  .diagram svg g.step {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .diagram svg g.step.show {
+    animation: stepDrop 0.85s cubic-bezier(.22,1.35,.36,1) both;
+  }
+  @keyframes stepDrop {
+    0%   { opacity: 0; transform: translateY(-90px); }
+    60%  { opacity: 1; transform: translateY(8px); }
+    80%  { transform: translateY(-3px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* front-face wipe reveal — a clipping rect grows left-to-right */
+  .diagram svg .face-front-fill {
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 0.7s cubic-bezier(.2,.7,.2,1) 0.45s;
+  }
+  .diagram svg g.step.show .face-front-fill { transform: scaleX(1); }
+
+  /* label slides in from the right */
+  .diagram svg g.label {
+    opacity: 0;
+    transform: translateX(36px);
+    transition: opacity 0.6s cubic-bezier(.2,.7,.2,1) 0.45s,
+                transform 0.6s cubic-bezier(.2,.7,.2,1) 0.45s;
+  }
+  .diagram svg g.label.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* tracer line connecting step corners */
+  .diagram svg .tracer {
+    fill: none;
+    stroke: rgba(255,255,255,0.45);
+    stroke-width: 1.6;
+    stroke-dasharray: 6 5;
+    stroke-linecap: round;
+    stroke-dashoffset: 1000;
+    transition: stroke-dashoffset 1.5s cubic-bezier(.2,.7,.2,1) 0.2s;
+  }
+  .diagram svg .tracer.show {
+    stroke-dashoffset: 0;
+  }
+
+  /* you-are-here dot — glow */
+  .diagram svg .here-dot {
+    fill: var(--ink);
+    transition: transform 0.7s cubic-bezier(.4,1.4,.5,1), opacity 0.4s;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.9))
+            drop-shadow(0 0 18px rgba(125,200,255,0.6));
+  }
+  .diagram svg .here-dot.hidden { opacity: 0; }
+  @keyframes herePulse {
+    0%, 100% { r: 7; }
+    50%      { r: 9.5; }
+  }
+  .diagram svg .here-dot { animation: herePulse 1.6s ease-in-out infinite; }
+
+  /* ground baseline */
+  .diagram svg .ground {
+    stroke: rgba(255,255,255,0.18);
+    stroke-width: 1;
+    stroke-dasharray: 4 6;
+    fill: none;
+  }
+
+  /* preview ghost — faded skeleton of the staircase */
+  .diagram svg .preview path,
+  .diagram svg .preview polygon {
+    fill: none;
+    stroke: rgba(255,255,255,0.07);
+    stroke-width: 1;
+  }
+
+  /* face base styles — colour is applied per-step inline */
+  .diagram svg .face-top    { stroke-width: 1; stroke: rgba(255,255,255,0.20); }
+  .diagram svg .face-front  { stroke-width: 1; stroke: rgba(0,0,0,0.35); }
+  .diagram svg .face-side   { stroke-width: 1; stroke: rgba(0,0,0,0.4); }
+
+  .diagram svg .num-top {
+    font-family: var(--mono);
+    font-size: 18px; font-weight: 700;
+    fill: rgba(0,0,0,0.78);
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.08em;
+  }
+  .diagram svg .label .l-num {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.22em;
+    fill: var(--ink-mute);
+  }
+  .diagram svg .label .l-title {
+    font-size: 22px; font-weight: 700;
+    fill: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .diagram svg .label .l-sub {
+    font-size: 13px; font-weight: 400;
+    fill: rgba(255,255,255,0.7);
+    font-style: italic;
+  }
+  .diagram svg .label .l-bar {
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  /* ============== SLIDE 3 — final state ============== */
+  .final-wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 3rem;
+    align-items: center;
+    height: 100%;
+  }
+  .final-art svg {
+    width: 100%; height: auto;
+    max-height: 72vh;
+    display: block;
+    overflow: visible;
+  }
+  .final-text h2 {
+    font-size: clamp(2.2rem, 4.2vw, 3.6rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+  }
+  .final-text h2 .grad-poltergeist {
+    background: linear-gradient(120deg, var(--blue-l), var(--purple));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .final-text h2 .grad-lamp {
+    background: linear-gradient(120deg, var(--orange-l), var(--cyan));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .final-text .final-attrib {
+    margin-top: 2rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.18);
+    line-height: 1.6;
+  }
+  .final-text .final-attrib b { color: var(--ink-soft); font-weight: 500; }
+  .final-text .final-sub {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 38ch;
+  }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Ladder · 01 Isometric</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — cover ===== -->
+  <section class="slide active" data-i="1">
+    <div class="cover">
+      <span class="eyebrow reveal">The Ladder</span>
+      <h1 class="display reveal-d1">The <span class="grad">climb.</span></h1>
+      <p class="subtitle reveal-d2">Five modules, five rungs. Each one wraps the bare model in another piece of the harness — from a sandbox with tool calls, up to a fully evaluated, secured, production system.</p>
+      <div class="subline reveal-d3">Module 01 → Module 05 · A harness, assembled one piece at a time</div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — animated isometric staircase ===== -->
+  <section class="slide" data-i="2">
+    <div class="stair-wrap">
+      <div class="stair-head reveal">
+        <span class="eyebrow purple">The climb · Five rungs</span>
+        <span class="counter"><b id="dCur">01</b> / 06</span>
+      </div>
+      <div class="diagram reveal-d1" data-frame="1" id="diagram">
+        <svg viewBox="0 0 1100 560" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- soft glow for top-face hi-lite -->
+            <linearGradient id="topShine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.35)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </linearGradient>
+            <!-- clip masks for left-to-right front wipes (one per step) -->
+            <!-- (front faces use CSS scaleX from the polygon itself instead) -->
+          </defs>
+
+          <!-- ground baseline (always visible from frame 1) -->
+          <g class="dia-el ground-g" data-from="1">
+            <line class="ground" x1="60" y1="500" x2="980" y2="500"/>
+            <text x="60" y="528" font-family="JetBrains Mono, monospace" font-size="10"
+                  letter-spacing="0.22em" fill="rgba(255,255,255,0.32)">FLOOR · MODEL + TOOLS + SANDBOX</text>
+            <text x="980" y="528" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10"
+                  letter-spacing="0.22em" fill="rgba(255,255,255,0.32)">TOP · FULL HARNESS</text>
+          </g>
+
+          <!--
+            ISOMETRIC GEOMETRY (2:1 dimetric)
+            origin of step 1 front-bottom-left corner: (130, 470)
+            step horizontal advance per rung:  dx = +130  dy = -40
+            step depth (into screen):          ex = -110  ey = -55     (top face goes up-left)
+            step height (vertical):            hx = 0     hy = -50
+
+            For each step k (0..4), front-bottom-left = (130 + k*130, 470 + k*(-40))
+            ... but the steps stack — each one sits on top of the previous, so we offset.
+            Simpler: place each step with its OWN front-bottom-left as a parameter.
+          -->
+
+          <!-- preview ghost: faint outline of the final staircase, visible from frame 1 -->
+          <g class="dia-el preview" data-from="1" opacity="0.6">
+            <!-- step 1 outline -->
+            <polygon points="130,470 250,470 250,420 130,420"/>
+            <polygon points="130,420 250,420 140,365 20,365"/>
+            <!-- step 2 -->
+            <polygon points="250,430 370,430 370,370 250,370"/>
+            <polygon points="250,370 370,370 260,315 140,315"/>
+            <!-- step 3 -->
+            <polygon points="370,390 490,390 490,320 370,320"/>
+            <polygon points="370,320 490,320 380,265 260,265"/>
+            <!-- step 4 -->
+            <polygon points="490,350 610,350 610,270 490,270"/>
+            <polygon points="490,270 610,270 500,215 380,215"/>
+            <!-- step 5 -->
+            <polygon points="610,310 730,310 730,220 610,220"/>
+            <polygon points="610,220 730,220 620,165 500,165"/>
+          </g>
+
+          <!-- TRACER — appears on frame 6, connects top-back-left corners -->
+          <g class="dia-el" data-from="6">
+            <path class="tracer" id="tracerPath"
+              d="M 20,365 L 140,315 L 260,265 L 380,215 L 500,165"
+              pathLength="100"/>
+          </g>
+
+          <!-- ============== STEPS ============== -->
+          <!-- helper coordinate scheme per step (front-bottom-left = FB):
+               front quad:  FB,  FB+(120,0),  FB+(120,-50),  FB+(0,-50)
+               top quad:    FB+(0,-50), FB+(120,-50), FB+(120-110,-50-55), FB+(0-110,-50-55)
+               side quad:   FB,  FB+(0,-50), FB+(-110,-50-55), FB+(-110,-55)     (LEFT side visible)
+               Wait — for a staircase ascending bottom-left → top-right, the visible side face
+               is the LEFT side (depth-back direction). We'll draw left side + top + front.
+          -->
+
+          <!-- ===== STEP 01 — BLUE — Bare Agent ===== -->
+          <g class="dia-el step" data-from="2" id="step1">
+            <!-- LEFT side face -->
+            <polygon class="face-side" points="130,470 130,420 20,365 20,415"
+                     fill="#1f4d99"/>
+            <!-- FRONT face (kept as full block; front-fill overlay handles wipe) -->
+            <polygon class="face-front" points="130,470 250,470 250,420 130,420"
+                     fill="rgba(15,20,35,0.85)"/>
+            <!-- FRONT colour fill (wipes left→right) -->
+            <polygon class="face-front-fill" points="130,470 250,470 250,420 130,420"
+                     fill="#3d89ff" opacity="0.85"/>
+            <!-- TOP face -->
+            <polygon class="face-top" points="130,420 250,420 140,365 20,365"
+                     fill="#3d89ff"/>
+            <polygon class="face-top" points="130,420 250,420 140,365 20,365"
+                     fill="url(#topShine)"/>
+            <!-- module number on top face (centroid roughly) -->
+            <text class="num-top" x="135" y="395" transform="rotate(-24 135 395)">01</text>
+          </g>
+
+          <!-- LABEL 01 -->
+          <g class="dia-el label" data-from="2" id="label1">
+            <line class="l-bar" x1="276" y1="450" x2="306" y2="450" stroke="#3d89ff"/>
+            <text class="l-num" x="316" y="448" dominant-baseline="middle" fill="#3d89ff">MODULE 01</text>
+            <text class="l-title" x="316" y="472">The Bare Agent</text>
+            <text class="l-sub" x="316" y="494">Model + tools + system prompt + a sandbox. The floor.</text>
+          </g>
+
+          <!-- ===== STEP 02 — PURPLE — Skills ===== -->
+          <g class="dia-el step" data-from="3" id="step2">
+            <polygon class="face-side" points="250,430 250,370 140,315 140,375"
+                     fill="#6a1a99"/>
+            <polygon class="face-front" points="250,430 370,430 370,370 250,370"
+                     fill="rgba(15,20,35,0.85)"/>
+            <polygon class="face-front-fill" points="250,430 370,430 370,370 250,370"
+                     fill="#ca5fff" opacity="0.85"/>
+            <polygon class="face-top" points="250,370 370,370 260,315 140,315"
+                     fill="#ca5fff"/>
+            <polygon class="face-top" points="250,370 370,370 260,315 140,315"
+                     fill="url(#topShine)"/>
+            <text class="num-top" x="255" y="345" transform="rotate(-24 255 345)">02</text>
+          </g>
+
+          <!-- LABEL 02 -->
+          <g class="dia-el label" data-from="3" id="label2">
+            <line class="l-bar" x1="396" y1="400" x2="426" y2="400" stroke="#ca5fff"/>
+            <text class="l-num" x="436" y="398" dominant-baseline="middle" fill="#ca5fff">MODULE 02</text>
+            <text class="l-title" x="436" y="422">Skills</text>
+            <text class="l-sub" x="436" y="444">Procedural recipes, loaded by progressive disclosure.</text>
+          </g>
+
+          <!-- ===== STEP 03 — ORANGE — Domain Knowledge ===== -->
+          <g class="dia-el step" data-from="4" id="step3">
+            <polygon class="face-side" points="370,390 370,320 260,265 260,335"
+                     fill="#994415"/>
+            <polygon class="face-front" points="370,390 490,390 490,320 370,320"
+                     fill="rgba(15,20,35,0.85)"/>
+            <polygon class="face-front-fill" points="370,390 490,390 490,320 370,320"
+                     fill="#fe9353" opacity="0.85"/>
+            <polygon class="face-top" points="370,320 490,320 380,265 260,265"
+                     fill="#fe9353"/>
+            <polygon class="face-top" points="370,320 490,320 380,265 260,265"
+                     fill="url(#topShine)"/>
+            <text class="num-top" x="375" y="295" transform="rotate(-24 375 295)">03</text>
+          </g>
+
+          <!-- LABEL 03 -->
+          <g class="dia-el label" data-from="4" id="label3">
+            <line class="l-bar" x1="516" y1="355" x2="546" y2="355" stroke="#fe9353"/>
+            <text class="l-num" x="556" y="353" dominant-baseline="middle" fill="#fe9353">MODULE 03</text>
+            <text class="l-title" x="556" y="377">Domain Knowledge</text>
+            <text class="l-sub" x="556" y="399">The hard-won expertise the model doesn't have on its own.</text>
+          </g>
+
+          <!-- ===== STEP 04 — GREEN — Ops Layer ===== -->
+          <g class="dia-el step" data-from="5" id="step4">
+            <polygon class="face-side" points="490,350 490,270 380,215 380,295"
+                     fill="#0a6b3f"/>
+            <polygon class="face-front" points="490,350 610,350 610,270 490,270"
+                     fill="rgba(15,20,35,0.85)"/>
+            <polygon class="face-front-fill" points="490,350 610,350 610,270 490,270"
+                     fill="#00dd81" opacity="0.85"/>
+            <polygon class="face-top" points="490,270 610,270 500,215 380,215"
+                     fill="#00dd81"/>
+            <polygon class="face-top" points="490,270 610,270 500,215 380,215"
+                     fill="url(#topShine)"/>
+            <text class="num-top" x="495" y="245" transform="rotate(-24 495 245)">04</text>
+          </g>
+
+          <!-- LABEL 04 -->
+          <g class="dia-el label" data-from="5" id="label4">
+            <line class="l-bar" x1="636" y1="310" x2="666" y2="310" stroke="#00dd81"/>
+            <text class="l-num" x="676" y="308" dominant-baseline="middle" fill="#00dd81">MODULE 04</text>
+            <text class="l-title" x="676" y="332">Ops Layer</text>
+            <text class="l-sub" x="676" y="354">Managed pipelines. The runtime substrate.</text>
+          </g>
+
+          <!-- ===== STEP 05 — CYAN — Eval + Security ===== -->
+          <g class="dia-el step" data-from="6" id="step5">
+            <polygon class="face-side" points="610,310 610,220 500,165 500,255"
+                     fill="#1b6e87"/>
+            <polygon class="face-front" points="610,310 730,310 730,220 610,220"
+                     fill="rgba(15,20,35,0.85)"/>
+            <polygon class="face-front-fill" points="610,310 730,310 730,220 610,220"
+                     fill="#58e2ff" opacity="0.85"/>
+            <polygon class="face-top" points="610,220 730,220 620,165 500,165"
+                     fill="#58e2ff"/>
+            <polygon class="face-top" points="610,220 730,220 620,165 500,165"
+                     fill="url(#topShine)"/>
+            <text class="num-top" x="615" y="195" transform="rotate(-24 615 195)">05</text>
+          </g>
+
+          <!-- LABEL 05 -->
+          <g class="dia-el label" data-from="6" id="label5">
+            <line class="l-bar" x1="756" y1="260" x2="786" y2="260" stroke="#58e2ff"/>
+            <text class="l-num" x="796" y="258" dominant-baseline="middle" fill="#58e2ff">MODULE 05</text>
+            <text class="l-title" x="796" y="282">Eval + Security</text>
+            <text class="l-sub" x="796" y="304">Custom judges, production traces, the lethal trifecta cut.</text>
+          </g>
+
+          <!-- YOU ARE HERE — glowing dot that climbs the staircase -->
+          <circle class="here-dot hidden" id="hereDot" cx="190" cy="430" r="7"/>
+
+        </svg>
+        <p class="diagram-caption" id="diaCaption">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — final state ===== -->
+  <section class="slide" data-i="3">
+    <div class="final-wrap">
+      <div class="final-art reveal">
+        <svg viewBox="0 0 850 560" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="topShine2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.35)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ground -->
+          <line x1="60" y1="500" x2="780" y2="500"
+                stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="4 6"/>
+
+          <!-- tracer line, drawn solid for the final state -->
+          <path d="M 20,365 L 140,315 L 260,265 L 380,215 L 500,165"
+                fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"
+                stroke-dasharray="6 5" stroke-linecap="round"/>
+
+          <!-- step 1 BLUE -->
+          <g>
+            <polygon points="130,470 130,420 20,365 20,415" fill="#1f4d99" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+            <polygon points="130,470 250,470 250,420 130,420" fill="#3d89ff" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>
+            <polygon points="130,420 250,420 140,365 20,365" fill="#3d89ff" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <polygon points="130,420 250,420 140,365 20,365" fill="url(#topShine2)"/>
+            <text font-family="JetBrains Mono, monospace" font-size="18" font-weight="700"
+                  fill="rgba(0,0,0,0.78)" text-anchor="middle" dominant-baseline="central"
+                  x="135" y="395" transform="rotate(-24 135 395)">01</text>
+          </g>
+
+          <!-- step 2 PURPLE -->
+          <g>
+            <polygon points="250,430 250,370 140,315 140,375" fill="#6a1a99" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+            <polygon points="250,430 370,430 370,370 250,370" fill="#ca5fff" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>
+            <polygon points="250,370 370,370 260,315 140,315" fill="#ca5fff" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <polygon points="250,370 370,370 260,315 140,315" fill="url(#topShine2)"/>
+            <text font-family="JetBrains Mono, monospace" font-size="18" font-weight="700"
+                  fill="rgba(0,0,0,0.78)" text-anchor="middle" dominant-baseline="central"
+                  x="255" y="345" transform="rotate(-24 255 345)">02</text>
+          </g>
+
+          <!-- step 3 ORANGE -->
+          <g>
+            <polygon points="370,390 370,320 260,265 260,335" fill="#994415" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+            <polygon points="370,390 490,390 490,320 370,320" fill="#fe9353" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>
+            <polygon points="370,320 490,320 380,265 260,265" fill="#fe9353" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <polygon points="370,320 490,320 380,265 260,265" fill="url(#topShine2)"/>
+            <text font-family="JetBrains Mono, monospace" font-size="18" font-weight="700"
+                  fill="rgba(0,0,0,0.78)" text-anchor="middle" dominant-baseline="central"
+                  x="375" y="295" transform="rotate(-24 375 295)">03</text>
+          </g>
+
+          <!-- step 4 GREEN -->
+          <g>
+            <polygon points="490,350 490,270 380,215 380,295" fill="#0a6b3f" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+            <polygon points="490,350 610,350 610,270 490,270" fill="#00dd81" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>
+            <polygon points="490,270 610,270 500,215 380,215" fill="#00dd81" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <polygon points="490,270 610,270 500,215 380,215" fill="url(#topShine2)"/>
+            <text font-family="JetBrains Mono, monospace" font-size="18" font-weight="700"
+                  fill="rgba(0,0,0,0.78)" text-anchor="middle" dominant-baseline="central"
+                  x="495" y="245" transform="rotate(-24 495 245)">04</text>
+          </g>
+
+          <!-- step 5 CYAN -->
+          <g>
+            <polygon points="610,310 610,220 500,165 500,255" fill="#1b6e87" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+            <polygon points="610,310 730,310 730,220 610,220" fill="#58e2ff" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>
+            <polygon points="610,220 730,220 620,165 500,165" fill="#58e2ff" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <polygon points="610,220 730,220 620,165 500,165" fill="url(#topShine2)"/>
+            <text font-family="JetBrains Mono, monospace" font-size="18" font-weight="700"
+                  fill="rgba(0,0,0,0.78)" text-anchor="middle" dominant-baseline="central"
+                  x="615" y="195" transform="rotate(-24 615 195)">05</text>
+          </g>
+
+          <!-- floor label, poltergeist anchor -->
+          <text font-family="JetBrains Mono, monospace" font-size="10"
+                letter-spacing="0.22em" fill="rgba(255,255,255,0.38)"
+                x="60" y="528">FLOOR · POLTERGEIST</text>
+          <text font-family="JetBrains Mono, monospace" font-size="10"
+                text-anchor="end" letter-spacing="0.22em" fill="rgba(255,255,255,0.38)"
+                x="780" y="528">TOP · GENIE IN A LAMP</text>
+
+          <!-- final glowing dot at the top -->
+          <circle cx="565" cy="195" r="8" fill="#fff"
+                  style="filter: drop-shadow(0 0 8px rgba(255,255,255,0.9)) drop-shadow(0 0 22px rgba(125,200,255,0.7));">
+            <animate attributeName="r" values="7;10;7" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="final-text">
+        <span class="eyebrow green reveal-d1">The final state</span>
+        <h2 class="reveal-d2">
+          Module 1 is a <span class="grad-poltergeist">poltergeist</span>.<br>
+          Module 5 is the <span class="grad-lamp">lamp</span>.
+        </h2>
+        <p class="final-sub reveal-d3">Every rung adds another piece of the harness around the model — until the agent stops being a thing that <em>haunts</em> the system and starts being a thing the system <em>contains</em>.</p>
+        <p class="final-attrib reveal-d4">
+          <b>Cassie Kozyrkov</b> — the poltergeist / genie framing for ungoverned vs. governed AI agents.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">3</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+  const diaEls = document.querySelectorAll('#diagram [data-from]');
+  const diagram = document.getElementById('diagram');
+  const cap = document.getElementById('diaCaption');
+  const hereDot = document.getElementById('hereDot');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+
+  const STAIR_SLIDE  = 1;      // zero-based — the animated staircase slide
+  const TOTAL_FRAMES = 6;
+  tot.textContent = slides.length;
+  let i = 0;
+  let frame = 1;
+
+  const captions = {
+    1: 'the stage. a floor, a faint preview of the climb ahead.',
+    2: 'module 01 — the bare agent. model + tools + system prompt. the floor.',
+    3: 'module 02 — skills. procedural recipes the agent loads on demand.',
+    4: 'module 03 — domain knowledge. the expertise the model never had.',
+    5: 'module 04 — ops layer. managed pipelines, the runtime substrate.',
+    6: 'module 05 — eval + security. judges, traces, the lethal trifecta cut. the climb is traced.'
+  };
+
+  // Approximate centroid of each step's TOP face — where the "you are here" dot sits.
+  // step k top face: average of its 4 corners.
+  // step 1: (130,420) (250,420) (140,365) (20,365)   → cx=135, cy=392
+  // step 2: (250,370) (370,370) (260,315) (140,315)  → cx=255, cy=342
+  // step 3: (370,320) (490,320) (380,265) (260,265)  → cx=375, cy=292
+  // step 4: (490,270) (610,270) (500,215) (380,215)  → cx=495, cy=242
+  // step 5: (610,220) (730,220) (620,165) (500,165)  → cx=615, cy=192
+  const hereSpots = [
+    null,              // frame 1 — hidden
+    {x:135, y:392},    // frame 2 — on step 1
+    {x:255, y:342},    // frame 3 — on step 2
+    {x:375, y:292},    // frame 4 — on step 3
+    {x:495, y:242},    // frame 5 — on step 4
+    {x:615, y:192}     // frame 6 — on step 5
+  ];
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+  }
+
+  function paintDiagram() {
+    diagram.dataset.frame = frame;
+    diaEls.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+    dCur.textContent = String(frame).padStart(2, '0');
+    cap.textContent = captions[frame] || ' ';
+
+    // you-are-here dot
+    const spot = hereSpots[frame - 1];
+    if (!spot) {
+      hereDot.classList.add('hidden');
+    } else {
+      hereDot.classList.remove('hidden');
+      hereDot.setAttribute('cx', spot.x);
+      hereDot.setAttribute('cy', spot.y);
+    }
+  }
+
+  function next() {
+    if (i === STAIR_SLIDE && frame < TOTAL_FRAMES) { frame++; paintDiagram(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === STAIR_SLIDE) { frame = 1; paintDiagram(); }
+      paintSlide();
+    }
+  }
+  function prev() {
+    if (i === STAIR_SLIDE && frame > 1) { frame--; paintDiagram(); return; }
+    if (i > 0) {
+      i--;
+      if (i === STAIR_SLIDE) { frame = TOTAL_FRAMES; paintDiagram(); }
+      paintSlide();
+    }
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === STAIR_SLIDE) { frame = 1; paintDiagram(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+
+  paintSlide();
+  paintDiagram();
+</script>
+</body>
+</html>

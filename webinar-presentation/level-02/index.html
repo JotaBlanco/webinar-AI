@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 02 — Skills · Quix Webinar</title>
+<style>
+  /* =========================================================
+     Quix Webinar · Level 02 · Skills
+     Cosmic master aesthetic — see /templates/01-cosmic.html
+     ========================================================= */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.72);
+    --ink-mute: rgba(255,255,255,0.42);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --purple-l: #ca5fff;
+    --orange: #ff7828;
+    --orange-l: #fe9353;
+    --green: #00dd81;
+    --cyan: #58e2ff;
+    --grey-l: rgba(180,190,210,0.42);
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.35), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.28), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.22), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.18), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.22), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  /* starfield */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 22px; opacity: 0.85; }
+
+  /* slide stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.9s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ============== TYPOGRAPHY ============== */
+  .eyebrow {
+    font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--blue-l); font-weight: 600; margin-bottom: 1.5rem;
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 28px; height: 1px; background: var(--blue-l);
+  }
+  .eyebrow.purple { color: var(--purple-l); }
+  .eyebrow.purple::before { background: var(--purple-l); }
+  .eyebrow.orange { color: var(--orange-l); }
+  .eyebrow.orange::before { background: var(--orange-l); }
+  .eyebrow.green  { color: var(--green); }
+  .eyebrow.green::before  { background: var(--green); }
+
+  h1.display {
+    color: var(--ink);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+  h1.display .grad {
+    background: linear-gradient(120deg, var(--blue-l) 0%, var(--purple) 50%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    font-weight: 400;
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+
+  .big-num {
+    font-size: clamp(7rem, 17vw, 15rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    background: linear-gradient(180deg, var(--ink) 25%, rgba(255,255,255,0.12) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+
+  /* ============== SLIDE 1 — section opener ============== */
+  .opener {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+  }
+  .opener .level-tag {
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--purple-l);
+    display: inline-flex; align-items: center; gap: 0.75rem;
+  }
+  .opener .level-tag::before {
+    content: ''; width: 36px; height: 1px; background: var(--purple-l);
+    box-shadow: 0 0 8px var(--purple-l);
+  }
+  .opener h1 {
+    font-size: clamp(4.5rem, 13vw, 11rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-top: 1rem;
+  }
+  .opener h1 .grad {
+    background: linear-gradient(120deg, var(--purple) 0%, var(--blue-l) 50%, var(--cyan) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .opener .subline {
+    margin-top: 2rem;
+    font-family: var(--mono); font-size: 0.85rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .opener .subline::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
+    max-width: 280px;
+  }
+
+  /* ============== SLIDE 2 — definition ============== */
+  .definition { max-width: 64rem; }
+  .def-headword {
+    display: flex; align-items: baseline; gap: 1.25rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .def-headword h2 {
+    font-size: clamp(3rem, 6.5vw, 5.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .def-headword h2 .grad {
+    background: linear-gradient(120deg, var(--purple) 0%, var(--blue-l) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .def-headword .pos {
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-mute);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .def-headword .pron {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+  }
+  .def-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--purple), var(--blue-l), var(--cyan), transparent);
+    margin-bottom: 2rem;
+    max-width: 280px;
+    transform-origin: left;
+    animation: drawDiv 1.2s cubic-bezier(.2,.7,.2,1) 0.4s both;
+  }
+  @keyframes drawDiv { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .def-body {
+    font-size: clamp(1.2rem, 1.75vw, 1.55rem);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    max-width: 44ch;
+    margin-bottom: 2rem;
+  }
+  .def-body .em-core   { color: var(--ink); border-bottom: 1px solid rgba(255,255,255,0.55); padding-bottom: 1px; }
+  .def-body .em-cyan   { color: var(--ink); border-bottom: 1px dashed rgba(88,226,255,0.8); padding-bottom: 1px; }
+  .def-body .em-blue   { color: var(--ink); border-bottom: 1px dashed rgba(61,137,255,0.7); padding-bottom: 1px; }
+  .def-body .em-purple { color: var(--ink); border-bottom: 1px dashed rgba(202,95,255,0.7); padding-bottom: 1px; }
+  .def-body .em-orange { color: var(--ink); border-bottom: 1px dashed rgba(254,147,83,0.7); padding-bottom: 1px; }
+  .def-body .gate-clause {
+    display: block;
+    margin-top: 0.7em;
+    color: var(--green);
+    font-style: italic;
+  }
+  .def-body .gate-clause .gate-icon {
+    display: inline-block;
+    font-style: normal;
+    margin-right: 0.4em;
+  }
+
+  .def-components {
+    display: flex; flex-wrap: wrap; gap: 0.7rem;
+    margin-bottom: 2.25rem;
+  }
+  .def-pill {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    font-size: 0.95rem; font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .def-pill .n {
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--ink-mute); letter-spacing: 0.15em;
+  }
+  .def-pill.cyan   { border-color: rgba(88,226,255,0.50); background: rgba(88,226,255,0.10); }
+  .def-pill.blue   { border-color: rgba(61,137,255,0.45); background: rgba(61,137,255,0.08); }
+  .def-pill.purple { border-color: rgba(202,95,255,0.45); background: rgba(202,95,255,0.08); }
+  .def-pill.orange { border-color: rgba(254,147,83,0.45); background: rgba(254,147,83,0.08); }
+
+  .def-source {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 60ch;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.15);
+  }
+  .def-source b { color: var(--ink-soft); font-style: normal; font-weight: 500; }
+
+  /* ============== SLIDE 3 — diagram (skills shelf, built up) ============== */
+  .diagram-wrap {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    justify-content: center;
+  }
+  .diagram-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.25rem;
+  }
+  .diagram-head .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .diagram-head .counter b { color: var(--ink); font-weight: 600; }
+
+  .diagram {
+    display: flex; flex-direction: column;
+    gap: 0.85rem;
+    align-items: stretch;
+  }
+  .diagram svg {
+    width: 100%;
+    height: auto;
+    max-height: 64vh;
+    display: block;
+  }
+  .diagram-caption {
+    text-align: center;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    color: var(--ink-soft);
+    font-style: italic;
+    min-height: 1.7em;
+    max-width: 70ch;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+  }
+
+  /* SVG element styling */
+  .diagram svg text {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    fill: var(--ink);
+  }
+  .diagram svg .lbl {
+    font-size: 18px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: -0.005em;
+  }
+  .diagram svg .lbl-sm {
+    font-size: 14px; font-weight: 500;
+    text-anchor: middle; dominant-baseline: central;
+  }
+  .diagram svg .lbl-header {
+    font-size: 13px; font-weight: 600;
+    text-anchor: middle; dominant-baseline: central;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    fill: rgba(255,255,255,0.7);
+  }
+  .diagram svg .lbl-folder {
+    font-family: var(--mono);
+    font-size: 14px; font-weight: 600;
+    text-anchor: start; dominant-baseline: central;
+    letter-spacing: 0.14em;
+    fill: var(--cyan);
+  }
+  .diagram svg .arrow-label {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 500;
+    fill: rgba(255,255,255,0.75);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-anchor: middle;
+  }
+
+  /* greyed Level-01 loop layer */
+  .diagram svg .l01-box rect.bg {
+    fill: rgba(180,190,210,0.04);
+    stroke: var(--grey-l);
+    stroke-width: 1.2;
+  }
+  .diagram svg .l01-box text { fill: var(--grey-l); }
+  .diagram svg .l01-arrow path {
+    fill: none;
+    stroke: var(--grey-l);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .diagram svg .l01-arrow.dashed path { stroke-dasharray: 6 5; }
+  .diagram svg .l01-arrow .arrow-label { fill: var(--grey-l); }
+  .diagram svg .l01-sub rect {
+    fill: rgba(180,190,210,0.03);
+    stroke: var(--grey-l);
+    stroke-width: 0.8;
+    stroke-dasharray: 3 3;
+  }
+  .diagram svg .l01-sub text { fill: var(--grey-l); }
+  .diagram svg .l01-icon {
+    fill: none;
+    stroke: var(--grey-l);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .diagram svg .l01-chip rect {
+    fill: var(--bg-deep);
+    stroke: var(--grey-l);
+    stroke-width: 1.2;
+  }
+  .diagram svg .l01-chip text {
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 600;
+    fill: var(--grey-l);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+
+  /* skills layer — colour */
+  .diagram svg .sp-box rect.bg {
+    fill: rgba(254,147,83,0.10);
+    stroke: var(--orange-l);
+    stroke-width: 1.6;
+  }
+  .diagram svg .sp-box text { fill: var(--ink); }
+
+  .diagram svg .sk-folder rect.bg {
+    fill: rgba(88,226,255,0.04);
+    stroke: var(--cyan);
+    stroke-width: 1.4;
+  }
+  .diagram svg .sk-folder .tab {
+    fill: rgba(88,226,255,0.10);
+    stroke: var(--cyan);
+    stroke-width: 1.4;
+  }
+  .diagram svg .sk-card rect.bg {
+    fill: rgba(10,11,22,0.7);
+    stroke: rgba(88,226,255,0.45);
+    stroke-width: 1;
+  }
+  .diagram svg .sk-card text.name {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 600;
+    text-anchor: start; dominant-baseline: central;
+    letter-spacing: 0.02em;
+    fill: var(--ink);
+  }
+  .diagram svg .sk-card .meta-dot { fill: var(--cyan); }
+  .diagram svg .sk-card text.meta-label {
+    font-family: var(--mono);
+    font-size: 8.5px; font-weight: 500;
+    text-anchor: start; dominant-baseline: central;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    fill: var(--ink-mute);
+  }
+  .diagram svg .sk-card.active rect.bg {
+    fill: rgba(0,221,129,0.16);
+    stroke: var(--green);
+    stroke-width: 1.6;
+  }
+  .diagram svg .sk-card.active text.name { fill: var(--green); }
+  .diagram svg .sk-card.active .meta-dot { fill: var(--green); }
+
+  /* metadata fan lines (dashed cyan) */
+  .diagram svg .meta-line {
+    fill: none;
+    stroke: var(--cyan);
+    stroke-width: 0.9;
+    stroke-dasharray: 3 3;
+    opacity: 0.55;
+  }
+  /* body line (solid green) */
+  .diagram svg .body-line {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  /* highlight overlay on frame 7 */
+  .diagram svg .l01-highlight path {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    opacity: 0.95;
+  }
+
+  /* draw-stroke animation */
+  .diagram svg .draw-stroke {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    transition: stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1) 0.15s;
+  }
+  .diagram svg .dia-el.show .draw-stroke { stroke-dashoffset: 0; }
+
+  /* per-element fade */
+  .diagram svg .dia-el {
+    opacity: 0;
+    transition: opacity 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+  .diagram svg .dia-el.show { opacity: 1; }
+
+  /* arrow heads (per colour) */
+  .diagram svg marker.grey   path { fill: var(--grey-l); }
+  .diagram svg marker.green  path { fill: var(--green); }
+  .diagram svg marker.orange path { fill: var(--orange-l); }
+
+  /* ============== SLIDE 4 — references carousel ============== */
+  .ref-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 2rem;
+  }
+  .ref-header .counter {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .ref-header .counter b { color: var(--ink); font-weight: 600; }
+
+  .carousel {
+    position: relative;
+    height: 62vh; min-height: 440px;
+  }
+  .ref-card {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 2.5rem;
+    align-items: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s cubic-bezier(.2,.7,.2,1), transform 0.6s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+  .ref-card.prev { transform: translateX(-40px); }
+  .ref-card.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .ref-thumb {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    align-self: center;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg-deep);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .ref-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ref-thumb::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(5,6,15,0.4) 100%);
+    pointer-events: none;
+  }
+
+  /* generated thumb — for cards without image */
+  .ref-thumb.gen {
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 1.75rem;
+  }
+  .ref-thumb.gen::before {
+    content: ''; position: absolute; inset: 0;
+    filter: blur(30px);
+  }
+  .ref-card[data-card="0"] .ref-thumb.gen::before {
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(189,46,255,0.45), transparent 60%),
+      radial-gradient(50% 50% at 80% 80%, rgba(0,100,255,0.30), transparent 60%);
+  }
+  .ref-card[data-card="1"] .ref-thumb.gen::before {
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(0,221,129,0.40), transparent 60%),
+      radial-gradient(50% 50% at 80% 80%, rgba(88,226,255,0.30), transparent 60%);
+  }
+  .ref-thumb.gen .gen-top {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+  }
+  .ref-thumb.gen .gen-mark {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); font-size: 1.05rem;
+  }
+  .ref-thumb.gen .gen-headline {
+    position: relative; z-index: 1;
+    color: var(--ink);
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+  .ref-thumb.gen .gen-meta {
+    position: relative; z-index: 1;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .ref-thumb.gen svg.glyph {
+    position: absolute; inset: 0; margin: auto;
+    width: 55%; height: auto; opacity: 0.18;
+    z-index: 0;
+  }
+
+  .ref-body {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0.5rem 0;
+  }
+  .ref-body .ref-tag {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--blue-l); margin-bottom: 1rem;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .ref-body .ref-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l);
+  }
+  .ref-card[data-card="0"] .ref-tag { color: var(--purple-l); }
+  .ref-card[data-card="0"] .ref-tag::before { background: var(--purple-l); box-shadow: 0 0 8px var(--purple-l); }
+  .ref-card[data-card="1"] .ref-tag { color: var(--green); }
+  .ref-card[data-card="1"] .ref-tag::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  .ref-body h3 {
+    color: var(--ink);
+    font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+  .ref-body .ref-author {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .ref-body .ref-author b { color: var(--ink); font-weight: 600; }
+
+  .ref-takeaways {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .ref-takeaways li {
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .ref-takeaways li::before {
+    content: ''; position: absolute; left: 0; top: 0.6em;
+    width: 8px; height: 1px;
+    background: var(--blue-l);
+  }
+  .ref-takeaways li em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .ref-takeaways li b  { color: var(--ink); font-weight: 600; }
+
+  .ref-link {
+    font-family: var(--mono); font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue-l); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid rgba(61,137,255,0.4);
+    background: rgba(61,137,255,0.06);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    align-self: flex-start;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .ref-link:hover {
+    background: rgba(61,137,255,0.18);
+    transform: translateY(-2px);
+  }
+  .ref-link::after { content: '↗'; font-size: 0.95rem; }
+
+  /* carousel dots */
+  .carousel-dots {
+    position: absolute; bottom: -3.5rem; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 0.6rem;
+  }
+  .carousel-dots button {
+    width: 26px; height: 3px; border: 0;
+    border-radius: 2px; padding: 0;
+    background: rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+  .carousel-dots button.active {
+    background: var(--blue-l);
+    width: 44px;
+    box-shadow: 0 0 8px var(--blue-l);
+  }
+  .carousel-dots button:hover { background: rgba(255,255,255,0.35); }
+
+  /* ============== SLIDE 5 — anatomy of a SKILL.md ============== */
+  .anatomy-wrap {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 5.5rem;
+    align-items: start;
+    height: 100%;
+  }
+  /* connector overlay — spans both columns */
+  .connector-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    overflow: visible;
+  }
+  .connector-svg path {
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    opacity: 0;
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    transition: opacity 0.4s ease, stroke-dashoffset 1.1s cubic-bezier(.2,.7,.2,1);
+  }
+  .connector-svg path.show {
+    opacity: 0.85;
+    stroke-dashoffset: 0;
+  }
+  .connector-svg path.purple { stroke: var(--purple-l); filter: drop-shadow(0 0 6px rgba(202,95,255,0.4)); }
+  .connector-svg path.orange { stroke: var(--orange-l); filter: drop-shadow(0 0 6px rgba(254,147,83,0.4)); }
+  .connector-svg path.green  { stroke: var(--green);    filter: drop-shadow(0 0 6px rgba(0,221,129,0.4)); }
+  .connector-svg circle { opacity: 0; transition: opacity 0.4s ease 0.6s; }
+  .connector-svg circle.show { opacity: 0.9; }
+  .connector-svg circle.purple { fill: var(--purple-l); }
+  .connector-svg circle.orange { fill: var(--orange-l); }
+  .connector-svg circle.green  { fill: var(--green); }
+
+  .anatomy-head {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .anatomy-head h3 {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .anatomy-head .file-meta {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.22em; color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  /* code card — cosmic-style soft card */
+  .code-card {
+    position: relative;
+    background: rgba(10,11,22,0.7);
+    border: 1px solid rgba(61,137,255,0.2);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem 1.6rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    max-height: 66vh;
+    overflow: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .code-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), var(--orange), transparent);
+  }
+  .code-card .file-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.7rem;
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .code-card .file-bar .file-name { color: var(--cyan); }
+  .code-card pre {
+    font-family: var(--mono);
+    font-size: clamp(0.74rem, 0.92vw, 0.86rem);
+    color: var(--ink-soft);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .code-card pre .k   { color: var(--cyan); }
+  .code-card pre .v   { color: var(--ink); }
+  .code-card pre .sep { color: var(--ink-mute); }
+  .code-card pre .hl-name { background: rgba(61,137,255,0.14); padding: 0 3px; border-radius: 3px; }
+  .code-card pre .hl-desc { background: rgba(202,95,255,0.12); padding: 0 3px; border-radius: 3px; }
+  .code-card pre .hl-not  { background: rgba(254,147,83,0.12); padding: 0 3px; border-radius: 3px; }
+  .code-card pre .hl-cost { background: rgba(0,221,129,0.14); padding: 0 3px; border-radius: 3px; }
+
+  /* annotations column — positioned to align with YAML fields */
+  .annotations {
+    position: relative;
+    height: 66vh;
+    min-height: 460px;
+  }
+  .annotation {
+    position: absolute;
+    left: 0; right: 0;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0.85rem 1.05rem 0.95rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+  }
+  .annotation::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--blue-l), transparent);
+  }
+  .annotation.purple::before { background: linear-gradient(90deg, var(--purple), transparent); }
+  .annotation.orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
+  .annotation.green::before  { background: linear-gradient(90deg, var(--green), transparent); }
+
+  /* left-pointing arrow tab on each annotation */
+  .annotation .a-arrow {
+    position: absolute;
+    left: -10px; top: 1.1rem;
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid;
+    border-right-color: rgba(255,255,255,0.6);
+    filter: drop-shadow(-1px 0 0 rgba(255,255,255,0.15));
+  }
+  .annotation.purple .a-arrow { border-right-color: var(--purple-l); }
+  .annotation.orange .a-arrow { border-right-color: var(--orange-l); }
+  .annotation.green  .a-arrow { border-right-color: var(--green); }
+
+  /* vertical placement aligned with YAML fields */
+  .annotation.a-desc { top: 0%; }
+  .annotation.a-not  { top: 48%; }
+  .annotation.a-cost { top: 80%; }
+
+  .annotation .a-tag {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: var(--mono); font-size: 0.66rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.4rem;
+  }
+  .annotation .a-key {
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+  .annotation.purple .a-key { color: var(--purple-l); }
+  .annotation.orange .a-key { color: var(--orange-l); }
+  .annotation.green  .a-key { color: var(--green); }
+
+  .annotation h4 {
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+  }
+  .annotation p {
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  .annotation p em { color: var(--ink); font-style: italic; font-weight: 500; }
+  .annotation p b  { color: var(--ink); font-weight: 600; }
+  .annotation p code {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--cyan);
+    background: rgba(88,226,255,0.08);
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+
+  /* footer + progress */
+  .footer {
+    position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+    transition: width 0.6s ease;
+  }
+
+  /* entrance */
+  .slide.active .reveal      { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .slide.active .reveal-d1   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .slide.active .reveal-d2   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.3s both; }
+  .slide.active .reveal-d3   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.45s both; }
+  .slide.active .reveal-d4   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.6s both; }
+  .slide.active .reveal-d5   { animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.75s both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute);
+    animation: blink 2.4s ease-in-out infinite;
+    z-index: 5;
+  }
+  @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 0.85; } }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="22"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">Webinar · Level 02 · Skills</span>
+</div>
+
+<div class="deck">
+
+  <!-- ===== SLIDE 1 — section opener ===== -->
+  <section class="slide active" data-i="1">
+    <div class="opener">
+      <span class="level-tag reveal">Level 02</span>
+      <div class="reveal-d1" style="margin-top: 1.5rem;">
+        <span class="big-num">02</span>
+      </div>
+      <h1 class="reveal-d2"><span class="grad">Skills.</span></h1>
+      <div class="subline reveal-d3">A working definition · The shelf, built up · Further reading · Anatomy of a SKILL.md</div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 2 — definition ===== -->
+  <section class="slide" data-i="2">
+    <div class="definition">
+      <span class="eyebrow purple">Definition · 02</span>
+      <div class="def-headword reveal-d1">
+        <h2><span class="grad">Skill</span></h2>
+        <span class="pos">noun</span>
+        <span class="pron">/skɪl/</span>
+      </div>
+      <div class="def-divider"></div>
+      <p class="def-body reveal-d2">
+        A <span class="em-core">folder</span> the agent can load <span class="em-core">on demand</span>. Inside:
+        <span class="em-cyan">metadata</span> that says when to use it,
+        <span class="em-blue">instructions</span> that say how,
+        <span class="em-purple">scripts</span> that do the work,
+        and any <span class="em-orange">assets</span> the work needs.
+        <span class="gate-clause"><span class="gate-icon">⌁</span>The agent reads the metadata at startup; the rest only enters context when the skill is judged relevant.</span>
+      </p>
+      <div class="def-components reveal-d3">
+        <span class="def-pill cyan"><span class="n">01</span> metadata</span>
+        <span class="def-pill blue"><span class="n">02</span> instructions</span>
+        <span class="def-pill purple"><span class="n">03</span> scripts</span>
+        <span class="def-pill orange"><span class="n">04</span> assets</span>
+      </div>
+      <p class="def-source reveal-d4">
+        <b>Anthropic Engineering</b> — <i>Equipping Agents for the Real World with Agent Skills</i>, Dec 2025.<br>
+        <b>See also</b> Zhang &amp; Murag — <i>Don't Build Agents, Build Skills Instead</i>, AI Engineer Code Summit, late 2025.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — animated diagram (skills shelf, built up) ===== -->
+  <section class="slide" data-i="3">
+    <div class="diagram-wrap">
+      <div class="diagram-head reveal">
+        <span class="eyebrow purple">Diagram · 03 · The skills shelf, built up</span>
+        <span class="counter"><b id="dCur">01</b> / 07</span>
+      </div>
+      <div class="diagram reveal-d1" data-frame="1" id="diagram">
+        <svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrGrey"   class="grey"   viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z"/>
+            </marker>
+            <marker id="arrGreen"  class="green"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z"/>
+            </marker>
+            <marker id="arrOrange" class="orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 Z"/>
+            </marker>
+          </defs>
+
+          <!-- FRAME 1 — Level 01 loop, in grey -->
+          <g class="dia-el" data-from="1">
+            <!-- Human -->
+            <g class="l01-box">
+              <rect class="bg" x="60" y="420" width="120" height="60" rx="12"/>
+              <text class="lbl" x="120" y="450">Human</text>
+            </g>
+            <!-- Human ↔ LLM Call (dashed bidirectional) -->
+            <g class="l01-arrow dashed">
+              <path d="M 184 450 L 296 450" marker-start="url(#arrGrey)" marker-end="url(#arrGrey)"/>
+            </g>
+            <!-- LLM Call -->
+            <g class="l01-box">
+              <rect class="bg" x="300" y="395" width="170" height="110" rx="14"/>
+              <text class="lbl" x="385" y="450">LLM Call</text>
+            </g>
+            <!-- Action arrow -->
+            <g class="l01-arrow">
+              <text class="arrow-label" x="555" y="368">Action</text>
+              <path d="M 474 418 Q 555 388, 636 405" marker-end="url(#arrGrey)"/>
+            </g>
+            <!-- tools chip on Action arrow -->
+            <g class="l01-chip">
+              <rect x="518" y="378" width="74" height="22" rx="11"/>
+              <text x="555" y="389" text-anchor="middle" dominant-baseline="central">tools</text>
+            </g>
+            <!-- Environment -->
+            <g class="l01-box">
+              <rect class="bg" x="640" y="350" width="270" height="200" rx="14"/>
+              <text class="lbl-header" x="775" y="378">Environment</text>
+            </g>
+            <!-- data sub-box -->
+            <g class="l01-sub">
+              <rect x="658" y="412" width="110" height="120" rx="10"/>
+              <g class="l01-icon" transform="translate(713, 442)">
+                <ellipse cx="0" cy="-10" rx="18" ry="4.5"/>
+                <path d="M -18 -10 L -18 10 A 18 4.5 0 0 0 18 10 L 18 -10"/>
+                <path d="M -18 0 A 18 4.5 0 0 0 18 0" opacity="0.7"/>
+              </g>
+              <text class="lbl-sm" x="713" y="500">data</text>
+            </g>
+            <!-- code sub-box -->
+            <g class="l01-sub">
+              <rect x="780" y="412" width="110" height="120" rx="10"/>
+              <g class="l01-icon" transform="translate(835, 442)">
+                <path d="M -10 -10 L -19 0 L -10 10"/>
+                <path d="M 10 -10 L 19 0 L 10 10"/>
+                <path d="M -4 13 L 4 -13" opacity="0.7"/>
+              </g>
+              <text class="lbl-sm" x="835" y="500">code</text>
+            </g>
+            <!-- Feedback arrow -->
+            <g class="l01-arrow">
+              <path d="M 636 495 Q 555 522, 474 485" marker-end="url(#arrGrey)"/>
+              <text class="arrow-label" x="555" y="552">Feedback</text>
+            </g>
+            <!-- Stop -->
+            <g class="l01-arrow dashed">
+              <path d="M 385 509 L 385 588" marker-end="url(#arrGrey)"/>
+            </g>
+            <g class="l01-box">
+              <rect class="bg" x="350" y="592" width="70" height="40" rx="10"/>
+              <text class="lbl-sm" x="385" y="612">Stop</text>
+            </g>
+          </g>
+
+          <!-- FRAME 2 — System Prompt appears above LLM Call -->
+          <g class="dia-el sp-box" data-from="2">
+            <rect class="bg" x="300" y="265" width="170" height="70" rx="12"/>
+            <text class="lbl" x="385" y="300">System Prompt</text>
+            <path d="M 385 339 L 385 391"
+                  stroke="var(--orange-l)" stroke-width="1.8" fill="none"
+                  marker-end="url(#arrOrange)"/>
+          </g>
+
+          <!-- FRAME 3 — skills/ folder (empty) -->
+          <g class="dia-el sk-folder" data-from="3">
+            <path class="tab" d="M 520 60 L 620 60 L 640 80 L 940 80 L 940 90 L 520 90 Z"/>
+            <rect class="bg" x="520" y="86" width="420" height="240" rx="8"/>
+            <text class="lbl-folder" x="538" y="76">skills/</text>
+          </g>
+
+          <!-- FRAME 4 — 10 skill cards populate -->
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="108" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="123">residual-structure</text>
+            <circle class="meta-dot" cx="552" cy="135" r="1.6"/>
+            <text class="meta-label" x="558" y="135">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="108" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="123">fit-model</text>
+            <circle class="meta-dot" cx="756" cy="135" r="1.6"/>
+            <text class="meta-label" x="762" y="135">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="152" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="167">score-model</text>
+            <circle class="meta-dot" cx="552" cy="179" r="1.6"/>
+            <text class="meta-label" x="558" y="179">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="152" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="167">route-bias</text>
+            <circle class="meta-dot" cx="756" cy="179" r="1.6"/>
+            <text class="meta-label" x="762" y="179">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="196" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="211">inspect-residuals</text>
+            <circle class="meta-dot" cx="552" cy="223" r="1.6"/>
+            <text class="meta-label" x="558" y="223">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="196" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="211">canonical-grade</text>
+            <circle class="meta-dot" cx="756" cy="223" r="1.6"/>
+            <text class="meta-label" x="762" y="223">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="240" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="255">segment-globs</text>
+            <circle class="meta-dot" cx="552" cy="267" r="1.6"/>
+            <text class="meta-label" x="558" y="267">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="240" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="255">baseline-check</text>
+            <circle class="meta-dot" cx="756" cy="267" r="1.6"/>
+            <text class="meta-label" x="762" y="267">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="538" y="284" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="299">emit-report</text>
+            <circle class="meta-dot" cx="552" cy="311" r="1.6"/>
+            <text class="meta-label" x="558" y="311">desc · when · not</text>
+          </g>
+          <g class="dia-el sk-card" data-from="4">
+            <rect class="bg" x="742" y="284" width="184" height="36" rx="6"/>
+            <text class="name" x="752" y="299">normalise-data</text>
+            <circle class="meta-dot" cx="756" cy="311" r="1.6"/>
+            <text class="meta-label" x="762" y="311">desc · when · not</text>
+          </g>
+
+          <!-- FRAME 5 — dashed metadata fan into System Prompt -->
+          <g class="dia-el" data-from="5">
+            <path class="meta-line" d="M 538 126 Q 470 200, 412 265"/>
+            <path class="meta-line" d="M 742 126 Q 600 180, 425 265"/>
+            <path class="meta-line" d="M 538 170 Q 470 230, 408 265"/>
+            <path class="meta-line" d="M 742 170 Q 600 215, 420 265"/>
+            <path class="meta-line" d="M 538 214 Q 470 250, 404 265"/>
+            <path class="meta-line" d="M 742 214 Q 600 245, 415 265"/>
+            <path class="meta-line" d="M 538 258 Q 480 270, 400 268"/>
+            <path class="meta-line" d="M 742 258 Q 600 275, 410 268"/>
+            <path class="meta-line" d="M 538 302 Q 490 300, 396 272"/>
+            <path class="meta-line" d="M 742 302 Q 600 305, 405 272"/>
+          </g>
+
+          <!-- FRAME 6 — one skill activates, body slides into System Prompt -->
+          <g class="dia-el sk-card active" data-from="6">
+            <rect class="bg" x="538" y="108" width="184" height="36" rx="6"/>
+            <text class="name" x="548" y="123">residual-structure</text>
+            <circle class="meta-dot" cx="552" cy="135" r="1.8"/>
+            <text class="meta-label" x="558" y="135">+ body loaded</text>
+          </g>
+          <g class="dia-el" data-from="6">
+            <path class="body-line draw-stroke"
+                  d="M 538 126 Q 460 195, 416 265"
+                  marker-end="url(#arrGreen)"/>
+            <text class="arrow-label" x="450" y="195"
+                  style="fill: var(--green); font-size: 11px; letter-spacing: 0.18em;">BODY</text>
+          </g>
+
+          <!-- FRAME 7 — script flows through Action → tools → Environment -->
+          <g class="dia-el l01-highlight" data-from="7">
+            <path class="draw-stroke" d="M 474 418 Q 555 388, 636 405"
+                  marker-end="url(#arrGreen)"/>
+          </g>
+          <g class="dia-el" data-from="7">
+            <rect x="514" y="374" width="82" height="30" rx="13"
+                  fill="none" stroke="var(--green)" stroke-width="1.4"
+                  opacity="0.85"/>
+            <text class="arrow-label" x="555" y="338"
+                  style="fill: var(--green); font-size: 11px; letter-spacing: 0.2em;">SCRIPT</text>
+          </g>
+        </svg>
+        <p class="diagram-caption" id="diaCaption">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 4 — references carousel ===== -->
+  <section class="slide" data-i="4">
+    <div class="ref-header reveal">
+      <span class="eyebrow orange">References · Further reading</span>
+      <span class="counter"><b id="cCur">01</b> / 02</span>
+    </div>
+
+    <div class="carousel" id="carousel">
+
+      <!-- card 1 — Don't Build Agents, Build Skills Instead -->
+      <div class="ref-card active" data-card="0">
+        <div class="ref-thumb">
+          <img src="buildskillsinstead.jpg" alt="Don't Build Agents, Build Skills Instead — Zhang &amp; Murag">
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Talk · AI Engineer Code Summit · late 2025</span>
+          <h3>Don't Build Agents, Build Skills Instead</h3>
+          <p class="ref-author"><b>Barry Zhang &amp; Mahesh Murag</b> — Anthropic</p>
+          <ul class="ref-takeaways">
+            <li>The same Anthropic speaker who gave the canonical <em>Building Effective Agents</em> talk six months earlier publicly course-corrects: <b>one universal agent + a library of skills</b> beats one bespoke agent per domain.</li>
+          </ul>
+          <a class="ref-link" href="https://www.youtube.com/watch?v=CEvIs9y1uog" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+      </div>
+
+      <!-- card 2 — The New Code -->
+      <div class="ref-card" data-card="1">
+        <div class="ref-thumb">
+          <img src="thenewcode.jpg" alt="The New Code — Sean Grove">
+        </div>
+        <div class="ref-body">
+          <span class="ref-tag">Talk · AI Engineer World's Fair 2025</span>
+          <h3>The New Code</h3>
+          <p class="ref-author"><b>Sean Grove</b> — then OpenAI alignment</p>
+          <ul class="ref-takeaways">
+            <li><em>"Code is a lossy projection of intent; the specification is the lossless source."</em> Same idea Anthropic ships as Skills coming from the other major frontier lab.</li>
+            <li>OpenAI's <b>Model Spec</b> and Anthropic's <b>Skills</b> are the <em>same primitive</em> — versioned, clause-addressable markdown authored by domain experts that compiles to documentation, evaluations, prompts, and behaviour.</li>
+          </ul>
+          <a class="ref-link" href="https://www.youtube.com/watch?v=8rABwKRsec4" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+      </div>
+
+      <div class="carousel-dots">
+        <button class="active" data-dot="0" aria-label="Card 1"></button>
+        <button data-dot="1" aria-label="Card 2"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 5 — anatomy of a SKILL.md ===== -->
+  <section class="slide" data-i="5">
+    <div class="anatomy-wrap" id="anatomyWrap">
+      <div class="anatomy-head reveal">
+        <h3>Anatomy of a <span style="color:var(--cyan); font-family: var(--mono);">SKILL.md</span></h3>
+        <span class="file-meta">05 · residual-structure / SKILL.md</span>
+      </div>
+
+      <div class="code-card reveal-d1">
+        <div class="file-bar">
+          <span class="file-name">module-2.v3/agent-01/skills/residual-structure/SKILL.md</span>
+          <span>YAML · frontmatter</span>
+        </div>
+<pre><span class="sep">---</span>
+<span class="k">name</span><span class="sep">:</span> <span class="v hl-name">residual-structure</span>
+<span class="k" id="anchor-desc">description</span><span class="sep">:</span> <span class="v hl-desc">After a fit, characterise what's LEFT in the residual —
+  temporal autocorrelation at multiple lags, Pearson correlation with
+  each input feature AND its first time-derivative, sign-asymmetry in δ.
+  Returns a per-platform <b>verdict</b> — either "noise_floor" (stop;
+  you're done) or "structure_detected" with a specific reason
+  ("residual autocorrelated at lag 6 → try a τ·d(δ)/dt term"). Use as
+  the bridge between fit-model and "is V2 worth building?". This is
+  the diagnostic the v2 cohort silently lacked — almost everyone
+  shipped V1 understeer; the one agent who didn't (m2-agent-05,
+  +51.5% yaw) saw exactly this autocorrelation signature and added
+  a steering-rate lead.</span>
+<span class="k">when-to-invoke</span><span class="sep">:</span> <span class="v">After running `fit-model` and `score-model`, when
+  you are trying to decide whether your current model has more headroom
+  or you are at the noise floor. Especially when yaw RMSE has stalled
+  and you do not know whether to ship or keep iterating.</span>
+<span class="k" id="anchor-not">when-NOT-to-invoke</span><span class="sep">:</span> <span class="v hl-not">Before any fit (run scoring-model first — you
+  need a fitted predict_fn). To see route-level bias (use route-bias).
+  To plot residual vs one feature (use inspect-residuals).</span>
+<span class="k" id="anchor-cost">load-cost</span><span class="sep">:</span> <span class="v hl-cost">~210 tokens metadata, ~500 tokens body.</span>
+<span class="sep">---</span></pre>
+      </div>
+
+      <div class="annotations">
+        <div class="annotation purple a-desc reveal-d2" id="anno-desc">
+          <div class="a-arrow"></div>
+          <div class="a-tag">A · <span class="a-key">description</span></div>
+          <h4>Carries judgement, not mechanics.</h4>
+          <p>Names the <b>verdict</b> the skill produces — and the failure mode it prevents — not the function it calls. Where your organisation's expertise lives.</p>
+        </div>
+
+        <div class="annotation orange a-not reveal-d3" id="anno-not">
+          <div class="a-arrow"></div>
+          <div class="a-tag">B · <span class="a-key">when-NOT-to-invoke</span></div>
+          <h4>Routes the agent.</h4>
+          <p>Three explicit redirects. Without them the agent guesses which skill to load; with them, it <b>routes</b>.</p>
+        </div>
+
+        <div class="annotation green a-cost reveal-d4" id="anno-cost">
+          <div class="a-arrow"></div>
+          <div class="a-tag">C · <span class="a-key">load-cost</span></div>
+          <h4>Prices the abstraction.</h4>
+          <p>Metadata is paid every turn; body only when this skill activates. Without the receipt, you can't budget the eleventh skill.</p>
+        </div>
+      </div>
+
+      <!-- connector overlay — drawn from each YAML field anchor to its annotation -->
+      <svg class="connector-svg" id="connectorSvg" xmlns="http://www.w3.org/2000/svg">
+        <path class="purple" id="conn-desc"></path>
+        <path class="orange" id="conn-not"></path>
+        <path class="green"  id="conn-cost"></path>
+        <circle class="purple" id="dot-desc" r="3"></circle>
+        <circle class="orange" id="dot-not"  r="3"></circle>
+        <circle class="green"  id="dot-cost" r="3"></circle>
+      </svg>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate</div>
+
+<div class="footer">
+  <span>Quix · Webinar · 2026</span>
+  <span><span id="cur">1</span> / <span id="tot">5</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')]
+    .sort((a, b) => parseInt(a.dataset.i, 10) - parseInt(b.dataset.i, 10));
+  const cards  = document.querySelectorAll('.ref-card');
+  const dots   = document.querySelectorAll('.carousel-dots button');
+  const diaEls = document.querySelectorAll('#diagram [data-from]');
+  const diagram = document.getElementById('diagram');
+  const cap = document.getElementById('diaCaption');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const cCur = document.getElementById('cCur');
+  const dCur = document.getElementById('dCur');
+  const prog = document.getElementById('prog');
+
+  const DIAGRAM_SLIDE = 2;   // zero-based — slide 3
+  const REFS_SLIDE    = 3;   // zero-based — slide 4
+  const ANATOMY_SLIDE = 4;   // zero-based — slide 5
+  const TOTAL_FRAMES  = 7;
+  tot.textContent = slides.length;
+
+  let i = 0;
+  let c = 0;
+  let frame = 1;
+
+  const captions = {
+    1: 'where we left off — the level 01 loop, dimmed.',
+    2: 'system prompt — the place instructions enter the loop.',
+    3: 'skills/ — the folder, where procedural knowledge lives.',
+    4: 'ten skills · each a name + a metadata block.',
+    5: 'metadata loads every turn — cheap, always in context.',
+    6: 'the body loads only when the task matches.',
+    7: 'skills act through the same tools — the loop is unchanged.'
+  };
+
+  function paintSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = i + 1;
+    prog.style.setProperty('--p', ((i + 1) / slides.length * 100) + '%');
+    refreshConnectors();
+  }
+  function paintCarousel() {
+    cards.forEach((card, idx) => {
+      card.classList.toggle('active', idx === c);
+      card.classList.toggle('prev', idx < c);
+    });
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === c));
+    cCur.textContent = String(c + 1).padStart(2, '0');
+  }
+  function paintDiagram() {
+    diagram.dataset.frame = frame;
+    diaEls.forEach(el => {
+      const from = parseInt(el.dataset.from, 10);
+      el.classList.toggle('show', from <= frame);
+    });
+    dCur.textContent = String(frame).padStart(2, '0');
+    cap.textContent = captions[frame] || ' ';
+  }
+
+  /* slide 5 — draw connectors from each YAML field to its annotation card */
+  const wrap = document.getElementById('anatomyWrap');
+  const connectors = [
+    { anchor: 'anchor-desc', anno: 'anno-desc', path: 'conn-desc', dot: 'dot-desc' },
+    { anchor: 'anchor-not',  anno: 'anno-not',  path: 'conn-not',  dot: 'dot-not'  },
+    { anchor: 'anchor-cost', anno: 'anno-cost', path: 'conn-cost', dot: 'dot-cost' }
+  ];
+
+  function drawConnectors() {
+    if (!wrap) return;
+    const wrapRect = wrap.getBoundingClientRect();
+    connectors.forEach(({ anchor, anno, path, dot }) => {
+      const a = document.getElementById(anchor);
+      const b = document.getElementById(anno);
+      const p = document.getElementById(path);
+      const d = document.getElementById(dot);
+      if (!a || !b || !p) return;
+
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+
+      // start: right edge of the YAML field name + ":"
+      const x1 = aRect.right - wrapRect.left + 6;
+      const y1 = aRect.top + aRect.height / 2 - wrapRect.top;
+      // end: left edge of annotation (tip of the arrow)
+      const x2 = bRect.left - wrapRect.left - 10;
+      const y2 = bRect.top - wrapRect.top + 19;
+
+      const dx = Math.max(40, (x2 - x1) * 0.5);
+      p.setAttribute('d', `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+      if (d) {
+        d.setAttribute('cx', x1);
+        d.setAttribute('cy', y1);
+      }
+    });
+  }
+
+  function showConnectors(on) {
+    connectors.forEach(({ path, dot }) => {
+      const p = document.getElementById(path);
+      const d = document.getElementById(dot);
+      if (p) p.classList.toggle('show', on);
+      if (d) d.classList.toggle('show', on);
+    });
+  }
+
+  let connectorTimer = null;
+  function refreshConnectors() {
+    showConnectors(false);
+    if (connectorTimer) clearTimeout(connectorTimer);
+    if (i !== ANATOMY_SLIDE) return;
+    // wait for the code-card and annotation reveal animations to settle
+    // before measuring positions (they animate translateY which would offset
+    // getBoundingClientRect mid-flight).
+    connectorTimer = setTimeout(() => {
+      drawConnectors();
+      showConnectors(true);
+    }, 1600);
+  }
+
+  window.addEventListener('resize', () => { if (i === ANATOMY_SLIDE) drawConnectors(); });
+
+  // deck-chain: this is a deep-dive off the ladder — both ends return to it,
+  // positioned on the L2 (Skills) rung that opened this dive
+  const __ladder = '../02-ladder/definitive/index.html#climb-3';
+  function next() {
+    if (i === DIAGRAM_SLIDE && frame < TOTAL_FRAMES) { frame++; paintDiagram(); return; }
+    if (i === REFS_SLIDE && c < cards.length - 1)    { c++; paintCarousel(); return; }
+    if (i < slides.length - 1) {
+      i++;
+      if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+      if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function prev() {
+    if (i === DIAGRAM_SLIDE && frame > 1) { frame--; paintDiagram(); return; }
+    if (i === REFS_SLIDE && c > 0)        { c--; paintCarousel(); return; }
+    if (i > 0) {
+      i--;
+      if (i === DIAGRAM_SLIDE) { frame = TOTAL_FRAMES;    paintDiagram(); }
+      if (i === REFS_SLIDE)    { c = cards.length - 1;    paintCarousel(); }
+      paintSlide();
+      return;
+    }
+    window.location.href = __ladder;
+  }
+  function goto(idx) {
+    i = Math.max(0, Math.min(slides.length - 1, idx));
+    if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
+    if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+    paintSlide();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goto(0);
+    if (e.key === 'End')  goto(slides.length - 1);
+    if (e.key === 'Escape') { e.preventDefault(); window.location.href = __ladder; }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, .ref-link, .ref-takeaways, .code-card, .annotations')) return;
+    if (e.clientX > window.innerWidth / 2) next(); else prev();
+  });
+  dots.forEach((d, idx) => d.addEventListener('click', e => {
+    e.stopPropagation();
+    c = idx; paintCarousel();
+  }));
+
+  paintSlide();
+  paintCarousel();
+  paintDiagram();
+</script>
+</body>
+</html>
