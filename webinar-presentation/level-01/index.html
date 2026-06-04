@@ -622,6 +622,138 @@
   }
   .carousel-dots button:hover { background: rgba(255,255,255,0.35); }
 
+  /* ============== SLIDE 5 — laptop vs production ============== */
+  .frontier {
+    display: flex; flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    max-width: 88rem;
+  }
+  .frontier-head {
+    color: var(--ink);
+    font-size: clamp(2.2rem, 4.2vw, 3.8rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin-bottom: 2.5rem;
+    max-width: 28ch;
+  }
+  .frontier-head .grad {
+    background: linear-gradient(120deg, var(--orange-l) 0%, var(--purple) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .frontier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .frontier-col {
+    position: relative;
+    padding: 1.75rem 1.85rem 1.85rem;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+  }
+  .frontier-col.col-laptop {
+    border-color: rgba(61,137,255,0.35);
+    background: linear-gradient(180deg, rgba(61,137,255,0.07) 0%, rgba(61,137,255,0.02) 100%);
+  }
+  .frontier-col.col-prod {
+    border-color: rgba(254,147,83,0.35);
+    background: linear-gradient(180deg, rgba(255,120,40,0.07) 0%, rgba(255,120,40,0.02) 100%);
+  }
+  .col-tag {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    margin-bottom: 1.1rem;
+  }
+  .col-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+  }
+  .col-laptop .col-tag { color: var(--blue-l); }
+  .col-laptop .col-tag::before { background: var(--blue-l); box-shadow: 0 0 8px var(--blue-l); }
+  .col-prod .col-tag { color: var(--orange-l); }
+  .col-prod .col-tag::before { background: var(--orange-l); box-shadow: 0 0 8px var(--orange-l); }
+  .col-lede {
+    color: var(--ink);
+    font-size: 1.02rem;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 1.1rem;
+    letter-spacing: -0.005em;
+  }
+  .col-list {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.7rem;
+    margin-bottom: 1.1rem;
+  }
+  .col-list li {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    padding-left: 1.1rem;
+    position: relative;
+  }
+  .col-list li::before {
+    content: ''; position: absolute; left: 0; top: 0.65em;
+    width: 6px; height: 1px;
+  }
+  .col-laptop .col-list li::before { background: var(--blue-l); }
+  .col-prod   .col-list li::before { background: var(--orange-l); }
+  .col-list li b { color: var(--ink); font-weight: 600; }
+  .col-note {
+    color: var(--ink-mute);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    font-style: italic;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .col-note em { color: var(--ink-soft); font-style: normal; font-weight: 500; }
+
+  .frontier-kicker {
+    color: var(--ink);
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    padding-left: 1.1rem;
+    border-left: 2px solid;
+    border-image: linear-gradient(180deg, var(--blue-l), var(--orange)) 1;
+    max-width: 48ch;
+  }
+  .frontier-kicker em { color: var(--ink-mute); font-style: italic; font-weight: 500; }
+
+  /* frame-stepped reveal on slide 5 — production column + kicker wait for a click */
+  .slide[data-i="5"] .col-prod,
+  .slide[data-i="5"] .frontier-kicker {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(6px);
+    transition:
+      opacity 0.7s cubic-bezier(.2,.7,.2,1),
+      transform 0.7s cubic-bezier(.2,.7,.2,1),
+      filter 0.7s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+  .slide[data-i="5"][data-frame="2"] .col-prod,
+  .slide[data-i="5"][data-frame="2"] .frontier-kicker {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+    pointer-events: auto;
+  }
+  .slide[data-i="5"][data-frame="2"] .frontier-kicker { transition-delay: 0.12s; }
+  .frontier-kicker .grad-kicker {
+    background: linear-gradient(120deg, var(--orange-l) 0%, var(--purple) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
   /* footer + progress */
   .footer {
     position: fixed; bottom: 2.5vh; left: 9vw; right: 9vw;
@@ -889,6 +1021,39 @@
     </div>
   </section>
 
+  <!-- ===== SLIDE 5 — laptop vs production (frame-stepped) ===== -->
+  <section class="slide" data-i="5" data-frame="1">
+    <div class="frontier">
+      <span class="eyebrow orange reveal">Where it lives · 05</span>
+      <h2 class="frontier-head reveal-d1">
+        Agentic AI is easy on a laptop.<br>
+        <span class="grad">Harder in production.</span>
+      </h2>
+      <div class="frontier-grid">
+        <div class="frontier-col col-laptop reveal-d2">
+          <span class="col-tag">On your laptop</span>
+          <ul class="col-list">
+            <li><b>Claude Desktop</b> — chat + MCP tools + filesystem</li>
+            <li><b>VS Code + Claude / Copilot / Continue</b> — agent mode</li>
+            <li><b>Cursor</b> — Composer / Agent</li>
+          </ul>
+          <p class="col-note">The environment (filesystem, terminal, browser) and the tools to act in it <em>ship with the OS</em>. One user, one machine, no auth.</p>
+        </div>
+        <div class="frontier-col col-prod">
+          <span class="col-tag">In production</span>
+          <p class="col-lede">The same loop — but the environment doesn't exist yet.</p>
+          <ul class="col-list">
+            <li><b>Tools</b> — internal databases, queues, APIs, SaaS apps all need adapters</li>
+            <li><b>Auth &amp; identity</b> — who does the agent act as, what can it touch</li>
+            <li><b>Data</b> — governed, siloed, rarely LLM-shaped</li>
+            <li><b>Operations</b> — observability, evals, cost, reliability</li>
+          </ul>
+        </div>
+      </div>
+      <p class="frontier-kicker">At work, building the <span class="grad-kicker">environment</span> is the work.</p>
+    </div>
+  </section>
+
 </div>
 
 <div class="hint">← →  navigate</div>
@@ -913,13 +1078,17 @@
   const dCur = document.getElementById('dCur');
   const prog = document.getElementById('prog');
 
-  const REFS_SLIDE    = 2;       // zero-based — carousel now sits at slide 3
-  const DIAGRAM_SLIDE = 3;       // zero-based — diagram is the final slide
-  const TOTAL_FRAMES  = 8;
+  const REFS_SLIDE     = 2;       // zero-based — carousel now sits at slide 3
+  const DIAGRAM_SLIDE  = 3;       // zero-based — diagram
+  const FRONTIER_SLIDE = 4;       // zero-based — laptop vs production
+  const TOTAL_FRAMES   = 8;
+  const FRONTIER_FRAMES = 2;
   tot.textContent = slides.length;
   let i = 0;
   let c = 0;
   let frame = 1;
+  let fFrame = 1;
+  const frontierEl = slides[FRONTIER_SLIDE];
 
   const captions = {
     1: '',
@@ -955,28 +1124,36 @@
     cap.textContent = captions[frame] || ' ';
   }
 
+  function paintFrontier() {
+    frontierEl.dataset.frame = fFrame;
+  }
+
   // deck-chain: this is a deep-dive off the ladder — both ends return to it,
   // positioned on the L1 (Agentic AI) rung that opened this dive
   const __ladder = '../02-ladder/definitive/index.html#climb-2';
   function next() {
-    if (i === DIAGRAM_SLIDE && frame < TOTAL_FRAMES) { frame++; paintDiagram(); return; }
-    if (i === REFS_SLIDE && c < cards.length - 1)    { c++; paintCarousel(); return; }
+    if (i === DIAGRAM_SLIDE  && frame  < TOTAL_FRAMES)     { frame++;  paintDiagram();  return; }
+    if (i === REFS_SLIDE     && c      < cards.length - 1) { c++;      paintCarousel(); return; }
+    if (i === FRONTIER_SLIDE && fFrame < FRONTIER_FRAMES)  { fFrame++; paintFrontier(); return; }
     if (i < slides.length - 1) {
       i++;
-      if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
-      if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+      if (i === DIAGRAM_SLIDE)  { frame = 1;  paintDiagram();  }
+      if (i === REFS_SLIDE)     { c = 0;      paintCarousel(); }
+      if (i === FRONTIER_SLIDE) { fFrame = 1; paintFrontier(); }
       paintSlide();
       return;
     }
     window.location.href = __ladder;
   }
   function prev() {
-    if (i === DIAGRAM_SLIDE && frame > 1) { frame--; paintDiagram(); return; }
-    if (i === REFS_SLIDE && c > 0)        { c--; paintCarousel(); return; }
+    if (i === DIAGRAM_SLIDE  && frame  > 1) { frame--;  paintDiagram();  return; }
+    if (i === REFS_SLIDE     && c      > 0) { c--;      paintCarousel(); return; }
+    if (i === FRONTIER_SLIDE && fFrame > 1) { fFrame--; paintFrontier(); return; }
     if (i > 0) {
       i--;
-      if (i === DIAGRAM_SLIDE) { frame = TOTAL_FRAMES;    paintDiagram(); }
-      if (i === REFS_SLIDE)    { c = cards.length - 1;    paintCarousel(); }
+      if (i === DIAGRAM_SLIDE)  { frame  = TOTAL_FRAMES;    paintDiagram();  }
+      if (i === REFS_SLIDE)     { c      = cards.length - 1; paintCarousel(); }
+      if (i === FRONTIER_SLIDE) { fFrame = FRONTIER_FRAMES;  paintFrontier(); }
       paintSlide();
       return;
     }
@@ -984,8 +1161,9 @@
   }
   function goto(idx) {
     i = Math.max(0, Math.min(slides.length - 1, idx));
-    if (i === DIAGRAM_SLIDE) { frame = 1; paintDiagram(); }
-    if (i === REFS_SLIDE)    { c = 0;     paintCarousel(); }
+    if (i === DIAGRAM_SLIDE)  { frame  = 1; paintDiagram();  }
+    if (i === REFS_SLIDE)     { c      = 0; paintCarousel(); }
+    if (i === FRONTIER_SLIDE) { fFrame = 1; paintFrontier(); }
     paintSlide();
   }
 
@@ -1008,6 +1186,7 @@
   paintSlide();
   paintCarousel();
   paintDiagram();
+  paintFrontier();
 </script>
 </body>
 </html>

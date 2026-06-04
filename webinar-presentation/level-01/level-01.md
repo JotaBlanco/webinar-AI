@@ -94,3 +94,25 @@ Carousel of four cards. Each card: thumbnail + title + author/venue + 2–3 take
 - *"Tools + reasoning is the most powerful technique in AI engineering right now."* The one-line thesis for everything that follows in this webinar.
 
 ---
+
+## Slide 5 — The loop on your laptop vs. at work
+
+**The loop is already on your laptop. At work, it's the harder problem.**
+
+**On your laptop**
+- **Claude Desktop** — chat + MCP tools + filesystem
+- **VS Code + Claude / Copilot / Continue** — agent mode
+- **Cursor** — Composer / Agent
+
+The environment (filesystem, terminal, browser) and the tools to act in it ship with the OS. One user, one machine, no auth.
+
+**In production**
+The same loop, but the environment doesn't exist yet:
+- **Tools** — internal databases, queues, APIs, SaaS apps all need adapters
+- **Auth & identity** — who does the agent act as, what can it touch
+- **Data** — governed, siloed, rarely LLM-shaped
+- **Operations** — observability, evals, cost, reliability
+
+> The model is the easy part. The **environment** is the work.
+
+---
