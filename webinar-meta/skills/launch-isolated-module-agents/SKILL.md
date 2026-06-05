@@ -80,22 +80,44 @@ The canonical grader's `eval_data_root` points at `KB_PARENT/KB003/data/val-data
 
 ### Setup for the webinar-AI repo specifically (May 2026 onwards)
 
-The "angle root" for this repo is the repo root itself (`/Users/javiquix/Desktop/quixdev/webinar-AI/`). There are no `webinar-angle-A/B/C` wrappers — modules live at top level (`module-1/`, `module-2/`, `module-3/`) and each contains 10 agent slots (`agent-01..10`).
+The "angle root" for this repo is the repo root itself (`/Users/javiquix/Desktop/quixdev/webinar-AI/`). There are no `webinar-angle-A/B/C` wrappers — modules live at top level (`module-1/`, `module-2/`, `module-3/`, `module-4/`) and each contains 10 agent slots (`agent-01..10`).
 
-**Source configs live at `webinar-meta/launch-configs/<module>-<idea>.json`** — one file per `(module, idea)` combination. Each contains all 10 agent slots for that combo. Available so far:
+**Source configs live at `webinar-meta/launch-configs/<module>-<idea>.json`** — one file per `(module, idea)` combination. Each contains all 10 agent slots for that combo. Available:
 - `m1-idea-01.json` — module-1 (bare) × idea-01 (lateral fidelity)
+- `m2-idea-01.json` — module-2 (skills-as-clay) × idea-01
+- `m3-idea-01.json` — module-3 (skills + references + EXPERIMENTS log) × idea-01
+- `m4-idea-01.json` — module-4 (closed-loop: RPI phases, parallel rungs, tree-search) × idea-01
 
-**Per-launch flow:** when the user asks "launch N agents in module-M for idea-X":
+**Per-launch flow (shortcut — preferred):** when the user asks "launch N agents in module-M for idea-X":
 
-1. Copy `webinar-meta/launch-configs/m{M}-idea-{X}.json` to `<repo-root>/cohort-runs/.launch-config.json`.
-2. If N < 10, slice `modules` to the first N entries (jq, python, or sed — your call) and write back to `cohort-runs/.launch-config.json`.
-3. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root>/cohort-runs`.
-4. Fire the N Agent() calls returned between BEGIN_INVOCATIONS / END_INVOCATIONS, all in ONE message, `run_in_background: true`, `subagent_type: "general-purpose"`.
-5. Wait for all callbacks. Persist any REPORT.md text the agents return (Write on `(report|findings|summary|analysis).*\.md$` is blocked in subagents — see "When a subagent can't write REPORT.md" below).
-6. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <repo-root>/cohort-runs --verify`.
-7. Summarise: per agent — did `final-model/predict.py` exist? Did it import cleanly? Headline numbers? One sentence each. Don't run grading — separate step (see `grade-cohort-reports` skill).
+1. Run:
 
-If the user asks for a (module, idea) combo that has no config file yet, **stop and ask** rather than improvise — the configs encode the harness components and forbidden paths per scenario.
+   ```
+   python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py \
+       --module M --idea X --count N
+   ```
+
+   This wraps two steps: (a) [`provision-slots.py`](provision-slots.py) inspects `module-M/agent-*`, classifies each as FRESH (no `REPORT.md`, empty `final-model/`) or USED, picks FRESH ones first, mints new `agent-NN` folders from `webinar-meta/env-template-m{M}/` if needed (plus `TASK.md` from `webinar-meta/engineering-challenges/idea-{XX}-*.task.md`), and writes `cohort-runs/.launch-config.json` with the N chosen slots; (b) the normal `cmd_launch` pipeline (pre-flight + snapshot + render prompts + emit invocations).
+
+2. Fire the N Agent() calls returned between BEGIN_INVOCATIONS / END_INVOCATIONS, all in ONE message, `run_in_background: true`, `subagent_type: "general-purpose"`.
+3. Wait for all callbacks. Persist any REPORT.md text the agents return (Write on `(report|findings|summary|analysis).*\.md$` is blocked in subagents — see "When a subagent can't write REPORT.md" below).
+4. Run:
+
+   ```
+   python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py \
+       --module M --idea X --count N --verify
+   ```
+
+5. Summarise: per agent — did `final-model/predict.py` exist? Did it import cleanly? Headline numbers? One sentence each. Don't run grading — separate step (see `grade-cohort-reports` skill).
+
+If the user asks for a (module, idea) combo whose `launch-configs/m{M}-idea-{XX}.json` doesn't exist yet, **stop and ask** rather than improvise — that file encodes the harness components and forbidden paths per scenario. Newly-minted `agent-NN` slots ARE auto-appended to that file as an inventory update.
+
+**Slot freshness rule.** A slot is FRESH iff: `REPORT.md` is absent AND `final-model/` is empty/absent (apart from `.gitkeep`). A stale `TASK.md` does not block reuse — provisioning overwrites it so the slot lines up with the requested idea.
+
+**Manual flow (fallback / advanced):** if you need to hand-edit the slot list or use a non-standard angle root:
+
+1. Copy `webinar-meta/launch-configs/m{M}-idea-{X}.json` to `<angle-root>/.launch-config.json` and edit `modules` to taste.
+2. Run `python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <angle-root>` then `--verify`.
 
 ### Original setup — done once per angle (legacy — for repos that still use angle wrappers)
 

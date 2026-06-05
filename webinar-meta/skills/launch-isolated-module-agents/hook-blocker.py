@@ -23,7 +23,7 @@ DENIED reads (exit 2, log line written):
   - <repo-root>/webinar-angle-*/process-log.md
   - <repo-root>/webinar-angle-*/RUN-LOG.md
   - <repo-root>/webinar-AI/webinar-meta/webinar-00-template-*/**
-  - <repo-root>/webinar-AI/webinar-meta/domain-knowledge-challenges/**
+  - <repo-root>/webinar-AI/webinar-meta/engineering-challenges/**
   - any path matching <repo-root>/<extra-denies-glob>/** (from --extra-deny arg)
 
 Bypass (for the human-driven main session only — never set these in env/files

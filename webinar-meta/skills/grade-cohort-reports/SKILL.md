@@ -2,7 +2,7 @@
 name: grade-cohort-reports
 description: Canonical-evaluation grading for a cohort of agent submissions. Each agent's final-model is run programmatically (no LLM) against a fixed held-out validation pool; the cohort is summarised into a comparable scorecard. Outputs cohort.{json,md,html,pdf} with interactive scatter, per-family bars, per-platform faceted scatter, per-segment boxplots, calibration cards, and a substrate-quality section.
 when-to-load: When 2+ agents have shipped a `final-model/{manifest.json, predict.py}` against the same idea, and you want apples-to-apples KPIs across the cohort. NOT for single-agent grading; NOT for code review.
-inputs: An idea-id (filename stem under webinar-meta/domain-knowledge-challenges/) + one or more globs to each agent's final-model folder.
+inputs: An idea-id (filename stem under webinar-meta/engineering-challenges/) + one or more globs to each agent's final-model folder.
 outputs: cohort.json + cohort.md (per agent + per family + per platform + per segment + reconstruction quality). HTML + PDF in iter 2.
 load-cost: ~200 tokens metadata, ~700 tokens body.
 ---
@@ -139,3 +139,7 @@ canonical/run-summary.json     wall-time, n_ok, concurrency, baseline cache key
 - Does not score code quality, prose, or rubric hygiene. (Iter 3 adds a small self-reporting diagnostic, not a rubric pass.)
 - Does not normalise units across agents — it controls for them by running everyone's model under one fixed setup.
 - Does not modify any file under `eval_data_root` (read-only by contract) or agent folders.
+
+## Where val-data lives
+
+The grader resolves the validation root from [webinar-meta/data-paths.json](../../data-paths.json) (`val_data_root`, relative to repo root) — the same file [webinar-meta/skills/download-rlog-data/fetch_platform.py](../download-rlog-data/fetch_platform.py) reads when writing held-out splits. Change it in one place, both sides pick it up. A challenge YAML can still override per-idea by setting `eval_data_root:` explicitly (absolute or relative); when absent the data-paths.json fallback applies.

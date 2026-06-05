@@ -119,7 +119,7 @@ The same loop, but the environment doesn't exist yet:
 
 ## Slide 6 — The minimal agent, anatomically
 
-Same loop as slide 3, now grounded in `env-template-LV01`. The animation re-runs the build-up of slide 3, but each frame swaps the abstract label for its concrete counterpart in our template. Same shape, filled in.
+Same loop as slide 3, now grounded in `env-template-m1`. The animation re-runs the build-up of slide 3, but each frame swaps the abstract label for its concrete counterpart in our template. Same shape, filled in.
 
 **Frame 1 — Human.**
 Unchanged. The person who kicks the agent off.
@@ -153,6 +153,6 @@ The **Stop** box relabels to **`final-model/` written → grader runs**.
 
 > The minimal agent — six concrete things, no more. This is the floor of the agentic spectrum. The principles that name each piece follow.
 
-*Working directory: `webinar-AI/module-1/agent-{01..10}/`. Template: `webinar-meta/env-template-LV01/`.*
+*Working directory: `webinar-AI/module-1/agent-{01..10}/`. Template: `webinar-meta/env-template-m1/`.*
 
 ---

@@ -50,7 +50,7 @@ import numpy as np
 from rlog_reader import iter_events
 
 _HERE = Path(__file__).resolve().parent
-DEFAULT_DBC = _HERE / "_schema" / "dbc" / "ford_lincoln_base_pt.dbc"
+DEFAULT_DBC = _HERE.parent / "_schema" / "dbc" / "ford_lincoln_base_pt.dbc"
 
 # Ford CAN addresses we read.
 ADDR_STEER  = 0x07E    # SteeringPinion_Data

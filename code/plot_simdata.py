@@ -1,5 +1,6 @@
-"""Sanity-check plot: read each sim.csv produced by generate_simdata.py and
-render a small multi-panel figure per segment under simdata/<...>/sim.png.
+"""Sanity-check plot: read each sim.csv produced by
+webinar-meta/skills/build-simdata/build_simdata.py and render a small
+multi-panel figure per segment under simdata/<...>/sim.png.
 
 Same layout as run_ks_synthetic.py's plot, plus a per-segment trajectory.
 """

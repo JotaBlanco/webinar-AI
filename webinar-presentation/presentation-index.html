@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The F1 Playbook for AI-Assisted Engineering — Slide Index</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.78);
+    --ink-mute: rgba(255,255,255,0.45);
+    --ink-faint: rgba(255,255,255,0.18);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* drifting nebula background */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 20% 25%, rgba(0,100,255,0.32), transparent 60%),
+      radial-gradient(35% 28% at 80% 70%, rgba(189,46,255,0.26), transparent 60%),
+      radial-gradient(30% 25% at 55% 90%, rgba(255,120,40,0.20), transparent 65%);
+    filter: blur(40px);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 70% 20%, rgba(0,221,129,0.16), transparent 60%),
+      radial-gradient(28% 22% at 25% 75%, rgba(61,137,255,0.20), transparent 60%);
+    animation-duration: 42s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.6), transparent 50%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 8vh 6vw 12vh;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 1.2rem;
+  }
+  .eyebrow .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 0.6rem;
+    vertical-align: middle;
+    box-shadow: 0 0 10px var(--green);
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.2rem;
+  }
+  h1 .accent {
+    background: linear-gradient(90deg, var(--blue-l), var(--purple), var(--orange));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .lede {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-bottom: 3.5rem;
+  }
+  .lede code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: rgba(255,255,255,0.06);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ink-faint);
+  }
+
+  .slide-list {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .slide-card {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.2rem 1.4rem;
+    text-decoration: none;
+    color: var(--ink-soft);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--ink-faint);
+    border-radius: 10px;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .slide-card:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.32);
+    transform: translateX(4px);
+  }
+  .slide-card:hover .arrow { color: var(--ink); transform: translateX(4px); }
+  .slide-card:hover .num { color: var(--ink); }
+
+  .num {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+    transition: color 0.2s ease;
+  }
+
+  .meta { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+  .title {
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .folder {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+  }
+
+  .arrow {
+    font-family: var(--mono);
+    color: var(--ink-mute);
+    font-size: 1.1rem;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .footnote {
+    margin-top: 3rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    color: var(--ink-mute);
+    max-width: 70ch;
+  }
+  .footnote code {
+    background: rgba(255,255,255,0.06);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 640px) {
+    .slide-card { grid-template-columns: 3rem 1fr auto; gap: 1rem; padding: 1rem; }
+    .num { font-size: 0.85rem; }
+    .title { font-size: 0.98rem; }
+    .folder { font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<main class="page">
+  <div class="eyebrow"><span class="dot"></span>Quix Webinar · Slide Index</div>
+
+  <h1>The F1 Playbook<br>for <span class="accent">AI-Assisted Engineering</span></h1>
+
+  <p class="lede">
+    This deck is a sequence of standalone HTML slides — there is no central
+    runner. Click a slide below to open it in this tab, then use your
+    browser's back button to return here. Slides are ordered as presented.
+  </p>
+
+  <div class="section-label">The deck · 10 slides</div>
+
+  <ol class="slide-list">
+    <li><a class="slide-card" href="00-first/index.html">
+      <span class="num">01</span>
+      <span class="meta">
+        <span class="title">Title</span>
+        <span class="folder">00-first/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="01-intro/index.html">
+      <span class="num">02</span>
+      <span class="meta">
+        <span class="title">Intro — coding ≠ engineering</span>
+        <span class="folder">01-intro/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="eng-problem/index.html">
+      <span class="num">03</span>
+      <span class="meta">
+        <span class="title">The engineering problem we're attacking</span>
+        <span class="folder">eng-problem/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="02-ladder/index.html">
+      <span class="num">04</span>
+      <span class="meta">
+        <span class="title">The four-level capability ladder</span>
+        <span class="folder">02-ladder/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="level-01/index.html">
+      <span class="num">05</span>
+      <span class="meta">
+        <span class="title">Level 1 — Agentic AI</span>
+        <span class="folder">level-01/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="level-02/index.html">
+      <span class="num">06</span>
+      <span class="meta">
+        <span class="title">Level 2 — Skills</span>
+        <span class="folder">level-02/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="level-03/index.html">
+      <span class="num">07</span>
+      <span class="meta">
+        <span class="title">Level 3 — Domain Knowledge</span>
+        <span class="folder">level-03/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="level-04/index.html">
+      <span class="num">08</span>
+      <span class="meta">
+        <span class="title">Level 4 — Harness</span>
+        <span class="folder">level-04/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="modules-results/progressive.html">
+      <span class="num">09</span>
+      <span class="meta">
+        <span class="title">Results per level (progressive + level-1…4)</span>
+        <span class="folder">modules-results/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+
+    <li><a class="slide-card" href="thank-you/index.html">
+      <span class="num">10</span>
+      <span class="meta">
+        <span class="title">Thank you</span>
+        <span class="folder">thank-you/</span>
+      </span>
+      <span class="arrow">→</span>
+    </a></li>
+  </ol>
+
+  <p class="footnote">
+    Folders named <code>option-*</code>, <code>variant-*</code>, or numbered design
+    alternatives under each slide are design explorations, not part of the
+    live deck. The chosen baseline visual language is Cosmic
+    (<code>templates/01-cosmic.html</code>). For a smoother experience without
+    <code>file://</code> quirks, run <code>python3 -m http.server 8000</code> from
+    this directory and visit <code>http://localhost:8000/presentation-index.html</code>.
+  </p>
+</main>
+</body>
+</html>

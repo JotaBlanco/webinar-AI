@@ -1,6 +1,6 @@
 """Option A — matplotlib sim-vs-real overlay (static PNG).
 
-Reads one sim.csv produced by generate_simdata.py and renders a 6-panel
+Reads one sim.csv produced by webinar-meta/skills/build-simdata/ and renders a 6-panel
 figure overlaying the model's integrated state against the rlog-measured
 channels where both exist (speed, road-wheel steer). Predicted-only channels
 (trajectory, yaw rate, lateral G) are shown alongside for context.

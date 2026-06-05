@@ -11,13 +11,18 @@ description: |
   - eval_set.segment_globs target sim-only/ — the agent-facing schema, no
     truth columns. The truth lives in a parallel sim/ tree (see
     truth_dir_name); the grader reads it but predict() never sees it.
-  - eval_data_root points at KB003/data/val-data, NOT at webinar-AI/data.
-    Val-data is held out by file-system construction.
+  - The val-data root comes from webinar-meta/data-paths.json
+    (val_data_root). That same file is read by
+    webinar-meta/skills/download-rlog-data/fetch_platform.py when it writes
+    held-out segments — single source of truth for "where val lives".
+    Val-data is held out by file-system construction: it lives under a
+    sibling tree to the training data, populated by held-out-device split.
 
-# Absolute path to the validation data root. eval_set.segment_globs are
-# resolved relative to this. NEITHER agents NOR the parent assistant have
-# this in their workspace; only the grader script reads from it.
-eval_data_root: /Users/javiquix/Desktop/quixdev/F1/KB003/data/val-data
+# eval_data_root: optional override. If absent (default), the grader resolves
+# the validation root from webinar-meta/data-paths.json:val_data_root, resolved
+# against the repo root. If set, an absolute path is used as-is; a relative
+# path is resolved against the repo root.
+# eval_data_root: data/val-data
 
 eval_set:
   description: |

@@ -21,25 +21,13 @@ To run the model open-loop instead (no clamping), set both flags to `False` when
 
 ## What runs today
 
-Three end-to-end demos:
-
 ```bash
-# 1. Synthetic input — pure numpy, no rlog dependency.
-#    Produces out/ks_synthetic.png in ~1 second.
+# Synthetic input — pure numpy, no rlog dependency. Produces out/ks_synthetic.png in ~1s.
 python run_ks_synthetic.py
 
-# 2. Real Tesla rlog input — picks 6 segments, decodes Tesla party DBC,
-#    runs KS, writes one CSV + one PNG per segment into ../../../simdata/.
-python generate_simdata.py
-python plot_simdata.py
-
-# 3. Real Ford rlog input — Mach-E + F-150 Lightning, 2 segments each.
-#    Same workflow but with measured yaw rate and lateral acceleration
-#    surfaced from the open Ford DBC and included in the CSV / plotted
-#    against the KS prediction.
-python generate_simdata_ford.py                          # both Fords
-python generate_simdata_ford.py FORD_MUSTANG_MACH_E_MK1  # Mach-E only
-python plot_simdata_ford.py
+# Plot sim.csvs that the build-simdata skill has produced under data/sim/segments/<PLATFORM>/.
+python plot_simdata.py            # Tesla
+python plot_simdata_ford.py       # Ford
 ```
 
 Setup (once):
@@ -49,33 +37,36 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install pycapnp zstandard cantools numpy scipy matplotlib pandas
 ```
 
-The cereal capnp schema (from `commaai/openpilot`) and the Tesla party DBC (from `commaai/opendbc`) are pinned in [`_schema/`](_schema/) — committed at the SHAs in [`_schema/cereal/COMMIT.txt`](_schema/cereal/COMMIT.txt) and [`_schema/dbc/COMMIT.txt`](_schema/dbc/COMMIT.txt).
+The data pipeline lives in two skills under [`../webinar-meta/skills/`](../webinar-meta/skills/) and uses `code/` only as a library:
+
+| Skill | What it does | Reads from `code/` |
+|---|---|---|
+| [download-rlog-data](../webinar-meta/skills/download-rlog-data/) | Discovery / suitability / download of raw rlogs (replaces the old `code/fetch_*.py` scripts). | — |
+| [build-simdata](../webinar-meta/skills/build-simdata/) | Decodes rlog → KS-baseline sim.csv → truth-stripped sim-only/.  Owns the per-OEM adapters and DBCs (moved from `code/_schema/dbc/`). | `ks_model.py`, `parameters.py`, `rlog_reader.py` |
+
+The cereal capnp schema (from `commaai/openpilot`) is pinned in [`_schema/cereal/`](_schema/cereal/) — DBCs moved with the adapters into the build-simdata skill.
 
 ## Files
 
 | File | Purpose | Status |
 |---|---|---|
-| [parameters.py](parameters.py) | KS + ST parameter dataclasses for Tesla Model 3, Ford Mustang Mach-E, and Ford F-150 Lightning — every value openpilot-canonical, sourced from rlog carParams. Exposes `PARAM_BY_PLATFORM` for platform-keyed lookup. | runnable |
-| [ks_model.py](ks_model.py) | KS ODE (`ẋ = f(x, u; p)`) plus an RK4 integrator. Smoke test traces a circle of radius L/tan(δ) to four decimals. Vehicle-agnostic — consumes any KS parameter dataclass. | runnable |
+| [parameters.py](parameters.py) | KS + ST parameter dataclasses for Tesla Model 3, Ford Mustang Mach-E, Ford F-150 Lightning, and Hyundai Ioniq 5 — every value openpilot-canonical, sourced from rlog carParams. Exposes `PARAM_BY_PLATFORM` for platform-keyed lookup. Imported by build-simdata and by agents. | library |
+| [ks_model.py](ks_model.py) | KS ODE (`ẋ = f(x, u; p)`) plus an RK4 integrator. Smoke test traces a circle of radius L/tan(δ) to four decimals. Vehicle-agnostic — consumes any KS parameter dataclass. Imported by build-simdata and by agents. | library |
+| [rlog_reader.py](rlog_reader.py) | Lightweight rlog decoder using pycapnp + the pinned cereal schema. Vehicle-agnostic. Imported by every adapter in build-simdata. | library |
 | [synthetic_inputs.py](synthetic_inputs.py) | Synthetic `(δ(t), a(t))` traces for the no-rlog demo | runnable |
 | [run_ks_synthetic.py](run_ks_synthetic.py) | Six-panel matplotlib figure of KS on a synthetic 60-s drive | runnable |
-| [rlog_reader.py](rlog_reader.py) | Lightweight rlog decoder using pycapnp + the pinned cereal schema. Vehicle-agnostic. | runnable |
-| [adapter_tesla_rlog.py](adapter_tesla_rlog.py) | Decodes Tesla CAN (steering, speed, pedals, torque, wheel speeds) via cantools + party DBC; resamples to 50 Hz; derives a_long from filtered dv/dt | runnable |
-| [adapter_ford_rlog.py](adapter_ford_rlog.py) | Decodes Ford CAN via the openpilot ford_lincoln_base_pt DBC. Handles **both** Mach-E and F-150 Lightning (same DBC). Surfaces the measured yaw rate (Yaw_Data_FD1.VehYaw_W_Actl) and lateral acceleration (BrakeSnData_3.VehLatComp_A_Actl) as **truth channels** — Tesla rlogs cannot supply these without IMU-message reverse engineering. | runnable |
-| [generate_simdata.py](generate_simdata.py) | Tesla: picks 6 segments from 6 devices, runs KS on each, writes per-segment CSV + manifest into [../../../simdata/](../../../simdata/) | runnable |
-| [generate_simdata_ford.py](generate_simdata_ford.py) | Ford: picks 2 segments per platform from 2 devices, runs KS, writes per-segment CSV with **predicted vs measured yaw-rate and lateral-G residuals** + manifest. CLI takes optional platform filter. | runnable |
-| [plot_simdata.py](plot_simdata.py) | Tesla: renders one PNG per simdata CSV alongside it | runnable |
-| [plot_simdata_ford.py](plot_simdata_ford.py) | Ford: renders one PNG per simdata CSV showing KS prediction **overlaid on measured** yaw rate and lateral G, plus residual time series. | runnable |
+| [plot_simdata.py](plot_simdata.py) | Tesla: renders one PNG per sim.csv alongside it | runnable |
+| [plot_simdata_ford.py](plot_simdata_ford.py) | Ford: renders one PNG per sim.csv showing KS prediction overlaid on measured yaw rate and lateral G, plus residual time series. | runnable |
 | [inspect_rlog.py](inspect_rlog.py) | Open one rlog and dump service-by-service counts and rates | runnable |
-| [_schema/](_schema/) | Pinned cereal capnp + Tesla party DBC + Ford/Lincoln base PT DBC (do not edit; bump COMMIT.txt to refresh) | pinned |
+| [_schema/cereal/](_schema/cereal/) | Pinned cereal capnp schema (do not edit; bump COMMIT.txt to refresh). DBC files moved with the adapters to [../webinar-meta/skills/build-simdata/_schema/dbc/](../webinar-meta/skills/build-simdata/_schema/dbc/). | pinned |
 | [out/](out/) | Output figures from the synthetic demo | generated |
 
 ## Map back to the docs
 
 - [parameters.py](parameters.py) is the executable form of the parameter tables in [../vehicle-tesla-model-3.md](../vehicle-tesla-model-3.md), [../vehicle-mach-e.md](../vehicle-mach-e.md), and [../vehicle-f150-lightning.md](../vehicle-f150-lightning.md). Every numeric value is openpilot-canonical (decoded from the rlog `carParams` event).
 - [ks_model.py](ks_model.py) is the executable form of the "KS — Kinematic Single-Track" section of [../models.md](../models.md). Every state and equation in the doc has a corresponding line of code.
-- [rlog_reader.py](rlog_reader.py) + [adapter_tesla_rlog.py](adapter_tesla_rlog.py) + [adapter_ford_rlog.py](adapter_ford_rlog.py) are the executable form of [../adapters.md](../adapters.md). The Tesla adapter is the harder path (no decodable IMU); the Ford adapter exercises the easier path (first-class openpilot port — yaw rate and lateral G read straight from the open DBC).
-- [generate_simdata.py](generate_simdata.py) and [generate_simdata_ford.py](generate_simdata_ford.py) are the workshop's "now we plug in real data" beat. Output lives under [`../../../simdata/segments/<PLATFORM>/`](../../../simdata/) and mirrors the data tree per platform.
+- [rlog_reader.py](rlog_reader.py) plus the adapters in [../webinar-meta/skills/build-simdata/_adapters/](../webinar-meta/skills/build-simdata/_adapters/) are the executable form of the adapters layer. The Tesla adapter is the harder path (no decodable IMU); Ford + Hyundai exercise the easier path (first-class / patchable openpilot port — yaw rate read straight from the open DBC).
+- [../webinar-meta/skills/build-simdata/build_simdata.py](../webinar-meta/skills/build-simdata/build_simdata.py) is the workshop's "now we plug in real data" beat. Output lives under `data/sim/segments/<PLATFORM>/` (full) and `data/sim-only/segments/<PLATFORM>/` (truth-stripped, agent-facing).
 
 ## Next sessions
 
