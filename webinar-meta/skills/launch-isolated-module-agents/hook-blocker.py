@@ -87,7 +87,7 @@ def parse_args():
     p.add_argument("--extra-deny", action="append", default=[], type=Path,
                    help="Additional absolute path prefix to deny (repeat).")
     p.add_argument("--allow-module", action="append", default=[], type=str,
-                   help="Module folder name (e.g. module-4) to whitelist back in "
+                   help="Module folder name (e.g. module-3) to whitelist back in "
                         "from the DENY_PATTERNS_REL list. Repeat for multiple. "
                         "Use for the cohort that is currently active.")
     return p.parse_args()
@@ -167,16 +167,12 @@ DENY_PATTERNS_REL = [
     "module-2/*",
     "module-3/**",
     "module-3/*",
-    "module-4/**",
-    "module-4/*",
 
     # ── Historical / experimental dirs agents shouldn't read ──────────────
     "deprecated/**",
     "deprecated/*",
     "raw-model/**",
     "raw-model/*",
-    "cohort-runs/**",
-    "cohort-runs/*",
 ]
 
 
