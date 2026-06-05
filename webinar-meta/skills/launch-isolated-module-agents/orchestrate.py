@@ -10,8 +10,13 @@ The parent assistant should:
     4. When all return, call:  orchestrate.py <angle-root> --verify
 
 Usage:
-    python3 orchestrate.py <angle-root>             # pre-flight + launch
-    python3 orchestrate.py <angle-root> --verify    # post-run-verify the most-recent launch
+    # explicit angle root (legacy / advanced)
+    python3 orchestrate.py <angle-root>
+    python3 orchestrate.py <angle-root> --verify
+
+    # shortcut: provision N slots in module-M for idea-I, then launch
+    python3 orchestrate.py --module 3 --idea 1 --count 5
+    python3 orchestrate.py --module 3 --idea 1 --count 5 --verify
 """
 
 import argparse
@@ -24,6 +29,8 @@ SKILL_DIR = Path(__file__).resolve().parent
 PRE_FLIGHT = SKILL_DIR / "pre-flight-check.py"
 LAUNCH_ALL = SKILL_DIR / "launch-all.py"
 POST_VERIFY = SKILL_DIR / "post-run-verify.py"
+PROVISION = SKILL_DIR / "provision-slots.py"
+REPO_ROOT = SKILL_DIR.parents[2]
 
 
 def fail(msg: str, rc: int = 1) -> None:
@@ -133,14 +140,46 @@ def cmd_verify(angle_root: Path) -> int:
     return rc
 
 
+def cmd_provision(module: int, idea: int, count: int) -> Path:
+    """Run provision-slots.py and return the angle-root it produced."""
+    rc = subprocess.call([
+        "python3", str(PROVISION),
+        "--module", str(module),
+        "--idea", str(idea),
+        "--count", str(count),
+        "--repo-root", str(REPO_ROOT),
+    ])
+    if rc != 0:
+        fail("provisioning failed", 1)
+    return REPO_ROOT / "cohort-runs"
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("angle_root", type=Path)
+    p.add_argument("angle_root", type=Path, nargs="?",
+                   help="path containing .launch-config.json (omit when using --module/--idea/--count)")
     p.add_argument("--verify", action="store_true",
                    help="Run post-run-verify on the most recent launch under <angle-root>/_launch/")
+    p.add_argument("--module", type=int,
+                   help="module number 1..4 (shortcut: provisions slots first)")
+    p.add_argument("--idea", type=int,
+                   help="idea number, e.g. 1 (shortcut)")
+    p.add_argument("--count", type=int,
+                   help="number of agents to launch (shortcut)")
     args = p.parse_args()
 
-    angle_root = args.angle_root.resolve(strict=False)
+    shortcut = args.module is not None or args.idea is not None or args.count is not None
+    if shortcut:
+        if not (args.module and args.idea and args.count):
+            fail("shortcut needs all three: --module M --idea I --count N", 2)
+        if args.angle_root is not None:
+            fail("pass either angle_root OR --module/--idea/--count, not both", 2)
+        angle_root = cmd_provision(args.module, args.idea, args.count)
+    else:
+        if args.angle_root is None:
+            fail("missing angle_root (or use --module/--idea/--count)", 2)
+        angle_root = args.angle_root.resolve(strict=False)
+
     if not angle_root.is_dir():
         fail(f"angle root not a directory: {angle_root}", 2)
 

@@ -32,9 +32,33 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SKILL_DIR = Path(__file__).resolve().parent
-CHALLENGES_DIR = REPO_ROOT / "webinar-meta" / "domain-knowledge-challenges"
+CHALLENGES_DIR = REPO_ROOT / "webinar-meta" / "engineering-challenges"
+DATA_PATHS_CFG = REPO_ROOT / "webinar-meta" / "data-paths.json"
 CACHE_DIR = SKILL_DIR / "baselines"
 CACHE_DIR.mkdir(exist_ok=True)
+
+
+def resolve_eval_root(eval_data_root_str: str) -> Path:
+    """Pick the val-data root for grading.
+
+    Precedence:
+      1. If the challenge YAML's `eval_data_root` is an absolute path, use it.
+      2. If it's a relative path, resolve against the repo root.
+      3. If it's empty/missing, fall back to webinar-meta/data-paths.json
+         (`val_data_root`, resolved against repo root) — the single source of
+         truth shared with webinar-meta/skills/download-rlog-data/fetch_platform.py.
+    """
+    s = (eval_data_root_str or "").strip()
+    if s:
+        p = Path(s)
+        return p if p.is_absolute() else (REPO_ROOT / p).resolve()
+    if not DATA_PATHS_CFG.exists():
+        sys.exit(f"baseline: no eval_data_root in YAML and {DATA_PATHS_CFG} missing")
+    cfg = json.loads(DATA_PATHS_CFG.read_text())
+    val_root = cfg.get("val_data_root")
+    if not val_root:
+        sys.exit(f"baseline: no eval_data_root in YAML and val_data_root missing in {DATA_PATHS_CFG}")
+    return (REPO_ROOT / val_root).resolve()
 
 
 def _parse_yaml_minimal(text: str) -> dict:
@@ -127,7 +151,7 @@ def cache_key(parsed: dict) -> str:
     eval_set = parsed.get("eval_set", {}) or {}
     cte_cfg = parsed.get("cte_metric", {}) or {}
     inputs = {
-        "eval_data_root": parsed.get("eval_data_root", "").strip(),
+        "eval_data_root": str(resolve_eval_root(parsed.get("eval_data_root", ""))),
         "segment_globs": sorted(eval_set.get("segment_globs", []) or []),
         "sample_filter": eval_set.get("sample_filter", "True"),
         "truth_channel": eval_set.get("truth_channel", "yaw_rate_meas_rads"),
@@ -171,8 +195,7 @@ def compute_baseline(parsed: dict) -> dict:
     truth_col = eval_set.get("truth_channel", "yaw_rate_meas_rads")
     input_dir_name = eval_set.get("input_dir_name", "sim/segments")
     truth_dir_name = eval_set.get("truth_dir_name", "sim/segments")
-    eval_root_str = parsed.get("eval_data_root", "").strip()
-    eval_root = Path(eval_root_str) if eval_root_str else REPO_ROOT
+    eval_root = resolve_eval_root(parsed.get("eval_data_root", ""))
     if not eval_root.is_dir():
         sys.exit(f"baseline: eval_data_root does not exist: {eval_root}")
 

@@ -51,7 +51,7 @@ from rlog_reader import iter_events
 # ---------- DBC + bus constants ----------------------------------------------
 
 _HERE = Path(__file__).resolve().parent
-DEFAULT_DBC = _HERE / "_schema" / "dbc" / "tesla_model3_party.dbc"
+DEFAULT_DBC = _HERE.parent / "_schema" / "dbc" / "tesla_model3_party.dbc"
 
 # Tesla party-bus addresses we read.
 ADDR_DI_TORQUE = 0x108     # DI_torque              — drive inverter torque (bus 0)

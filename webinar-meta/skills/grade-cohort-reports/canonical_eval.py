@@ -7,7 +7,7 @@ looping `predict.py` only kills its own worker, never the parent.
 Inputs:
     --idea-id idea-01-lateral-attribution
     --agent-folders "module-1/agent-*/final-model" [more globs/paths...]
-    --out-dir _grade/<ts>           (default: cwd/_grade/<ts>)
+    --out-dir cohort-runs/_grade/<ts>           (default: cwd/cohort-runs/_grade/<ts>)
     --concurrency N                 (default: min(N_agents, 8))
     --timeout-per-agent SECONDS     (default: 120)
     --rebuild-baseline              (force V0 recompute)
@@ -175,7 +175,7 @@ def main():
     # Resolve out-dir.
     if args.out_dir is None:
         ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        args.out_dir = Path.cwd() / "_grade" / ts
+        args.out_dir = Path.cwd() / "cohort-runs" / "_grade" / ts
     canon = args.out_dir / "canonical"
     canon.mkdir(parents=True, exist_ok=True)
 

@@ -1,4 +1,4 @@
-# domain-knowledge-challenges
+# engineering-challenges
 
 The *question of the day* across webinar angles. Each challenge below is fed verbatim to every module agent — the substrate of each module is what differs, not the question.
 

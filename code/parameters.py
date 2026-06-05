@@ -162,6 +162,48 @@ F150_LIGHTNING_KS = F150LightningKS()
 
 
 # -----------------------------------------------------------------------------
+# Hyundai Ioniq 5 (E-GMP) — openpilot-canonical, decoded from rlog carParams
+# -----------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Ioniq5KS:
+    """KS-rung parameters for the Hyundai Ioniq 5 (E-GMP platform).
+
+    Source: carParams in any Ioniq 5 rlog (first-class openpilot port).
+    Notably rear-biased weight distribution (l_f/L ~ 0.40) and a tighter
+    steering rack than the Fords (i_s ~ 14.3 vs 17.0).
+    """
+
+    L: float = 2.970            # carParams.wheelbase [m]
+    delta_max: float = 0.55     # max road-wheel steering [rad]
+    delta_dot_max: float = 0.4
+    a_min: float = -10.0
+    a_max: float = 5.5
+
+    @property
+    def turning_radius_min(self) -> float:
+        from math import tan
+        return self.L / abs(tan(self.delta_max))
+
+
+@dataclass(frozen=True)
+class Ioniq5ST(Ioniq5KS):
+    """ST-rung parameters for the Hyundai Ioniq 5."""
+
+    m: float = 2084.0           # carParams.mass
+    I_z: float = 4311.97        # carParams.rotationalInertia
+    l_f: float = 1.188          # carParams.centerToFront
+    l_r: float = 1.782          # = L - l_f
+    C_alpha_f: float = 178_034  # carParams.tireStiffnessFront
+    C_alpha_r: float = 187_624  # carParams.tireStiffnessRear
+    i_s: float = 14.26          # carParams.steerRatio
+
+
+IONIQ_5 = Ioniq5ST()
+IONIQ_5_KS = Ioniq5KS()
+
+
+# -----------------------------------------------------------------------------
 # Platform lookup
 # -----------------------------------------------------------------------------
 
@@ -169,6 +211,7 @@ PARAM_BY_PLATFORM = {
     "TESLA_MODEL_3":             TESLA_MODEL_3,
     "FORD_MUSTANG_MACH_E_MK1":   MACH_E,
     "FORD_F_150_LIGHTNING_MK1":  F150_LIGHTNING,
+    "HYUNDAI_IONIQ_5":           IONIQ_5,
 }
 
 
