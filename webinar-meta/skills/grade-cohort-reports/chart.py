@@ -20,7 +20,6 @@ FAMILY_COLOURS = {
     "module-1": "#3366ff",   # blue
     "module-2": "#9966ff",   # purple
     "module-3": "#ff6600",   # orange
-    "module-4": "#00cc99",   # green
     "raw":      "#888888",
     "unknown":  "#cccccc",
 }
@@ -30,7 +29,6 @@ FAMILY_SHAPES = {
     "module-1": "circle",
     "module-2": "square",
     "module-3": "diamond",
-    "module-4": "triangle-up",
     "raw":      "x",
     "unknown":  "cross",
 }

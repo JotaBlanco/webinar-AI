@@ -80,13 +80,12 @@ The canonical grader's `eval_data_root` points at `KB_PARENT/KB003/data/val-data
 
 ### Setup for the webinar-AI repo specifically (May 2026 onwards)
 
-The "angle root" for this repo is the repo root itself (`/Users/javiquix/Desktop/quixdev/webinar-AI/`). There are no `webinar-angle-A/B/C` wrappers — modules live at top level (`module-1/`, `module-2/`, `module-3/`, `module-4/`) and each contains 10 agent slots (`agent-01..10`).
+The "angle root" for this repo is the repo root itself (`/Users/javiquix/Desktop/quixdev/webinar-AI/`). There are no `webinar-angle-A/B/C` wrappers — modules live at top level (`module-1/`, `module-2/`, `module-3/`) and each contains 10 agent slots (`agent-01..10`).
 
 **Source configs live at `webinar-meta/launch-configs/<module>-<idea>.json`** — one file per `(module, idea)` combination. Each contains all 10 agent slots for that combo. Available:
 - `m1-idea-01.json` — module-1 (bare) × idea-01 (lateral fidelity)
 - `m2-idea-01.json` — module-2 (skills-as-clay) × idea-01
 - `m3-idea-01.json` — module-3 (skills + references + EXPERIMENTS log) × idea-01
-- `m4-idea-01.json` — module-4 (closed-loop: RPI phases, parallel rungs, tree-search) × idea-01
 
 **Per-launch flow (shortcut — preferred):** when the user asks "launch N agents in module-M for idea-X":
 

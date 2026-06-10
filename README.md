@@ -43,7 +43,7 @@ Two engineering challenges, both grounded in vehicle dynamics on real openpilot 
 
 Full prompts: [webinar-meta/engineering-challenges/README.md](webinar-meta/engineering-challenges/README.md).
 
-### The four modules (rungs of the ladder)
+### The three modules (rungs of the ladder)
 
 Each module is a per-agent working directory. Inside each `agent-XX/` there is a `TASK.md`, a `REPORT.md` the agent writes, and `code/` + `data/` symlinks into the shared spine.
 
@@ -51,10 +51,11 @@ Each module is a per-agent working directory. Inside each `agent-XX/` there is a
 |---|---|
 | [module-1/](module-1/) | Bare cwd — just the task and the data |
 | [module-2/](module-2/) | Adds an `AGENTS.md` and skills (`_shared/traj_metrics.py`, etc.) |
-| [module-3/](module-3/) | Richer harness on top of module 2 |
-| [module-4/](module-4/) | Full substrate — closest to what a senior engineer would have |
+| [module-3/](module-3/) | Full substrate — closest to what a senior engineer would have |
 
 Each module has ten agents (`agent-01` … `agent-10`) so the cohort comparison is statistical, not anecdotal.
+
+(The webinar deck shows a four-rung ladder; in this simplified repo only modules 1–3 are wired through.)
 
 ### The code and data the agents share
 
@@ -89,7 +90,7 @@ Data roots are read from [webinar-meta/data-paths.json](webinar-meta/data-paths.
 
 ### Add a new agent to a module
 
-Each `module-N/agent-XX/` is provisioned from a template under [webinar-meta/env-template-m1/](webinar-meta/env-template-m1/) … `env-template-m4/`. To add another agent slot, copy the matching template into a new `agent-NN/` folder and add it to the module's launch config under [webinar-meta/launch-configs/](webinar-meta/launch-configs/).
+Each `module-N/agent-XX/` is provisioned from a template under [webinar-meta/env-template-m1/](webinar-meta/env-template-m1/) … `env-template-m3/`. To add another agent slot, copy the matching template into a new `agent-NN/` folder and add it to the module's launch config under [webinar-meta/launch-configs/](webinar-meta/launch-configs/).
 
 ### Launch a cohort (N isolated agents in parallel)
 
@@ -103,7 +104,7 @@ python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <module
 python3 webinar-meta/skills/launch-isolated-module-agents/orchestrate.py <module-launch-config> --verify
 ```
 
-Launch artifacts (prompts, pre-flight reports, blocked-attempt logs) land under [cohort-runs/_launch/](cohort-runs/_launch/), timestamped per run. The active config consumed by the orchestrator is [cohort-runs/.launch-config.json](cohort-runs/.launch-config.json).
+Launch artifacts (prompts, pre-flight reports, blocked-attempt logs) land under `cohort-runs/_launch/`, timestamped per run. The active config consumed by the orchestrator is `cohort-runs/.launch-config.json`. (Both are created on first run — the directory is not checked into the repo.)
 
 ### Grade a cohort
 
@@ -115,7 +116,7 @@ python3 webinar-meta/skills/grade-cohort-reports/orchestrate.py \
     --agents 'module-*/agent-*/final-model'
 ```
 
-Outputs `cohort.{json,md,html,pdf}` with per-agent / per-family / per-platform / per-segment breakdowns under [cohort-runs/_grade/](cohort-runs/_grade/). Canonical judge prompts live at the root of that dir.
+Outputs `cohort.{json,md,html,pdf}` with per-agent / per-family / per-platform / per-segment breakdowns under `cohort-runs/_grade/`. Canonical judge prompts live at the root of that dir.
 
 ### Visualise an agent's prediction vs truth
 
@@ -130,7 +131,7 @@ webinar-AI/
 ├── webinar-presentation/        # the deck (audience 1)
 ├── webinar-meta/                # experiment harness (audience 3)
 │   ├── engineering-challenges/  # the naked prompts + rubrics
-│   ├── env-template-m{1..4}/    # per-module agent environment templates
+│   ├── env-template-m{1..3}/    # per-module agent environment templates
 │   ├── launch-configs/          # per-module launch configs
 │   ├── skills/
 │   │   ├── download-rlog-data/
@@ -139,11 +140,9 @@ webinar-AI/
 │   │   └── grade-cohort-reports/
 │   ├── visualisation/           # truth-vs-prediction overlays
 │   └── data-paths.json          # single source of truth for data roots
-├── module-1/ … module-4/        # per-module cohorts (10 agents each) (audience 2)
+├── module-1/ … module-3/        # per-module cohorts (10 agents each) (audience 2)
 ├── code/                        # shared runnable spine — KS model, rlog reader, baselines
-├── data/                        # raw / sim / sim-only (gitignored, symlinked into agents)
-└── cohort-runs/                 # timestamped launch + grade artifacts
-    ├── _launch/
-    ├── _grade/
-    └── .launch-config.json
+└── data/                        # raw / sim / sim-only (gitignored, symlinked into agents)
+
+# cohort-runs/ is generated on first run (launch + grade artifacts); not tracked in git.
 ```

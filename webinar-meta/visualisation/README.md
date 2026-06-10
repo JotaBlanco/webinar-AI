@@ -28,12 +28,12 @@ python compare.py list --platform HYUNDAI_IONIQ_5
 # 2. Compare a handful of agents on segment #12 → plotly HTML
 python compare.py 12 \
     --agent module-1/agent-01 \
-    --agent module-4.v2.01/agent-01
+    --agent module-3/agent-01
 
 # 3. Same comparison, open the rerun 3D viewer live
 python compare.py 12 \
     --agent module-1/agent-01 \
-    --agent module-4.v2.01/agent-01 \
+    --agent module-3/agent-01 \
     --spawn
 
 # 4. Save an .rrd for later sharing/reopening
@@ -54,7 +54,7 @@ Spec forms:
 
 ```text
 module-1/agent-01                          # path; legend = "module-1/agent-01"
-module-4.v2.01/agent-05:M4 agent-05        # path:label
+module-3/agent-05:M3 agent-05              # path:label
 /abs/path/to/some-agent-root               # absolute path
 ```
 
@@ -71,7 +71,7 @@ A preset is a JSON file under `presets/` capturing a reusable agent list
   "segment": "5",
   "agents": [
     "module-1/agent-01:M1 V1",
-    "module-4.v2.01/agent-01:M4 flagship"
+    "module-3/agent-01:M3 flagship"
   ]
 }
 ```
@@ -88,15 +88,14 @@ Save the current invocation as a preset:
 ```bash
 python compare.py 12 \
     --agent module-1/agent-01 \
-    --agent module-4.v2.01/agent-01 \
+    --agent module-3/agent-01 \
     --save-preset my-comparison
 ```
 
-Three presets ship by default:
+Two presets ship by default:
 
-- `example.json` — one agent from M1 + one from M4, segment 0.
-- `cohort-flagships.json` — agent-01 from every module (M1, M2, M3, M4).
-- `m4-all-agents.json` — all ten M4 agents on the same segment (set on CLI).
+- `example.json` — one agent from M1 + one from M3, segment 0.
+- `cohort-flagships.json` — agent-01 from every module (M1, M2, M3).
 
 ## Files
 

@@ -11,7 +11,7 @@ Compare agents on a segment (index from `list` or a slug substring):
 
     python compare.py 5 \\
         --agent module-1/agent-01 \\
-        --agent module-4.v2.01/agent-01:M4-flagship \\
+        --agent module-3/agent-01:M3-flagship \\
         --html             # default: plotly HTML
     python compare.py 5 --agent ... --rrd        # save .rrd
     python compare.py 5 --agent ... --spawn      # open rerun viewer
