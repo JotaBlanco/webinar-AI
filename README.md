@@ -2,6 +2,8 @@
 
 Materials for the Quix webinar **"The F1 Playbook for AI-Assisted Engineering"** — the slide deck, the cohort-experiment harness, and the runnable code and data the agents work against.
 
+📊 **[View the presentation →](https://quixio.github.io/webinar-AI/)**
+
 The repo is organised around three audiences. Pick the one that matches what you came here to do.
 
 ---
