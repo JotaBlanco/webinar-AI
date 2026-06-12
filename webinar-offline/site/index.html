@@ -91,10 +91,8 @@ img,svg{display:block;}
 .hero h1{font-family:var(--font-sans);font-weight:500;font-size:clamp(1.7rem,3.6vw,2.7rem);line-height:1.06;
   letter-spacing:-.02em;color:var(--white);margin:0 0 16px;}
 .hero h1 .accent{color:var(--orange);white-space:nowrap;}
-.hero__band{display:flex;align-items:center;justify-content:space-between;gap:20px 40px;flex-wrap:wrap;}
 .hero__sub{font-family:var(--font-mono);font-size:12.5px;font-weight:300;letter-spacing:.05em;color:var(--ink-soft);
-  max-width:62ch;margin:0;line-height:1.6;flex:1 1 360px;}
-.hero__ctas{display:flex;gap:14px;flex-wrap:wrap;flex:0 0 auto;}
+  max-width:78ch;margin:0;line-height:1.65;}
 @media(max-width:520px){.hero h1 .accent{white-space:normal;}}
 
 /* ============================================================ COURSE LAYOUT */
@@ -102,20 +100,28 @@ img,svg{display:block;}
 @media(max-width:980px){.course{grid-template-columns:1fr;gap:24px;}}
 
 /* sidebar */
-.side{position:sticky;top:calc(var(--nav-height) + 28px);}
-.side__head{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);
-  margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
-.side__bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-bottom:22px;}
+.side{position:sticky;top:calc(var(--nav-height) + 28px);
+  background:linear-gradient(180deg,rgba(255,132,0,.05),rgba(255,255,255,.015) 120px);
+  border:1px solid var(--card-border);border-radius:6px;padding:20px 16px;}
+.side__status{margin-bottom:16px;}
+.side__kicker{display:flex;align-items:center;gap:.6em;font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-mute);margin-bottom:9px;}
+.side__kicker::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);
+  box-shadow:0 0 0 3px rgba(255,132,0,.18);}
+.side__now{font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--white);}
+.side__now .n{color:var(--orange);}
+.side__now .of{color:var(--ink-mute);font-weight:400;}
+.side__bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-bottom:20px;}
 .side__bar i{display:block;height:100%;width:14%;background:linear-gradient(90deg,var(--orange),var(--orange-dark));transition:width .5s ease;}
 .side__list{list-style:none;display:flex;flex-direction:column;gap:2px;}
 .side__item{display:flex;gap:14px;align-items:flex-start;padding:11px 14px;cursor:pointer;border-left:2px solid transparent;
   transition:background .18s,border-color .18s;border-radius:0 6px 6px 0;}
 .side__item:hover{background:rgba(255,255,255,.03);}
-.side__item.active{background:rgba(255,132,0,.07);border-left-color:var(--orange);}
+.side__item.active{background:rgba(255,132,0,.13);border-left-color:var(--orange);}
 .side__num{font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);padding-top:2px;min-width:22px;}
 .side__item.active .side__num{color:var(--orange);}
 .side__txt{font-size:14px;line-height:1.35;color:var(--ink-soft);}
-.side__item.active .side__txt{color:var(--white);}
+.side__item.active .side__txt{color:var(--white);font-weight:500;}
 .side__done{margin-left:auto;color:var(--green);font-size:12px;opacity:0;transition:opacity .2s;}
 .side__item.seen .side__done{opacity:.9;}
 @media(max-width:980px){
@@ -276,13 +282,7 @@ footer a:hover{color:var(--orange);}
   <div class="wrap">
     <span class="hero__eyebrow"><span class="lead">Masterclass · Self-paced</span><span class="sep">·</span><b>30</b> agents benchmarked<span class="sep">·</span><b>~72%</b> best error cut</span>
     <h1>The F1 Playbook for <span class="accent">AI-Assisted Engineering</span></h1>
-    <div class="hero__band">
-      <p class="hero__sub">Most AI advice is about writing code — but engineering is about outcomes. We climb a five-rung ladder, from chatbot to a full AI harness, on one real vehicle-dynamics problem.</p>
-      <div class="hero__ctas">
-        <a class="btn btn--solid brk" href="#modules">Start the masterclass</a>
-        <a class="btn btn--demo brk" href="#book">Book a demo</a>
-      </div>
-    </div>
+    <p class="hero__sub">The same engineering problem, the same AI prompt, but 5 different model environments (from a basic chatbot to a full AI harness), cutting model error by up to 72%. A practical playbook for getting real outcomes from AI in engineering, drawn from our work in Formula 1.</p>
   </div>
 </header>
 
@@ -292,7 +292,10 @@ footer a:hover{color:var(--orange);}
 
     <!-- sidebar -->
     <aside class="side">
-      <div class="side__head"><span>Curriculum</span><span id="side-count">Module 1 of 7</span></div>
+      <div class="side__status">
+        <span class="side__kicker">Now playing</span>
+        <span class="side__now" id="side-count">Module <span class="n">1</span><span class="of"> / 7</span></span>
+      </div>
       <div class="side__bar"><i id="side-fill"></i></div>
       <ul class="side__list" id="side-list">
         <li class="side__item" data-go="1"><span class="side__num">01</span><span class="side__txt">Coding ≠ engineering</span><span class="side__done">✓</span></li>
@@ -655,7 +658,7 @@ function show(n, push){
     if(i <= n) it.classList.add('seen');
   });
   fill.style.width = (n/TOTAL*100) + '%';
-  count.textContent = 'Module ' + n + ' of ' + TOTAL;
+  count.innerHTML = 'Module <span class="n">' + n + '</span><span class="of"> / ' + TOTAL + '</span>';
   prevBtn.disabled = n === 1;
   nextBtn.textContent = n === TOTAL ? 'Back to start ↑' : 'Next module →';
   injectVideo(n);
