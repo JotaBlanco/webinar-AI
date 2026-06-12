@@ -1,13 +1,15 @@
 name: Deploy webinar presentation to Pages
 
-# Publishes ONLY webinar-presentation/ as the GitHub Pages site, so the public
-# URL serves the slide deck and not the cohort-runs eval artifacts or module data.
+# Publishes the slide deck (webinar-presentation/) at the site root and the
+# public webinar microsite (webinar-offline/site/) at /masterclass/. Nothing
+# else (cohort-runs eval artifacts, module data) is published.
 
 on:
   push:
     branches: [main]
     paths:
       - 'webinar-presentation/**'
+      - 'webinar-offline/site/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -38,6 +40,11 @@ jobs:
           # Make the bare Pages URL land on the slide index (relative links are
           # preserved because index.html sits at the same level as the deck).
           cp _site/presentation-index.html _site/index.html
+
+      - name: Stage webinar microsite at /masterclass/
+        run: |
+          mkdir -p _site/masterclass
+          cp -r webinar-offline/site/. _site/masterclass/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
