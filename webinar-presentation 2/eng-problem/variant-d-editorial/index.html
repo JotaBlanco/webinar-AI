@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Engineering Problem · Editorial — Quix Webinar</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #05060f;
+    --bg-deep: #0a0b16;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.78);
+    --ink-mute: rgba(255,255,255,0.40);
+    --ink-faint: rgba(255,255,255,0.18);
+    --rule: rgba(255,255,255,0.10);
+    --blue: #0064ff;
+    --blue-l: #3d89ff;
+    --purple: #bd2eff;
+    --orange: #ff7828;
+    --green: #00dd81;
+    --apple: cubic-bezier(.16,1,.3,1);
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+    --serif: 'Iowan Old Style', 'Cambria', 'Georgia', 'Times New Roman', serif;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* drifting nebula — quieter than cosmic */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 30% at 18% 22%, rgba(0,100,255,0.18), transparent 60%),
+      radial-gradient(35% 28% at 82% 72%, rgba(189,46,255,0.14), transparent 60%),
+      radial-gradient(30% 25% at 55% 92%, rgba(255,120,40,0.10), transparent 65%);
+    filter: blur(50px);
+    animation: drift 36s ease-in-out infinite alternate;
+  }
+  body::after {
+    background:
+      radial-gradient(25% 20% at 72% 18%, rgba(0,221,129,0.08), transparent 60%),
+      radial-gradient(28% 22% at 22% 78%, rgba(61,137,255,0.10), transparent 60%);
+    animation-duration: 48s;
+    animation-direction: alternate-reverse;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    50%  { transform: translate3d(2%, 3%, 0) scale(1.06); }
+    100% { transform: translate3d(-1%, 2%, 0) scale(1.02); }
+  }
+
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.30), transparent 50%),
+      radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.5px 1.5px at 62% 12%, rgba(255,255,255,0.4), transparent 50%);
+    animation: twinkle 7s ease-in-out infinite alternate;
+    opacity: 0.7;
+  }
+  @keyframes twinkle { from { opacity: 0.35; } to { opacity: 0.8; } }
+
+  /* topbar */
+  .topbar {
+    position: fixed; top: 3vh; left: 7vw; right: 7vw;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 5; pointer-events: none;
+  }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .topbar svg { height: 20px; opacity: 0.75; }
+
+  /* footer + counter + progress */
+  .footer {
+    position: fixed; bottom: 3vh; left: 7vw; right: 7vw;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-mute);
+    z-index: 5;
+  }
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 1px;
+    background: rgba(255,255,255,0.05); z-index: 5;
+  }
+  .progress::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--p, 0%);
+    background: var(--accent, #ffffff);
+    transition: width 0.9s var(--apple), background 0.9s var(--apple);
+  }
+
+  /* stage */
+  .deck { position: fixed; inset: 0; z-index: 1; }
+  .slide {
+    position: absolute; inset: 0;
+    display: grid;
+    padding: 12vh 7vw 12vh;
+    opacity: 0; pointer-events: none;
+    transition: opacity 1.1s var(--apple);
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* per-slide accent rotation: blue → purple → orange → green */
+  .slide[data-i="1"] { --accent: var(--blue-l); }
+  .slide[data-i="2"] { --accent: var(--purple); }
+  .slide[data-i="3"] { --accent: var(--orange); }
+  .slide[data-i="4"] { --accent: var(--green); }
+  .slide[data-i="5"] { --accent: var(--blue-l); }
+  .slide[data-i="6"] { --accent: var(--purple); }
+  .slide[data-i="7"] { --accent: var(--orange); }
+  .slide[data-i="8"] { --accent: var(--green); }
+
+  /* ===================== TYPOGRAPHY ===================== */
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 1.1rem;
+  }
+  .eyebrow::before {
+    content: ''; width: 36px; height: 1px; background: var(--accent);
+  }
+
+  h1.hero {
+    color: var(--ink);
+    font-size: clamp(3.4rem, 11vw, 14rem);
+    font-weight: 700;
+    line-height: 0.93;
+    letter-spacing: -0.045em;
+    max-width: 18ch;
+  }
+  h1.hero.tight  { font-size: clamp(3rem, 9vw, 11rem); max-width: 22ch; }
+  h1.hero.tighter { font-size: clamp(2.6rem, 7.5vw, 9.5rem); max-width: 26ch; }
+  h1.hero .mark  { color: var(--accent); }
+  h1.hero .ul {
+    display: inline-block;
+    position: relative;
+    color: var(--ink);
+  }
+  h1.hero .ul::after {
+    content: ''; position: absolute;
+    left: 0; right: 0; bottom: -0.04em;
+    height: 0.045em;
+    background: var(--accent);
+  }
+
+  p.body {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    max-width: 52ch;
+    font-weight: 400;
+  }
+
+  .caption {
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+    line-height: 1.65;
+    max-width: 60ch;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  .mono { font-family: var(--mono); }
+
+  /* ===================== LAYOUT ===================== */
+
+  /* default editorial spread: hero on top half, body+aside below */
+  .spread {
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+    gap: 5vh;
+    align-content: stretch;
+  }
+  .spread .top { display: flex; flex-direction: column; gap: 2vh; }
+  .spread .mid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 6vw; align-items: end; }
+  .spread .mid.single { grid-template-columns: 1fr; }
+  .spread .mid .left { display: flex; flex-direction: column; gap: 1.5rem; }
+  .spread .mid .right { display: flex; flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+
+  /* hairline column rule */
+  .hairline {
+    height: 1px;
+    background: var(--rule);
+    width: 100%;
+  }
+  .vrule {
+    width: 1px;
+    background: var(--rule);
+    align-self: stretch;
+  }
+
+  /* tiny mark — for slide 1 */
+  .tiny-mark {
+    display: flex; flex-direction: column; gap: 0.85rem;
+    max-width: 280px;
+  }
+  .tiny-mark .row {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .tiny-mark .row .bar {
+    height: 1px; background: var(--ink-faint);
+  }
+  .tiny-mark .row.gap .bar { background: var(--accent); height: 1px; }
+
+  /* mono aside box (no chrome, just type) */
+  .aside-code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.85;
+    color: var(--ink-soft);
+    white-space: pre;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--rule);
+  }
+  .aside-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 1rem;
+  }
+
+  /* car list (slide 3) */
+  .car-list {
+    display: flex; flex-direction: column;
+    margin-top: 2.5vh;
+  }
+  .car-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 3vw;
+    align-items: baseline;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .car-row:last-child { border-bottom: 1px solid var(--rule); }
+  .car-row .name {
+    color: var(--ink);
+    font-size: clamp(1.25rem, 2.2vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .car-row .spec {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    white-space: nowrap;
+  }
+  .car-row.heavy .spec { color: var(--accent); }
+
+  /* equations (slide 4) */
+  .eqs {
+    display: flex; flex-direction: column;
+    gap: 2.5rem;
+    align-items: center;
+    margin-top: 4vh;
+    margin-bottom: 4vh;
+  }
+  .eq {
+    font-family: var(--mono);
+    font-size: clamp(1.6rem, 3.4vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .eq .op { color: var(--ink-mute); }
+  .eq .var { color: var(--accent); }
+  .eq-foot {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-mute);
+    text-align: center;
+    display: flex; gap: 3rem; justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* two-column input/predicted (slide 5) */
+  .io-cols {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 4vw;
+    margin-top: 3vh;
+    align-items: start;
+  }
+  .io-col .head {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 1.5rem;
+  }
+  .io-col .head .acc { color: var(--accent); }
+  .io-col .vars {
+    font-family: var(--mono);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.5;
+  }
+  .io-col .vars .var { color: var(--accent); }
+  .io-col .sub {
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.18em; color: var(--ink-mute);
+    margin-top: 1rem;
+  }
+
+  /* four-block schema (slide 6) */
+  .blocks-4 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    margin-top: 3vh;
+  }
+  .block {
+    padding: 1.8rem 2.5rem 1.8rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .block:nth-child(odd) { border-right: 1px solid var(--rule); padding-right: 3rem; }
+  .block:nth-child(even) { padding-left: 3rem; }
+  .block:nth-child(3), .block:nth-child(4) { padding-bottom: 0.5rem; }
+  .block .lbl {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 0.9rem;
+  }
+  .block.accent .lbl { color: var(--accent); }
+  .block .cols {
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--ink);
+    word-spacing: 0.1em;
+  }
+  .block .note {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin-top: 0.5rem;
+  }
+
+  /* metrics column (slide 7) */
+  .metrics-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 2vh;
+  }
+  .metric {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 5vw;
+    align-items: baseline;
+    padding: 3rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .metric:last-child { border-bottom: 1px solid var(--rule); }
+  .metric .ttl {
+    color: var(--ink);
+    font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .metric .ttl .unit {
+    display: block;
+    font-family: var(--mono);
+    font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+    font-weight: 400;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-top: 0.6rem;
+  }
+  .metric .desc {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 48ch;
+  }
+
+  /* enormous numerics (slide 8) */
+  .big-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: end;
+    margin-top: 6vh;
+  }
+  .big-pair > .num-cell {
+    padding: 0 2vw;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .big-pair > .num-cell + .num-cell { border-left: 1px solid var(--rule); }
+  .big-num {
+    font-size: clamp(4.5rem, 13vw, 13rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    color: var(--ink);
+    font-feature-settings: 'tnum';
+  }
+  .big-num .acc { color: var(--accent); }
+  .big-label {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+
+  /* ===================== REVEAL ANIMATION ===================== */
+  /* Letter-by-letter reveal with blur-to-focus, Apple curve */
+
+  .reveal-word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: baseline;
+  }
+  .reveal-letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.6em);
+    filter: blur(8px);
+    transition: opacity 0.9s var(--apple), transform 0.9s var(--apple), filter 0.9s var(--apple);
+  }
+  .slide.active .reveal-letter {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  /* generic fade-rise for sub-elements */
+  .rise {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(6px);
+    transition: opacity 1.1s var(--apple), transform 1.1s var(--apple), filter 1.1s var(--apple);
+  }
+  .slide.active .rise { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+  .slide.active .d-0  { transition-delay: 0.00s; }
+  .slide.active .d-1  { transition-delay: 0.55s; }
+  .slide.active .d-2  { transition-delay: 0.80s; }
+  .slide.active .d-3  { transition-delay: 1.05s; }
+  .slide.active .d-4  { transition-delay: 1.30s; }
+  .slide.active .d-5  { transition-delay: 1.55s; }
+  .slide.active .d-6  { transition-delay: 1.80s; }
+  .slide.active .d-7  { transition-delay: 2.05s; }
+
+  /* hint */
+  .hint {
+    position: fixed; bottom: 6vh; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.62rem; letter-spacing: 0.36em; text-transform: uppercase;
+    color: var(--ink-mute);
+    z-index: 5; pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* counter accent */
+  #cur { color: var(--ink); }
+
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="topbar">
+  <svg viewBox="0 0 132 132" xmlns="http://www.w3.org/2000/svg" height="20"><g><rect x="108" y="108" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="81" y="81" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><rect x="54" y="54" width="24" height="24" rx="2.5" ry="2.5" fill="#fff"/><path d="M129.5,0H2.5C1.12,0,0,1.12,0,2.5v127c0,1.38,1.12,2.5,2.5,2.5h73c1.38,0,2.5-1.12,2.5-2.5v-19c0-1.38-1.12-2.5-2.5-2.5H24V24h84v51.5c0,1.38,1.12,2.5,2.5,2.5h19c1.38,0,2.5-1.12,2.5-2.5V2.5c0-1.38-1.12-2.5-2.5-2.5Z" fill="#fff"/></g></svg>
+  <span class="meta">The engineering problem · Editorial</span>
+</div>
+
+<div class="deck">
+
+  <!-- ============ SLIDE 1 ============ -->
+  <section class="slide active spread" data-i="1">
+    <div class="top">
+      <span class="eyebrow rise d-0">The engineering problem</span>
+    </div>
+    <div class="mid">
+      <div class="left">
+        <h1 class="hero" data-text="Sim-to-real correlation."></h1>
+      </div>
+      <div class="right">
+        <p class="body rise d-5">You tune against a model. Then reality disagrees. Closing that gap — and knowing where the model can't be trusted — is the job.</p>
+        <div class="tiny-mark rise d-6">
+          <div class="row"><span class="bar"></span><span>model</span></div>
+          <div class="row gap"><span class="bar"></span><span>the gap</span></div>
+          <div class="row"><span class="bar"></span><span>reality</span></div>
+        </div>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 2 ============ -->
+  <section class="slide spread" data-i="2">
+    <div class="top">
+      <span class="eyebrow rise d-0">The data</span>
+    </div>
+    <div class="mid">
+      <div class="left">
+        <h1 class="hero" data-text="Real car data from CAN bus."></h1>
+        <p class="body rise d-5" style="margin-top:2rem;">Comma.ai openpilot logs. This is what the car's own controllers saw: the same signals openpilot drives on. Production hardware, real roads.</p>
+      </div>
+      <div class="right">
+        <div class="rise d-6">
+          <div class="aside-label">On disk</div>
+          <pre class="aside-code">data/raw/segments/
+  PLATFORM/
+    device/
+      route/
+        segment/
+          rlog.zst</pre>
+        </div>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 3 ============ -->
+  <section class="slide spread" data-i="3">
+    <div class="top">
+      <span class="eyebrow rise d-0">Four cars</span>
+    </div>
+    <div class="mid single">
+      <div class="left">
+        <h1 class="hero tighter" data-text="One model is about to treat all of these the same."></h1>
+        <div class="car-list">
+          <div class="car-row rise d-5">
+            <span class="name">Tesla Model 3</span>
+            <span class="spec">wheelbase 2.875 m</span>
+            <span class="spec">mass 2,035 kg</span>
+          </div>
+          <div class="car-row rise d-6">
+            <span class="name">Ford Mustang Mach-E</span>
+            <span class="spec">wheelbase 2.984 m</span>
+            <span class="spec">mass 2,336 kg</span>
+          </div>
+          <div class="car-row rise d-7">
+            <span class="name">Hyundai Ioniq 5</span>
+            <span class="spec">wheelbase 2.970 m</span>
+            <span class="spec">mass 2,084 kg</span>
+          </div>
+          <div class="car-row heavy rise d-7">
+            <span class="name">Ford F-150 Lightning</span>
+            <span class="spec">wheelbase 3.70 m</span>
+            <span class="spec">mass 3,084 kg</span>
+          </div>
+        </div>
+        <p class="caption rise d-7" style="margin-top:2.5rem;">A 3-ton truck and a compact hatch. The baseline model is mass-independent — it predicts identical cornering for both.</p>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 4 ============ -->
+  <section class="slide spread" data-i="4">
+    <div class="top">
+      <span class="eyebrow rise d-0">The virtual model</span>
+    </div>
+    <div class="mid single">
+      <div class="left" style="align-items:flex-start;">
+        <h1 class="hero tight" data-text="KS — the &lsquo;driving-school&rsquo; model."></h1>
+        <p class="body rise d-5" style="margin-top:1.5rem;">A rigid rod of wheelbase L, no tyre, no slip — the car goes exactly where the wheels point. Yaw rate falls straight out of geometry.</p>
+        <div class="eqs rise d-6" style="align-self:center;">
+          <div class="eq"><span class="var">ψ̇</span> <span class="op">=</span> (<span class="var">v</span> <span class="op">/</span> L) <span class="op">·</span> tan(<span class="var">δ</span>)</div>
+          <div class="eq"><span class="var">a<sub>y</sub></span> <span class="op">=</span> <span class="var">v</span> <span class="op">·</span> <span class="var">ψ̇</span></div>
+        </div>
+        <div class="eq-foot rise d-7" style="align-self:center;">
+          <span>state&nbsp;&nbsp;x = (x, y, ψ, v, δ)</span>
+          <span>input&nbsp;&nbsp;u = (δ̇, a)</span>
+        </div>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 5 ============ -->
+  <section class="slide spread" data-i="5">
+    <div class="top">
+      <span class="eyebrow rise d-0">The scope</span>
+    </div>
+    <div class="mid single">
+      <div class="left">
+        <h1 class="hero tighter" data-text="We give it speed and steering. It returns the lateral response."></h1>
+        <div class="io-cols rise d-5">
+          <div class="io-col">
+            <div class="head">Input <span class="acc">— measured</span></div>
+            <div class="vars"><span class="var">v</span>, <span class="var">δ</span></div>
+            <div class="sub">speed · steering angle</div>
+          </div>
+          <div class="vrule"></div>
+          <div class="io-col">
+            <div class="head"><span class="acc">Predicted</span></div>
+            <div class="vars"><span class="var">x</span>, <span class="var">y</span>, <span class="var">ψ</span></div>
+            <div class="sub">position · heading</div>
+          </div>
+        </div>
+        <p class="caption rise d-6" style="margin-top:3rem;">Measured v and δ are clamped at every integration step, so the longitudinal channel is an input, not a prediction. What's left is purely lateral — and the model's lies are all lateral, so this isolates exactly the residual we want to measure.</p>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 6 ============ -->
+  <section class="slide spread" data-i="6">
+    <div class="top">
+      <span class="eyebrow rise d-0">How V0 is built · the file</span>
+    </div>
+    <div class="mid single">
+      <div class="left">
+        <h1 class="hero tighter" data-text="One row per 50 Hz sample, four kinds of column."></h1>
+        <div class="blocks-4">
+          <div class="block rise d-5">
+            <div class="lbl">Inputs</div>
+            <div class="cols">delta_road_rad &nbsp; v_mps &nbsp; a_long_mps2 &nbsp; accel_pedal_pct</div>
+          </div>
+          <div class="block rise d-5">
+            <div class="lbl">Truth</div>
+            <div class="cols">yaw_rate_meas_rads &nbsp; a_lat_meas_mps2</div>
+            <div class="note">Ford / Hyundai only</div>
+          </div>
+          <div class="block rise d-6">
+            <div class="lbl">Prediction</div>
+            <div class="cols">yaw_rate_pred_rads &nbsp; a_y_pred_mps2 &nbsp; x_m &nbsp; y_m &nbsp; psi_rad</div>
+          </div>
+          <div class="block accent rise d-6">
+            <div class="lbl">Residual</div>
+            <div class="cols">yaw_rate_resid_rads &nbsp; a_y_resid_mps2</div>
+            <div class="note">= pred − truth</div>
+          </div>
+        </div>
+        <p class="caption rise d-7" style="margin-top:2rem;">The truth columns exist in sim.csv — but not in what your model is given at inference.</p>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 7 ============ -->
+  <section class="slide spread" data-i="7">
+    <div class="top">
+      <span class="eyebrow rise d-0">The task</span>
+    </div>
+    <div class="mid single">
+      <div class="left">
+        <h1 class="hero tighter" data-text="Predict the lateral response better than V0."></h1>
+        <div class="metrics-2">
+          <div class="metric rise d-5">
+            <div class="ttl">Yaw-rate RMSE<span class="unit">rad / s</span></div>
+            <div class="desc">Instantaneous fidelity — how close the predicted yaw rate is to measured, every sample.</div>
+          </div>
+          <div class="metric rise d-6">
+            <div class="ttl">Cross-track-error RMSE<span class="unit">metres</span></div>
+            <div class="desc">Where the integrated trajectory actually ends up, resampled at uniform distance.</div>
+          </div>
+        </div>
+        <p class="caption rise d-7" style="margin-top:2rem;">Not redundant: a tiny persistent yaw bias is nearly invisible per-sample but compounds into hundreds of metres of drift.</p>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+  <!-- ============ SLIDE 8 ============ -->
+  <section class="slide spread" data-i="8">
+    <div class="top">
+      <span class="eyebrow rise d-0">The start line</span>
+    </div>
+    <div class="mid single">
+      <div class="left">
+        <h1 class="hero tight" data-text="Beat these two numbers."></h1>
+        <p class="body rise d-5" style="margin-top:1rem;">V0, scored on 534 held-out segments. Everything from here is measured against them.</p>
+        <div class="big-pair">
+          <div class="num-cell rise d-6">
+            <div class="big-num"><span class="acc">0.0163</span></div>
+            <div class="big-label">Yaw-rate RMSE · rad/s</div>
+          </div>
+          <div class="num-cell rise d-7">
+            <div class="big-num"><span class="acc">254</span></div>
+            <div class="big-label">Cross-track-error RMSE · m</div>
+          </div>
+        </div>
+        <p class="caption rise d-7" style="margin-top:3rem;">The 254 m is the compounding-bias problem made concrete — integrate a slightly biased yaw rate over a minute of driving and the trajectory drifts off the map.</p>
+      </div>
+    </div>
+    <div></div>
+  </section>
+
+</div>
+
+<div class="hint">← →  navigate · click halves</div>
+
+<div class="footer">
+  <span>Quix · 2026</span>
+  <span><span id="cur">1</span> &nbsp;/&nbsp; <span id="tot">8</span></span>
+</div>
+<div class="progress" id="prog"></div>
+
+<script>
+  // ---------- Hero typography: split into letters with stagger ----------
+  document.querySelectorAll('h1.hero[data-text]').forEach(h => {
+    const text = h.getAttribute('data-text');
+    h.innerHTML = '';
+    const words = text.split(' ');
+    let letterIndex = 0;
+    words.forEach((word, wi) => {
+      const wEl = document.createElement('span');
+      wEl.className = 'reveal-word';
+      // decode entities (lsquo / rsquo)
+      const tmp = document.createElement('div');
+      tmp.innerHTML = word;
+      const decoded = tmp.textContent;
+      [...decoded].forEach(ch => {
+        const lEl = document.createElement('span');
+        lEl.className = 'reveal-letter';
+        // base delay 0.10s; per-letter stagger 22ms
+        lEl.style.transitionDelay = (0.10 + letterIndex * 0.022) + 's';
+        lEl.textContent = ch;
+        wEl.appendChild(lEl);
+        letterIndex++;
+      });
+      h.appendChild(wEl);
+      if (wi < words.length - 1) {
+        const sp = document.createElement('span');
+        sp.innerHTML = '&nbsp;';
+        sp.style.display = 'inline-block';
+        h.appendChild(sp);
+      }
+    });
+  });
+
+  // ---------- Navigation ----------
+  const slides = document.querySelectorAll('.slide');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = slides.length;
+  let i = 0;
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = String(i + 1).padStart(2, '0');
+    const pct = ((i + 1) / slides.length * 100);
+    prog.style.setProperty('--p', pct + '%');
+    // pull accent from active slide
+    const active = slides[i];
+    const accent = getComputedStyle(active).getPropertyValue('--accent');
+    prog.style.setProperty('--accent', accent.trim() || '#ffffff');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(i + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); go(i - 1); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('a,button,input')) return;
+    go(i + (e.clientX > window.innerWidth / 2 ? 1 : -1));
+  });
+
+  // pad tot
+  tot.textContent = String(slides.length).padStart(2, '0');
+  go(0);
+</script>
+</body>
+</html>
