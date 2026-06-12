@@ -176,11 +176,19 @@ img,svg{display:block;}
 
 /* results card with scatter */
 .results{border:1px solid var(--card-border);background:var(--card-bg);padding:24px;margin-top:8px;}
-.results__top{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:baseline;margin-bottom:18px;}
+.results__top{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-bottom:18px;}
 .results__stat{font-family:var(--font-mono);}
 .results__stat .v{font-size:1.5rem;color:var(--white);letter-spacing:-.02em;}
 .results__stat .l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);display:block;margin-top:2px;}
 .results__stat .d{color:var(--green);font-size:12px;}
+.results__legend{margin-left:auto;display:flex;flex-wrap:wrap;gap:7px;}
+.leg-item{display:inline-flex;align-items:center;gap:.5em;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;
+  color:var(--ink-soft);background:rgba(255,255,255,.03);border:1px solid var(--line-faint);border-radius:6px;
+  padding:6px 10px;cursor:pointer;transition:color .18s,border-color .18s,opacity .18s;user-select:none;}
+.leg-item:hover{border-color:var(--orange);color:var(--white);}
+.leg-item .leg-sw{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.leg-item:not(.on){color:var(--ink-mute);opacity:.5;}
+.leg-item:not(.on) .leg-sw{background:transparent!important;box-shadow:inset 0 0 0 1px var(--ink-mute);}
 .results figcaption{font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);text-align:center;margin-top:10px;letter-spacing:.04em;}
 
 /* scatter (from prebuilt plots) */
@@ -190,6 +198,7 @@ img,svg{display:block;}
   font-size:.72rem;color:var(--ink-soft);font-family:var(--font-mono);background:rgba(10,11,22,.55);
   border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem .7rem;backdrop-filter:blur(8px);}
 .scatter-wrap .legend .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.4rem;vertical-align:middle;}
+.scatter-wrap .legend{display:none;} /* replaced by external clickable legend in .results__top */
 .scatter-wrap circle.pt{transition:opacity .45s ease,transform .55s cubic-bezier(.2,.7,.2,1);}
 
 /* trajectory table */
@@ -618,20 +627,66 @@ function show(n, push){
   prevBtn.disabled = n === 1;
   nextBtn.textContent = n === TOTAL ? 'Back to start ↑' : 'Next module →';
   injectVideo(n);
-  revealScatter(n);
   history.replaceState(null, '', '#module-'+n);
   // only scroll on explicit navigation — never steal the hero on first load
   if(scroll) window.scrollTo({top: document.getElementById('modules').offsetTop - 80, behavior: 'smooth'});
 }
 
-/* animate the prebuilt scatter points when a module opens */
-function revealScatter(n){
-  const mod = document.getElementById('module-'+n);
-  mod.querySelectorAll('[data-reveal-points] circle.pt').forEach(p => {
-    p.style.opacity = 0; p.style.transform = 'scale(0)';
-    p.style.transformOrigin = p.getAttribute('cx')+'px '+p.getAttribute('cy')+'px';
-    setTimeout(() => { p.style.opacity = 1; p.style.transform = 'scale(1)'; },
-      parseInt(p.getAttribute('data-delay')||'0',10));
+/* scatter cards: external clickable legend (toggles a series) + scroll-triggered
+   staggered point reveal (points appear in order, V0 → L1 → L2 → L3). */
+function initScatters(){
+  const ORDER=['V0','L1','L2','L3'];
+  const LABEL={V0:'V0 baseline',L1:'Level 1',L2:'Level 2',L3:'Level 3'};
+  const seriesOf=t=>{ if(/V0 baseline/.test(t)) return 'V0'; const m=t.match(/Level (\d)/); return m?'L'+m[1]:null; };
+
+  document.querySelectorAll('.results').forEach(card=>{
+    const wrap=card.querySelector('.scatter-wrap'); if(!wrap) return;
+    const circles=[...wrap.querySelectorAll('circle.pt')]; if(!circles.length) return;
+    const color={};
+    circles.forEach(c=>{ const s=seriesOf((c.querySelector('title')||{}).textContent||''); c.dataset.series=s||'';
+      if(s && !color[s]) color[s]=c.getAttribute('fill'); });
+    const present=ORDER.filter(s=>circles.some(c=>c.dataset.series===s));
+    const on=Object.fromEntries(present.map(s=>[s,true]));
+
+    // swap the in-SVG legend for an external clickable one in the stats row
+    const oldLeg=wrap.querySelector('.legend'); if(oldLeg) oldLeg.remove();
+    let host=card.querySelector('.results__legend');
+    if(!host){ host=document.createElement('div'); host.className='results__legend';
+      (card.querySelector('.results__top')||card).appendChild(host); }
+    host.innerHTML='';
+    present.forEach(s=>{
+      const b=document.createElement('button'); b.type='button'; b.className='leg-item on'; b.dataset.s=s;
+      b.innerHTML='<span class="leg-sw" style="background:'+color[s]+'"></span>'+LABEL[s];
+      b.addEventListener('click',()=>{
+        on[s]=!on[s]; b.classList.toggle('on',on[s]);
+        circles.forEach(c=>{ if(c.dataset.series===s){ c.style.opacity=on[s]?'1':'0'; c.style.pointerEvents=on[s]?'':'none'; }});
+      });
+      host.appendChild(b);
+    });
+
+    const ordered=circles.slice().sort((a,b)=>ORDER.indexOf(a.dataset.series)-ORDER.indexOf(b.dataset.series));
+    let revealed=false, timers=[];
+    const clearT=()=>{ timers.forEach(clearTimeout); timers=[]; };
+    function hideAll(){
+      clearT();
+      circles.forEach(c=>{ c.style.transition='none'; c.style.opacity='0';
+        c.style.transformOrigin=c.getAttribute('cx')+'px '+c.getAttribute('cy')+'px'; c.style.transform='scale(.35)'; });
+    }
+    function reveal(){
+      const shown=ordered.filter(c=>on[c.dataset.series]);
+      const stag=Math.min(110,Math.max(40,Math.round(1600/Math.max(1,shown.length))));
+      shown.forEach((c,idx)=>timers.push(setTimeout(()=>{
+        c.style.transition='opacity .55s ease, transform .8s cubic-bezier(.2,.7,.2,1)';
+        requestAnimationFrame(()=>{ c.style.opacity='1'; c.style.transform='scale(1)'; });
+      }, 140+idx*stag)));
+      timers.push(setTimeout(()=>circles.forEach(c=>{ c.style.transition=''; c.style.transform=''; c.style.transformOrigin=''; }),
+        140+shown.length*stag+850));
+    }
+    hideAll();
+    new IntersectionObserver(ents=>ents.forEach(e=>{
+      if(e.isIntersecting && !revealed){ revealed=true; reveal(); }
+      else if(!e.isIntersecting && revealed){ revealed=false; hideAll(); }
+    }),{threshold:.3}).observe(wrap);
   });
 }
 
@@ -656,6 +711,9 @@ document.addEventListener('click', e => {
   const m = (a.getAttribute('href').match(/module-(\d)/) || [, '7'])[1];
   show(+m, true);
 });
+
+/* scatter legends + scroll-reveal */
+initScatters();
 
 /* deep-link support + initial render */
 const start = (location.hash.match(/module-(\d)/) || [])[1];
